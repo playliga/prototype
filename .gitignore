@@ -21,3 +21,4 @@
 # Ignore other files.
 /production
 /log
+/config/startserver.bat
