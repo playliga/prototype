@@ -26,9 +26,10 @@ class LeagueTest < ActiveSupport::TestCase
 		assert !league.save
 	end
 	test 'default season num should be 1' do
-		# do work.
-	end
-	test 'num of divisions should be four' do
-		# not yet, settle down.
+		league = League.new
+		league.name = 'Primera Division'
+		league.save
+		
+		assert_equal(1, league.current_season)
 	end
 end
