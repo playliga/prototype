@@ -22,8 +22,8 @@ class LeagueTest < ActiveSupport::TestCase
 		league.save
 		
 		alt_league = League.new
-		league.name = 'Primera Division'
-		assert !league.save
+		alt_league.name = 'Primera Division'
+		assert !alt_league.save
 	end
 	test 'default season num should be 1' do
 		league = League.new
