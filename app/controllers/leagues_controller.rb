@@ -5,7 +5,6 @@ class LeaguesController < ApplicationController
 		leagues_arr = League.all
 		render :json => leagues_arr
 	end
-	
 	def show
 		league_obj = League.find(params[:id])
 		render :json => league_obj
