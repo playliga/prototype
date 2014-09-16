@@ -103,10 +103,16 @@ class TourneyTest < ActiveSupport::TestCase
 		t_obj.division = Division.find(1)
 		assert t_obj.league.name, 'tourney should get league name if found'
 	end
-	test 'get the competitor names for this tourney' do
-		# do work.
+	test '13' do
+		t_obj = Tourney.find(1)
+		assert t_obj.competitors, 'get the competitors for this tourney'
 	end
-	test 'get the group names for this tourney' do
-		# do work.
+	test '14' do
+		t_obj = Tourney.find(1)
+		if t_obj.is_roundrobin && t_obj.in_stage != 'Building'
+			assert t_obj.groups, 'get the groups for this tourney'
+		else
+			asset true
+		end
 	end
 end
