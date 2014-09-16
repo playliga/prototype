@@ -88,31 +88,4 @@ class TourneyTest < ActiveSupport::TestCase
 		t_obj.max_slots = 32
 		assert !t_obj.save, 'tourney must have a game set'
 	end
-	test '11' do
-		t_obj = Tourney.new
-		t_obj.open_slots = 32
-		t_obj.max_slots = 32
-		t_obj.division = Division.find(1)
-		assert t_obj.division.name, 'tourney should get division name if found'
-	end
-	test '12' do
-		t_obj = Tourney.new
-		t_obj.open_slots = 32
-		t_obj.max_slots = 32
-		t_obj.league = League.find(1)
-		t_obj.division = Division.find(1)
-		assert t_obj.league.name, 'tourney should get league name if found'
-	end
-	test '13' do
-		t_obj = Tourney.find(1)
-		assert t_obj.competitors, 'get the competitors for this tourney'
-	end
-	test '14' do
-		t_obj = Tourney.find(1)
-		if t_obj.is_roundrobin && t_obj.in_stage != 'Building'
-			assert t_obj.groups, 'get the groups for this tourney'
-		else
-			asset true
-		end
-	end
 end
