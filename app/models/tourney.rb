@@ -6,7 +6,8 @@ class Tourney < ActiveRecord::Base
 	validates :is_roundrobin, :is_autofill, exclusion:{ in: [true, false] }
 	validates :game, presence:true
 	
-	belongs_to :game
-	belongs_to :division
-	belongs_to :league
+	has_many :groups, inverse_of: :tourney
+	belongs_to :game, inverse_of: :tourneys
+	belongs_to :division, inverse_of: :tourneys
+	belongs_to :league, inverse_of: :tourneys
 end
