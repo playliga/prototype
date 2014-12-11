@@ -3,7 +3,7 @@ default: &default
   encoding: utf8
   pool: 5
   username: root
-  password: <%= ENV['LA-LIGA_DATABASE_PASSWORD'] %>
+  password: <%= ENV['LA_LIGA_DBPASS'] %>
   host: localhost
 
 development:
