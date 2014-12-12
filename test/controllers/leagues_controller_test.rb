@@ -23,7 +23,5 @@ class LeaguesControllerTest < ActionController::TestCase
 		response_obj = League.new
 		response_obj.from_json(response.body)
 		assert response_obj.id.is_a? Integer
-		
-		1.is_a? Integer
 	end
 end
