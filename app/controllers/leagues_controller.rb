@@ -10,12 +10,23 @@ class LeaguesController < ApplicationController
 		render :json => league_obj
 	end
 	def create
-		# fetch league object from request body.
-		# create league with information passed along.
-			# name, game, autofill.
-				# autofill is true by default if not passed.
-		# using league_id from above; create tourney pointing to league_id and placement division with 128(?) slots.
-		puts request.body.read
+		request_body = request.body.read
+		league_obj = League.new
+		league_obj.from_json(request_body)
+		league_obj.save
+		
+		# create tourney object.
+		# cant set autofill. must append league autofill field.
+		tourney_obj = Tourney.new
+		tourney_obj.league = league_obj
+		tourney_obj.game = Game.find(league_obj.game_id)
+		tourney_obj.division = Division.find(1);
+		tourney_obj.max_slots = 128;
+		tourney_obj.open_slots = 128;
+		
+		puts league_obj.to_yaml
+		puts tourney_obj.to_yaml
+		render :json => request.body.read, :status => :created
 	end
 	
 	def record_not_found
