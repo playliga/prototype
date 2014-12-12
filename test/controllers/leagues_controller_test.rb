@@ -13,4 +13,7 @@ class LeaguesControllerTest < ActionController::TestCase
 		assert league_obj['name']
 		assert_response :success
 	end
+	test 'create league reads request body' do
+		post :create, leagues(:ligue_1).to_json, 'CONTENT_TYPE' => 'application/json'
+	end
 end
