@@ -19,5 +19,11 @@ class LeaguesControllerTest < ActionController::TestCase
 		league_obj.game_id = 1
 		post :create, league_obj.to_json, 'CONTENT_TYPE' => 'application/json'
 		assert_response :created
+		
+		response_obj = League.new
+		response_obj.from_json(response.body)
+		assert response_obj.id.is_a? Integer
+		
+		1.is_a? Integer
 	end
 end
