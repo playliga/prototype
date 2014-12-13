@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-	resources :leagues, except: [:new, :edit]
+	resources :leagues, :competitors, except: [:new, :edit]
 end
