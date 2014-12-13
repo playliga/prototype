@@ -1,11 +1,8 @@
 class CompetitorsController < ApplicationController
 	rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 	
-	def create
-		obj = Competitor.new
-		puts obj.to_yaml
-		
-		render :json => obj, :status => :created
+	def create_to_league
+		puts request.body
 	end
 	
 	def record_not_found
