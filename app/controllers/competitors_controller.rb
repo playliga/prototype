@@ -1,8 +1,8 @@
 class CompetitorsController < ApplicationController
 	rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 	
-	def create_to_league
-		puts request.body
+	def create_league
+		puts request.body.read
 	end
 	
 	def record_not_found
