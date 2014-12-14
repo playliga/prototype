@@ -1,0 +1,11 @@
+cstrike_league_placement:
+  id: 1
+  league_id: 2
+  game_id: 1
+  division_id: 1
+  in_stage: Building
+  max_slots: 128
+  open_slots: 128
+  is_autofill: true
+  is_roundrobin: true
+  season_num: 1

@@ -5,6 +5,8 @@ class Tourney < ActiveRecord::Base
 	validates :max_slots, :open_slots, :season_num, numericality:{ only_integer:true }
 	validates :game, presence:true
 	
+	has_many :competitors, inverse_of: :tourney
+	
 	belongs_to :game, inverse_of: :tourneys
 	belongs_to :division, inverse_of: :tourneys
 	belongs_to :league, inverse_of: :tourneys
