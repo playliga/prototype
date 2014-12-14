@@ -28,6 +28,10 @@ class LeaguesController < ApplicationController
 		#puts tourney_obj.to_yaml
 		render :json => league_obj, :status => :created
 	end
+	def start
+		league_obj = League.find(params[:id])
+		puts league_obj.tourneys[0].competitors.length
+	end
 	
 	def record_not_found
 		render :json => {}
