@@ -28,6 +28,8 @@ class LeaguesControllerTest < ActionController::TestCase
 =begin
 need a league with placement division ready to start.
 placement division must have 128 players.
+
+matches for each division should be generated.
 =end
 	test 'start league first season' do		
 		post :start, 'CONTENT_TYPE' => 'application/json', :id => 3
