@@ -3,3 +3,15 @@ ligue_1:
   name: Ligue 1
   current_season: 1
   game_id: 1
+  
+cstrike_league:
+  id: 2
+  name: Counter-strike Classic
+  current_season: 1
+  game_id: 1
+  
+cstrike_first_season:
+  id: 3
+  name: Counter-strike Classic
+  current_season: 1
+  game_id: 1
