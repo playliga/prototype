@@ -11,6 +11,7 @@ class Tourney < ActiveRecord::Base
 	validates :game, presence:true
 	
 	has_many :competitors, inverse_of: :tourney
+	has_many :matches, inverse_of: :tourney
 	
 	belongs_to :game, inverse_of: :tourneys
 	belongs_to :division, inverse_of: :tourneys
