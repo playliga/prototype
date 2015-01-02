@@ -72,4 +72,12 @@ class TourneyTest < ActiveSupport::TestCase
 		t_obj.max_slots = 32
 		assert !t_obj.save, 'tourney must have a game set'
 	end
+	test '10' do
+		comps_arr = Competitor.take(9)
+		comps_arr.each do |competitor|
+			competitor.group_num = 1
+		end
+		Tourney.gen_matches(comps_arr)
+		assert true
+	end
 end
