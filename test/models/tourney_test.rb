@@ -73,26 +73,18 @@ class TourneyTest < ActiveSupport::TestCase
 		assert !t_obj.save, 'tourney must have a game set'
 	end
 	test '10' do
+		NUM_TIMES_TO_FACE = 2
+		
 		comps_arr = Competitor.take(9)
 		comps_arr.each do |competitor|
 			competitor.group_num = 1
 		end
-		Tourney.gen_matches(comps_arr)
+		Tourney.gen_matches(comps_arr, NUM_TIMES_TO_FACE)
 		
+		total_num_games = (comps_arr.length - 1) * NUM_TIMES_TO_FACE
 		comps_arr.each do |competitor|
 			assert competitor.group_num == 1, 'group number was not updated'
-			assert competitor.matches.length == 8, 'competitor does not have 8 matches'
-		end
-	end
-	test '11' do
-		comps_arr = Competitor.take(9)
-		comps_arr.each do |competitor|
-			competitor.group_num = 1
-		end
-		Tourney.gen_matches(comps_arr, 2)
-		
-		comps_arr.each do |competitor|
-			assert competitor.matches.length == 16, 'number of times to face an opponent not working'
+			assert competitor.matches.length == total_num_games, 'number of times to face an opponent not working'
 		end
 	end
 end
