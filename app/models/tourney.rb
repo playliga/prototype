@@ -31,7 +31,7 @@ class Tourney < ActiveRecord::Base
 				match_obj.tourney = tourney_obj
 				match_obj.group_num = group_num
 				match_obj.competitors = [comps_arr[current], comps_arr[opponent]]
-				# relationship not working. run rake test for more info...
+				match_obj.save
 				opponent += 1
 			end
 			current += 1
