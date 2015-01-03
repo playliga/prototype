@@ -18,25 +18,24 @@ class Tourney < ActiveRecord::Base
 	belongs_to :league, inverse_of: :tourneys
 	
 	def self.gen_matches(comps_arr, times_to_play = 1)
-		tourney_obj = Tourney.find(comps_arr[0].tourney.id)
-		group_num = comps_arr[0].group_num
-		total_num_matches = (comps_arr.length - 1) * times_to_play
+		matches_arr = Array.new
 		current = 0
+		num_times_played = 0
 		
 		while current < comps_arr.length
 			opponent = current + 1
 			while opponent < comps_arr.length
-				match_obj = Match.new
-				match_obj.tourney = tourney_obj
-				match_obj.group_num = group_num
-				match_obj.competitors = [comps_arr[current], comps_arr[opponent]]
-				match_obj.save
+				matches_arr.push(Array.new([comps_arr[current].name, comps_arr[opponent].name]))
 				opponent += 1
 			end
 			
-			# only increment when the number of matches for this competitor = calculated num of matches.
-			num_matches = comps_arr[current].matches.where(tourney_id: tourney_obj.id, group_num: group_num).count
-			current += 1 if num_matches >= total_num_matches
+			num_times_played += 1
+			if num_times_played >= times_to_play
+				current += 1
+				num_times_played = 0
+			end
 		end
+		
+		matches_arr
 	end
 end

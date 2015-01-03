@@ -74,16 +74,22 @@ class TourneyTest < ActiveSupport::TestCase
 	end
 	test '10' do
 		NUM_TIMES_TO_FACE = 2
-		
 		comps_arr = Competitor.take(9)
-		comps_arr.each do |competitor|
-			competitor.group_num = 1
+		matches_arr = Tourney.gen_matches(comps_arr, NUM_TIMES_TO_FACE)
+		
+		matches_arr.each do |item|
+			match_obj = Match.new
+			match_obj.tourney_id = comps_arr[0].tourney.id
+			match_obj.group_num = comps_arr[0].group_num
+			
+			p1 = Competitor.where({name: item[0], tourney_id: comps_arr[0].tourney.id}).first
+			p2 = Competitor.where({name: item[1], tourney_id: comps_arr[0].tourney.id}).first
+			match_obj.competitors = [p1, p2]
+			match_obj.save
 		end
-		Tourney.gen_matches(comps_arr, NUM_TIMES_TO_FACE)
 		
 		total_num_games = (comps_arr.length - 1) * NUM_TIMES_TO_FACE
 		comps_arr.each do |competitor|
-			assert competitor.group_num == 1, 'group number was not updated'
 			assert competitor.matches.length == total_num_games, 'number of times to face an opponent not working'
 		end
 	end
