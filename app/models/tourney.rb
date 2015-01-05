@@ -11,8 +11,31 @@ class Tourney < ActiveRecord::Base
 	validates :game, presence:true
 	
 	has_many :competitors, inverse_of: :tourney
+	has_many :matches, inverse_of: :tourney
 	
 	belongs_to :game, inverse_of: :tourneys
 	belongs_to :division, inverse_of: :tourneys
 	belongs_to :league, inverse_of: :tourneys
+	
+	def self.gen_matches(comps_arr, times_to_play = 1)
+		matches_arr = Array.new
+		current = 0
+		num_times_played = 0
+		
+		while current < comps_arr.length
+			opponent = current + 1
+			while opponent < comps_arr.length
+				matches_arr.push(Array.new([comps_arr[current].name, comps_arr[opponent].name]))
+				opponent += 1
+			end
+			
+			num_times_played += 1
+			if num_times_played >= times_to_play
+				current += 1
+				num_times_played = 0
+			end
+		end
+		
+		matches_arr
+	end
 end

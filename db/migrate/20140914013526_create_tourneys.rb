@@ -6,7 +6,6 @@ class CreateTourneys < ActiveRecord::Migration
 			t.integer :max_slots, :null => false
 			t.integer :open_slots, :null => false
 			t.integer :season_num, :null => true, :default => 1
-			t.boolean :is_autofill, :null => true, :default => 1
 			t.boolean :is_roundrobin, :null => true, :default => 1
 			
 			t.belongs_to :division, :null => true
