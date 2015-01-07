@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-	resources :leagues, :competitors, except: [:new, :edit]
+	resources :leagues, :competitors, :matches, except: [:new, :edit]
 	
 	# leagues have another route that starts it.
 	post '/leagues/:id/start', to: 'leagues#start'
