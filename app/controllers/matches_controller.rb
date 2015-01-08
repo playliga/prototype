@@ -1,3 +1,5 @@
 class MatchesController < ApplicationController
-	# do work.
+	def update
+		render :json => 'match updated'
+	end
 end

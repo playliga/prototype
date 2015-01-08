@@ -21,3 +21,14 @@ cstrike_first_season_placement:
   is_autofill: true
   is_roundrobin: true
   season_num: 1
+  
+match_reporting_tester:
+  id: 3
+  league_id: 2
+  game_id: 1
+  division_id: 2
+  in_stage: Group Stage
+  max_slots: 128
+  open_slots: 0
+  is_roundrobin: true
+  season_num: 1
