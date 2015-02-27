@@ -4,6 +4,8 @@ class Tourney < ActiveRecord::Base
 	STAGE_WAITING = 'Waiting'
 	STAGE_COMPLETED = 'Completed'
 	
+	STAGE_GROUPS = 'Group Stage'
+	
 	validates :name, uniqueness:true, length:{ maximum: 128 }, allow_blank: true
 	validates :in_stage, length:{ maximum: 32 }
 	validates :max_slots, :open_slots, presence:true
