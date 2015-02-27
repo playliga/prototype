@@ -647,3 +647,43 @@ Report_Match_Tester_2:
   id: 130
   tourney_id: 3
   name: Tester 2
+  
+endseason_tester_1:
+  id: 131
+  tourney_id: 4
+  name: ES Tester 1
+  
+endseason_tester_2:
+  id: 132
+  tourney_id: 4
+  name: ES Tester 2
+  
+endseason_tester_3:
+  id: 133
+  tourney_id: 4
+  name: ES Tester 3
+  
+endseason_tester_4:
+  id: 134
+  tourney_id: 4
+  name: ES Tester 4
+  
+endseason_tester_5:
+  id: 135
+  tourney_id: 4
+  name: ES Tester 5
+  
+endseason_tester_6:
+  id: 136
+  tourney_id: 4
+  name: ES Tester 6
+  
+endseason_tester_7:
+  id: 137
+  tourney_id: 4
+  name: ES Tester 7
+
+endseason_tester_8:
+  id: 138
+  tourney_id: 4
+  name: ES Tester 8

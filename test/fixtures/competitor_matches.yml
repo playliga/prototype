@@ -9,3 +9,51 @@ report_tester_2:
   competitor_id: 130
   match_id: 2
   score: 0
+  
+endseason_tester_1:
+  id: 3
+  competitor_id: 131
+  match_id: 3
+  score: 1
+  
+endseason_tester_2:
+  id: 4
+  competitor_id: 132
+  match_id: 3
+  score: 1
+  
+endseason_tester_3:
+  id: 5
+  competitor_id: 133
+  match_id: 4
+  score: 1
+  
+endseason_tester_4:
+  id: 6
+  competitor_id: 134
+  match_id: 4
+  score: 1
+  
+endseason_tester_5:
+  id: 7
+  competitor_id: 135
+  match_id: 5
+  score: 1
+  
+endseason_tester_6:
+  id: 8
+  competitor_id: 136
+  match_id: 5
+  score: 1
+  
+endseason_tester_7:
+  id: 9
+  competitor_id: 137
+  match_id: 6
+  score: 0
+  
+endseason_tester_8:
+  id: 10
+  competitor_id: 138
+  match_id: 6
+  score: 0
