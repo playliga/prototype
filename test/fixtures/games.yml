@@ -1,9 +1,9 @@
-1:
+cstrike:
   id: 1
   name: Counter-Strike
-  alias: cstrike
+  short_name: cstrike
 
-2:
+qlive:
   id: 2
   name: Quake Live
-  alias: qlive
+  short_name: qlive

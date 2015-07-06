@@ -1,19 +1,19 @@
-1:
+placement:
   id: 1
   name: Placement
 
-2:
+open:
   id: 2
   name: Open
 
-3:
+intermediate:
   id: 3
   name: Intermediate
 
-4:
+main:
   id: 4
   name: Main
 
-5:
+invite:
   id: 5
   name: Invite

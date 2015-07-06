@@ -1,6 +1,44 @@
-1:
+cstrike_league_placement:
   id: 1
+  league_id: 2
   game_id: 1
-  in_stage: Groups
-  max_slots: 32
+  division_id: 1
+  in_stage: Building
+  max_slots: 128
+  open_slots: 128
+  is_autofill: true
+  is_roundrobin: true
+  season_num: 1
+  
+cstrike_first_season_placement:
+  id: 2
+  league_id: 3
+  game_id: 1
+  division_id: 1
+  in_stage: Ready
+  max_slots: 128
   open_slots: 0
+  is_autofill: true
+  is_roundrobin: true
+  season_num: 1
+  
+match_reporting_tester:
+  id: 3
+  league_id: 2
+  game_id: 1
+  division_id: 2
+  in_stage: Group Stage
+  max_slots: 128
+  open_slots: 0
+  is_roundrobin: true
+  season_num: 1
+  
+endseason_tester:
+  id: 4
+  game_id: 1
+  division_id: 1
+  in_stage: Group Stage
+  max_slots: 128
+  open_slots: 0
+  is_roundrobin: true
+  season_num: 1
