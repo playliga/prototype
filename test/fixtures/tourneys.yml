@@ -32,3 +32,13 @@ match_reporting_tester:
   open_slots: 0
   is_roundrobin: true
   season_num: 1
+  
+endseason_tester:
+  id: 4
+  game_id: 1
+  division_id: 1
+  in_stage: Group Stage
+  max_slots: 128
+  open_slots: 0
+  is_roundrobin: true
+  season_num: 1

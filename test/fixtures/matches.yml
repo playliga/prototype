@@ -5,3 +5,22 @@ match_1:
 match_2:
   id: 2
   tourney_id: 3
+  
+endseason_match_1:
+  id: 3
+  tourney_id: 4
+  is_reported: true
+  
+endseason_match_2:
+  id: 4
+  tourney_id: 4
+  is_reported: true
+  
+endseason_match_3:
+  id: 5
+  tourney_id: 4
+  is_reported: true
+  
+endseason_match_4:
+  id: 6
+  tourney_id: 4
