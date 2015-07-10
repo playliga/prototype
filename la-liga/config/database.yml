@@ -1,0 +1,21 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  username: root
+  password:
+  socket: /var/run/mysqld/mysqld.sock
+
+development:
+  <<: *default
+  database: la-liga_development
+
+test:
+  <<: *default
+  database: la-liga_test
+
+production:
+  <<: *default
+  database: la-liga_production
+  username: la-liga
+  password: <%= ENV['LALIGA_DBPASS'] %>
