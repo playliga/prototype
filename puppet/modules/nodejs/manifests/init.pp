@@ -6,4 +6,9 @@ class nodejs::install {
 	]:
 		ensure => installed,
 	}
+
+  exec { 'install grunt globally':
+    subscribe => Package['npm'],
+    command => 'npm install grunt-cli -g'
+  }
 }

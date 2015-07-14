@@ -3,8 +3,8 @@ module.exports = function(grunt){
     pkg: grunt.file.readJSON('package.json'),
     browserify: {
       develop: {
-        src: './js/renderer/main.js',
-        dest: './bundle.js',
+        src: './renderer/main.js',
+        dest: './build/bundle.js',
         options: {
           transform: ['reactify']
         }
@@ -13,11 +13,11 @@ module.exports = function(grunt){
     less: {
       develop: {
         options: {
-          paths: ['./less'],
+          paths: ['./static/less'],
           compress: true
         },
         files: {
-          './bundle.css': './less/main.less'
+          './build/bundle.css': './static/less/main.less'
         }
       }
     },
@@ -30,7 +30,7 @@ module.exports = function(grunt){
           ]
         },
         dist: {
-          src: './bundle.css'
+          src: './build/bundle.css'
         }
       }
     },
@@ -46,8 +46,8 @@ module.exports = function(grunt){
           'cp ./package.json ../dist/resources/app',
           'cp ./index.js ../dist/resources/app',
           'cp ./index.html ../dist/resources/app',
-          'cp ./bundle.css ../dist/resources/app',
-          'cp ./bundle.js ../dist/resources/app'
+          'cp ./build/bundle.css ../dist/resources/app',
+          'cp ./build/bundle.js ../dist/resources/app'
         ].join('&&')
       }
     }
