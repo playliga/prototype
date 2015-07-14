@@ -9,3 +9,4 @@ Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin"
 
 # run dem jawns
 class { 'git::install': }
+class { 'nodejs::install': }

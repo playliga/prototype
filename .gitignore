@@ -1,2 +1,6 @@
 /.vagrant
+/dist
+node_modules/
 *.swp
+bundle.css
+bundle.js
