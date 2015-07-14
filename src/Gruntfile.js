@@ -4,7 +4,7 @@ module.exports = function(grunt){
     browserify: {
       develop: {
         src: './renderer/main.js',
-        dest: './build/bundle.js',
+        dest: './static/bundle.js',
         options: {
           transform: ['reactify']
         }
@@ -13,11 +13,11 @@ module.exports = function(grunt){
     less: {
       develop: {
         options: {
-          paths: ['./static/less'],
+          paths: ['./less'],
           compress: true
         },
         files: {
-          './build/bundle.css': './static/less/main.less'
+          './static/bundle.css': './less/main.less'
         }
       }
     },
@@ -30,7 +30,7 @@ module.exports = function(grunt){
           ]
         },
         dist: {
-          src: './build/bundle.css'
+          src: './static/bundle.css'
         }
       }
     },
@@ -44,10 +44,8 @@ module.exports = function(grunt){
       copySrc: {
         command: [
           'cp ./package.json ../dist/resources/app',
-          'cp ./index.js ../dist/resources/app',
-          'cp ./index.html ../dist/resources/app',
-          'cp ./build/bundle.css ../dist/resources/app',
-          'cp ./build/bundle.js ../dist/resources/app'
+          'cp ./main.js ../dist/resources/app',
+          'cp -r ./static ../dist/resources/app',
         ].join('&&')
       }
     }
@@ -58,5 +56,7 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-postcss');
   grunt.loadNpmTasks('grunt-shell');
 
-  grunt.registerTask('build', ['browserify:develop','less:develop','postcss:develop','shell:prunePrev','shell:copySrc']);
+  grunt.registerTask('build', [
+    'browserify:develop','less:develop','postcss:develop','shell:prunePrev','shell:copySrc'
+  ]);
 }
