@@ -1,10 +1,13 @@
 module.exports = function(grunt){
+  var RENDERER_ROOT = './renderer';
+  var DIST_ROOT = '../dist/linux-x64/resources/app';
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     browserify: {
       develop: {
-        src: './renderer/main.js',
-        dest: './static/bundle.js',
+        src: RENDERER_ROOT + '/main.js',
+        dest: RENDERER_ROOT + '/static/bundle.js',
         options: {
           transform: ['reactify']
         }
@@ -13,11 +16,11 @@ module.exports = function(grunt){
     less: {
       develop: {
         options: {
-          paths: ['./less'],
+          paths: [RENDERER_ROOT + '/less'],
           compress: true
         },
         files: {
-          './static/bundle.css': './less/main.less'
+          './renderer/static/bundle.css': RENDERER_ROOT + '/less/main.less'
         }
       }
     },
@@ -30,22 +33,22 @@ module.exports = function(grunt){
           ]
         },
         dist: {
-          src: './static/bundle.css'
+          src: RENDERER_ROOT + '/static/bundle.css'
         }
       }
     },
     shell: {
       prunePrev: {
         command: [
-          'rm -rf ../dist/resources/app',
-          'mkdir ../dist/resources/app'
+          'rm -rf ' + DIST_ROOT,
+          'mkdir ' + DIST_ROOT
         ].join('&&')
       },
       copySrc: {
         command: [
-          'cp ./package.json ../dist/resources/app',
-          'cp ./main.js ../dist/resources/app',
-          'cp -r ./static ../dist/resources/app',
+          'cp ./package.json ' + DIST_ROOT,
+          'cp ./main.js ' + DIST_ROOT,
+          'cp -r ' + RENDERER_ROOT + '/static ' + DIST_ROOT,
         ].join('&&')
       }
     }
