@@ -3,14 +3,11 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "express": "4.9.7",
     "flux": "2.0.1",
     "keymirror": "0.1.0",
     "react": "0.13.0"
   },
   "devDependencies": {
-    "electron-rebuild": "0.2.3",
-    "electron-prebuilt": "0.29.2",
     "grunt": "0.4.5",
     "grunt-browserify": "3.8.0",
     "grunt-contrib-less": "1.0.0",
