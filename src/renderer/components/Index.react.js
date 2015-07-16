@@ -1,4 +1,5 @@
 var React = require('react');
+var assign = require('object-assign');
 
 var fieldValues = {
   username: null,
@@ -36,6 +37,11 @@ var BasicFields = React.createClass({
   _saveAndContinue: function(e){
     e.preventDefault();
 
+    var data = {
+      username: this.refs.username.getDOMNode().value
+    }
+    
+    this.props.saveValues(data);
     this.props.nextStep();
   }
 });
@@ -44,6 +50,7 @@ var CareerFields = React.createClass({
   render: function(){
     return(
       <form>
+        <h1>Team Info</h1>
         <div className="form-group">
           <input  type="text"
                   className="form-control"
@@ -67,8 +74,31 @@ var CareerFields = React.createClass({
 
   _saveAndContinue: function(e){
     e.preventDefault();
+    
+    var data = {
+      teamname: this.refs.teamname.getDOMNode().value
+    }
 
+    this.props.saveValues(data);
     this.props.nextStep();
+  }
+});
+
+var SquadFields = React.createClass({
+  render: function(){
+    return(
+      <form>
+        <h1>Select Squad</h1>
+        <div className="form-group">
+          <button className="btn btn-primary" onClick={this._saveAndContinue}>Finish</button>
+        </div>
+      </form>
+    );
+  },
+
+  _saveAndContinue: function(e){
+    e.preventDefault();
+    console.log(this.props.fieldValues);
   }
 });
 
@@ -88,6 +118,9 @@ var Index = React.createClass({
       case 2:
         CurrentStep = CareerFields;
         break;
+      case 3:
+        CurrentStep = SquadFields;
+        break;
     }
 
     return(
@@ -95,6 +128,8 @@ var Index = React.createClass({
         <CurrentStep
             fieldValues={fieldValues}
             nextStep={this.nextStep}
+            saveValues={this.saveValues}
+            submitFinal={this.submitFinal}
         />
       </div>
     );
@@ -104,6 +139,14 @@ var Index = React.createClass({
     this.setState({
       step: this.state.step + 1
     });
+  },
+  saveValues: function(field_value){
+    return function(){
+      fieldValues = assign({}, fieldValues, field_value);
+    }.bind(this)()
+  },
+  submitFinal: function(){
+    // process everything and begin the career
   }
 });
 
