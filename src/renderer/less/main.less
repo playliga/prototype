@@ -1,0 +1,30 @@
+@import '../../node_modules/bootstrap/less/bootstrap.less';
+@import '../../node_modules/font-awesome/less/font-awesome.less';
+@import 'variables.less';
+
+#welcome-splash {
+  position:relative;
+  background-image:url('http://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-235907.jpg');
+  background-size:cover;
+  background-position:50% 0;
+  background-repeat:no-repeat;
+  width:100vw; height:100vh;
+  margin:0;
+
+  form {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%, -50%);
+    background-color:@welcome-form-bgcolor;
+    box-shadow:6px 6px 20px fadeout(#000, 50%);
+    border:1px solid @welcome-form-bordercolor;
+    width:@welcome-form-width;
+    padding:@mp-medium;
+
+    h1 {
+      margin:0; margin-bottom:@mp-medium;
+      color:darken(@welcome-form-bgcolor, 10%);
+      font-variant:small-caps;
+      text-shadow:0px 2px 3px lighten(@welcome-form-bgcolor, 5%);
+    }
+  }
+}
