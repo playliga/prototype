@@ -62,6 +62,7 @@ var Index = React.createClass({
 
   submitFinal: function(){
     // process everything and begin the career
+    console.log(fieldValues);
   }
 });
 
