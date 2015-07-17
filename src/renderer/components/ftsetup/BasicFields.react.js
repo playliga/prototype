@@ -1,6 +1,25 @@
 var React = require('react');
+var CountryStore = require('../../stores/CountryStore');
+
+function getStateFromStores(){
+  return {
+    countries: CountryStore.getAll()
+  };
+}
 
 var BasicFields = React.createClass({
+  getInitialState: function(){
+    return getStateFromStores();
+  },
+
+  componentDidMount: function(){
+    CountryStore.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function(){
+    CountryStore.removeChangeListener(this._onChange);
+  },
+
   render: function(){
     return(
       <form>
@@ -24,6 +43,12 @@ var BasicFields = React.createClass({
         <button className="btn btn-primary" onClick={this._saveAndContinue}>Save and Continue</button>
       </form>
     );
+  },
+  
+  _onChange: function(){
+    console.log(this.state.countries);
+
+    this.setState(getStateFromStores());
   },
 
   _saveAndContinue: function(e){

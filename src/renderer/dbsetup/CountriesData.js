@@ -1,7 +1,8 @@
 var PouchDB = require('pouchdb');
-var db = PouchDB('la-liga');
+var db = PouchDB('la-liga-countries');
+var CountriesActionCreators = require('../actions/CountriesActionCreators');
 
-var countriesArr = [ 
+var _countriesArr = [ 
   {name: 'Afghanistan', _id: 'AF'}, 
   {name: 'Aland Islands', _id: 'AX'}, 
   {name: 'Albania', _id: 'AL'}, 
@@ -247,18 +248,25 @@ var countriesArr = [
   {name: 'Zimbabwe', _id: 'ZW'} 
 ];
 
-function _loadAllCountries(){
-  console.log('all countries loaded');
+function _loadAllCountries(data){
+  if(typeof(data) === 'undefined'){
+    db.allDocs({include_docs: true}).then(function(innerData){
+      CountriesActionCreators.receiveAll(innerData);
+    });
+  } else CountriesActionCreators.receiveAll(data);
 }
 
 module.exports = {
   init: function(){
-    db.get('countries').catch(function(err){
-      if(err.status === 404) db.bulkDocs(countriesArr);
+    db.allDocs({include_docs: true}).then(function(data){
+      if(data.total_rows > 0) _loadAllCountries(data);
+      else throw true;
     }).catch(function(err){
-      console.log(err);
+      db.bulkDocs(_countriesArr).then(function(res){
+        _loadAllCountries();
+      });
+    }).catch(function(err){
+      // TODO: at this point we still do not have data. throw an exception.
     });
-
-    _loadAllCountries();
   }
 };
