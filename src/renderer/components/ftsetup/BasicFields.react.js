@@ -1,5 +1,8 @@
 var React = require('react');
+var Select = require('react-select');
 var CountryStore = require('../../stores/CountryStore');
+
+var selectedValue = 'US';
 
 function getStateFromStores(){
   return {
@@ -21,33 +24,43 @@ var BasicFields = React.createClass({
   },
 
   render: function(){
+    var options = [];
+    
+    if(typeof(this.state.countries) !== 'undefined' && options.length === 0){
+      this.state.countries.map(function(country){
+        options.push({ value: country.id, label: country.doc.name });
+      });
+    };
+
     return(
       <form>
         <h1>Basic Info</h1>
         <div className="form-group">
-          <input  type="text"
-                  className="form-control"
-                  ref="username"
-                  placeholder="Your username"
-                  defaultValue={this.props.fieldValues.username}
+          <input
+            type="text"
+            className="form-control"
+            ref="username"
+            placeholder="Your username"
+            defaultValue={this.props.fieldValues.username}
           />
         </div>
         <div className="form-group">
-          <select className="form-control">
-            <option>Country</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-          </select>
+          <Select
+              name="form-field-name"
+              options={options}
+              onChange={this._selectOnChange}
+          />
         </div>
         <button className="btn btn-primary" onClick={this._saveAndContinue}>Save and Continue</button>
       </form>
     );
   },
   
-  _onChange: function(){
-    console.log(this.state.countries);
+  _selectOnChange: function(val){
+    selectedValue = val;
+  },
 
+  _onChange: function(){
     this.setState(getStateFromStores());
   },
 
@@ -55,12 +68,13 @@ var BasicFields = React.createClass({
     e.preventDefault();
 
     var data = {
-      username: this.refs.username.getDOMNode().value
+      username: this.refs.username.getDOMNode().value,
+      userCountryCode: selectedValue
     }
-    
+
     this.props.saveValues(data);
     this.props.nextStep();
   }
 });
 
-module.exports = BasicFields
+module.exports = BasicFields;

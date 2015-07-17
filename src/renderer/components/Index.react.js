@@ -9,9 +9,9 @@ require('../dbsetup/CountriesData').init();
 
 var fieldValues = {
   username: null,
-  user_countrycode: null,
+  userCountryCode: null,
   teamname: null,
-  team_countrycode: null
+  teamCountryCode: null
 };
 
 var Index = React.createClass({

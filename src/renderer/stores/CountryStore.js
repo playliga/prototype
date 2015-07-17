@@ -3,7 +3,7 @@ var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
-var _data = {};
+var _data = undefined;
 
 var CountryStore = assign({}, EventEmitter.prototype, {
   emitChange: function(){
