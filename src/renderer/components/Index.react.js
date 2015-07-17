@@ -5,6 +5,8 @@ var BasicFields = require('./ftsetup/BasicFields.react');
 var CareerFields = require('./ftsetup/CareerFields.react');
 var SquadFields = require('./ftsetup/SquadFields.react');
 
+require('../dbsetup/CountriesData').init();
+
 var fieldValues = {
   username: null,
   user_countrycode: null,
