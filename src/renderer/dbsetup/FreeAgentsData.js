@@ -25,6 +25,8 @@
 var PouchDB = require('pouchdb');
 var dbTeams = PouchDB('la-liga-teams');
 var dbPlayers = PouchDB('la-liga-players');
+var PlayerActionCreators = require('../actions/PlayerActionCreators');
+var TeamActionCreators = require('../actions/TeamActionCreators');
 
 var teamObj = {
   _id: 'freeagents',
@@ -63,14 +65,21 @@ function BasePlayer(username){
   }
 }
 
-function loadPlayers(data){
+function loadAllPlayers(data){
   if(typeof(data) === 'undefined'){
     dbPlayers.allDocs({include_docs: true}).then(function(innerData){
-      //CountriesActionCreators.receiveAll(innerData);
+      PlayerActionCreators.receiveAll(innerData);
     });
-  } else true //CountriesActionCreators.receiveAll(data);
+  } else PlayerActionCreators.receiveAll(data);
 }
 
+function loadAllTeams(data){
+  if(typeof(data) === 'undefined'){
+    dbTeams.allDocs({include_docs: true}).then(function(innerData){
+      TeamActionCreators.receiveAll(innerData);
+    });
+  } else TeamActionCreators.receiveAll(data);
+}
 
 for(var i = 0; i < nameArr.length; i++){
   var playerObj = new BasePlayer(nameArr[i]);
@@ -89,7 +98,28 @@ for(var i = 0; i < nameArr.length; i++){
 
 module.exports = {
   init: function(){
-    console.log(teamObj);
-    console.log(playerArr);
+    // save players to db and load to state
+    dbPlayers.allDocs({include_docs: true}).then(function(data){
+      if(data.total_rows > 0) loadAllPlayers(data);
+      else throw true;
+    }).catch(function(err){
+      dbPlayers.bulkDocs(playerArr).then(function(res){
+        loadAllPlayers();
+      });
+    }).catch(function(err){
+      // TODO: at this point we still do not have data. throw an exception.
+    });
+
+    // save free agents team to db and load to state
+    dbTeams.allDocs({include_docs: true}).then(function(data){
+      if(data.total_rows > 0) loadAllTeams(data);
+      else throw true;
+    }).catch(function(err){
+      dbTeams.put(teamObj).then(function(res){
+        loadAllTeams();
+      });
+    }).catch(function(err){
+      // TODO: at this point still no data. trow an exception
+    });
   }
 };

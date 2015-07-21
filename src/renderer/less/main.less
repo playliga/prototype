@@ -25,7 +25,14 @@
     border:1px solid @welcome-form-bordercolor;
     width:@welcome-form-width;
     padding:@mp-medium;
-
+    
+    &.player-list {
+      left:@mp-medium;
+      transform:translate(0, -50%);
+      width:60%; height:90%;
+      overflow-y:scroll;
+      color:white;
+    }
     h1 {
       margin:0; margin-bottom:@mp-medium;
       color:darken(@welcome-form-bgcolor, 10%);
