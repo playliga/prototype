@@ -30,12 +30,15 @@
       left:@mp-medium;
       transform:translate(0, -50%);
       width:60%; height:90%;
-      color:white;
+      color:@base-fontcolor;
 
       .form-group {
         height:80%;
-        cursor:pointer;
         overflow-y:scroll;
+      }
+      
+      table {
+        cursor:pointer;
       }
     }
     h1 {
@@ -43,6 +46,33 @@
       color:darken(@welcome-form-bgcolor, 10%);
       font-variant:small-caps;
       text-shadow:0px 2px 3px lighten(@welcome-form-bgcolor, 5%);
+    }
+  }
+
+  #squad-list {
+    position:absolute; right:@mp-medium; top:50%;
+    transform:translate(0, -50%);
+    width:30%;
+    color:@base-fontcolor;
+
+    & > div {
+      position:relative;
+      background-color:@welcome-form-bgcolor;
+      box-shadow:6px 6px 20px fadeout(#000, 50%);
+      border:1px solid @welcome-form-bordercolor;
+      border-top:0;
+      padding:@mp-medium; margin-bottom:@mp-medium + @mp-small;
+      
+      &::before {
+        position:absolute; left:-1px; top:-5px; bottom:-1px; right:-1px;
+        content:""; display:block;
+        color:transparent;
+        font-size:0;
+        border-top:5px solid green;
+      }
+      p:first-child {
+        font-size:1.5em; font-weight:bold;
+      }
     }
   }
 }
