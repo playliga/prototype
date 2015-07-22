@@ -25,22 +25,24 @@ var SquadFields = React.createClass({
     return(
       <form className="player-list">
         <h1>Select Squad</h1>
-        <table className="form-group table">
-          <thead><tr>
-            <th>Name</th><th>Skill Level</th><th>Preferred Weapon</th>
-          </tr></thead>
-          <tbody>
-            {this.state.players.map(function(player){
-              return(
-                <tr key={player.doc._id} onClick={_self._onRowClick}>
-                  <td>{player.doc.username}</td>
-                  <td>{player.doc.skillTemplate}</td>
-                  <td>{player.doc.weaponTemplate}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="form-group">
+          <table className="table">
+            <thead><tr>
+              <th>Name</th><th>Skill Level</th><th>Preferred Weapon</th>
+            </tr></thead>
+            <tbody>
+              {this.state.players.map(function(player){
+                return(
+                  <tr key={player.doc._id} onClick={_self._onRowClick}>
+                    <td>{player.doc.username}</td>
+                    <td>{player.doc.skillTemplate}</td>
+                    <td>{player.doc.weaponTemplate}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
         <button className="btn btn-primary" onClick={this._saveAndContinue}>Finish</button>
       </form>
     );
