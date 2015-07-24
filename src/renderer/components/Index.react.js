@@ -16,6 +16,14 @@ var fieldValues = {
   squadList: null
 };
 
+var LoadingScreen = React.createClass({
+  render: function(){
+    return(
+      <h1 className="no-margin-top">Loading that jawn...</h1>
+    );
+  }
+});
+
 var Index = React.createClass({
   getInitialState: function(){
     return({
@@ -35,6 +43,9 @@ var Index = React.createClass({
         break;
       case 3:
         CurrentStep = SquadFields;
+        break;
+      case 4:
+        CurrentStep = LoadingScreen;
         break;
     }
 
@@ -63,10 +74,9 @@ var Index = React.createClass({
   },
 
   submitFinal: function(){
-    // show loading bar/icon notifying the user that the career is being built
-    // close current window
-    // browser process opens up new one with parsed data
-    console.log(fieldValues);
+    // TODO: update freeagents team store by removing the players that the user selected.
+    // TODO: initialize other stuff...
+    this.nextStep(); // shows the loading component
   }
 });
 
