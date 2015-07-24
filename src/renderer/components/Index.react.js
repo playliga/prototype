@@ -12,7 +12,8 @@ var fieldValues = {
   username: null,
   userCountryCode: null,
   teamname: null,
-  teamCountryCode: null
+  teamCountryCode: null,
+  squadList: null
 };
 
 var Index = React.createClass({
@@ -62,7 +63,9 @@ var Index = React.createClass({
   },
 
   submitFinal: function(){
-    // process everything and begin the career
+    // show loading bar/icon notifying the user that the career is being built
+    // close current window
+    // browser process opens up new one with parsed data
     console.log(fieldValues);
   }
 });

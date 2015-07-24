@@ -1,4 +1,5 @@
 var React = require('react');
+var assign = require('object-assign');
 var PlayerStore = require('../../stores/PlayerStore');
 
 function getStateFromStores(){
@@ -9,7 +10,9 @@ function getStateFromStores(){
 
 var SquadFields = React.createClass({
   getInitialState: function(){
-   return getStateFromStores(); 
+    return assign({
+      squadList: []
+    }, getStateFromStores());
   },
 
   componentDidMount: function(){
@@ -34,7 +37,7 @@ var SquadFields = React.createClass({
               <tbody>
                 {this.state.players.map(function(player){
                   return(
-                    <tr key={player.doc._id} onClick={_self._onRowClick}>
+                    <tr key={player.doc._id} onClick={_self._onRowClick.bind(null, player)}>
                       <td>{player.doc.username}</td>
                       <td>{player.doc.skillTemplate}</td>
                       <td>{player.doc.weaponTemplate}</td>
@@ -48,14 +51,14 @@ var SquadFields = React.createClass({
         </form>
 
         <div id="squad-list">
-          <div>
-            <p>Henrik Larsson</p>
-            <p>Medium (11-21)</p>
-          </div>
-          <div>
-            <p>Jonas Gurnich</p>
-            <p>Easy (0-10)</p>
-          </div>
+          {this.state.squadList.map(function(player){
+            return(
+              <div key={player.doc._id}>
+                <p>{player.doc.username}</p>
+                <p>{player.doc.skillTemplate}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -65,14 +68,29 @@ var SquadFields = React.createClass({
     this.setState(getStateFromStores());
   },
 
-  _onRowClick: function(e){
-    console.log('clicked!');
-    console.log(e.target);
+  _onRowClick: function(playerObj){
+    var is_found = false;
+    var squadList = this.state.squadList;
+
+    // search the existing array is there are items in it.
+    if(squadList.length > 0){
+      for(var i = squadList.length - 1; i >= 0; i--){
+        if(playerObj.doc.username == squadList[i].doc.username){
+          squadList.splice(i, 1);
+          is_found = true;
+          break;
+        }
+      }
+    }
+
+    if(!is_found) squadList.push(playerObj);
+    this.setState({ squadList: squadList });
   },
 
   _saveAndContinue: function(e){
     e.preventDefault();
 
+    this.props.saveValues({ squadList: this.state.squadList });
     this.props.submitFinal();
   }
 });
