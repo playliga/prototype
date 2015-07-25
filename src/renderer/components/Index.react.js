@@ -5,8 +5,17 @@ var BasicFields = require('./ftsetup/BasicFields.react');
 var CareerFields = require('./ftsetup/CareerFields.react');
 var SquadFields = require('./ftsetup/SquadFields.react');
 
+var TeamActionCreators = require('../actions/TeamActionCreators');
+var TeamStore = require('../stores/TeamStore');
+
 require('../dbsetup/CountriesData').init();
 require('../dbsetup/FreeAgentsData').init();
+
+function getStateFromStores(){
+  return {
+    teams: TeamStore.getAll()
+  };
+}
 
 var fieldValues = {
   username: null,
@@ -30,9 +39,17 @@ var LoadingScreen = React.createClass({
 
 var Index = React.createClass({
   getInitialState: function(){
-    return({
+    return assign({
       step: 1
-    });
+    }, getStateFromStores());
+  },
+
+  componentDidMount: function(){
+    TeamStore.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function(){
+    TeamStore.removeChangeListener(this._onChange);
   },
 
   render: function(){
@@ -64,6 +81,10 @@ var Index = React.createClass({
       </div>
     );
   },
+  
+  _onChange: function(){
+    this.setState(getStateFromStores);
+  },
 
   nextStep: function(){
     this.setState({
@@ -78,9 +99,15 @@ var Index = React.createClass({
   },
 
   submitFinal: function(){
-    // TODO: update freeagents team store by removing the players that the user selected.
-    // TODO: initialize other stuff...
     this.nextStep(); // shows the loading component
+
+    // update free agents team store by removing the players that the user selected
+    var playerIdArr = [];
+    fieldValues.squadList.map(function(playerObj){
+      playerIdArr.push(playerObj.id);
+    });
+
+    TeamActionCreators.removePlayers(this.state.teams[0].doc, playerIdArr);
   }
 });
 
