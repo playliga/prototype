@@ -2,6 +2,8 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 
+var TeamAPIUtils = require('../utils/TeamAPIUtils');
+
 var CHANGE_EVENT = 'change';
 var _data = undefined;
 
@@ -10,12 +12,12 @@ function _removePlayers(teamObj, playerIdArr){
   // look for that id within teamObj.squad array
   // if found, remove using splice.
   // save modified teamobj to database.
-  var ax = null;
   playerIdArr.map(function(playerId){
-    if(ax == teamObj.squad.indexOf(playerId) !== -1){
-      teamObj.squad.splice(ax, 1);
-    }
+    var pos = teamObj.squad.indexOf(playerId);
+    if(pos >= 0) teamObj.squad.splice(pos, 1);
   });
+
+  TeamAPIUtils.update(teamObj);
 }
 
 var TeamStore = assign({}, EventEmitter.prototype, {
