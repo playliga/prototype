@@ -19,7 +19,11 @@ var fieldValues = {
 var LoadingScreen = React.createClass({
   render: function(){
     return(
-      <h1 className="no-margin-top">Loading that jawn...</h1>
+      <div className="progress">
+        <div className="progress-bar progress-bar-striped active" role="progressbar" style={{width: '100%' }}>
+          <span className="sr-only">Working...</span>
+        </div>
+      </div>
     );
   }
 });
