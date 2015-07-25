@@ -83,7 +83,7 @@ var SquadFields = React.createClass({
       }
     }
 
-    if(!is_found) squadList.push(playerObj);
+    if(!is_found && squadList.length < 4) squadList.push(playerObj);
     this.setState({ squadList: squadList });
   },
 
