@@ -35,6 +35,12 @@ var TeamStore = assign({}, EventEmitter.prototype, {
 
   getAll: function(){
     return _data;
+  },
+
+  find: function(id){
+    return _data.filter(function(obj){
+      return id === obj.id;
+    });
   }
 });
 

@@ -1,26 +1,35 @@
+// load the free agents team from the store.
+// load the players from the free agents squad from the player store.
+// that becomes our players state property.
+
 var React = require('react');
 var assign = require('object-assign');
 var PlayerStore = require('../../stores/PlayerStore');
+var TeamStore = require('../../stores/TeamStore');
 
 function getStateFromStores(){
   return {
-    players: PlayerStore.getAll()
+    players: PlayerStore.getAll(),
+    teamObj: TeamStore.find('freeagents')
   }
 }
 
 var SquadFields = React.createClass({
   getInitialState: function(){
     return assign({
-      squadList: []
+      squadList: [],
+      playerList: [],
     }, getStateFromStores());
   },
 
   componentDidMount: function(){
     PlayerStore.addChangeListener(this._onChange);
+    TeamStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function(){
     PlayerStore.removeChangeListener(this._onChange);
+    TeamStore.removeChangeListener(this._onChange);
   },
 
   render: function(){
