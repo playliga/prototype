@@ -108,6 +108,9 @@ var Index = React.createClass({
     });
 
     TeamActionCreators.removePlayers(this.state.teams[0].doc, playerIdArr);
+
+    // TODO: create the user object
+    // TODO: create the user's team
   }
 });
 
