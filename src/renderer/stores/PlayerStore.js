@@ -20,6 +20,13 @@ var PlayerStore = assign({}, EventEmitter.prototype, {
 
   getAll: function(){
     return _data;
+  },
+
+  findSquad: function(teamObj){
+    return _data.filter(function(playerObj){
+      if(teamObj.doc.squad.indexOf(playerObj.id) >= 0) return true;
+      else return false;
+    });
   }
 });
 

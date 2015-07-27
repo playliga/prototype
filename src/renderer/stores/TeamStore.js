@@ -40,7 +40,7 @@ var TeamStore = assign({}, EventEmitter.prototype, {
   find: function(id){
     return _data.filter(function(obj){
       return id === obj.id;
-    });
+    })[0];
   }
 });
 
