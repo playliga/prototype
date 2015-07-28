@@ -68,7 +68,7 @@ var CareerFields = React.createClass({
     
     var data = {
       teamname: this.refs.teamname.getDOMNode().value,
-      teamCountryCode: selectedValue
+      teamCountryObj: CountryStore.find(selectedValue)
     }
 
     this.props.saveValues(data);

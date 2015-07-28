@@ -69,7 +69,7 @@ var BasicFields = React.createClass({
 
     var data = {
       username: this.refs.username.getDOMNode().value,
-      userCountryCode: selectedValue
+      userCountryObj: CountryStore.find(selectedValue)
     }
 
     this.props.saveValues(data);

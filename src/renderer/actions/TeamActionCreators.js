@@ -1,6 +1,12 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 
 module.exports = {
+  create: function(data){
+    AppDispatcher.dispatch({
+      type: 'CREATE_TEAM',
+      data: data
+    });
+  },
   receiveAll: function(data){
     AppDispatcher.dispatch({
       type: 'RECEIVE_TEAMS',

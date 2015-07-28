@@ -10,7 +10,6 @@ function BaseUser(username){
   this.username = username;
   this.team = null;
   this.country= null;
-  this.budget = 0.00;
 
   function camelize(str) {
     return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index){

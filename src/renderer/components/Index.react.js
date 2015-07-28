@@ -112,13 +112,19 @@ var Index = React.createClass({
 
     TeamActionCreators.removePlayers(this.state.teams[0].doc, playerIdArr);
     
-    // TODO: create the user's team
+    // init the user's team
     var teamObj = TeamStore.initTeam(fieldValues.teamname);
-    teamObj.country = fieldValues.countryObj;
+    teamObj.country = fieldValues.teamCountryObj;
     teamObj.squad = fieldValues.squadList;
+    teamObj.budget = 2000.00;
 
-    // TODO: create the user object
-    // using the team object returned by the database.
+    // init the user object
+    var userObj = UserStore.initUser(fieldValues.username);
+    userObj.country = fieldValues.userCountryObj;
+
+    // save the team object to the database.
+    // use the returned object for the user object to point to. (includes rev property)
+    TeamActionCreators.create(teamObj);
   }
 });
 

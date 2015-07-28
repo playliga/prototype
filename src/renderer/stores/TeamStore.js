@@ -13,6 +13,7 @@ function BaseTeam(teamname){
   this.country = null;
   this.manager = null;
   this.squad = null;
+  this.budget = 0.00;
 
   function camelize(str) {
     return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index){
@@ -60,6 +61,11 @@ var TeamStore = assign({}, EventEmitter.prototype, {
 
 TeamStore.dispatchToken = AppDispatcher.register(function(action){
   switch(action.type){
+    case 'CREATE_TEAM':
+      TeamAPIUtils.create(action.data);
+      TeamStore.emitChange();
+      break;
+
     case 'RECEIVE_TEAMS':
       _data = action.data;
       TeamStore.emitChange();
