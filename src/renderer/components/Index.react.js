@@ -8,6 +8,9 @@ var SquadFields = require('./ftsetup/SquadFields.react');
 var TeamActionCreators = require('../actions/TeamActionCreators');
 var TeamStore = require('../stores/TeamStore');
 
+var UserActionCreators = require('../actions/UserActionCreators');
+var UserStore = require('../stores/UserStore');
+
 require('../dbsetup/CountriesData').init();
 require('../dbsetup/FreeAgentsData').init();
 
@@ -19,9 +22,9 @@ function getStateFromStores(){
 
 var fieldValues = {
   username: null,
-  userCountryCode: null,
+  userCountryObj: null,
   teamname: null,
-  teamCountryCode: null,
+  teamCountryObj: null,
   squadList: null
 };
 
@@ -108,9 +111,14 @@ var Index = React.createClass({
     });
 
     TeamActionCreators.removePlayers(this.state.teams[0].doc, playerIdArr);
+    
+    // TODO: create the user's team
+    var teamObj = TeamStore.initTeam(fieldValues.teamname);
+    teamObj.country = fieldValues.countryObj;
+    teamObj.squad = fieldValues.squadList;
 
     // TODO: create the user object
-    // TODO: create the user's team
+    // using the team object returned by the database.
   }
 });
 

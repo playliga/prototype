@@ -7,11 +7,21 @@ var TeamAPIUtils = require('../utils/TeamAPIUtils');
 var CHANGE_EVENT = 'change';
 var _data = undefined;
 
+function BaseTeam(teamname){
+  this._id = camelize(teamname);
+  this.name = teamname;
+  this.country = null;
+  this.manager = null;
+  this.squad = null;
+
+  function camelize(str) {
+    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index){
+      return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+    }).replace(/\s+/g, '');
+  }
+}
+
 function _removePlayers(teamObj, playerIdArr){
-  // loop through playerIdArr
-  // look for that id within teamObj.squad array
-  // if found, remove using splice.
-  // save modified teamobj to database.
   playerIdArr.map(function(playerId){
     var pos = teamObj.squad.map(function(e){ return e.id }).indexOf(playerId);
     if(pos >= 0) teamObj.squad.splice(pos, 1);
@@ -31,6 +41,10 @@ var TeamStore = assign({}, EventEmitter.prototype, {
 
   removeChangeListener: function(callback){
     this.removeListener(CHANGE_EVENT, callback);
+  },
+
+  initTeam: function(teamname){
+    return new BaseTeam(teamname);
   },
 
   getAll: function(){
