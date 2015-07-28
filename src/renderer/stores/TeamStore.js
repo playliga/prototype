@@ -13,7 +13,7 @@ function _removePlayers(teamObj, playerIdArr){
   // if found, remove using splice.
   // save modified teamobj to database.
   playerIdArr.map(function(playerId){
-    var pos = teamObj.squad.indexOf(playerId);
+    var pos = teamObj.squad.map(function(e){ return e.id }).indexOf(playerId);
     if(pos >= 0) teamObj.squad.splice(pos, 1);
   });
 

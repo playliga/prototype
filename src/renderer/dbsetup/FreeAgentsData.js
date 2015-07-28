@@ -69,8 +69,17 @@ function loadAllPlayers(data){
   if(typeof(data) === 'undefined'){
     dbPlayers.allDocs({include_docs: true}).then(function(innerData){
       PlayerActionCreators.receiveAll(innerData);
+      
+      // since no data is passed we assume that the players database was recently
+      // created so we must also create the teams database as well.
+      teamObj.squad = innerData.rows;
+      dbTeams.put(teamObj).then(function(res){
+        loadAllTeams();
+      });
     });
-  } else PlayerActionCreators.receiveAll(data);
+  } else {
+    PlayerActionCreators.receiveAll(data);
+  }
 }
 
 function loadAllTeams(data){
@@ -93,12 +102,10 @@ for(var i = 0; i < nameArr.length; i++){
   }
 
   playerArr.push(playerObj);
-  teamObj.squad.push(playerObj._id);
 }
 
 module.exports = {
   init: function(){
-    // save players to db and load to state
     dbPlayers.allDocs({include_docs: true}).then(function(data){
       if(data.total_rows > 0) loadAllPlayers(data);
       else throw true;
@@ -106,20 +113,11 @@ module.exports = {
       dbPlayers.bulkDocs(playerArr).then(function(res){
         loadAllPlayers();
       });
-    }).catch(function(err){
-      // TODO: at this point we still do not have data. throw an exception.
     });
 
     // save free agents team to db and load to state
-    dbTeams.allDocs({include_docs: true}).then(function(data){
+    dbTeams.allDocs({ include_docs: true }).then(function(data){
       if(data.total_rows > 0) loadAllTeams(data);
-      else throw true;
-    }).catch(function(err){
-      dbTeams.put(teamObj).then(function(res){
-        loadAllTeams();
-      });
-    }).catch(function(err){
-      // TODO: at this point still no data. trow an exception
     });
   }
 };

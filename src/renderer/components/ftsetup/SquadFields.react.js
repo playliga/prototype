@@ -4,7 +4,6 @@
 
 var React = require('react');
 var assign = require('object-assign');
-var PlayerStore = require('../../stores/PlayerStore');
 var TeamStore = require('../../stores/TeamStore');
 
 function getStateFromStores(){
@@ -16,15 +15,12 @@ function getStateFromStores(){
 var SquadFields = React.createClass({
   getInitialState: function(){
     return assign({
-      squadList: [],
-      playerList: []
+      squadList: []
     }, getStateFromStores());
   },
 
   componentDidMount: function(){
     TeamStore.addChangeListener(this._onChange);
-
-    this.setState({ playerList: PlayerStore.findSquad(this.state.teamObj) });
   },
 
   componentWillUnmount: function(){
@@ -43,7 +39,7 @@ var SquadFields = React.createClass({
                 <th>Name</th><th>Skill Level</th><th>Preferred Weapon</th>
               </tr></thead>
               <tbody>
-                {this.state.playerList.map(function(player){
+                {this.state.teamObj.doc.squad.map(function(player){
                   return(
                     <tr key={player.doc._id} onClick={_self._onRowClick.bind(null, player)}>
                       <td>{player.doc.username}</td>
