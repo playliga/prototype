@@ -7,14 +7,14 @@ module.exports = {
     db.put(teamObj).then(function(){
       return db.allDocs({ include_docs: true });
     }).then(function(data){
-      TeamActionCreators.receiveAll(data);
+      // update the stores or return a promise...
     });
   },
   update: function(teamObj){
     db.put(teamObj).then(function(){
       return db.allDocs({include_docs: true});
     }).then(function(data){
-      TeamActionCreators.receiveAll(data);
+      // update the stores or return a promise...
     });
   }
 };

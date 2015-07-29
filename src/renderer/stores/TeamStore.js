@@ -2,8 +2,6 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 
-var TeamAPIUtils = require('../utils/TeamAPIUtils');
-
 var CHANGE_EVENT = 'change';
 var _data = undefined;
 
@@ -20,15 +18,6 @@ function BaseTeam(teamname){
       return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
     }).replace(/\s+/g, '');
   }
-}
-
-function _removePlayers(teamObj, playerIdArr){
-  playerIdArr.map(function(playerId){
-    var pos = teamObj.squad.map(function(e){ return e.id }).indexOf(playerId);
-    if(pos >= 0) teamObj.squad.splice(pos, 1);
-  });
-
-  TeamAPIUtils.update(teamObj);
 }
 
 var TeamStore = assign({}, EventEmitter.prototype, {
@@ -62,7 +51,6 @@ var TeamStore = assign({}, EventEmitter.prototype, {
 TeamStore.dispatchToken = AppDispatcher.register(function(action){
   switch(action.type){
     case 'CREATE_TEAM':
-      TeamAPIUtils.create(action.data);
       TeamStore.emitChange();
       break;
 
@@ -72,7 +60,6 @@ TeamStore.dispatchToken = AppDispatcher.register(function(action){
       break;
 
     case 'REMOVE_PLAYERS':
-      _removePlayers(action.data.teamObj, action.data.playerIdArr);
       TeamStore.emitChange();
       break;
 
