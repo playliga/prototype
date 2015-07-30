@@ -51,15 +51,12 @@ var TeamStore = assign({}, EventEmitter.prototype, {
 TeamStore.dispatchToken = AppDispatcher.register(function(action){
   switch(action.type){
     case 'CREATE_TEAM':
+      _data.push(action.data);
       TeamStore.emitChange();
       break;
 
     case 'RECEIVE_TEAMS':
       _data = action.data;
-      TeamStore.emitChange();
-      break;
-
-    case 'REMOVE_PLAYERS':
       TeamStore.emitChange();
       break;
 

@@ -5,7 +5,7 @@ var BasicFields = require('./ftsetup/BasicFields.react');
 var CareerFields = require('./ftsetup/CareerFields.react');
 var SquadFields = require('./ftsetup/SquadFields.react');
 
-var TeamActionCreators = require('../actions/TeamActionCreators');
+var TeamAPIUtils = require('../utils/TeamAPIUtils');
 var TeamStore = require('../stores/TeamStore');
 
 var UserActionCreators = require('../actions/UserActionCreators');
@@ -106,25 +106,28 @@ var Index = React.createClass({
 
     // update free agents team store by removing the players that the user selected
     var playerIdArr = [];
+    var agentsTeamObj = TeamStore.find('freeagents');
     fieldValues.squadList.map(function(playerObj){
-      playerIdArr.push(playerObj.id);
+      // if the playerObj is found in the team's squad, remove it.
+      var pos = agentsTeamObj.doc.squad.map(function(e){ return e.id }).indexOf(playerObj.id);
+      if(pos >= 0) agentsTeamObj.doc.squad.splice(pos, 1);
     });
 
-    TeamActionCreators.removePlayers(this.state.teams[0].doc, playerIdArr);
+    TeamAPIUtils.update(agentsTeamObj.doc);
     
-    // init the user's team
-    var teamObj = TeamStore.initTeam(fieldValues.teamname);
-    teamObj.country = fieldValues.teamCountryObj;
-    teamObj.squad = fieldValues.squadList;
-    teamObj.budget = 2000.00;
+    // init the user's information.
+    // first save the team obj then the user.
+    var userTeamObj = TeamStore.initTeam(fieldValues.teamname);
+    userTeamObj.country = fieldValues.teamCountryObj;
+    userTeamObj.squad = fieldValues.squadList;
+    userTeamObj.budget = 2000.00;
 
-    // init the user object
-    var userObj = UserStore.initUser(fieldValues.username);
-    userObj.country = fieldValues.userCountryObj;
-
-    // save the team object to the database.
-    // use the returned object for the user object to point to. (includes rev property)
-    TeamActionCreators.create(teamObj);
+    TeamAPIUtils.create(userTeamObj).then(function(savedTeamObj){
+      // init the user object and use the teamObj that is stored in the db
+      var userObj = UserStore.initUser(fieldValues.username);
+      userObj.country = fieldValues.userCountryObj;
+      userObj.team = savedTeamObj;
+    });
   }
 });
 
