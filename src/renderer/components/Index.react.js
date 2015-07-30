@@ -8,7 +8,7 @@ var SquadFields = require('./ftsetup/SquadFields.react');
 var TeamAPIUtils = require('../utils/TeamAPIUtils');
 var TeamStore = require('../stores/TeamStore');
 
-var UserActionCreators = require('../actions/UserActionCreators');
+var UserAPIUtils = require('../utils/UserAPIUtils');
 var UserStore = require('../stores/UserStore');
 
 require('../dbsetup/CountriesData').init();
@@ -115,18 +115,21 @@ var Index = React.createClass({
 
     TeamAPIUtils.update(agentsTeamObj.doc);
     
-    // init the user's information.
-    // first save the team obj then the user.
+    // init the user object and team.
     var userTeamObj = TeamStore.initTeam(fieldValues.teamname);
     userTeamObj.country = fieldValues.teamCountryObj;
     userTeamObj.squad = fieldValues.squadList;
     userTeamObj.budget = 2000.00;
 
+    var userObj = UserStore.initUser(fieldValues.username);
+    userObj.country = fieldValues.userCountryObj;
+
+    // first save the team obj then the user.
     TeamAPIUtils.create(userTeamObj).then(function(savedTeamObj){
-      // init the user object and use the teamObj that is stored in the db
-      var userObj = UserStore.initUser(fieldValues.username);
-      userObj.country = fieldValues.userCountryObj;
       userObj.team = savedTeamObj;
+      return UserAPIUtils.create(userObj);
+    }).then(function(savedUserObj){
+      // start...
     });
   }
 });

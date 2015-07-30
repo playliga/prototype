@@ -4,10 +4,14 @@ var db = PouchDB('la-liga-users');
 
 module.exports = {
   create: function(userObj){
-    db.put(userObj).then(function(){
-      return db.allDocs({ include_docs: true });
-    }).then(function(data){
-      UserActionCreators.receiveAll(data);
-    });;
+    return new Promise(function(resolve, reject){
+      db.put(userObj).then(function(){
+        return db.get(userObj._id);
+      }).then(function(data){
+        resolve(data);
+      }).catch(function(){
+        reject(Error('Database error'));
+      });
+    });
   }
 };
