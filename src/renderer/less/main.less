@@ -1,0 +1,85 @@
+@import '../../node_modules/bootstrap/less/bootstrap.less';
+@import '../../node_modules/font-awesome/less/font-awesome.less';
+@import '../../node_modules/react-select/less/default.less';
+@import 'variables.less';
+@import 'helpers.less';
+
+#welcome-splash {
+  position:relative;
+  width:100vw; height:100vh;
+  background-color:black;
+  margin:0;
+  
+  &::before {
+    content:"";
+    position:absolute; top:0; left:0;
+    width:100%; height:100%;
+    background-image:url('http://i.stack.imgur.com/PEnJm.png');
+    opacity:0.15;
+  }
+
+  form {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%, -50%);
+    background-color:@welcome-form-bgcolor;
+    box-shadow:6px 6px 20px fadeout(#000, 50%);
+    border:1px solid @welcome-form-bordercolor;
+    width:@welcome-form-width;
+    padding:@mp-medium;
+    
+    &.player-list {
+      left:@mp-medium;
+      transform:translate(0, -50%);
+      width:60%; height:90%;
+      color:@base-fontcolor;
+
+      .form-group {
+        height:80%;
+        overflow-y:scroll;
+      }
+      
+      table {
+        cursor:pointer;
+      }
+    }
+    h1 {
+      margin:0; margin-bottom:@mp-medium;
+      color:darken(@welcome-form-bgcolor, 10%);
+      font-variant:small-caps;
+      text-shadow:0px 2px 3px lighten(@welcome-form-bgcolor, 5%);
+    }
+  }
+
+  #squad-list {
+    position:absolute; right:@mp-medium; top:50%;
+    transform:translate(0, -50%);
+    width:30%;
+    color:@base-fontcolor;
+
+    & > div {
+      position:relative;
+      background-color:@welcome-form-bgcolor;
+      box-shadow:6px 6px 20px fadeout(#000, 50%);
+      border:1px solid @welcome-form-bordercolor;
+      border-top:0;
+      padding:@mp-medium; margin-bottom:@mp-medium + @mp-small;
+      
+      &::before {
+        position:absolute; left:-1px; top:-5px; bottom:-1px; right:-1px;
+        content:""; display:block;
+        color:transparent;
+        font-size:0;
+        border-top:5px solid green;
+      }
+      p:first-child {
+        font-size:1.5em; font-weight:bold;
+      }
+    }
+  }
+
+  .progress {
+    position:absolute; top:50%; left:50%; right:0;
+    transform:translate(-50%, -50%);
+    box-shadow:6px 6px 20px fadeout(#000, 50%);
+  }
+}
