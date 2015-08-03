@@ -1,14 +1,30 @@
 // Elite: 100
 // Expert: 90
 
-function BaseTeam(teamname){
-  this._id = camelize(teamname);
+function BaseTeam( teamname ) {
+  this._id = camelize( teamname );
   this.teamname = teamname;
   this.country = null;
   this.tag = null;
+  this.squad = [];
 
-  function camelize(str) {
-    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+  function camelize( str ) {
+    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function( letter, index ) {
+      return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+    }).replace(/\s+/g, '');
+  }
+}
+
+function BasePlayer( username ) {
+  this._id = camelize( username );
+  this.username = username;
+  this.teamId = null;
+  this.transferValue = 0;
+  this.skillTemplate = null;
+  this.weaponTemplate = null;
+
+  function camelize( str ) {
+    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function( letter, index ) {
       return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
     }).replace(/\s+/g, '');
   }
@@ -161,11 +177,32 @@ var teamArr = [
   }
 ];
 
+var PouchDB = require('pouchdb');
+var dbCountries = PouchDB('la-liga-countries');
+var dbTeams = PouchDB('la-liga-teams');
+var dbPlayers = PouchDB('la-liga-players');
+
+var countriesArr = [];
+dbCountries.get( 'US' ).then(function( doc ) {
+  countriesArr[ 'US' ] = doc;
+  return dbCountries.get( 'CA' );
+}).then(function( doc ) {
+  countriesArr[ 'CA' ] = doc;
+});
+
 for( var i = 0; i < teamArr.length; i++ ) {
   // loop through each team and create the player objects. once they are created
   // use the returned player object to create the team objects.
   // use switch-statement to accumalate skill level for the team.
+  var teamObj = new BaseTeam( teamArr[ i ].name );
+  teamObj.country = countriesArr[ teamArr[ i ].country ];
+  teamObj.tag = teamArr[ i ].tag;
+
   for( var j =0; j < teamArr[i].squad.length; j++ ) {
-    
+    var playerObj = new BasePlayer( teamArr[ i ].squad[ j ].username );
+    playerObj.skillTemplate = teamArr[ i ].squad[ j ].skillTemplate;
+    playerObj.weaponTemplate = teamArr[ i ].squad[ j ].weaponTemplate;
+    playerObj.teamId = teamObj._id;
+    // TODO: save me...
   }
 }

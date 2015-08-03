@@ -13,6 +13,7 @@ var UserStore = require('../stores/UserStore');
 
 require('../dbsetup/CountriesData').init();
 require('../dbsetup/FreeAgentsData').init();
+require('../dbsetup/northamerica/invite/Data.js');
 
 function getStateFromStores(){
   return {
