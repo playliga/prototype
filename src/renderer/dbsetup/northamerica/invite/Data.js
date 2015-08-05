@@ -182,27 +182,64 @@ var dbCountries = PouchDB('la-liga-countries');
 var dbTeams = PouchDB('la-liga-teams');
 var dbPlayers = PouchDB('la-liga-players');
 
-var countriesArr = [];
-dbCountries.get( 'US' ).then(function( doc ) {
-  countriesArr[ 'US' ] = doc;
+var promises = { countries: null, teams: [], players: [] };
+var savedObjects = { countries: [], teams: [] };
+
+// begin by fetching the country objects we need from the db
+promises.countries = dbCountries.get( 'US' ).then(function( doc ) {
+  savedObjects.countries[ 'US' ] = doc;
   return dbCountries.get( 'CA' );
 }).then(function( doc ) {
-  countriesArr[ 'CA' ] = doc;
+  savedObjects.countries[ 'CA' ] = doc;
+  return Promise.resolve();
 });
 
-for( var i = 0; i < teamArr.length; i++ ) {
-  // loop through each team and create the player objects. once they are created
-  // use the returned player object to create the team objects.
-  // use switch-statement to accumalate skill level for the team.
-  var teamObj = new BaseTeam( teamArr[ i ].name );
-  teamObj.country = countriesArr[ teamArr[ i ].country ];
-  teamObj.tag = teamArr[ i ].tag;
+// continue only when the previous calls are fully done.
+module.exports = {
+  init: function() {
+    return new Promise( function( resolve, reject ) {
+      promises.countries.then( function() {
+        for( var i = 0; i < teamArr.length; i++ ) {
+          var teamObj = new BaseTeam( teamArr[ i ].name );
+          teamObj.country = savedObjects.countries[ teamArr[ i ].country ];
+          teamObj.tag = teamArr[ i ].tag;
 
-  for( var j =0; j < teamArr[i].squad.length; j++ ) {
-    var playerObj = new BasePlayer( teamArr[ i ].squad[ j ].username );
-    playerObj.skillTemplate = teamArr[ i ].squad[ j ].skillTemplate;
-    playerObj.weaponTemplate = teamArr[ i ].squad[ j ].weaponTemplate;
-    playerObj.teamId = teamObj._id;
-    // TODO: save me...
+          savedObjects.teams[ teamObj._id ] = teamObj; // not really saved but READY to be saved
+          promises.players[ i ] = []; // hold current index promises
+
+          for( var j = 0; j < teamArr[ i ].squad.length; j++ ) {
+            var playerObj = new BasePlayer( teamArr[ i ].squad[ j ].username );
+            playerObj.skillTemplate = teamArr[ i ].squad[ j ].skillTemplate;
+            playerObj.weaponTemplate = teamArr[ i ].squad[ j ].weaponTemplate;
+            playerObj.teamId = teamObj._id;
+            
+            // give player his market value depending on skill level
+            switch( playerObj.skillTemplate ) {
+              case 'Elite':
+                playerObj.transferValue = 250000000;
+                break;
+              case 'Expert':
+                playerObj.transferValue = 200000000;
+                break;
+            }
+            
+            promises.players[ i ].push( dbPlayers.put( playerObj ).then( function( res ) {
+              return dbPlayers.get( res.id );
+            }) );
+          }
+
+          promises.teams.push( Promise.all( promises.players[ i ] ).then( function( squad ) {
+            var teamObj = savedObjects.teams[ squad[ 0 ].teamId ];
+            teamObj.squad = squad;
+
+            return dbTeams.put( teamObj );
+          }) );
+        }
+
+        Promise.all( promises.teams ).then( function() {
+          resolve();
+        });
+      });
+    });
   }
-}
+};
