@@ -13,7 +13,7 @@ var UserStore = require('../stores/UserStore');
 
 require('../dbsetup/CountriesData').init();
 require('../dbsetup/FreeAgentsData').init();
-require('../dbsetup/northamerica/invite/Data.js').init().then( function() {
+require('../dbsetup/northamerica/invite.js').init().then( function() {
   console.log('yo');
 });
 

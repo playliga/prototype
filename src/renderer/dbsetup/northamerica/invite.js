@@ -145,7 +145,7 @@ var teamArr = [
   }
 ];
 
-var DBSetupUtil = require('../../../utils/DBSetupUtil');
+var DBSetupUtil = require('../../utils/DBSetupUtil');
 
 module.exports = {
   init: function() {
