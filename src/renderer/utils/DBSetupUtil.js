@@ -57,7 +57,7 @@ var theObj = {
             playerObj.weaponTemplate = teamArr[ i ].squad[ j ].weaponTemplate;
             playerObj.teamId = teamObj._id;
             playerObj.country = teamObj.country;
-            
+
             // give player his market value depending on skill level
             switch( playerObj.skillTemplate ) {
               case 'Elite':
@@ -88,7 +88,9 @@ var theObj = {
             
             promises.players[ i ].push( dbPlayers.put( playerObj ).then( function( res ) {
               return dbPlayers.get( res.id );
-            }) );
+            }).catch( ( function( playerId, err ) {
+              return Promise.reject( 'Error saving player: ' + playerId);
+            }).bind( null, playerObj._id )) );
           }
 
           promises.teams.push( Promise.all( promises.players[ i ] ).then( function( squad ) {
@@ -96,11 +98,15 @@ var theObj = {
             teamObj.squad = squad;
 
             return dbTeams.put( teamObj );
+          }).catch( function( err ) {
+            return Promise.reject( err );
           }) );
         }
 
         Promise.all( promises.teams ).then( function() {
           resolve();
+        }).catch( function( err ) {
+          reject( err );
         });
       });
     });
