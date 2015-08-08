@@ -88,7 +88,9 @@ var theObj = {
             
             promises.players[ i ].push( dbPlayers.put( playerObj ).then( function( res ) {
               return dbPlayers.get( res.id );
-            }) );
+            }).catch( ( function( playerId, err ) {
+              return Promise.reject( 'Could not save player: ' + playerId );
+            }).bind( null, playerObj._id )) );
           }
 
           promises.teams.push( Promise.all( promises.players[ i ] ).then( function( squad ) {
@@ -96,11 +98,15 @@ var theObj = {
             teamObj.squad = squad;
 
             return dbTeams.put( teamObj );
+          }).catch( function( err ) {
+            return Promise.reject( err );
           }) );
         }
 
         Promise.all( promises.teams ).then( function() {
           resolve();
+        }).catch( function( err ) {
+          reject( err );
         });
       });
     });
