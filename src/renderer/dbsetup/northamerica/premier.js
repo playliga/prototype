@@ -153,11 +153,11 @@ var teamArr = [
     ]
   },
   {
-    name: 'Netfragz', tag: 'netfragz | ', country: 'CA', squad: [
-      { username: 'tOyMaCHiN3_', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' },
-      { username: 'happa_', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' },
-      { username: 'xelleman', skillTemplate: 'VeryHard', weaponTemplate: 'Sniper' },
-      { username: 'pwnson', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' },
+    name: 'Check Six', tag: 'x6 ', country: 'CA', squad: [
+      { username: 'evaN_', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' },
+      { username: 'perez', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' },
+      { username: 'KAREN!!', skillTemplate: 'VeryHard', weaponTemplate: 'Sniper' },
+      { username: 'TusHarZ', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' },
       { username: 'd o t t i e', skillTemplate: 'VeryHard', weaponTemplate: 'Rifle' }
     ]
   },
