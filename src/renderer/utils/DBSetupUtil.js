@@ -97,7 +97,9 @@ var theObj = {
             var teamObj = savedObjects.teams[ squad[ 0 ].teamId ];
             teamObj.squad = squad;
 
-            return dbTeams.put( teamObj );
+            return dbTeams.put( teamObj ).catch( ( function( teamId, err ) {
+              return Promise.reject( 'Could not save team: ' + teamId );
+            }).bind( null, teamObj._id ));
           }).catch( function( err ) {
             return Promise.reject( err );
           }) );
