@@ -1,19 +1,14 @@
-var teamArr = [
-  {
-    name: '', tag: '', country: 'US', squad: [
-      { username: '', skillTemplate: 'Hard', weaponTemplate: 'Rifle' },
-      { username: '', skillTemplate: 'Hard', weaponTemplate: 'Rifle' },
-      { username: '', skillTemplate: 'Tough', weaponTemplate: 'Sniper' },
-      { username: '', skillTemplate: 'Tough', weaponTemplate: 'Rifle' },
-      { username: '', skillTemplate: 'Tough', weaponTemplate: 'Rifle' }
-    ]
-  },
-];
+var fs = remote.require( 'fs' );
+var fileDataPromises = [];
 
-var DBSetupUtil = require('../../utils/DBSetupUtil');
+fileDataPromises.push( new Promise( function( resolve, reject ) {
+  fs.readFile( 'resources/app/static/data/na_main_teams.json', 'utf8', function( err, data ) {
+    if( err ) reject( err );
+    else resolve( data );
+  });
+}) );
 
-module.exports = {
-  init: function() {
-    return DBSetupUtil.doWork( [ 'US', 'CA' ], teamArr ); 
-  }
-};
+Promise.all( fileDataPromises ).then( function( data ) {
+  var teamArr = data[ 0 ].split( "\n" );
+  teamArr.pop(); // last item is always empty...
+});
