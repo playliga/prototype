@@ -14,19 +14,6 @@ var UserStore = require('../stores/UserStore');
 require('../dbsetup/CountriesData').init();
 require('../dbsetup/FreeAgentsData').init();
 
-//------------------
-var promises = [];
-promises.push( require( '../dbsetup/northamerica/invite.js' ).init() );
-promises.push( require( '../dbsetup/northamerica/premier.js' ).init() );
-promises.push( require( '../dbsetup/northamerica/main.js' ).init() );
-
-Promise.all( promises ).then( function( data ) {
-  console.log( data );
-}).catch( function( err ) {
-  console.log( err );
-});
-//------------------
-
 function getStateFromStores(){
   return {
     teams: TeamStore.getAll()
