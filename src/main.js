@@ -28,18 +28,49 @@ app.on('ready', function() {
 
 var request = require( 'request' );
 var cheerio = require( 'cheerio' );
-var $ = null;
+var fs = require( 'fs' );
 
-var loadPagePromise = new Promise( function( resolve, reject ) {
-  return request( 'http://google.com', function( error, response, body ) {
-    if( !error && response.statusCode == 200 ) resolve( body );
-    else reject( error );
+var na_divs = [ 'https://play.esea.net/index.php?s=league&d=standings&division_id=2490' ];
+var na_promises = buildPromiseArr( na_divs );
+
+function buildPromiseArr( arr ) {
+  var outputArr = [];
+
+  for( var i = 0; i < arr.length; i++ ) {
+    outputArr.push( new Promise( function( resolve, reject ) {
+      return request( arr[ i ], function( error, response, body ) {
+        if( !error && response.statusCode == 200 ) resolve( body );
+        else reject( error );
+      });
+    }) );
+  }
+
+  return outputArr;
+}
+
+Promise.all( na_promises ).then( function( data ) {
+  var $ = cheerio.load( data[ 0 ] );
+  var teamList = $('#league-standings table tr[class*="row"]' );
+
+  teamList.each( function( i, el ) {
+    var teamContainer = $( this ).children( 'td:nth-child(2)' );
+    var teamCountryCode = teamContainer.children( 'a:nth-child(1)' ).children( 'img' ).attr( 'src' );
+    var teamName = teamContainer.children( 'a:nth-child(2)' );
+    var teamURL = teamName.attr( 'href' );
+    
+    // extract country code from url string
+    var index = teamCountryCode.indexOf( '.gif' );
+    teamCountryCode = teamCountryCode.substring( index - 2, index );
+
+    // create initial teamObj with basic info extracted above
+    var teamObj = { name: teamName.text(), tag: null, country: teamCountryCode, squad: [] };
+
+    process.stdout.write( JSON.stringify( teamObj ) );
   });
-});
 
-loadPagePromise.then( function( body ) {
-  $ = cheerio.load( body );
-  process.stdout.write( $( '#xjsi', 'html' ).html() );
+  fs.writeFile( __dirname + '/renderer/static/data/na_professional.json', 'Hello from Node.JS', function( err ) {
+    if( err ) process.stdout.write( err );
+  });
 }).catch( function( error ) {
   process.stdout.write( error );
 });
