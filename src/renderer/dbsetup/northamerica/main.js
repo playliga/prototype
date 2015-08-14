@@ -8,7 +8,4 @@ fileDataPromises.push( new Promise( function( resolve, reject ) {
   });
 }) );
 
-Promise.all( fileDataPromises ).then( function( data ) {
-  var teamArr = data[ 0 ].split( "\n" );
-  teamArr.pop(); // last item is always empty...
-});
+Promise.all( fileDataPromises ).then( function( data ) { });
