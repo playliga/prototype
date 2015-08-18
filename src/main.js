@@ -43,10 +43,11 @@ for( var region in regions ) {
   
   // loop through each region's division
   for( var i = 0; i < divisions.length; i++ ) {
-    wget( BASE_URL + divisions[ i ] ).then( function( data ) {
+    var teamURLs = [];
+
+    var teamURLsFetched = wget( BASE_URL + divisions[ i ] ).then( function( data ) {
       var $ = cheerio.load( data );
       var teamListElem = $('#league-standings table tr[class*="row"]' );
-      var teamURLs = [];
 
       teamListElem.each( function( i, el ) {
         var teamContainer = $( this ).children( 'td:nth-child(2)' );
@@ -55,8 +56,15 @@ for( var region in regions ) {
         teamURLs.push( teamURL.replace( /\./g, '&period[' ) );
       });
 
-      process.stdout.write( JSON.stringify( teamURLs ) );
-    }); 
+      return Promise.resolve( teamURLs );
+    });
+   
+    // don't do this until all pages are fetched...
+    teamURLsFetched.then( function( teamURLs ) {
+      for( var i = 0; i < teamURLs.length; i++ ) {
+        // wget and extract information from each team URL
+      }
+    });
   }
 }
 
