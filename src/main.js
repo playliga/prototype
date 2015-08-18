@@ -37,16 +37,28 @@ var regions = {
   'eu': [ '2485', '2505' ]
 };
 
-// each iteration should return a promise and add it to an array
+// loop through each region
 for( var region in regions ) {
   var divisions = regions[ region ];
   
-  // each iteration should return a promise and add it to an array
+  // loop through each region's division
   for( var i = 0; i < divisions.length; i++ ) {
     var divisionID = divisions[ i ];
-
+    var teamURLs = [];
+    
+    // fetches URLs of teams within current division
     wget( BASE_URL + divisionID ).then( function( data ) {
-      // do work
+      var $ = cheerio.load( data );
+      var teamsElem = $( '#league-standings table tr[class*="row"]' );
+
+      teamsElem.each( function( i, el ) {
+        var teamContainer = $( this ).children( 'td:nth-child(2)' );
+        var teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
+        
+        teamURLs.push( new Promise( function( resolve, reject ) {
+          resolve( teamURL.replace( /\./g, '&period[' ) );
+        }) );
+      });
     });
   }
 }
@@ -57,5 +69,5 @@ function wget( url ) {
       if( !error && response.statusCode == 200 ) resolve( data );
       else reject( error );
     });
-  })
+  });
 }
