@@ -31,7 +31,8 @@ var cheerio = require( 'cheerio' );
 var fs = require( 'fs' );
 
 // create array of regions and their division urls
-var BASE_URL = 'https://play.esea.net/index.php?s=league&d=standings&division_id=';
+var BASE_URL = 'https://play.esea.net';
+var DIVISION_URL = BASE_URL + '/index.php?s=league&d=standings&division_id=';
 var regions = {
   'na': [ '2490', '2491' ], // professional, premier, ..., open
   'eu': [ '2485', '2505' ]
@@ -45,9 +46,9 @@ for( var region in regions ) {
   for( var i = 0; i < divisions.length; i++ ) {
     var teamURLs = [];
 
-    var teamURLsFetched = wget( BASE_URL + divisions[ i ] ).then( function( data ) {
+    var teamURLsFetched = wget( DIVISION_URL + divisions[ i ] ).then( function( data ) {
       var $ = cheerio.load( data );
-      var teamListElem = $('#league-standings table tr[class*="row"]' );
+      var teamListElem = $( '#league-standings table tr[class*="row"]' );
 
       teamListElem.each( function( i, el ) {
         var teamContainer = $( this ).children( 'td:nth-child(2)' );
@@ -63,10 +64,25 @@ for( var region in regions ) {
     teamURLsFetched.then( function( teamURLs ) {
       for( var i = 0; i < teamURLs.length; i++ ) {
         // wget and extract information from each team URL
+        wget( BASE_URL + teamURLs[ i ] ).then( function( data ) {
+          var $ = cheerio.load( data );
+          var profileElem = $( '#teams-profile hr + section' );
+          var teamObj = {
+            name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
+            tag: profileElem.children( 'profile-info content div[class*="data"]:nth-child(1)' ).text() 
+          };
+
+          console.log( teamObj );
+        });
       }
     });
   }
 }
+
+
+
+
+
 
 function wget( url ) {
   return new Promise( function( resolve, reject ) {
@@ -76,3 +92,9 @@ function wget( url ) {
     });
   });
 }
+
+var console = { // hehe...
+  log: function( str ) {
+    process.stdout.write( JSON.stringify( str ) + "\n" );
+  }
+};
