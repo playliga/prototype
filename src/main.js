@@ -38,6 +38,22 @@ var regions = {
   'eu': [ '2485', '2505' ]
 };
 
+// helper functions
+function wget( url ) {
+  return new Promise( function( resolve, reject ) {
+    request( url, function( error, response, data ) {
+      if( !error && response.statusCode == 200 ) resolve( data );
+      else reject( error );
+    });
+  });
+}
+
+var console = { // hehe...
+  log: function( str ) {
+    process.stdout.write( JSON.stringify( str ) + "\n" );
+  }
+};
+
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
 for( var region in regions ) {
@@ -45,7 +61,7 @@ for( var region in regions ) {
     var division = regions[ region ][ i ];
     var teamURLs = [];
 
-    var teamURLsFetched = wget( DIVISION_URL + division ).then( function( data ) {
+    wget( DIVISION_URL + division ).then( function( data ) {
       var $ = cheerio.load( data );
       var teamListElem = $( '#league-standings table tr[class*="row"]' );
 
@@ -57,10 +73,7 @@ for( var region in regions ) {
       });
 
       return Promise.resolve( teamURLs );
-    });
-   
-    // don't do this until all pages are fetched for current division
-    teamURLsFetched.then( function( teamURLs ) {
+    }).then( function( teamURLs ) {
       for( var j = 0; j < teamURLs.length; j++ ) {
         wget( BASE_URL + teamURLs[ j ] ).then( function( data ) {
           var $ = cheerio.load( data );
@@ -97,23 +110,3 @@ for( var region in regions ) {
     });
   }
 }
-
-
-
-
-
-
-function wget( url ) {
-  return new Promise( function( resolve, reject ) {
-    request( url, function( error, response, data ) {
-      if( !error && response.statusCode == 200 ) resolve( data );
-      else reject( error );
-    });
-  });
-}
-
-var console = { // hehe...
-  log: function( str ) {
-    process.stdout.write( JSON.stringify( str ) + "\n" );
-  }
-};
