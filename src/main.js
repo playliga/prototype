@@ -72,8 +72,8 @@ for( var region in regions ) {
           var teamObj = {
             name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
             tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
-            country: null,
-            division: 'Professional',
+            country: 'US', // TODO
+            division: 'Professional', // TODO
             squad: []
           };
 
@@ -87,8 +87,8 @@ for( var region in regions ) {
             teamObj.squad.push( {
               username: nameElem.text(),
               countryCode: countryCode,
-              skillTemplate: 'Elite',
-              weaponTemplate: 'Rifle'
+              skillTemplate: 'Elite', // TODO
+              weaponTemplate: 'Rifle' // TODO
             });
           });
 
