@@ -41,16 +41,15 @@ var regions = {
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
 for( var region in regions ) {
-  var divisions = regions[ region ];
-  
-  for( var i = 0; i < divisions.length; i++ ) {
+  for( var i = 0; i < regions[ region ].length; i++ ) {
+    var division = regions[ region ][ i ];
     var teamURLs = [];
 
-    var teamURLsFetched = wget( DIVISION_URL + divisions[ i ] ).then( function( data ) {
+    var teamURLsFetched = wget( DIVISION_URL + division ).then( function( data ) {
       var $ = cheerio.load( data );
       var teamListElem = $( '#league-standings table tr[class*="row"]' );
 
-      teamListElem.each( function( i, el ) {
+      teamListElem.each( function( counter, el ) {
         var teamContainer = $( this ).children( 'td:nth-child(2)' );
         var teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
 
@@ -60,10 +59,10 @@ for( var region in regions ) {
       return Promise.resolve( teamURLs );
     });
    
-    // don't do this until all pages are fetched...
+    // don't do this until all pages are fetched for current division
     teamURLsFetched.then( function( teamURLs ) {
-      for( var i = 0; i < teamURLs.length; i++ ) {
-        wget( BASE_URL + teamURLs[ i ] ).then( function( data ) {
+      for( var j = 0; j < teamURLs.length; j++ ) {
+        wget( BASE_URL + teamURLs[ j ] ).then( function( data ) {
           var $ = cheerio.load( data );
           var profileElem = $( '#teams-profile hr + section' );
           var profileInfoElem = profileElem.children( 'div#profile-info' );
@@ -77,7 +76,7 @@ for( var region in regions ) {
             squad: []
           };
 
-          profileRosterElem.each( function( i, el ) {
+          profileRosterElem.each( function( counter, el ) {
             var countryElem = $( this ).children( 'a' ).children( 'img' );
             var nameElem = $( this ).children( 'a:nth-child(3)' );
 
@@ -92,7 +91,7 @@ for( var region in regions ) {
             });
           });
 
-          console.log( teamObj );
+          console.log( teamObj.name );
         });
       }
     });
