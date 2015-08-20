@@ -38,11 +38,11 @@ var regions = {
   'eu': [ '2485', '2505' ]
 };
 
-// loop through each region
+// loop through each region and its divisions
+// extract team list for each division and squads for each team
 for( var region in regions ) {
   var divisions = regions[ region ];
   
-  // loop through each region's division
   for( var i = 0; i < divisions.length; i++ ) {
     var teamURLs = [];
 
@@ -63,14 +63,34 @@ for( var region in regions ) {
     // don't do this until all pages are fetched...
     teamURLsFetched.then( function( teamURLs ) {
       for( var i = 0; i < teamURLs.length; i++ ) {
-        // wget and extract information from each team URL
         wget( BASE_URL + teamURLs[ i ] ).then( function( data ) {
           var $ = cheerio.load( data );
           var profileElem = $( '#teams-profile hr + section' );
+          var profileInfoElem = profileElem.children( 'div#profile-info' );
+          var profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
+
           var teamObj = {
             name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
-            tag: profileElem.children( 'profile-info content div[class*="data"]:nth-child(1)' ).text() 
+            tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
+            country: null,
+            division: 'Professional',
+            squad: []
           };
+
+          profileRosterElem.each( function( i, el ) {
+            var countryElem = $( this ).children( 'a' ).children( 'img' );
+            var nameElem = $( this ).children( 'a:nth-child(3)' );
+
+            var index = countryElem.attr( 'src' ).indexOf( '.gif' );
+            var countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
+
+            teamObj.squad.push( {
+              username: nameElem.text(),
+              countryCode: countryCode,
+              skillTemplate: 'Elite',
+              weaponTemplate: 'Rifle'
+            });
+          });
 
           console.log( teamObj );
         });
