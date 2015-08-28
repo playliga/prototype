@@ -39,6 +39,12 @@ var regions = {
 };
 
 // helper functions
+var console = { // hehe...
+  log: function( str ) {
+    process.stdout.write( JSON.stringify( str ) + "\n" );
+  }
+};
+
 function wget( url ) {
   return new Promise( function( resolve, reject ) {
     request( url, function( error, response, data ) {
@@ -48,62 +54,69 @@ function wget( url ) {
   });
 }
 
-var console = { // hehe...
-  log: function( str ) {
-    process.stdout.write( JSON.stringify( str ) + "\n" );
-  }
-};
+function extractTeamURLs( data ) {
+  // extract team url and return array
+  var $ = cheerio.load( data );
+  var teamListElem = $( '#league-standings table tr[class*="row"]' );
+  var outputArr = [];
+
+  teamListElem.each( function( counter, el ) {
+    var teamContainer = $( this ).children( 'td:nth-child(2)' );
+    var teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
+
+    outputArr.push( teamURL.replace( /\./g, '&period[' ) );
+  });
+
+  return outputArr;
+}
+
+function extractTeamInfo( data ) {
+  var $ = cheerio.load( data );
+  var profileElem = $( '#teams-profile hr + section' );
+  var profileInfoElem = profileElem.children( 'div#profile-info' );
+  var profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
+
+  var teamObj = {
+    name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
+    tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
+    country: 'US', // TODO
+    division: 'Professional', // TODO
+    squad: []
+  };
+
+  profileRosterElem.each( function( counter, el ) {
+    var countryElem = $( this ).children( 'a' ).children( 'img' );
+    var nameElem = $( this ).children( 'a:nth-child(3)' );
+
+    var index = countryElem.attr( 'src' ).indexOf( '.gif' );
+    var countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
+
+    teamObj.squad.push( {
+      username: nameElem.text(),
+      countryCode: countryCode,
+      skillTemplate: 'Elite', // TODO
+      weaponTemplate: 'Rifle' // TODO
+    });
+  });
+
+  return teamObj;
+}
+
+
+
 
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
 for( var region in regions ) {
   for( var i = 0; i < regions[ region ].length; i++ ) {
     var division = regions[ region ][ i ];
-    var teamURLs = [];
 
     wget( DIVISION_URL + division ).then( function( data ) {
-      var $ = cheerio.load( data );
-      var teamListElem = $( '#league-standings table tr[class*="row"]' );
-
-      teamListElem.each( function( counter, el ) {
-        var teamContainer = $( this ).children( 'td:nth-child(2)' );
-        var teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
-
-        teamURLs.push( teamURL.replace( /\./g, '&period[' ) );
-      });
-
-      return Promise.resolve( teamURLs );
+      return Promise.resolve( extractTeamURLs( data ) );
     }).then( function( teamURLs ) {
       for( var j = 0; j < teamURLs.length; j++ ) {
         wget( BASE_URL + teamURLs[ j ] ).then( function( data ) {
-          var $ = cheerio.load( data );
-          var profileElem = $( '#teams-profile hr + section' );
-          var profileInfoElem = profileElem.children( 'div#profile-info' );
-          var profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
-
-          var teamObj = {
-            name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
-            tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
-            country: 'US', // TODO
-            division: 'Professional', // TODO
-            squad: []
-          };
-
-          profileRosterElem.each( function( counter, el ) {
-            var countryElem = $( this ).children( 'a' ).children( 'img' );
-            var nameElem = $( this ).children( 'a:nth-child(3)' );
-
-            var index = countryElem.attr( 'src' ).indexOf( '.gif' );
-            var countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
-
-            teamObj.squad.push( {
-              username: nameElem.text(),
-              countryCode: countryCode,
-              skillTemplate: 'Elite', // TODO
-              weaponTemplate: 'Rifle' // TODO
-            });
-          });
-
+          var teamObj = extractTeamInfo( data );
           console.log( teamObj.name );
         });
       }
