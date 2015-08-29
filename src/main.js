@@ -108,18 +108,16 @@ function extractTeamInfo( data ) {
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
 for( var region in regions ) {
-  for( var i = 0; i < regions[ region ].length; i++ ) {
-    var division = regions[ region ][ i ];
-
-    wget( DIVISION_URL + division ).then( function( data ) {
+  regions[ region ].forEach( function( division_id, index ) {
+    wget( DIVISION_URL + division_id ).then( function( data ) {
       return Promise.resolve( extractTeamURLs( data ) );
     }).then( function( teamURLs ) {
-      for( var j = 0; j < teamURLs.length; j++ ) {
-        wget( BASE_URL + teamURLs[ j ] ).then( function( data ) {
+      teamURLs.forEach( function( teamURL, index ) {
+        wget( BASE_URL + teamURL ).then( function( data ) {
           var teamObj = extractTeamInfo( data );
           console.log( teamObj.name );
         });
-      }
+      });
     });
-  }
+  });
 }
