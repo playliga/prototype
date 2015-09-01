@@ -102,6 +102,24 @@ function extractTeamInfo( data ) {
   return teamObj;
 }
 
+Array.prototype.unique = function() {
+  var unique = this.reduce( function( accum, current ) {
+    if(accum.indexOf( current ) < 0 ) {
+      accum.push( current );
+    }
+    return accum;
+  }, [] );
+
+  this.length = 0;
+  for( var i = 0; i < unique.length; i++ ) {
+    this.push( unique[ i ] );
+  }
+
+  return this;
+}
+
+
+
 
 
 
@@ -112,6 +130,7 @@ for( var region in regions ) {
     wget( DIVISION_URL + division_id ).then( function( data ) {
       return Promise.resolve( extractTeamURLs( data ) );
     }).then( function( teamURLs ) {
+      teamURLs.unique(); // remove any duplicates (post-season/pre-season)
       teamURLs.forEach( function( teamURL, index ) {
         wget( BASE_URL + teamURL ).then( function( data ) {
           var teamObj = extractTeamInfo( data );
