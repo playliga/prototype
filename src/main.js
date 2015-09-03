@@ -130,12 +130,20 @@ for( var region in regions ) {
     wget( DIVISION_URL + division_id ).then( function( data ) {
       return Promise.resolve( extractTeamURLs( data ) );
     }).then( function( teamURLs ) {
-      teamURLs.unique(); // remove any duplicates (post-season/pre-season)
+      // remove any duplicates (post-season/pre-season)
+      var teamsFetched = [];
+      teamURLs.unique(); 
+      
+      // each team url is fetched and added to an array of promises
       teamURLs.forEach( function( teamURL, index ) {
-        wget( BASE_URL + teamURL ).then( function( data ) {
-          var teamObj = extractTeamInfo( data );
-          console.log( teamObj.name );
+        teamsFetched[ index ] = wget( BASE_URL + teamURL ).then( function( data ) {
+          return Promise.resolve( extractTeamInfo( data ) );
         });
+      });
+      
+      // once all urls for this current division are fetched we can continue
+      Promise.all( teamsFetched ).then( function( teamObjArr ) {
+        //DBSetupUtil.doWork( [ 'US', 'CA' ], teamArr );
       });
     });
   });
