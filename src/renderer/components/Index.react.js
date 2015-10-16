@@ -13,6 +13,7 @@ var UserStore = require('../stores/UserStore');
 
 require('../dbsetup/CountriesData').init();
 require('../dbsetup/FreeAgentsData').init();
+require( '../dbsetup/TeamAndPlayersData' ).init();
 
 function getStateFromStores(){
   return {
