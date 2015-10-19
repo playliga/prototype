@@ -44,7 +44,7 @@ function extractTeamInfo( data ) {
   var teamObj = {
     name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
-    country: 'US', // TODO
+    country: undefined,
     division: 'Professional', // TODO
     squad: []
   };
@@ -56,11 +56,15 @@ function extractTeamInfo( data ) {
     var index = countryElem.attr( 'src' ).indexOf( '.gif' );
     var countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
 
-    teamObj.squad.push( {
+    if( counter === 0 ) {
+      teamObj.country = countryCode;
+    }
+
+    teamObj.squad.push({
       username: nameElem.text(),
       countryCode: countryCode,
       skillTemplate: 'Elite', // TODO
-      weaponTemplate: 'Rifle' // TODO
+      weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
     });
   });
 
