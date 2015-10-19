@@ -41,11 +41,14 @@ function extractTeamInfo( data ) {
   var profileInfoElem = profileElem.children( 'div#profile-info' );
   var profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
 
+  var divisionElem = profileInfoElem.children( 'div.content' ).children( 'div.data.margin-top' ).children( 'a' ).html();
+  var divisionString = divisionElem.split( 'CSGO' );
+  
   var teamObj = {
     name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
     country: undefined,
-    division: 'Professional', // TODO
+    division: divisionString[ 1 ].trim(),
     squad: []
   };
 
@@ -60,10 +63,19 @@ function extractTeamInfo( data ) {
       teamObj.country = countryCode;
     }
 
+    switch( teamObj.division ) {
+      case 'Professional':
+        var skillTemplateString = 'Elite';
+      break;
+      case 'Premier':
+        var skillTemplateString = 'Very Hard';
+      break;
+    }
+
     teamObj.squad.push({
       username: nameElem.text(),
       countryCode: countryCode,
-      skillTemplate: 'Elite', // TODO
+      skillTemplate: skillTemplateString,
       weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
     });
   });
