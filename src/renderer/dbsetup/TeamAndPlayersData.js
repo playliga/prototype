@@ -35,7 +35,7 @@ function extractTeamURLs( data ) {
   return outputArr;
 }
 
-function extractTeamInfo( data ) {
+function extractTeamInfo( data, placement ) {
   var $ = cheerio.load( data );
   var profileElem = $( '#teams-profile hr + section' );
   var profileInfoElem = profileElem.children( 'div#profile-info' );
@@ -48,9 +48,33 @@ function extractTeamInfo( data ) {
     name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
     country: undefined,
-    division: divisionString[ 1 ].trim(),
+    division: ( ( divisionString.length === 2 ) ? divisionString[ 1 ].trim() : 'Amateur' ),
+    skillTemplate: undefined,
     squad: []
   };
+
+  // Professional = Elite
+  // Premier = Expert, Very Hard
+  // Main = Hard, Tough
+  // Intermediate = Normal, Fair
+  // Open = Easy
+  switch( teamObj.division ) {
+    case 'Professional':
+      teamObj.skillTemplate = 'Elite';
+    break;
+    case 'Premier':
+      teamObj.skillTemplate = ( ( placement < 3 ) ? 'Expert' : 'Very Hard' );
+    break;
+    case 'Main':
+      teamObj.skillTemplate = ( ( placement < 3 ) ? 'Hard' : 'Tough' );
+    break;
+    case 'Intermediate':
+      teamObj.skillTemplate = ( ( placement < 3 ) ? 'Normal' : 'Fair' );
+    break;
+    case 'Amateur':
+      teamObj.skillTemplate = 'Easy';
+    break;
+  }
 
   profileRosterElem.each( function( counter, el ) {
     var countryElem = $( this ).children( 'a' ).children( 'img' );
@@ -58,28 +82,21 @@ function extractTeamInfo( data ) {
 
     var index = countryElem.attr( 'src' ).indexOf( '.gif' );
     var countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
-
+    
+    // Inherit first player's country code as the team's
     if( counter === 0 ) {
       teamObj.country = countryCode;
-    }
-
-    switch( teamObj.division ) {
-      case 'Professional':
-        var skillTemplateString = 'Elite';
-      break;
-      case 'Premier':
-        var skillTemplateString = 'Very Hard';
-      break;
-    }
+    } 
 
     teamObj.squad.push({
       username: nameElem.text(),
       countryCode: countryCode,
-      skillTemplate: skillTemplateString,
+      skillTemplate: teamObj.skillTemplate,
       weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
     });
   });
-
+  
+  console.log( teamObj.name + ' --> ' + teamObj.division + ' --> ' + teamObj.skillTemplate );
   return teamObj;
 }
 
@@ -115,13 +132,13 @@ module.exports = {
           // each team url is fetched and added to an array of promises
           teamURLs.forEach( function( teamURL, index ) {
             teamsFetched[ index ] = wget( BASE_URL + teamURL ).then( function( data ) {
-              return Promise.resolve( extractTeamInfo( data ) );
+              return Promise.resolve( extractTeamInfo( data, index ) );
             });
           });
           
           // once all urls for this current division are fetched we can continue
           Promise.all( teamsFetched ).then( function( teamObjArr ) {
-            for( var i = 0; i < teamObjArr.length; i++ ) console.log( teamObjArr[ i ].name );
+            //for( var i = 0; i < teamObjArr.length; i++ ) console.log( teamObjArr[ i ].name );
             // implement better version of DBSetupUtil
           });
         });
