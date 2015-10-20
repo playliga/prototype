@@ -99,7 +99,6 @@ function extractTeamInfo( teamData, data ) {
     });
   });
   
-  //console.log( teamObj.name + ' --> ' + teamObj.division + ' --> ' + teamObj.skillTemplate );
   return teamObj;
 }
 
@@ -122,6 +121,24 @@ Array.prototype.unique = function() {
   return this;
 }
 
+var DBSetupUtil = {
+  init: function( teamArr ) {
+    // accepts an array of teams
+    // loop through teams squad and save each player ( return promise.all )
+    // once the squad is saved, fetch the saved squad from the database
+    // now save the team to the database along with the saved squad
+    // once all the teams are saved return a success promise ( return promise.all )
+    var PouchDB = require('pouchdb');
+    var dbTeams = PouchDB('la-liga-teams');
+    var dbPlayers = PouchDB('la-liga-players');
+    
+    console.log( teamArr.length );
+    teamArr.forEach( function( teamObj, index ) {
+      // TODO
+    });
+  }
+};
+
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
 module.exports = {
@@ -142,9 +159,9 @@ module.exports = {
             });
           });
           
-          // once all urls for this current division are fetched we can continue
+          // once all the teams for this current division are fetched we can save them to the database
           Promise.all( teamsFetched ).then( function( teamObjArr ) {
-            // implement better version of DBSetupUtil
+            DBSetupUtil.init( teamObjArr );
           });
         });
       });
