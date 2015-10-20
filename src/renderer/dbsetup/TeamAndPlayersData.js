@@ -23,32 +23,35 @@ function extractTeamURLs( data ) {
   // extract team url and return array
   var $ = cheerio.load( data );
   var teamListElem = $( '#league-standings table tr[class*="row"]' );
+  var teamDivisionString = $( '#league-standings section.division h1' ).html();
+  var divisionString = teamDivisionString.split( 'CS:GO' );
   var outputArr = [];
 
   teamListElem.each( function( counter, el ) {
     var teamContainer = $( this ).children( 'td:nth-child(2)' );
     var teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
 
-    outputArr.push( teamURL.replace( /\./g, '&period[' ) );
+    outputArr.push({
+      division: divisionString[ 1 ].trim(),
+      placement: counter,
+      url: teamURL.replace( /\./g, '&period[' )
+    });
   });
 
   return outputArr;
 }
 
-function extractTeamInfo( data, placement ) {
+function extractTeamInfo( teamData, data ) {
   var $ = cheerio.load( data );
   var profileElem = $( '#teams-profile hr + section' );
   var profileInfoElem = profileElem.children( 'div#profile-info' );
   var profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
 
-  var divisionElem = profileInfoElem.children( 'div.content' ).children( 'div.data.margin-top' ).children( 'a' ).html();
-  var divisionString = divisionElem.split( 'CSGO' );
-  
   var teamObj = {
     name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
     country: undefined,
-    division: ( ( divisionString.length === 2 ) ? divisionString[ 1 ].trim() : 'Amateur' ),
+    division: teamData.division,
     skillTemplate: undefined,
     squad: []
   };
@@ -63,13 +66,13 @@ function extractTeamInfo( data, placement ) {
       teamObj.skillTemplate = 'Elite';
     break;
     case 'Premier':
-      teamObj.skillTemplate = ( ( placement < 3 ) ? 'Expert' : 'Very Hard' );
+      teamObj.skillTemplate = ( ( teamData.placement < 3 ) ? 'Expert' : 'Very Hard' );
     break;
     case 'Main':
-      teamObj.skillTemplate = ( ( placement < 3 ) ? 'Hard' : 'Tough' );
+      teamObj.skillTemplate = ( ( teamData.placement < 3 ) ? 'Hard' : 'Tough' );
     break;
     case 'Intermediate':
-      teamObj.skillTemplate = ( ( placement < 3 ) ? 'Normal' : 'Fair' );
+      teamObj.skillTemplate = ( ( teamData.placement < 3 ) ? 'Normal' : 'Fair' );
     break;
     case 'Amateur':
       teamObj.skillTemplate = 'Easy';
@@ -96,17 +99,20 @@ function extractTeamInfo( data, placement ) {
     });
   });
   
-  console.log( teamObj.name + ' --> ' + teamObj.division + ' --> ' + teamObj.skillTemplate );
+  //console.log( teamObj.name + ' --> ' + teamObj.division + ' --> ' + teamObj.skillTemplate );
   return teamObj;
 }
 
 Array.prototype.unique = function() {
-  var unique = this.reduce( function( accum, current ) {
-    if(accum.indexOf( current ) < 0 ) {
-      accum.push( current );
+  var unique = [];
+  var parsed = [];
+
+  this.forEach( function( obj, index ) {
+    if( parsed.indexOf( obj.url ) < 0 ) {
+      unique.push( obj );
+      parsed.push( obj.url );
     }
-    return accum;
-  }, [] );
+  });
 
   this.length = 0;
   for( var i = 0; i < unique.length; i++ ) {
@@ -127,18 +133,17 @@ module.exports = {
         }).then( function( teamURLs ) {
           // remove any duplicates (post-season/pre-season)
           var teamsFetched = [];
-          teamURLs.unique(); 
+          teamURLs.unique();
           
           // each team url is fetched and added to an array of promises
-          teamURLs.forEach( function( teamURL, index ) {
-            teamsFetched[ index ] = wget( BASE_URL + teamURL ).then( function( data ) {
-              return Promise.resolve( extractTeamInfo( data, index ) );
+          teamURLs.forEach( function( teamData, index ) {
+            teamsFetched[ index ] = wget( BASE_URL + teamData.url ).then( function( data ) {
+              return Promise.resolve( extractTeamInfo( teamData, data ) );
             });
           });
           
           // once all urls for this current division are fetched we can continue
           Promise.all( teamsFetched ).then( function( teamObjArr ) {
-            //for( var i = 0; i < teamObjArr.length; i++ ) console.log( teamObjArr[ i ].name );
             // implement better version of DBSetupUtil
           });
         });
