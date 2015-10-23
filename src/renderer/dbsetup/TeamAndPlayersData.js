@@ -132,9 +132,12 @@ var DBSetupUtil = {
     var dbTeams = PouchDB('la-liga-teams');
     var dbPlayers = PouchDB('la-liga-players');
     
-    console.log( teamArr.length );
-    teamArr.forEach( function( teamObj, index ) {
-      // TODO
+    return new Promise( function( resolve, reject ) {
+      teamArr.forEach( function( teamObj, currentTeam ) {
+        // TODO
+      });
+
+      resolve();
     });
   }
 };
@@ -144,7 +147,7 @@ var DBSetupUtil = {
 module.exports = {
   init: function() {
     for( var region in regions ) {
-      regions[ region ].forEach( function( division_id, index ) {
+      regions[ region ].forEach( function( division_id, currentRegion ) {
         wget( DIVISION_URL + division_id ).then( function( data ) {
           return Promise.resolve( extractTeamURLs( data ) );
         }).then( function( teamURLs ) {
@@ -153,15 +156,17 @@ module.exports = {
           teamURLs.unique();
           
           // each team url is fetched and added to an array of promises
-          teamURLs.forEach( function( teamData, index ) {
-            teamsFetched[ index ] = wget( BASE_URL + teamData.url ).then( function( data ) {
+          teamURLs.forEach( function( teamData, currentURL ) {
+            teamsFetched[ currentURL ] = wget( BASE_URL + teamData.url ).then( function( data ) {
               return Promise.resolve( extractTeamInfo( teamData, data ) );
             });
           });
           
           // once all the teams for this current division are fetched we can save them to the database
-          Promise.all( teamsFetched ).then( function( teamObjArr ) {
-            DBSetupUtil.init( teamObjArr );
+          Promise.all( teamsFetched ).then( function( teamsArr ) {
+            return DBSetupUtil.init( teamsArr );
+          }).then( function() {
+            console.log( division_id + ' teams saved...' );
           });
         });
       });
