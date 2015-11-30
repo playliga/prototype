@@ -102,7 +102,7 @@ function extractTeamInfo( teamData, data ) {
   return teamObj;
 }
 
-Array.prototype.unique = function() {
+Array.prototype.uniqueURLs = function() {
   var unique = [];
   var parsed = [];
 
@@ -131,14 +131,6 @@ var DBSetupUtil = {
     var PouchDB = require('pouchdb');
     var dbTeams = PouchDB('la-liga-teams');
     var dbPlayers = PouchDB('la-liga-players');
-    
-    return new Promise( function( resolve, reject ) {
-      teamArr.forEach( function( teamObj, currentTeam ) {
-        // TODO
-      });
-
-      resolve();
-    });
   }
 };
 
@@ -157,7 +149,7 @@ module.exports = {
         teamsPromise.then( function( teamURLs ) {
           // remove any duplicates (post-season/pre-season)
           var teamsFetched = [];
-          teamURLs.unique();
+          teamURLs.uniqueURLs();
           
           // each team url is fetched and added to an array of promises
           teamURLs.forEach( function( teamData, currentURL ) {
