@@ -122,7 +122,7 @@ Array.prototype.unique = function() {
 }
 
 var DBSetupUtil = {
-  init: function( teamArr ) {
+  doSave: function( teamArr ) {
     // accepts an array of teams
     // loop through teams squad and save each player ( return promise.all )
     // once the squad is saved, fetch the saved squad from the database
@@ -148,9 +148,13 @@ module.exports = {
   init: function() {
     for( var region in regions ) {
       regions[ region ].forEach( function( division_id, currentRegion ) {
-        wget( DIVISION_URL + division_id ).then( function( data ) {
+        // extract team urls for current division
+        var teamsPromise = wget( DIVISION_URL + division_id ).then( function( data ) {
           return Promise.resolve( extractTeamURLs( data ) );
-        }).then( function( teamURLs ) {
+        });
+        
+        // collect info from each team url such as name, squad, tag, etc
+        teamsPromise.then( function( teamURLs ) {
           // remove any duplicates (post-season/pre-season)
           var teamsFetched = [];
           teamURLs.unique();
@@ -164,7 +168,7 @@ module.exports = {
           
           // once all the teams for this current division are fetched we can save them to the database
           Promise.all( teamsFetched ).then( function( teamsArr ) {
-            return DBSetupUtil.init( teamsArr );
+            return DBSetupUtil.doSave( teamsArr );
           }).then( function() {
             console.log( division_id + ' teams saved...' );
           });
