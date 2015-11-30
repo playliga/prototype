@@ -136,16 +136,34 @@ function uniqueURLs( arr ) {
   return arr;
 }
 
-// TODO: use maps/reduce functions which are like indexes; will GREATLY reduce load times
 function find( db, identifier, val ) {
-  return db.query( function( doc, emit ) { emit( doc[ identifier ] ); }, {
+  return db.query( identifier, {
     key: val,
     include_docs: true
   });
 }
 
 var DBSetupUtil = {
+  runIndexes: function() {
+    var ddoc = {
+      _id: '_design/playerIndex',
+      views: {
+        byTeamId: {
+          map: function( doc ) { emit( doc.teamId ); }.toString()
+        }
+      }
+    };
+    
+    dbPlayers.put( ddoc ).then( function() {
+      // TODO: maybe initialize if index doesn't already exist?
+    }).catch( function( err ) {
+      // TODO: maybe a 409 because it already exists?
+    });
+  },
+
   doSave: function( teamArr ) {
+    this.runIndexes();
+
     return new Promise( function( resolve, reject ) {
       var squadSaved = [];
       var teamUpdated = [];
@@ -159,7 +177,7 @@ var DBSetupUtil = {
       Promise.all( squadSaved ).then( function() {
         // update each teams squad with their respective squad from the db
         teamArr.forEach( function( rawTeamObj, currentTeam ) {
-          teamUpdated[ currentTeam ] = find( dbPlayers, 'teamId', rawTeamObj._id ).then( function( res ) {
+          teamUpdated[ currentTeam ] = find( dbPlayers, 'playerIndex/byTeamId', rawTeamObj._id ).then( function( res ) {
             rawTeamObj.squad = res.rows;
             return Promise.resolve();
           });
