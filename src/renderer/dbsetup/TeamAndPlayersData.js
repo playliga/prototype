@@ -50,7 +50,7 @@ function extractTeamInfo( teamData, data ) {
   var teamObj = {
     name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
-    country: undefined,
+    countryCode: undefined,
     division: teamData.division,
     skillTemplate: undefined,
     squad: []
@@ -88,7 +88,7 @@ function extractTeamInfo( teamData, data ) {
     
     // Inherit first player's country code as the team's
     if( counter === 0 ) {
-      teamObj.country = countryCode;
+      teamObj.countryCode = countryCode;
     } 
 
     teamObj.squad.push({
