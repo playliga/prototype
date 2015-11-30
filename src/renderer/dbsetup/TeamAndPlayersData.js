@@ -136,15 +136,42 @@ function uniqueURLs( arr ) {
   return arr;
 }
 
+// TODO: use maps/reduce functions which are like indexes; will GREATLY reduce load times
+function find( db, identifier, val ) {
+  return db.query( function( doc, emit ) { emit( doc[ identifier ] ); }, {
+    key: val,
+    include_docs: true
+  });
+}
+
 var DBSetupUtil = {
   doSave: function( teamArr ) {
-    // accepts an array of teams
-    // loop through teams squad and save each player ( return promise.all )
-    // once the squad is saved, fetch the saved squad from the database
-    // now save the team to the database along with the saved squad
-    // once all the teams are saved return a success promise ( return promise.all )
-    teamArr.forEach( function( rawTeamObj ) {
-      // need a promise to know when all players for current team are saved in DB
+    return new Promise( function( resolve, reject ) {
+      var squadSaved = [];
+      var teamUpdated = [];
+
+      // save each teams squad
+      teamArr.forEach( function( rawTeamObj, currentTeam ) {
+        squadSaved[ currentTeam ] = dbPlayers.bulkDocs( rawTeamObj.squad );
+      });
+
+      // once all squads are in the db we can continue
+      Promise.all( squadSaved ).then( function() {
+        // update each teams squad with their respective squad from the db
+        teamArr.forEach( function( rawTeamObj, currentTeam ) {
+          teamUpdated[ currentTeam ] = find( dbPlayers, 'teamId', rawTeamObj._id ).then( function( res ) {
+            rawTeamObj.squad = res.rows;
+            return Promise.resolve();
+          });
+        });
+
+        // finally, once every teams squad has been updated we can save to the db
+        Promise.all( teamUpdated ).then( function() {
+          dbTeams.bulkDocs( teamArr ).then( function() {
+            resolve();
+          });
+        });
+      });
     });
   }
 };
@@ -177,7 +204,7 @@ module.exports = {
           Promise.all( teamsFetched ).then( function( teamsArr ) {
             return DBSetupUtil.doSave( teamsArr );
           }).then( function() {
-            console.log( division_id + ' teams saved...' );
+            console.log( 'division #' + division_id + ': teams saved...' );
           });
         });
       });
