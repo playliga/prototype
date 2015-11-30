@@ -1,6 +1,10 @@
 var request = require( 'request' );
 var cheerio = require( 'cheerio' );
 
+var PouchDB = require('pouchdb');
+var dbTeams = PouchDB('la-liga-teams');
+var dbPlayers = PouchDB('la-liga-players');
+
 // create array of regions and their division urls
 var BASE_URL = 'https://play.esea.net';
 var DIVISION_URL = BASE_URL + '/index.php?s=league&d=standings&division_id=';
@@ -102,23 +106,23 @@ function extractTeamInfo( teamData, data ) {
   return teamObj;
 }
 
-Array.prototype.uniqueURLs = function() {
+function uniqueURLs( arr ) {
   var unique = [];
   var parsed = [];
 
-  this.forEach( function( obj, index ) {
+  arr.forEach( function( obj, index ) {
     if( parsed.indexOf( obj.url ) < 0 ) {
       unique.push( obj );
       parsed.push( obj.url );
     }
   });
 
-  this.length = 0;
+  arr.length = 0;
   for( var i = 0; i < unique.length; i++ ) {
-    this.push( unique[ i ] );
+    arr.push( unique[ i ] );
   }
 
-  return this;
+  return arr;
 }
 
 var DBSetupUtil = {
@@ -128,9 +132,6 @@ var DBSetupUtil = {
     // once the squad is saved, fetch the saved squad from the database
     // now save the team to the database along with the saved squad
     // once all the teams are saved return a success promise ( return promise.all )
-    var PouchDB = require('pouchdb');
-    var dbTeams = PouchDB('la-liga-teams');
-    var dbPlayers = PouchDB('la-liga-players');
   }
 };
 
@@ -149,7 +150,7 @@ module.exports = {
         teamsPromise.then( function( teamURLs ) {
           // remove any duplicates (post-season/pre-season)
           var teamsFetched = [];
-          teamURLs.uniqueURLs();
+          teamURLs = uniqueURLs( teamURLs );
           
           // each team url is fetched and added to an array of promises
           teamURLs.forEach( function( teamData, currentURL ) {
