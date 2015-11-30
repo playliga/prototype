@@ -23,6 +23,12 @@ function wget( url ) {
   });
 }
 
+function camelize( str ) {
+  return str.replace( /(?:^\w|[A-Z]|\b\w)/g, function( letter, index ) {
+    return ( index == 0 ) ? letter.toLowerCase() : letter.toUpperCase();
+  }).replace( /\s+/g, '' );
+}
+
 function extractTeamURLs( data ) {
   // extract team url and return array
   var $ = cheerio.load( data );
@@ -50,9 +56,11 @@ function extractTeamInfo( teamData, data ) {
   var profileElem = $( '#teams-profile hr + section' );
   var profileInfoElem = profileElem.children( 'div#profile-info' );
   var profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
+  var teamnameElem = profileElem.children( 'div#profile-header' ).children( 'h1' );
 
   var teamObj = {
-    name: profileElem.children( 'div#profile-header' ).children( 'h1' ).text(),
+    _id: camelize( teamnameElem.text() ),
+    name: teamnameElem.text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
     countryCode: undefined,
     division: teamData.division,
@@ -96,8 +104,11 @@ function extractTeamInfo( teamData, data ) {
     } 
 
     teamObj.squad.push({
+      _id: camelize( nameElem.text() ),
       username: nameElem.text(),
       countryCode: countryCode,
+      teamId: teamObj._id,
+      transferValue: 0, // TODO
       skillTemplate: teamObj.skillTemplate,
       weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
     });
@@ -132,6 +143,9 @@ var DBSetupUtil = {
     // once the squad is saved, fetch the saved squad from the database
     // now save the team to the database along with the saved squad
     // once all the teams are saved return a success promise ( return promise.all )
+    teamArr.forEach( function( rawTeamObj ) {
+      // need a promise to know when all players for current team are saved in DB
+    });
   }
 };
 
