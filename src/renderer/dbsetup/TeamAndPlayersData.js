@@ -143,56 +143,52 @@ function find( db, identifier, val ) {
   });
 }
 
-var DBSetupUtil = {
-  runIndexes: function() {
-    var ddoc = {
-      _id: '_design/playerIndex',
-      views: {
-        byTeamId: {
-          map: function( doc ) { emit( doc.teamId ); }.toString()
-        }
+function saveDivision( teamArr ) {
+  // run indexes for querying by team id
+  var ddoc = {
+    _id: '_design/playerIndex',
+    views: {
+      byTeamId: {
+        map: function( doc ) { emit( doc.teamId ); }.toString()
       }
-    };
-    
-    dbPlayers.put( ddoc ).then( function() {
-      // TODO: maybe initialize if index doesn't already exist?
-    }).catch( function( err ) {
-      // TODO: maybe a 409 because it already exists?
+    }
+  };
+  
+  dbPlayers.put( ddoc ).then( function() {
+    // TODO: maybe initialize if index doesn't already exist?
+  }).catch( function( err ) {
+    // TODO: maybe a 409 because it already exists?
+  });
+
+  // now do the work of saving the division to the database
+  return new Promise( function( resolve, reject ) {
+    var squadSaved = [];
+    var teamUpdated = [];
+
+    // save each teams squad
+    teamArr.forEach( function( rawTeamObj, currentTeam ) {
+      squadSaved[ currentTeam ] = dbPlayers.bulkDocs( rawTeamObj.squad );
     });
-  },
 
-  doSave: function( teamArr ) {
-    this.runIndexes();
-
-    return new Promise( function( resolve, reject ) {
-      var squadSaved = [];
-      var teamUpdated = [];
-
-      // save each teams squad
+    // once all squads are in the db we can continue
+    Promise.all( squadSaved ).then( function() {
+      // update each teams squad with their respective squad from the db
       teamArr.forEach( function( rawTeamObj, currentTeam ) {
-        squadSaved[ currentTeam ] = dbPlayers.bulkDocs( rawTeamObj.squad );
+        teamUpdated[ currentTeam ] = find( dbPlayers, 'playerIndex/byTeamId', rawTeamObj._id ).then( function( res ) {
+          rawTeamObj.squad = res.rows;
+          return Promise.resolve();
+        });
       });
 
-      // once all squads are in the db we can continue
-      Promise.all( squadSaved ).then( function() {
-        // update each teams squad with their respective squad from the db
-        teamArr.forEach( function( rawTeamObj, currentTeam ) {
-          teamUpdated[ currentTeam ] = find( dbPlayers, 'playerIndex/byTeamId', rawTeamObj._id ).then( function( res ) {
-            rawTeamObj.squad = res.rows;
-            return Promise.resolve();
-          });
-        });
-
-        // finally, once every teams squad has been updated we can save to the db
-        Promise.all( teamUpdated ).then( function() {
-          dbTeams.bulkDocs( teamArr ).then( function() {
-            resolve();
-          });
+      // finally, once every teams squad has been updated we can save to the db
+      Promise.all( teamUpdated ).then( function() {
+        dbTeams.bulkDocs( teamArr ).then( function() {
+          resolve();
         });
       });
     });
-  }
-};
+  });
+}
 
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
@@ -220,7 +216,7 @@ module.exports = {
           
           // once all the teams for this current division are fetched we can save them to the database
           Promise.all( teamsFetched ).then( function( teamsArr ) {
-            return DBSetupUtil.doSave( teamsArr );
+            return saveDivision( teamsArr );
           }).then( function() {
             console.log( 'division #' + division_id + ': teams saved...' );
           });
