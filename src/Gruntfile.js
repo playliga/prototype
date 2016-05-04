@@ -46,9 +46,7 @@ module.exports = function(grunt){
       },
       copySrc: {
         command: [
-          'cp ./package.json ' + DIST_ROOT,
-          'cp ./main.js ' + DIST_ROOT,
-          'cp -r ' + RENDERER_ROOT + '/static ' + DIST_ROOT,
+          'cp -r ./ ' + DIST_ROOT
         ].join('&&')
       }
     }
