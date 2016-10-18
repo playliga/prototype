@@ -21,5 +21,8 @@
   "main": "main.js",
   "devDependencies": {
     "electron": "1.4.3"
+  },
+  "scripts": {
+    "start": "electron ."
   }
 }
