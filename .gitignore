@@ -1,11 +1,7 @@
-.vagrant/
 dist/*
 build/*
-node_modules/
 
 !/dist/.gitkeep
 !/build/.gitkeep
 
 *.swp
-bundle.css
-bundle.js
