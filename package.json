@@ -1,0 +1,25 @@
+{
+  "name": "la-liga",
+  "author": "Steve Rivera",
+  "license": "UNLICENSED",
+  "version": "0.0.1",
+  "description": "A football manager-type game for e-sports",
+  "homepage": "https://github.com/lemonpole/la-liga#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lemonpole/la-liga.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lemonpole/la-liga/issues"
+  },
+  "keywords": [
+    "manager",
+    "e-sports",
+    "e-sport",
+    "simulator"
+  ],
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "1.4.3"
+  }
+}
