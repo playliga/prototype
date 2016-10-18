@@ -1,7 +1,1 @@
-dist/*
-build/*
-
-!/dist/.gitkeep
-!/build/.gitkeep
-
 *.swp
