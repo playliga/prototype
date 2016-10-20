@@ -19,10 +19,20 @@
     "simulator"
   ],
   "main": "main.js",
-  "devDependencies": {
+  "dependencies": {
     "electron": "1.4.3"
   },
+  "devDependencies": {
+    "babel-eslint": "7.0.0",
+    "eslint": "3.8.1",
+    "eslint-config-airbnb": "12.0.0",
+    "eslint-plugin-babel": "3.3.0",
+    "eslint-plugin-import": "1.16.0",
+    "eslint-plugin-jsx-a11y": "2.2.2",
+    "eslint-plugin-react": "6.4.1"
+  },
   "scripts": {
+    "lint": "eslint --ext .js,.jsx ./",
     "start": "electron ."
   }
 }
