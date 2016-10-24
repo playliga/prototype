@@ -1,9 +1,9 @@
-var path = require( 'path' );
-var webpack = require( 'webpack' );
-var webpackTargetElectronRenderer = require( 'webpack-target-electron-renderer' );
-var webpackConfig = require( path.join( __dirname, './webpack-shared.js' ) );
+import path from 'path';
+import webpack from 'webpack';
+import webpackTargetElectronRenderer from 'webpack-target-electron-renderer';
+import webpackConfig from './webpack-shared.js';
 
-var config = {
+let config = {
   resolve: webpackConfig.resolve,
   entry: [
     'webpack-hot-middleware/client?reload=true&path=http://localhost:9000/__webpack_hmr',
@@ -28,7 +28,13 @@ var config = {
     emitWarning: true
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
+    new webpack.HotModuleReplacementPlugin(),
+
+    // If you are using the CLI, the webpack process will not exit with an
+    // error code by enabling this plugin:
+    // https://github.com/webpack/docs/wiki/list-of-plugins#noerrorsplugin
+    new webpack.NoErrorsPlugin()
   ]
 };
 
@@ -36,4 +42,4 @@ var config = {
 // built-in modules as externals plus some other bits here and there
 config.target = webpackTargetElectronRenderer( config );
 
-module.exports = config;
+export default config;

@@ -1,4 +1,4 @@
-var path = require( 'path' );
+import path from 'path';
 
 exports.loaders = {
   js: {
