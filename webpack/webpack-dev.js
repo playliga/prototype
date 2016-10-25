@@ -2,15 +2,17 @@ import path from 'path';
 import webpack from 'webpack';
 import webpackConfig from './webpack-shared.js';
 
+const PORT = process.env.PORT || 3000;
+
 export default {
   resolve: webpackConfig.resolve,
   entry: [
-    'webpack-hot-middleware/client?reload=true&path=http://localhost:9000/__webpack_hmr',
+    `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
     path.join( __dirname, '../src/index' )
   ],
   output: {
     path: path.join( __dirname, '../dist' ),
-    publicPath: 'http://localhost:9000/dist/',
+    publicPath: `http://localhost:${PORT}/dist/`,
     filename: 'bundle.js'
   },
   module: {

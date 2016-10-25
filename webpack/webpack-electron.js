@@ -14,7 +14,6 @@ export default {
   ],
   output: {
     path: path.join( __dirname, '../dist' ),
-    publicPath: 'http://localhost:9000/dist/',
     filename: 'main.bundle.js'
   },
   module: {
