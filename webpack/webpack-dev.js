@@ -1,9 +1,8 @@
 import path from 'path';
 import webpack from 'webpack';
-import webpackTargetElectronRenderer from 'webpack-target-electron-renderer';
 import webpackConfig from './webpack-shared.js';
 
-let config = {
+export default {
   resolve: webpackConfig.resolve,
   entry: [
     'webpack-hot-middleware/client?reload=true&path=http://localhost:9000/__webpack_hmr',
@@ -35,11 +34,9 @@ let config = {
     // error code by enabling this plugin:
     // https://github.com/webpack/docs/wiki/list-of-plugins#noerrorsplugin
     new webpack.NoErrorsPlugin()
-  ]
+  ],
+
+  // needed to set all of electron built-in modules as externals plus some
+  // other bits here and there
+  target: 'electron-renderer'
 };
-
-// The webpack-target-electron-renderer is needed to set all of electron
-// built-in modules as externals plus some other bits here and there
-config.target = webpackTargetElectronRenderer( config );
-
-export default config;
