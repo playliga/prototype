@@ -31,7 +31,7 @@ function extractTeamURLs( data ) {
   const outputArr = [];
 
   teamListElem.each( ( counter, el ) => {
-    const teamContainer = $( this ).children( 'td:nth-child(1)' );
+    const teamContainer = $( el ).children( 'td:nth-child(2)' );
     const teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
 
     outputArr.push({
