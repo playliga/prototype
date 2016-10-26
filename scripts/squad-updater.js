@@ -6,7 +6,7 @@ import cheerio from 'cheerio';
 // create array of regions and their division urls
 const BASE_URL = 'https://play.esea.net';
 const DIVISION_URL = `${BASE_URL}/index.php?s=league&d=standings&division_id=`;
-const regions = {
+const REGIONS = {
   na: [ '2490', '2491' ], // professional, premier, ..., open
   eu: [ '2485', '2505' ]
 };
@@ -46,8 +46,8 @@ function extractTeamURLs( data ) {
 
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
-Object.keys( regions ).map( ( regionId ) => {
-  const region = regions[ regionId ];
+Object.keys( REGIONS ).map( ( regionId ) => {
+  const region = REGIONS[ regionId ];
 
   for( let i = 0; i < region.length; i++ ) {
     const divId = region[ i ];
