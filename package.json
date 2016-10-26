@@ -51,6 +51,6 @@
     "start": "NODE_ENV=production electron ./dist/main.bundle.js",
     "start:dev": "NODE_ENV=development electron -r babel-register -r babel-polyfill ./main",
     "start:dev-server": "NODE_ENV=development node -r babel-register ./webpack/server.js",
-    "squad-updater": "node -r babel-register ./scripts/squad-updater.js"
+    "squad-updater": "node -r babel-register ./scripts/index.js"
   }
 }

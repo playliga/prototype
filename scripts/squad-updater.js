@@ -46,15 +46,14 @@ function extractTeamURLs( data ) {
 
 // loop through each region and its divisions
 // extract team list for each division and squads for each team
-Object.keys( REGIONS ).map( ( regionId ) => {
+Object.keys( REGIONS ).map( async ( regionId ) => {
   const region = REGIONS[ regionId ];
 
   for( let i = 0; i < region.length; i++ ) {
     const divId = region[ i ];
+    const html = await fetchDivisionPageHTML( DIVISION_URL + divId );
 
-    fetchDivisionPageHTML( DIVISION_URL + divId ).then( ( html ) => {
-      extractTeamURLs( html );
-    });
+    extractTeamURLs( html );
   }
 
   return true;
