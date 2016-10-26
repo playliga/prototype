@@ -50,6 +50,7 @@
     ],
     "new-cap": 0,
     "no-multi-spaces": 2,
+    "no-plusplus": 0,
     "no-underscore-dangle": 0,
     "no-unused-vars": [
       "error",
