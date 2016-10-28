@@ -12,7 +12,7 @@ const REGIONS = {
 };
 
 // helper functions
-function fetchDivisionPageHTML( url ) {
+function fetchDivisionPage( url ) {
   return new Promise( ( resolve, reject ) => {
     // cloudscraper.get( url, ( err, res, body ) => {
     //   resolve( body );
@@ -26,13 +26,14 @@ function fetchDivisionPageHTML( url ) {
 function extractTeamURLs( data ) {
   const $ = cheerio.load( data );
   const teamListElem = $( '#league-standings table tr[class*="row"]' );
-  const teamDivisionString = $( '#league-standings section.division h1' ).html();
-  const divisionString = teamDivisionString.split( 'CS:GO' );
   const outputArr = [];
 
+  let divisionString = $( '#league-standings section.division h1' ).html();
+  divisionString = divisionString.split( 'CS:GO' );
+
   teamListElem.each( ( counter, el ) => {
-    const teamContainer = $( el ).children( 'td:nth-child(2)' );
-    const teamURL = teamContainer.children( 'a:nth-child(2)' ).attr( 'href' );
+    const teamContainerElem = $( el ).children( 'td:nth-child(2)' );
+    const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' );
 
     outputArr.push({
       division: divisionString[ 1 ].trim(),
@@ -50,8 +51,8 @@ Object.keys( REGIONS ).map( async ( regionId ) => {
   const region = REGIONS[ regionId ];
 
   for( let i = 0; i < region.length; i++ ) {
-    const divId = region[ i ];
-    const html = await fetchDivisionPageHTML( DIVISION_URL + divId );
+    const divisionId = region[ i ];
+    const html = await fetchDivisionPage( DIVISION_URL + divisionId );
 
     extractTeamURLs( html );
   }
