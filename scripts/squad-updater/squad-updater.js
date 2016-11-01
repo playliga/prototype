@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
+/* eslint-disable import/no-extraneous-dependencies */
 import path from 'path';
 import fs from 'fs';
+import chalk from 'chalk';
 
 const BASE_URL = 'https://play.esea.net';
 const DIVISION_URL = `${BASE_URL}/index.php?s=league&d=standings&division_id=`;
@@ -16,14 +18,16 @@ const CACHE_DIR = path.join( __dirname, './cache' );
 * as we'd do the same thing if we were to do it async.
 */
 function cacheDirCheck() {
-  console.log( 'checking if cache directory exists...' );
+  console.log( chalk.green( 'Checking if cache directory exists...' ) );
 
   if( !fs.existsSync( CACHE_DIR ) ) {
-    console.log( 'cache directory not found. creating...' );
+    console.log( chalk.red( 'Cache directory not found. Creating...' ) );
     fs.mkdirSync( CACHE_DIR );
+  } else {
+    console.log( chalk.blue( 'Cache directory found.' ) );
   }
 
-  console.log( 'Done.' );
+  console.log( chalk.green( '\nDone.' ) );
 }
 
 /*
