@@ -3,6 +3,7 @@
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
+import glob from 'glob';
 
 const BASE_URL = 'https://play.esea.net';
 const DIVISION_URL = `${BASE_URL}/index.php?s=league&d=standings&division_id=`;
@@ -23,11 +24,20 @@ function cacheDirCheck() {
   if( !fs.existsSync( CACHE_DIR ) ) {
     console.log( chalk.red( 'Cache directory not found. Creating...' ) );
     fs.mkdirSync( CACHE_DIR );
+    console.log( chalk.green( 'Done.' ) );
   } else {
-    console.log( chalk.blue( 'Cache directory found.' ) );
+    console.log( chalk.green( 'Cache directory found.' ) );
   }
+}
 
-  console.log( chalk.green( '\nDone.' ) );
+// Search for specified division's cache files
+// useful for when deciding whether to fetch directly from website or not
+function cacheFileCheck( divisionId ) {
+  return new Promise( ( resolve, reject ) => {
+    glob( `**/*+(${divisionId}).html`, { cwd: CACHE_DIR }, ( err, files ) => {
+      resolve( files );
+    });
+  });
 }
 
 /*
@@ -39,8 +49,17 @@ function cacheDirCheck() {
 *
 * Unless told otherwise...
 */
-function fetchDivisionPage( url ) {
+async function fetchDivisionPage( divisionId ) {
   // Do we have a cache to load from?
+  const CACHE_FILENAME = `${Date.now()}_${divisionId}.html`;
+  const CACHE_DATA = await cacheFileCheck( divisionId );
+
+  if( CACHE_DATA.length > 0 ) {
+    return Promise.resolve( CACHE_DATA );
+  }
+
+  // If no cache, we can continue with making our request. After that's done
+  // we save the data to cache
 }
 
 /*
@@ -61,7 +80,7 @@ function init() {
 
     for( let i = 0; i < region.length; i++ ) {
       divisionId = region[ i ];
-      html = await fetchDivisionPage( DIVISION_URL + divisionId );
+      html = await fetchDivisionPage( divisionId );
     }
   });
 }
