@@ -24,10 +24,9 @@ function cacheDirCheck() {
   if( !fs.existsSync( CACHE_DIR ) ) {
     console.log( chalk.red( 'Cache directory not found. Creating...' ) );
     fs.mkdirSync( CACHE_DIR );
-    console.log( chalk.green( 'Done.' ) );
-  } else {
-    console.log( chalk.green( 'Cache directory found.' ) );
   }
+
+  console.log( chalk.green( 'Done.' ) );
 }
 
 // Search for specified division's cache files
@@ -50,12 +49,12 @@ function cacheFileCheck( divisionId ) {
 * Unless told otherwise...
 */
 async function fetchDivisionPage( divisionId ) {
-  // Do we have a cache to load from?
-  const CACHE_FILENAME = `${Date.now()}_${divisionId}.html`;
-  const CACHE_DATA = await cacheFileCheck( divisionId );
+  // Do we have a cached file to load from?
+  const CACHE_FILELIST = await cacheFileCheck( divisionId );
 
-  if( CACHE_DATA.length > 0 ) {
-    return Promise.resolve( CACHE_DATA );
+  if( CACHE_FILELIST.length > 0 ) {
+    const body = fs.readFileSync( `${CACHE_DIR}/${CACHE_FILELIST[ 0 ]}`, 'utf-8' );
+    return Promise.resolve( body );
   }
 
   // If no cache, we can continue with making our request. After that's done
