@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-extraneous-dependencies */
 import chalk from 'chalk';
+import cheerio from 'cheerio';
 import cloudscraper from 'cloudscraper';
 import fs from 'fs';
 import glob from 'glob';
@@ -84,6 +85,33 @@ async function fetchDivisionPage( divisionId ) {
 }
 
 /*
+* SCRAPER FUNCTIONS
+* Useful functions for scraping the data off of the html page fetched for each
+* region and its divisions
+*/
+function extractTeamURLs( data ) {
+  const $ = cheerio.load( data );
+  const teamListElem = $( '#league-standings table tr[class*="row"]' );
+  const outputArr = [];
+
+  let divisionString = $( '#league-standings section.division h1' ).html();
+  divisionString = divisionString.split( 'CS:GO' );
+
+  teamListElem.each( ( counter, el ) => {
+    const teamContainerElem = $( el ).children( 'td:nth-child(2)' );
+    const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' );
+
+    outputArr.push({
+      division: divisionString[ 1 ].trim(),
+      placement: counter,
+      url: teamURL.replace( /\./g, '&period[' )
+    });
+  });
+
+  return outputArr;
+}
+
+/*
 * Couple of things to do here:
 * 1. Loop through each region and its divisions. Fetch each division page
 * and extract all of the team URLs
@@ -98,6 +126,8 @@ function init() {
     for( let i = 0; i < regionArr.length; i++ ) {
       const divisionId = regionArr[ i ];
       const html = await fetchDivisionPage( divisionId );
+
+      console.log( extractTeamURLs( html ) );
     }
   });
 }
