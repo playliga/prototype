@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-extraneous-dependencies */
-import path from 'path';
-import fs from 'fs';
 import chalk from 'chalk';
+import cloudscraper from 'cloudscraper';
+import fs from 'fs';
 import glob from 'glob';
+import path from 'path';
 
 const BASE_URL = 'https://play.esea.net';
 const DIVISION_URL = `${BASE_URL}/index.php?s=league&d=standings&division_id=`;
@@ -15,8 +16,15 @@ const REGIONS = {
 const CACHE_DIR = path.join( __dirname, './cache' );
 
 /*
+* CACHE HELPER FUNCTIONS
+*
+* `cacheDirCheck`
 * Create cache directory if not already exists. It's fine to block execution
 * as we'd do the same thing if we were to do it async.
+*
+* `cacheFileCheck`
+* Search for specified division's cache files
+* useful for when deciding whether to fetch directly from website or not
 */
 function cacheDirCheck() {
   console.log( chalk.green( 'Checking if cache directory exists...' ) );
@@ -26,16 +34,25 @@ function cacheDirCheck() {
     fs.mkdirSync( CACHE_DIR );
   }
 
-  console.log( chalk.green( 'Done.' ) );
+  console.log( chalk.green( 'Done.\n' ) );
 }
 
-// Search for specified division's cache files
-// useful for when deciding whether to fetch directly from website or not
 function cacheFileCheck( divisionId ) {
   return new Promise( ( resolve, reject ) => {
     glob( `**/*+(${divisionId}).html`, { cwd: CACHE_DIR }, ( err, files ) => {
       resolve( files );
     });
+  });
+}
+
+/*
+* Cloudscraper is a tool used to scrape sites that are protected by cloudflare
+* but unfortunately it does not return a promise. Here we're fixing that by
+* wrapping cloudscraper in one. :)
+*/
+function scraper( url ) {
+  return new Promise( ( resolve, reject ) => {
+    cloudscraper.get( url, ( err, res, body ) => resolve( body ) );
   });
 }
 
@@ -50,6 +67,7 @@ function cacheFileCheck( divisionId ) {
 */
 async function fetchDivisionPage( divisionId ) {
   // Do we have a cached file to load from?
+  const CACHE_FILENAME = `${Date.now()}_${divisionId}.html`;
   const CACHE_FILELIST = await cacheFileCheck( divisionId );
 
   if( CACHE_FILELIST.length > 0 ) {
@@ -59,6 +77,10 @@ async function fetchDivisionPage( divisionId ) {
 
   // If no cache, we can continue with making our request. After that's done
   // we save the data to cache
+  const body = await scraper( DIVISION_URL + divisionId );
+  fs.writeFileSync( `${CACHE_DIR}/${CACHE_FILENAME}`, body );
+
+  return Promise.resolve( body );
 }
 
 /*
@@ -67,19 +89,15 @@ async function fetchDivisionPage( divisionId ) {
 * and extract all of the team URLs
 */
 function init() {
-  let region;
-  let divisionId;
-  let html;
-
   // create cache directory if it does not already exist
   cacheDirCheck();
 
   Object.keys( REGIONS ).map( async ( regionId ) => {
-    region = REGIONS[ regionId ];
+    const regionArr = REGIONS[ regionId ];
 
-    for( let i = 0; i < region.length; i++ ) {
-      divisionId = region[ i ];
-      html = await fetchDivisionPage( divisionId );
+    for( let i = 0; i < regionArr.length; i++ ) {
+      const divisionId = regionArr[ i ];
+      const html = await fetchDivisionPage( divisionId );
     }
   });
 }
