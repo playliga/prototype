@@ -17,6 +17,26 @@ const REGIONS = {
 const CACHE_DIR = path.join( __dirname, './cache' );
 
 /*
+* Cloudscraper is a tool used to scrape sites that are protected by cloudflare
+* but unfortunately it does not return a promise. Here we're fixing that by
+* wrapping cloudscraper in one. :)
+*/
+function scraper( url ) {
+  return new Promise( ( resolve, reject ) => {
+    cloudscraper.get( url, ( err, res, body ) => resolve( body ) );
+  });
+}
+
+/*
+* TODO: Documentation for this camelize lovely function
+*/
+function camelize( str ) {
+  return str.replace( /(?:^\w|[A-Z]|\b\w)/g, ( letter, index ) => (
+    ( ( index === 0 ) ? letter.toLowerCase() : letter.toUpperCase() )
+  ) ).replace( /\s+/g, '' );
+}
+
+/*
 * CACHE HELPER FUNCTIONS
 *
 * `cacheDirCheck`
@@ -26,6 +46,11 @@ const CACHE_DIR = path.join( __dirname, './cache' );
 * `cacheFileCheck`
 * Search for specified division's cache files
 * useful for when deciding whether to fetch directly from website or not
+*
+* `cacheFileFetch`
+* Used when fetching the html of a page. Will first check to see if the
+* specified id was found in cache. If not, it will send the request and then
+* store the returned data in cache.
 */
 function cacheDirCheck() {
   console.log( chalk.green( 'Checking if cache directory exists...' ) );
@@ -38,38 +63,18 @@ function cacheDirCheck() {
   console.log( chalk.green( 'Done.\n' ) );
 }
 
-function cacheFileCheck( divisionId ) {
+function cacheFileCheck( fileId ) {
   return new Promise( ( resolve, reject ) => {
-    glob( `**/*+(${divisionId}).html`, { cwd: CACHE_DIR }, ( err, files ) => {
+    glob( `**/*+(${fileId}).html`, { cwd: CACHE_DIR }, ( err, files ) => {
       resolve( files );
     });
   });
 }
 
-/*
-* Cloudscraper is a tool used to scrape sites that are protected by cloudflare
-* but unfortunately it does not return a promise. Here we're fixing that by
-* wrapping cloudscraper in one. :)
-*/
-function scraper( url ) {
-  return new Promise( ( resolve, reject ) => {
-    cloudscraper.get( url, ( err, res, body ) => resolve( body ) );
-  });
-}
-
-/*
-* Each division has a landing page we need to fetch so that it can then be
-* loaded as an html string.
-*
-* After the pages are fetched they should be cached. Subsequent instantiations
-* should load the html from the cache rather than hitting the web page directly.
-*
-* Unless told otherwise...
-*/
-async function fetchDivisionPage( divisionId ) {
+async function cacheFileFetch( url, fileId ) {
   // Do we have a cached file to load from?
-  const CACHE_FILENAME = `${Date.now()}_${divisionId}.html`;
-  const CACHE_FILELIST = await cacheFileCheck( divisionId );
+  const CACHE_FILENAME = `${Date.now()}_${fileId}.html`;
+  const CACHE_FILELIST = await cacheFileCheck( fileId );
 
   if( CACHE_FILELIST.length > 0 ) {
     const body = fs.readFileSync( `${CACHE_DIR}/${CACHE_FILELIST[ 0 ]}`, 'utf-8' );
@@ -78,8 +83,9 @@ async function fetchDivisionPage( divisionId ) {
 
   // If no cache, we can continue with making our request. After that's done
   // we save the data to cache
-  const body = await scraper( DIVISION_URL + divisionId );
+  const body = await scraper( url );
   fs.writeFileSync( `${CACHE_DIR}/${CACHE_FILENAME}`, body );
+  console.log( chalk.blue( `[cache created] ${CACHE_DIR}/${CACHE_FILENAME}` ) );
 
   return Promise.resolve( body );
 }
@@ -111,6 +117,93 @@ function extractTeamURLs( data ) {
   return outputArr;
 }
 
+function extractTeamInfo( teamData, html ) {
+  const $ = cheerio.load( html );
+  const profileElem = $( '#teams-profile hr + section' );
+  const profileInfoElem = profileElem.children( 'div#profile-info' );
+  const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
+  const teamnameElem = profileElem.children( 'div#profile-header' ).children( 'h1' );
+
+  const teamObj = {
+    _id: camelize( teamnameElem.text() ),
+    name: teamnameElem.text(),
+    tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
+    countryCode: undefined,
+    division: teamData.division,
+    skillTemplate: undefined,
+    squad: []
+  };
+
+  // Professional = Elite
+  // Premier = Expert, Very Hard
+  // Main = Hard, Tough
+  // Intermediate = Normal, Fair
+  // Open = Easy
+  switch( teamObj.division ) {
+    case 'Professional':
+      teamObj.skillTemplate = 'Elite';
+      break;
+    case 'Premier':
+      teamObj.skillTemplate = ( ( teamData.placement < 3 ) ? 'Expert' : 'Very Hard' );
+      break;
+    case 'Main':
+      teamObj.skillTemplate = ( ( teamData.placement < 3 ) ? 'Hard' : 'Tough' );
+      break;
+    case 'Intermediate':
+      teamObj.skillTemplate = ( ( teamData.placement < 3 ) ? 'Normal' : 'Fair' );
+      break;
+    case 'Amateur':
+      teamObj.skillTemplate = 'Easy';
+      break;
+    default:
+      break;
+  }
+
+  profileRosterElem.each( ( counter, el ) => {
+    const countryElem = $( this ).children( 'a' ).children( 'img' );
+    const nameElem = $( this ).children( 'a:nth-child(3)' );
+
+    const index = countryElem.attr( 'src' ).indexOf( '.gif' );
+    const countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
+
+    // Inherit first player's country code as the team's
+    if( counter === 0 ) {
+      teamObj.countryCode = countryCode;
+    }
+
+    teamObj.squad.push({
+      _id: camelize( nameElem.text() ),
+      username: nameElem.text(),
+      countryCode,
+      teamId: teamObj._id,
+      transferValue: 0, // TODO
+      skillTemplate: teamObj.skillTemplate,
+      weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
+    });
+  });
+
+  return teamObj;
+}
+
+function uniqueURLs( arr ) {
+  const unique = [];
+  const parsed = [];
+
+  arr.forEach( ( obj, index ) => {
+    if( parsed.indexOf( obj.url ) < 0 ) {
+      unique.push( obj );
+      parsed.push( obj.url );
+    }
+  });
+
+  arr.length = 0; // eslint-disable-line no-param-reassign
+  for( let i = 0; i < unique.length; i++ ) {
+    arr.push( unique[ i ] );
+  }
+
+  return arr;
+}
+
 /*
 * Couple of things to do here:
 * 1. Loop through each region and its divisions. Fetch each division page
@@ -125,9 +218,22 @@ function init() {
 
     for( let i = 0; i < regionArr.length; i++ ) {
       const divisionId = regionArr[ i ];
-      const html = await fetchDivisionPage( divisionId );
+      const divisionHTML = await cacheFileFetch( DIVISION_URL + divisionId, divisionId );
 
-      console.log( extractTeamURLs( html ) );
+      // remove any duplicates (post-season/pre-season)
+      let teamURLs = extractTeamURLs( divisionHTML );
+      teamURLs = uniqueURLs( teamURLs );
+
+      // each team url is fetched and added to an array of promises
+      // once fetched, check for cache too!
+      teamURLs.forEach( async ( teamInfo ) => {
+        // extract team's id from the url. (it's in there somewhere :D)
+        const teamURL = BASE_URL + teamInfo.url;
+        const teamId = teamURL.split( '?' )[ 0 ].split( 'teams/' )[ 1 ];
+        const teamHTML = await cacheFileFetch( teamURL, teamId );
+
+        extractTeamInfo( teamInfo, teamHTML );
+      });
     }
   });
 }
