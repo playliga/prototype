@@ -171,7 +171,7 @@ function extractTeamInfo( teamData, html ) {
       id: camelCase( nameElem.text() ),
       username: nameElem.text(),
       countryCode,
-      teamId: teamObj._id,
+      teamId: teamObj.id,
       transferValue: 0, // TODO
       skillTemplate: teamObj.skillTemplate,
       weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
