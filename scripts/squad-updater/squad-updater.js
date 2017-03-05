@@ -6,6 +6,7 @@ import cloudscraper from 'cloudscraper';
 import fs from 'fs';
 import glob from 'glob';
 import path from 'path';
+import { camelCase } from 'lodash';
 
 const BASE_URL = 'https://play.esea.net';
 const DIVISION_URL = `${BASE_URL}/index.php?s=league&d=standings&division_id=`;
@@ -25,15 +26,6 @@ function scraper( url ) {
   return new Promise( ( resolve, reject ) => {
     cloudscraper.get( url, ( err, res, body ) => resolve( body ) );
   });
-}
-
-/*
-* TODO: Documentation for this camelize lovely function
-*/
-function camelize( str ) {
-  return str.replace( /(?:^\w|[A-Z]|\b\w)/g, ( letter, index ) => (
-    ( ( index === 0 ) ? letter.toLowerCase() : letter.toUpperCase() )
-  ) ).replace( /\s+/g, '' );
 }
 
 /*
@@ -125,7 +117,7 @@ function extractTeamInfo( teamData, html ) {
   const teamnameElem = profileElem.children( 'div#profile-header' ).children( 'h1' );
 
   const teamObj = {
-    _id: camelize( teamnameElem.text() ),
+    _id: camelCase( teamnameElem.text() ),
     name: teamnameElem.text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
     countryCode: undefined,
@@ -172,7 +164,7 @@ function extractTeamInfo( teamData, html ) {
     }
 
     teamObj.squad.push({
-      _id: camelize( nameElem.text() ),
+      _id: camelCase( nameElem.text() ),
       username: nameElem.text(),
       countryCode,
       teamId: teamObj._id,
