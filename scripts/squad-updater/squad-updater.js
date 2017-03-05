@@ -113,8 +113,10 @@ function extractTeamInfo( teamData, html ) {
   const $ = cheerio.load( html );
   const profileElem = $( '#teams-profile hr + section' );
   const profileInfoElem = profileElem.children( 'div#profile-info' );
-  const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
   const teamnameElem = profileElem.children( 'div#profile-header' ).children( 'h1' );
+
+  // TODO: there are multiple div.row1 instances that DO NOT hold the roster. need to find a better selector
+  const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
 
   const teamObj = {
     _id: camelCase( teamnameElem.text() ),
@@ -151,9 +153,11 @@ function extractTeamInfo( teamData, html ) {
       break;
   }
 
+  // TODO: a team may not have a roster. eg: https://goo.gl/DfhSNi
+  // TODO: what to do in this case?
   profileRosterElem.each( ( counter, el ) => {
-    const countryElem = $( this ).children( 'a' ).children( 'img' );
-    const nameElem = $( this ).children( 'a:nth-child(3)' );
+    const countryElem = $( el ).children( 'a' ).children( 'img' );
+    const nameElem = $( el ).children( 'a:nth-child(3)' );
 
     const index = countryElem.attr( 'src' ).indexOf( '.gif' );
     const countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
