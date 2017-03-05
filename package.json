@@ -44,6 +44,7 @@
     "express": "4.14.0",
     "glob": "7.1.1",
     "lodash": "4.17.4",
+    "minimist": "1.2.0",
     "webpack": "1.13.1",
     "webpack-dev-middleware": "1.6.1",
     "webpack-hot-middleware": "2.12.2"
@@ -52,7 +53,8 @@
     "build:main": "NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config ./webpack/webpack-electron.js --progress --profile --colors",
     "lint": "eslint --ext .js,.jsx ./",
     "start": "NODE_ENV=production electron ./dist/main.bundle.js",
-    "start:dev": "NODE_ENV=development electron -r babel-register -r babel-polyfill ./main",
+    "start:dev": "npm run start:dev-server -- --dev-electron",
+    "start:dev-electron": "NODE_ENV=development electron -r babel-register -r babel-polyfill ./main",
     "start:dev-server": "NODE_ENV=development node -r babel-register ./webpack/server.js",
     "squad-updater": "node -r babel-register ./scripts/squad-updater/index.js"
   }
