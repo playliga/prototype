@@ -119,7 +119,7 @@ function extractTeamInfo( teamData, html ) {
   const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
 
   const teamObj = {
-    _id: camelCase( teamnameElem.text() ),
+    id: camelCase( teamnameElem.text() ),
     name: teamnameElem.text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
     countryCode: undefined,
@@ -168,7 +168,7 @@ function extractTeamInfo( teamData, html ) {
     }
 
     teamObj.squad.push({
-      _id: camelCase( nameElem.text() ),
+      id: camelCase( nameElem.text() ),
       username: nameElem.text(),
       countryCode,
       teamId: teamObj._id,
