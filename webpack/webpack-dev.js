@@ -19,10 +19,25 @@ export default {
     preLoaders: [{
       test: /\.jsx?$/,
       exclude: /node_modules/,
-      loader: "eslint"
+      loader: 'eslint'
     }],
     loaders: [
-      webpackConfig.loaders.js
+      webpackConfig.loaders.js,
+      {
+        test: /\.css$/,
+        loaders: [
+          'style',
+          'css'
+      },
+      {
+        test: /\.scss$/,
+        loaders: [
+          'style',
+          'css?sourceMap&modules&localIdentName=[name]__[local]___[hash:base64:5]',
+          'postcss',
+          'sass'
+        ]
+      }
     ]
   },
   eslint: {
