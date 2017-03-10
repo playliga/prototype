@@ -7,17 +7,20 @@ import config from './webpack-dev.js';
 import { spawn } from 'child_process';
 
 const PORT = process.env.PORT || 3000;
+const ROOT = path.join( `${__dirname}/../` );
+
 const app = express();
 const compiler = webpack( config );
 const argv = require ( 'minimist' )( process.argv.slice( 2 ) );
 
 // inject the webpack middleware modules into the server
-app.use( webpackDevMiddleware( compiler, {
+const wdm = webpackDevMiddleware( compiler, {
   noInfo: true,
   publicPath: config.output.publicPath,
   stats: 'errors-only'
-}));
+});
 
+app.use( wdm );
 app.use( webpackHotMiddleware( compiler ) );
 
 // start the server!
@@ -47,5 +50,5 @@ process.on( 'SIGTERM', () => {
   console.log( 'Stopping dev server' );
 
   wdm.close();
-  server.close(() => process.exit( 0 ) );
+  server.close( () => process.exit( 0 ) );
 });
