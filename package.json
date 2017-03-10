@@ -19,10 +19,6 @@
     "simulator"
   ],
   "main": "main.js",
-  "peerDependencies": {
-    "node-sass": "3.13.0",
-    "webpack": "1.13.1"
-  },
   "dependencies": {
     "electron": "1.4.3"
   },
@@ -43,10 +39,14 @@
     "eslint": "3.8.1",
     "eslint-config-airbnb": "12.0.0",
     "eslint-plugin-babel": "3.3.0",
+    "eslint-plugin-flowtype": "2.30.3",
+    "eslint-plugin-flowtype-errors": "3.0.1",
     "eslint-plugin-import": "1.16.0",
     "eslint-plugin-jsx-a11y": "2.2.2",
     "eslint-plugin-react": "6.4.1",
     "express": "4.14.0",
+    "flow-bin": "0.41.0",
+    "flow-typed": "2.0.0",
     "glob": "7.1.1",
     "lodash": "4.17.4",
     "minimist": "1.2.0",
@@ -59,6 +59,8 @@
   },
   "scripts": {
     "build:main": "NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config ./webpack/webpack-electron.js --progress --profile --colors",
+    "flow": "flow",
+    "flow-typed": "flow-typed install",
     "lint": "eslint --ext .js,.jsx ./",
     "start": "NODE_ENV=production electron ./dist/main.bundle.js",
     "start:dev": "npm run start:dev-server -- --dev-electron",

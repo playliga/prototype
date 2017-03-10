@@ -8,7 +8,7 @@ export default {
   resolve: webpackConfig.resolve,
   entry: [
     `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-    path.join( __dirname, '../src/index' )
+    path.join( __dirname, '../app/index' )
   ],
   output: {
     path: path.join( __dirname, '../dist' ),
@@ -28,6 +28,7 @@ export default {
         loaders: [
           'style',
           'css'
+        ]
       },
       {
         test: /\.scss$/,
