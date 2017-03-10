@@ -15,9 +15,20 @@ const argv = require ( 'minimist' )( process.argv.slice( 2 ) );
 
 // inject the webpack middleware modules into the server
 const wdm = webpackDevMiddleware( compiler, {
+  quiet: false,
   noInfo: true,
   publicPath: config.output.publicPath,
-  stats: 'errors-only'
+  stats: {
+    assets: false,
+    colors: true,
+    version: false,
+    hash: false,
+    timings: false,
+    chunks: false,
+    chunkModules: false,
+    errors: true,
+    warnings: true
+  }
 });
 
 app.use( wdm );

@@ -3,24 +3,20 @@ import webpack from 'webpack';
 import webpackConfig from './webpack-shared.js';
 
 const PORT = process.env.PORT || 3000;
+const ROOT = path.join( `${__dirname}/../` );
 
 export default {
   resolve: webpackConfig.resolve,
   entry: [
     `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-    path.join( __dirname, '../app/index' )
+    './renderer-process/index'
   ],
   output: {
-    path: path.join( __dirname, '../dist' ),
+    path: path.join( ROOT, 'dist' ),
     publicPath: `http://localhost:${PORT}/dist/`,
     filename: 'bundle.js'
   },
   module: {
-    preLoaders: [{
-      test: /\.jsx?$/,
-      exclude: /node_modules/,
-      loader: 'eslint'
-    }],
     loaders: [
       webpackConfig.loaders.js,
       {
