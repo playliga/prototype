@@ -1,4 +1,55 @@
+/*
+* Inspirational palettes:
+*
+* https://creativemarket.com/blog/20-bold-color-palettes-to-try-this-month-august-2015
+* http://www.colourlovers.com/palette/3845350/Desirable_Experience
+*/
+
+$DarkPurple: #42013B;
+$Cyan: #118980;
+$Orange: #D95B43;
+
 .container {
+  display: flex;
   height: 100vh;
-  width: 100vh;
+}
+
+.navContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-color: $DarkPurple;
+  width: 30%;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: white;
+  text-align: right;
+  font-variant: small-caps;
+  letter-spacing: 2px;
+}
+
+.navItem {
+  position: relative;
+  cursor: pointer;
+
+  &:hover .navItemBorder {
+    width: 100%;
+  }
+}
+
+.navItemBorder {
+  position: absolute;
+  right: 0;
+  display: block;
+
+  background: linear-gradient(
+    to right,
+    lighten( $DarkPurple, 25 ),
+    $Cyan
+  );
+
+  height: 2px;
+  width: 0;
+  margin-top: 10px;
+  transition: width 0.4s ease-in-out;
 }
