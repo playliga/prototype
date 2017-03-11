@@ -5,7 +5,7 @@
 * http://www.colourlovers.com/palette/3845350/Desirable_Experience
 */
 
-$DarkPurple: #42013B;
+$NavBgColor: #42013B;
 $Cyan: #118980;
 $Orange: #D95B43;
 
@@ -18,7 +18,7 @@ $Orange: #D95B43;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  background-color: $DarkPurple;
+  background-color: $NavBgColor;
   width: 30%;
   padding-left: 10px;
   padding-right: 10px;
@@ -44,7 +44,7 @@ $Orange: #D95B43;
 
   background: linear-gradient(
     to right,
-    lighten( $DarkPurple, 25 ),
+    lighten( $NavBgColor, 25 ),
     $Cyan
   );
 
