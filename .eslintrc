@@ -30,6 +30,7 @@
   },
 
   "rules": {
+    "arrow-parens": 0,
     "array-bracket-spacing": [ "warn", "always" ],
     "comma-dangle": 0,
     "computed-property-spacing": 0,
