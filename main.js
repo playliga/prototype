@@ -1,3 +1,4 @@
+// @flow
 import { app, BrowserWindow } from 'electron';
 
 // Keep a global reference of the window object, if you don't, the window will
