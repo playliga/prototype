@@ -1,5 +1,7 @@
 import path from 'path';
 
+const ROOT = path.join( `${__dirname}/../` );
+
 exports.loaders = {
   js: {
     test: /\.jsx?$/,
@@ -9,5 +11,8 @@ exports.loaders = {
 };
 
 exports.resolve = {
-  extensions: [ '', '.js', '.jsx' ]
+  extensions: [ '', '.js', '.jsx' ],
+  root: [
+    path.resolve( ROOT, 'renderer-process' )
+  ],
 };

@@ -34,7 +34,11 @@ export default {
           'postcss',
           'sass'
         ]
-      }
+      },
+      {
+        test: /\.(png|jpg)$/,
+        loader: 'url?limit=45000'
+      },
     ]
   },
   eslint: {

@@ -17,9 +17,10 @@ $Orange: #D95B43;
 .navContainer {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   justify-content: space-around;
   background-color: $NavBgColor;
-  width: 30%;
+  width: 25%;
   padding-left: 10px;
   padding-right: 10px;
   color: white;
@@ -31,6 +32,7 @@ $Orange: #D95B43;
 .navItem {
   position: relative;
   cursor: pointer;
+  padding-bottom: 10px;
 
   &:hover .navItemBorder {
     width: 100%;
@@ -41,15 +43,46 @@ $Orange: #D95B43;
   position: absolute;
   right: 0;
   display: block;
+  height: 2px;
+  width: 0;
+  margin-top: 10px;
+  transition: width 0.4s ease-in-out;
 
   background: linear-gradient(
     to right,
     lighten( $NavBgColor, 25 ),
     $Cyan
   );
+}
 
-  height: 2px;
-  width: 0;
-  margin-top: 10px;
-  transition: width 0.4s ease-in-out;
+.splashContainer {
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+}
+
+.splashContainerDefault {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding-left: 50px;
+
+  background: linear-gradient(
+    to top right,
+    lighten( #212121, 20 ),
+    #212121
+  );
+
+  h1 {
+    font-size: 3em;
+    color: rgba( black, 0.6 );
+    text-shadow: 2px 2px 3px rgba( white, 0.1 );
+  }
+
+  h2 {
+    font-size: 1.5em;
+    color: rgba( black, 0.6 );
+    text-shadow: 2px 2px 3px rgba( white, 0.1 );
+  }
 }
