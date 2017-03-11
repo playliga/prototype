@@ -40,6 +40,7 @@ export default {
   eslint: {
     emitWarning: true
   },
+  postcss: {},
   plugins: [
     // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
     new webpack.HotModuleReplacementPlugin(),

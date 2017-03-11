@@ -1,10 +1,7 @@
 // @flow
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-
-const Home = ( props: Object ) => (
-  <div>{'Hey! Hi from react-router!'}</div>
-);
+import Home from './home';
 
 export default (
   <Route path="/">
