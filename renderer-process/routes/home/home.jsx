@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import styles from './home.scss';
 
-import splash1 from 'assets/images/home-splash-1.jpg'; // eslint-disable-line
-import splash2 from 'assets/images/home-splash-2.jpg'; // eslint-disable-line
-
 const SplashImages = {
-  splash1,
-  splash2
+  splash1: require( 'assets/images/home-splash-1.jpg' ), // eslint-disable-line
+  splash2: require( 'assets/images/home-splash-2.jpg' ), // eslint-disable-line
+  splash3: require( 'assets/images/home-splash-3.jpg' ) // eslint-disable-line
 };
 
 type State = {
@@ -50,7 +48,11 @@ export default class Home extends Component {
             <span className={styles.navItemBorder} />
           </div>
 
-          <div className={styles.navItem}>
+          <div
+            className={styles.navItem}
+            onMouseOver={() => this.handleOnMouseOver( 'splash3' )}
+            onMouseLeave={() => this.handleOnMouseLeave()}
+          >
             {'Settings'}
             <span className={styles.navItemBorder} />
           </div>
