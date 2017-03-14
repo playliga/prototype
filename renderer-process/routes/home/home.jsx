@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styles from './home.scss';
 
 const SplashImages = {
+  default: require( 'assets/images/home-splash-default.jpg' ), // eslint-disable-line
   splash1: require( 'assets/images/home-splash-1.jpg' ), // eslint-disable-line
   splash2: require( 'assets/images/home-splash-2.jpg' ), // eslint-disable-line
   splash3: require( 'assets/images/home-splash-3.jpg' ) // eslint-disable-line
@@ -15,7 +16,7 @@ export default class Home extends Component {
   state: State
 
   state = {
-    activeImage: null
+    activeImage: SplashImages.default
   }
 
   handleOnMouseOver = ( imgId: string ) => {
@@ -23,52 +24,44 @@ export default class Home extends Component {
   }
 
   handleOnMouseLeave = () => {
-    this.setState({ activeImage: false });
+    this.setState({ activeImage: SplashImages.default });
   }
 
   render() {
     return (
-      <div className={styles.container}>
-        <section className={styles.navContainer}>
-          <div
-            className={styles.navItem}
-            onMouseOver={() => this.handleOnMouseOver( 'splash1' )}
-            onMouseLeave={() => this.handleOnMouseLeave()}
-          >
-            {'Start a new career'}
-            <span className={styles.navItemBorder} />
-          </div>
+      <div
+        className={styles.container}
+        style={{ backgroundImage: `url(${this.state.activeImage})` }}
+      >
+        <div
+          className={styles.navItem}
+          onMouseOver={() => this.handleOnMouseOver( 'splash1' )}
+          onMouseLeave={() => this.handleOnMouseLeave()}
+        >
+          <span>{'Start a new career'}</span>
+          <span className={styles.navItemBorderTop} />
+          <span className={styles.navItemBorderBottom} />
+        </div>
 
-          <div
-            className={styles.navItem}
-            onMouseOver={() => this.handleOnMouseOver( 'splash2' )}
-            onMouseLeave={() => this.handleOnMouseLeave()}
-          >
-            {'Load a career'}
-            <span className={styles.navItemBorder} />
-          </div>
+        <div
+          className={styles.navItem}
+          onMouseOver={() => this.handleOnMouseOver( 'splash2' )}
+          onMouseLeave={() => this.handleOnMouseLeave()}
+        >
+          <span>{'Load a career'}</span>
+          <span className={styles.navItemBorderTop} />
+          <span className={styles.navItemBorderBottom} />
+        </div>
 
-          <div
-            className={styles.navItem}
-            onMouseOver={() => this.handleOnMouseOver( 'splash3' )}
-            onMouseLeave={() => this.handleOnMouseLeave()}
-          >
-            {'Settings'}
-            <span className={styles.navItemBorder} />
-          </div>
-        </section>
-
-        {this.state.activeImage && <section
-          className={styles.splashContainer}
-          style={{ backgroundImage: `url(${this.state.activeImage})` }}
-        />}
-
-        {!this.state.activeImage &&
-          <section className={styles.splashContainerDefault}>
-            <h1>{'Es la liga!'}</h1>
-            <h2>{'What would you like to do?'}</h2>
-          </section>
-        }
+        <div
+          className={styles.navItem}
+          onMouseOver={() => this.handleOnMouseOver( 'splash3' )}
+          onMouseLeave={() => this.handleOnMouseLeave()}
+        >
+          <span>{'Settings'}</span>
+          <span className={styles.navItemBorderTop} />
+          <span className={styles.navItemBorderBottom} />
+        </div>
       </div>
     );
   }
