@@ -3,9 +3,9 @@ import styles from './home.scss';
 
 const SplashImages = {
   default: require( 'assets/images/home-splash-default.jpg' ), // eslint-disable-line
+  splash0: require( 'assets/images/home-splash-0.jpg' ), // eslint-disable-line
   splash1: require( 'assets/images/home-splash-1.jpg' ), // eslint-disable-line
-  splash2: require( 'assets/images/home-splash-2.jpg' ), // eslint-disable-line
-  splash3: require( 'assets/images/home-splash-3.jpg' ) // eslint-disable-line
+  splash2: require( 'assets/images/home-splash-2.jpg' ) // eslint-disable-line
 };
 
 type State = {
@@ -33,35 +33,22 @@ export default class Home extends Component {
         className={styles.container}
         style={{ backgroundImage: `url(${this.state.activeImage})` }}
       >
-        <div
-          className={styles.navItem}
-          onMouseOver={() => this.handleOnMouseOver( 'splash1' )}
-          onMouseLeave={() => this.handleOnMouseLeave()}
-        >
-          <span>{'Start a new career'}</span>
-          <span className={styles.navItemBorderTop} />
-          <span className={styles.navItemBorderBottom} />
-        </div>
-
-        <div
-          className={styles.navItem}
-          onMouseOver={() => this.handleOnMouseOver( 'splash2' )}
-          onMouseLeave={() => this.handleOnMouseLeave()}
-        >
-          <span>{'Load a career'}</span>
-          <span className={styles.navItemBorderTop} />
-          <span className={styles.navItemBorderBottom} />
-        </div>
-
-        <div
-          className={styles.navItem}
-          onMouseOver={() => this.handleOnMouseOver( 'splash3' )}
-          onMouseLeave={() => this.handleOnMouseLeave()}
-        >
-          <span>{'Settings'}</span>
-          <span className={styles.navItemBorderTop} />
-          <span className={styles.navItemBorderBottom} />
-        </div>
+        {[
+          'Start a new career',
+          'Load a career',
+          'Settings'
+        ].map( ( item: string, i: number ) => (
+          <div
+            key={i}
+            className={styles.navItem}
+            onMouseOver={() => this.handleOnMouseOver( `splash${i}` )}
+            onMouseLeave={() => this.handleOnMouseLeave()}
+          >
+            <span>{item}</span>
+            <span className={styles.navItemBorderTop} />
+            <span className={styles.navItemBorderBottom} />
+          </div>
+        ))}
       </div>
     );
   }
