@@ -7,7 +7,15 @@ let win;
 
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 600 });
+  // https://github.com/electron/electron/blob/master/docs/api/browser-window.md
+  // https://github.com/electron/electron/blob/master/docs/api/frameless-window.md
+  win = new BrowserWindow({
+    titleBarStyle: 'hidden',
+    backgroundColor: '#000000',
+    width: 800,
+    height: 600,
+    maximizable: false
+  });
 
   // and load the index.html of the app
   win.loadURL( `file://${__dirname}/renderer-process/index.html` );

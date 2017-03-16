@@ -40,6 +40,10 @@ $Orange: #d95b43;
     lighten( $Cyan, 5 )
   ) 1 100%;
 
+  &:first-child {
+    margin-top: 40px;
+  }
+
   & > span:first-child {
     display: block;
     transform: skew( 20deg ); // bypass the skew transform
