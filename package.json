@@ -52,6 +52,7 @@
     "flow-bin": "0.41.0",
     "flow-typed": "2.0.0",
     "glob": "7.1.1",
+    "jest": "16.0.1",
     "lodash": "4.17.4",
     "minimist": "1.2.0",
     "node-sass": "3.13.0",
@@ -73,6 +74,18 @@
     "start:dev": "npm run start:dev-server -- --dev-electron",
     "start:dev-electron": "NODE_ENV=development electron -r babel-register -r babel-polyfill ./main",
     "start:dev-server": "NODE_ENV=development node -r babel-register ./webpack/server.js",
-    "squad-updater": "node -r babel-register ./scripts/squad-updater/index.js"
+    "squad-updater": "node -r babel-register ./scripts/squad-updater/index.js",
+    "test": "jest"
+  },
+  "jest": {
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "testPathIgnorePatterns": [
+      "dist/"
+    ]
   }
 }
