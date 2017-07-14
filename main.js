@@ -19,8 +19,7 @@ function createWindow() {
 
   // and load the index.html of the app
   win.loadURL( `file://${__dirname}/renderer-process/index.html` );
-
-  // win.openDevTools();
+  win.openDevTools();
 
   // Emitted when the window is closed.
   win.on( 'closed', () => {

@@ -18,7 +18,6 @@ module.name_mapper='.*\(.scss\)' -> 'empty/object'
 module.name_mapper='.*\(.gif\)' -> 'empty/object'
 module.name_mapper='^\(routes\)/\(.*\)$' -> '<PROJECT_ROOT>/renderer-process/\1/\2'
 module.system.node.resolve_dirname=node_modules
-module.system.node.resolve_dirname=app
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_comment=\\(.\\|\n\\)*\\$FlowSkip

@@ -5,85 +5,16 @@
 * http://www.colourlovers.com/palette/3845350/Desirable_Experience
 */
 
-$NavBgColor: #36465d;
-$Purple: #42013b;
-$Cyan: #118980;
-$Orange: #d95b43;
-
 .container {
   display: flex;
-  flex-direction: column;
-  background-size: cover;
-  background-position: center;
+  flex-direction: row;
   height: 100vh;
   width: 100vw;
 }
 
-.navItem {
-  position: relative;
-  cursor: pointer;
-  background-color: rgba( $NavBgColor, 0.8 );
-  width: 30%;
-  margin-top: 20px;
-  margin-left: -20px;
-  padding: 20px 0 20px 20px;
-  color: white;
-  font-variant: small-caps;
-  letter-spacing: 2px;
-  transform: skew( -20deg );
-  transition: padding-left 0.3s ease-in-out;
-  border-right-style: solid;
-  border-right-width: 5px;
-  border-image: linear-gradient(
-    to top right,
-    $Cyan,
-    lighten( $Cyan, 5 )
-  ) 1 100%;
-
-  &:first-child {
-    margin-top: 40px;
-  }
-
-  & > span:first-child {
-    display: block;
-    transform: skew( 20deg ); // bypass the skew transform
-    padding-left: 20px;
-  }
-
-  &:hover {
-    padding-left: 40px;
-  }
-
-  &:hover .navItemBorderBottom {
-    width: 100%;
-  }
-}
-
-.navItemBorderTop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(
-    to top right,
-    rgba( white, 0 ),
-    lighten( $Cyan, 5 )
-  );
-}
-
-.navItemBorderBottom {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  display: block;
-  height: 2px;
-  width: 0;
-  transition: width 0.4s ease-in-out;
-
-  background: linear-gradient(
-    to right,
-    lighten( $Purple, 25 ),
-    $Cyan
-  );
+.item {
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
 }
