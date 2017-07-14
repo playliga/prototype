@@ -14,7 +14,7 @@ export default class Home extends Component {
               className={styles.item}
               style={{ backgroundImage: `url(${menuImage})` }}
             >
-              {/* TODO */}
+              <h1>{item}</h1>
             </div>
           );
         })}
