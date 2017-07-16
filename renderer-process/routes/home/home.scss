@@ -16,6 +16,7 @@
   background-size: cover;
   background-position: center;
   height: 100vh;
+  overflow-x: hidden;
   opacity: 0.8;
   transition: opacity 0.2s ease-in-out, width 0.35s ease-in-out;
 
@@ -37,6 +38,16 @@
     text-align: center;
     transition: margin-top 0.4s ease-in-out;
   }
+}
+
+span {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: white;
+  font-size: 2em;
+  font-weight: 900;
+  transition: opacity 0.35s ease-in-out;
 }
 
 .active {

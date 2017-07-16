@@ -17,6 +17,13 @@ export default class Home extends Component {
 
     return (
       <div className={styles.container}>
+        <span
+          style={{ opacity: activeItem !== null ? 1 : 0 }}
+          onClick={() => this.setState({ activeItem: null })}
+        >
+          <i className={'fa fa-close'} />
+        </span>
+
         {[ 'New Career', 'Load Career' ].map( ( item, i ) => {
           const menuImage = require( `assets/images/home-splash-${i}.jpg` ); // eslint-disable-line
           const activeStyle = ( activeItem !== null && activeItem === i ) || activeItem === null ?

@@ -39,6 +39,10 @@ export default {
         test: /\.(png|jpg)$/,
         loader: 'url?limit=45000'
       },
+      {
+        test: /\.(eot|svg|ttf|woff(2)?)(\?v=\d+\.\d+\.\d+)?/,
+        loader: 'url'
+      }
     ]
   },
   eslint: {
