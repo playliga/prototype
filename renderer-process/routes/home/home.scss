@@ -47,16 +47,14 @@
     display: block;
     background-color: white;
     height: 2px;
-    transition: transform 0.35s ease-in-out, width 0.35s ease-in-out;
+    width: 100%;
+    box-shadow: 0px 0px 10px rgba( 0, 0, 0, 0.5 );
+    transition: transform 0.35s ease-in-out;
   }
 }
 
 .closeIconActive {
   opacity: 1;
-
-  span {
-    width: 100%;
-  }
 
   span:first-child {
     transform: translate(0px, 20px) rotate(405deg);
