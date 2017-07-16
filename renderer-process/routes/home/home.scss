@@ -8,9 +8,11 @@
 .item {
   background-size: cover;
   background-position: center;
+  width: 100vw;
   height: 100vh;
   overflow-x: hidden;
   opacity: 0.8;
+  cursor: pointer;
   transition: opacity 0.2s ease-in-out, width 0.35s ease-in-out;
 
   &:hover {
@@ -33,7 +35,21 @@
   }
 }
 
-.closeIconContainer {
+.activeItem {
+  opacity: 1;
+  cursor: default;
+
+  h1 {
+    margin-top: 80px;
+  }
+}
+
+.inactiveItem {
+  width: 0;
+  opacity: 0;
+}
+
+.closeIcon {
   position: absolute;
   top: 20px;
   left: 20px;
@@ -64,14 +80,4 @@
     // transform accounts for 2px height of span
     transform: translate(0px, 18px) rotate(495deg);
   }
-}
-
-.active {
-  width: 100vw;
-  opacity: 1;
-}
-
-.inactive {
-  width: 0;
-  opacity: 0;
 }

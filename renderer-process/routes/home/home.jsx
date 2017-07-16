@@ -18,7 +18,7 @@ export default class Home extends Component {
     return (
       <div className={styles.container}>
         <div
-          className={`${styles.closeIconContainer} ${activeItem !== null ? styles.closeIconActive : ''}`}
+          className={`${styles.closeIcon} ${activeItem !== null ? styles.closeIconActive : ''}`}
           onClick={() => this.setState({ activeItem: null })}
         >
           <span />
@@ -27,8 +27,13 @@ export default class Home extends Component {
 
         {[ 'New Career', 'Load Career' ].map( ( item, i ) => {
           const menuImage = require( `assets/images/home-splash-${i}.jpg` ); // eslint-disable-line
-          const activeStyle = ( activeItem !== null && activeItem === i ) || activeItem === null ?
-            styles.active : styles.inactive;
+          let activeStyle = {};
+
+          if( activeItem !== null && activeItem === i ) {
+            activeStyle = styles.activeItem;
+          } else if( activeItem !== null && activeItem !== i ) {
+            activeStyle = styles.inactiveItem;
+          }
 
           return (
             <div
