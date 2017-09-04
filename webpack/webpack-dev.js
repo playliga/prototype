@@ -8,8 +8,7 @@ const ROOT = path.join( `${__dirname}/../` );
 export default {
   resolve: webpackConfig.resolve,
   entry: [
-    `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-    './renderer-process/index'
+    path.join( ROOT, 'renderer-process/index' )
   ],
   output: {
     path: path.join( ROOT, 'dist' ),
@@ -19,44 +18,63 @@ export default {
   module: {
     loaders: [
       webpackConfig.loaders.js,
+      webpackConfig.loaders.eslint,
       {
         test: /\.css$/,
-        loaders: [
-          'style',
-          'css'
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: { modules: true }
+          }
         ]
       },
       {
         test: /\.scss$/,
-        loaders: [
-          'style',
-          'css?sourceMap&modules&localIdentName=[name]__[local]___[hash:base64:5]',
-          'postcss',
-          'sass'
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcss: {}
+            }
+          },
+          'sass-loader'
         ]
       },
       {
         test: /\.(png|jpg)$/,
-        loader: 'url?limit=45000'
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 100000
+          }
+        }]
       },
       {
         test: /\.(eot|svg|ttf|woff(2)?)(\?v=\d+\.\d+\.\d+)?/,
-        loader: 'url'
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 100000
+          }
+        }]
       }
     ]
   },
-  eslint: {
-    emitWarning: true
-  },
-  postcss: {},
   plugins: [
-    // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
-    new webpack.HotModuleReplacementPlugin(),
-
     // If you are using the CLI, the webpack process will not exit with an
     // error code by enabling this plugin:
     // https://github.com/webpack/docs/wiki/list-of-plugins#noerrorsplugin
-    new webpack.NoErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin()
   ],
 
   // needed to set all of electron built-in modules as externals plus some
