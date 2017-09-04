@@ -4,7 +4,14 @@
 .*/release/.*
 .*/git/.*
 
+# Flow has a built-in definition for the 'react' module which we prefer to use
+# over the currently-untyped source
+.*/node_modules/react/react.js
+.*/node_modules/react/lib/React.js
+.*/node_modules/react/lib/ReactDOM.js
+
 [include]
+renderer-process/
 
 [libs]
 ./flow-typed/
@@ -18,6 +25,7 @@ module.name_mapper='.*\(.scss\)' -> 'empty/object'
 module.name_mapper='.*\(.gif\)' -> 'empty/object'
 module.name_mapper='^\(routes\)/\(.*\)$' -> '<PROJECT_ROOT>/renderer-process/\1/\2'
 module.system.node.resolve_dirname=node_modules
+module.system.node.resolve_dirname=renderer-process
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_comment=\\(.\\|\n\\)*\\$FlowSkip
