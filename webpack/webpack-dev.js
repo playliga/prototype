@@ -3,15 +3,14 @@ import webpack from 'webpack';
 import webpackConfig from './webpack-shared.js';
 
 const PORT = process.env.PORT || 3000;
-const ROOT = path.join( `${__dirname}/../` );
 
 export default {
   resolve: webpackConfig.resolve,
   entry: [
-    path.join( ROOT, 'renderer-process/index' )
+    path.join( __dirname, '../renderer-process/index' )
   ],
   output: {
-    path: path.join( ROOT, 'dist' ),
+    path: path.join( __dirname, '../dist' ),
     publicPath: `http://localhost:${PORT}/dist/`,
     filename: 'bundle.js'
   },

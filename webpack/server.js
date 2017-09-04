@@ -6,7 +6,6 @@ import config from './webpack-dev.js';
 import { spawn } from 'child_process';
 
 const PORT = process.env.PORT || 3000;
-const ROOT = path.join( `${__dirname}/../` );
 
 const app = express();
 const compiler = webpack( config );
