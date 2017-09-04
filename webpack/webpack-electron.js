@@ -18,17 +18,13 @@ export default {
   },
   module: {
     loaders: [
-      webpackConfig.loaders.js
+      webpackConfig.loaders.js,
+      webpackConfig.loaders.eslint
     ]
-  },
-  eslint: {
-    emitWarning: true
-  },
+  }
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false
-      }
+      sourceMap: true
     })
   ],
 

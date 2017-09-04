@@ -2,7 +2,6 @@ import path from 'path';
 import express from 'express';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
-import webpackHotMiddleware from 'webpack-hot-middleware';
 import config from './webpack-dev.js';
 import { spawn } from 'child_process';
 
@@ -16,23 +15,25 @@ const argv = require ( 'minimist' )( process.argv.slice( 2 ) );
 // inject the webpack middleware modules into the server
 const wdm = webpackDevMiddleware( compiler, {
   quiet: false,
-  noInfo: true,
   publicPath: config.output.publicPath,
   stats: {
-    assets: false,
     colors: true,
-    version: false,
     hash: false,
-    timings: false,
+    version: false,
+    timings: true,
+    assets: false,
     chunks: false,
-    chunkModules: false,
+    modules: false,
+    reasons: false,
+    children: false,
+    source: false,
     errors: true,
+    errorDetails: true,
     warnings: true
   }
 });
 
 app.use( wdm );
-app.use( webpackHotMiddleware( compiler ) );
 
 // start the server!
 const server = app.listen( PORT, 'localhost', err => {
