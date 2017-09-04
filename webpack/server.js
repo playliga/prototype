@@ -2,6 +2,7 @@ import path from 'path';
 import express from 'express';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
+import webpackHotMiddleware from 'webpack-hot-middleware';
 import config from './webpack-dev.js';
 import { spawn } from 'child_process';
 
@@ -33,6 +34,7 @@ const wdm = webpackDevMiddleware( compiler, {
 });
 
 app.use( wdm );
+app.use( webpackHotMiddleware( compiler ) );
 
 // start the server!
 const server = app.listen( PORT, 'localhost', err => {

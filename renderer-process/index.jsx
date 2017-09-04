@@ -2,12 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 
-import 'font-awesome/css/font-awesome.css'; // eslint-disable-line
+import 'font-awesome/css/font-awesome.css';
 import './index.scss';
 
-const App = () => (
-  <h1>{'Back to da basics'}</h1>
-);
+import App from './app';
 
 const render = ( Component ) => {
   ReactDOM.render(
@@ -21,5 +19,5 @@ const render = ( Component ) => {
 render( App );
 
 if( module.hot ) {
-  module.hot.accept( './', () => { render( App ); });
+  module.hot.accept( './app', () => { render( App ); });
 }

@@ -8,6 +8,7 @@ export default {
   resolve: webpackConfig.resolve,
   entry: [
     'react-hot-loader/patch',
+    `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
     path.join( __dirname, '../renderer-process/index' )
   ],
   output: {
@@ -71,6 +72,9 @@ export default {
     ]
   },
   plugins: [
+    // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
+    new webpack.HotModuleReplacementPlugin(),
+
     // If you are using the CLI, the webpack process will not exit with an
     // error code by enabling this plugin:
     // https://github.com/webpack/docs/wiki/list-of-plugins#noerrorsplugin
