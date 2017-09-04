@@ -25,6 +25,7 @@
     "font-awesome": "4.7.0",
     "react": "15.6.1",
     "react-dom": "15.6.1",
+    "react-hot-loader": "3.0.0-beta.7",
     "react-router": "4.2.0"
   },
   "devDependencies": {
@@ -67,7 +68,7 @@
   "scripts": {
     "build:main": "NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config ./webpack/webpack-electron.js --progress --profile --colors",
     "flow": "flow",
-    "flow-typed": "flow-typed install",
+    "flow-typed": "flow-typed install --overwrite",
     "lint": "eslint --ext .js,.jsx ./",
     "start": "NODE_ENV=production electron ./dist/main.bundle.js",
     "start:dev": "npm run start:dev-server -- --dev-electron",

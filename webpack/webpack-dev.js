@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 export default {
   resolve: webpackConfig.resolve,
   entry: [
+    'react-hot-loader/patch',
     path.join( __dirname, '../renderer-process/index' )
   ],
   output: {
