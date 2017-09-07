@@ -1,4 +1,6 @@
 dist/
 flow-typed/
 node_modules/
-webpack/
+webpack/*
+
+!webpack/server.js

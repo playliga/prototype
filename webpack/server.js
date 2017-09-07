@@ -1,16 +1,17 @@
-import path from 'path';
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-console */
 import express from 'express';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
-import config from './webpack-dev.js';
 import { spawn } from 'child_process';
+import config from './webpack-dev';
 
 const PORT = process.env.PORT || 3000;
 
 const app = express();
 const compiler = webpack( config );
-const argv = require ( 'minimist' )( process.argv.slice( 2 ) );
+const argv = require( 'minimist' )( process.argv.slice( 2 ) );
 
 // inject the webpack middleware modules into the server
 const wdm = webpackDevMiddleware( compiler, {
@@ -37,7 +38,7 @@ app.use( wdm );
 app.use( webpackHotMiddleware( compiler ) );
 
 // start the server!
-const server = app.listen( PORT, 'localhost', err => {
+const server = app.listen( PORT, 'localhost', ( err ) => {
   if( err ) {
     console.error( err );
     return;
@@ -49,9 +50,8 @@ const server = app.listen( PORT, 'localhost', err => {
       shell: true,
       env: process.env,
       stdio: 'inherit'
-    })
-    .on( 'close', code => process.exit( code ) )
-    .on( 'error', spawnError => console.error( spawnError ) );
+    }).on( 'close', code => process.exit( code ) )
+      .on( 'error', spawnError => console.error( spawnError ) );
   }
 
   console.log( `Listening at http://localhost:${PORT}` );
