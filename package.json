@@ -20,7 +20,7 @@
   ],
   "main": "main.js",
   "dependencies": {
-    "electron": "1.7.11",
+    "electron": "1.8.4",
     "empty": "0.10.1",
     "font-awesome": "4.7.0",
     "react": "15.6.1",
