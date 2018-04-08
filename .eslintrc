@@ -6,8 +6,11 @@
   ],
 
   "env": {
+    "__DEV__": true,
     "browser": true,
-    "node": true
+    "jest": true,
+    "node": true,
+    "ReactClass": true
   },
 
   "globals": {},
