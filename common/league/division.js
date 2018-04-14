@@ -6,7 +6,7 @@ class Division {
   size: number
   competitors: Array<Competitor> = []
 
-  constructor( name: string, size: number = 128 ) {
+  constructor( name: string, size: number = 256 ) {
     this.name = name;
     this.size = size;
   }
