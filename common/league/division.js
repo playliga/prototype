@@ -4,11 +4,13 @@ import Competitor from './competitor';
 class Division {
   name: string
   size: number
+  conferenceSize: number
   competitors: Array<Competitor> = []
 
-  constructor( name: string, size: number = 256 ) {
+  constructor( name: string, size: number = 256, conferenceSize: number = 8 ) {
     this.name = name;
     this.size = size;
+    this.conferenceSize = conferenceSize;
   }
 
   addCompetitor = ( name: string ) => {

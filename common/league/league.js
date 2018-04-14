@@ -1,5 +1,6 @@
 // @flow
-import { find } from 'lodash';
+import { find, chunk } from 'lodash';
+import GroupStage from 'groupstage';
 import Division from './division';
 
 class League {
@@ -10,10 +11,10 @@ class League {
     this.name = name;
   }
 
-  addDivision = ( name: string, size: number = 128 ) => {
+  addDivision = ( name: string, size: number = 128, conferenceSize: number = 8 ) => {
     // TODO: first check that division does not already exist in array
     // TODO: return division once added
-    const div = new Division( name, size );
+    const div = new Division( name, size, conferenceSize );
     this.divisions.push( div );
   }
 
@@ -22,8 +23,15 @@ class League {
     return div;
   }
 
-  start = () => { // eslint-disable-line
-    return true;
+  start = () => {
+    this.divisions.forEach( ( div ) => {
+      // how many competitors? split them evenly by `conferenceSize`
+      // and generate groups for each one
+      const conferences = chunk( div.competitors, div.conferenceSize );
+      conferences.forEach( ( conf ) => {
+        const gsObj = new GroupStage( conf.length, { groupSize: div.conferenceSize });
+      });
+    });
   }
 }
 
