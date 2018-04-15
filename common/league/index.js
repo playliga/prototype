@@ -1,2 +1,3 @@
-export league from './league';
-export division from './division';
+export League from './league';
+export Division from './division';
+export Competitor from './competitor';

@@ -25,11 +25,13 @@ class League {
   }
 
   start = () => {
-    this.divisions.forEach( ( div ) => {
+    this.divisions.forEach( ( div: Division ) => {
       // how many competitors? split them evenly by `conferenceSize`
       // and generate groups for each one
       const conferences = chunk( div.competitors, div.conferenceSize );
-      conferences.forEach( ( conf ) => {
+      div.setConferences( conferences );
+
+      conferences.forEach( ( conf: Conference ) => {
         const gsObj = new GroupStage( conf.length, { groupSize: div.conferenceSize });
       });
     });

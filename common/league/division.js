@@ -6,6 +6,7 @@ class Division {
   size: number
   conferenceSize: number
   competitors: Array<Competitor> = []
+  conferences: Array<Conference>
 
   constructor( name: string, size: number = 256, conferenceSize: number = 8 ) {
     this.name = name;
@@ -22,6 +23,10 @@ class Division {
   addCompetitors = ( competitorsStrArr: Array<string> ) => {
     const competitors = competitorsStrArr.map( name => new Competitor( name ) );
     this.competitors = [ ...this.competitors, ...competitors ];
+  }
+
+  setConferences = ( conferences: Array<Conference> ) => {
+    this.conferences = conferences;
   }
 }
 
