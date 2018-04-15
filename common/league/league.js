@@ -13,9 +13,10 @@ class League {
 
   addDivision = ( name: string, size: number = 128, conferenceSize: number = 8 ) => {
     // TODO: first check that division does not already exist in array
-    // TODO: return division once added
     const div = new Division( name, size, conferenceSize );
     this.divisions.push( div );
+
+    return div;
   }
 
   getDivision = ( name: string ) => {
