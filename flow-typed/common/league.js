@@ -1,3 +1,7 @@
 import type { Competitor } from 'common/league'
 
-declare type Conference = Array<Competitor>
+declare type Conference = {
+  id: string,
+  competitors: Array<Competitor>,
+  _rawGroupObj?: Object
+}

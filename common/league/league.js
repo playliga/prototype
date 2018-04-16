@@ -1,5 +1,6 @@
 // @flow
 import { find, chunk } from 'lodash';
+import cuid from 'cuid';
 import GroupStage from 'groupstage';
 import Division from './division';
 
@@ -28,12 +29,12 @@ class League {
     this.divisions.forEach( ( div: Division ) => {
       // how many competitors? split them evenly by `conferenceSize`
       // and generate groups for each one
-      const conferences = chunk( div.competitors, div.conferenceSize );
+      const conferences = chunk( div.competitors, div.conferenceSize ).map( ( conf: Array<Competitor> ) => ({
+        id: cuid(),
+        competitors: conf,
+        _rawGroupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize })
+      }) );
       div.setConferences( conferences );
-
-      conferences.forEach( ( conf: Conference ) => {
-        const gsObj = new GroupStage( conf.length, { groupSize: div.conferenceSize });
-      });
     });
   }
 }
