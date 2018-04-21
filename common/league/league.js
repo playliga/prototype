@@ -27,8 +27,9 @@ class League {
 
   start = () => {
     this.divisions.forEach( ( div: Division ) => {
-      // how many competitors? split them evenly by `conferenceSize`
-      // and generate groups for each one
+      // keep a copy of the groupstage object and store into memory
+      // groupstage lib makes each competitor face *all* others in same group.
+      // so — split each division into "conferences" where each competitor only plays N matches
       const conferences = chunk( div.competitors, div.conferenceSize ).map( ( conf: Array<Competitor> ) => ({
         id: cuid(),
         competitors: conf,
