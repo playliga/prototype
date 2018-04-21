@@ -21,9 +21,6 @@ describe( 'league', () => {
       }
     });
 
-    // keep a copy of the groupstage object and store into memory
-    // groupstage lib makes each competitor face *all* others in same group.
-    // split each division into "conferences" where each competitor only plays N matches
     leagueObj.start();
   });
 });
