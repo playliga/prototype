@@ -1,4 +1,5 @@
 import adjectiveAnimal from 'adjective-animal';
+import { random } from 'lodash';
 import League from '../league';
 
 describe( 'league', () => {
@@ -22,5 +23,21 @@ describe( 'league', () => {
     });
 
     leagueObj.start();
+
+    // loop through each division and randomly generate scores
+    // note that each division has conferences
+    divisions.forEach( ( division ) => {
+      const divObj = leagueObj.getDivision( division.name );
+      const { conferences } = divObj;
+
+      conferences.forEach( ( conf ) => {
+        const { groupObj } = conf;
+        const { matches } = groupObj;
+
+        matches.forEach( ( matchObj ) => {
+          groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ]);
+        });
+      });
+    });
   });
 });

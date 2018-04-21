@@ -33,7 +33,7 @@ class League {
       const conferences = chunk( div.competitors, div.conferenceSize ).map( ( conf: Array<Competitor> ) => ({
         id: cuid(),
         competitors: conf,
-        _rawGroupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize })
+        groupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize })
       }) );
       div.setConferences( conferences );
     });
