@@ -13,11 +13,9 @@
  * https://github.com/flowtype/flow-typed
  */
 
-declare var module : {
-  hot : {
-    accept(path:string, callback:() => void): void;
-  };
-};
+declare module 'react-hot-loader' {
+  declare module.exports: any;
+}
 
 /**
  * We include stubs for each file inside this npm package in case you need to
