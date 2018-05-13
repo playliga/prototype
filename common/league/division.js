@@ -55,8 +55,37 @@ class Division {
       return false;
     }
 
+    // hold promoted and promotion playoff eligible arrays
+    const PROMOTED = [];
+    const PLAYOFFS = [];
+
     // how many are eligible for promotion
-    const PROMOTION_NUM = this.size * this.promotionPercent;
+    const PROMOTION_NUM = Math.floor( this.size * this.promotionPercent );
+
+    // 1st-place positions from each conference are eligible for
+    // automatic promotion. the rest are from promotion playoffs
+    const AUTOMATIC_PROMOTION_NUM = this.conferences.length;
+    const PLAYOFF_PROMOTION_NUM = PROMOTION_NUM - AUTOMATIC_PROMOTION_NUM;
+
+    // TOP-N positions from each conferences are eligible (2nd, 3rd, 4th; currently)
+    // for the promotion playoffs
+    const PLAYOFF_TOPN = 4; // should this be hardcoded?
+
+    this.conferences.forEach( ( conf: Conference ) => {
+      const { groupObj } = conf;
+      const topFour = groupObj.results().slice( 0, PLAYOFF_TOPN );
+
+      // 1st place are automatically promoted and the next 3
+      // are placed in the promotion playoffs
+      PROMOTED.push( topFour[ 0 ] );
+      topFour.slice( 1, PLAYOFF_TOPN ).forEach( i => PLAYOFFS.push( topFour[ i ] ) );
+    });
+
+    // split playoffs into PLAYOFF_PROMOTION_NUM
+    // and create a playoff object for each one
+    // TODO:
+
+    // return
     return true;
   }
 }

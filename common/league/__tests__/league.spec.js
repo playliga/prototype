@@ -35,7 +35,7 @@ describe( 'league', () => {
         const { matches } = groupObj;
 
         matches.forEach( ( matchObj ) => {
-          groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ]);
+          groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
         });
       });
     });

@@ -126,7 +126,7 @@
       "error",
       "always",
       {
-        "exceptions": [ "{}", "[]" ]
+        "exceptions": [ "{}" ]
       }
     ],
     "spaced-comment": 0

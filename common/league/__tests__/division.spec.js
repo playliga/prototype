@@ -35,9 +35,9 @@ describe( 'division', () => {
     const div = new Division( 'Invite', 64 );
     div.addCompetitor( COMP_NAME );
 
-    expect( div.competitors ).toEqual([
+    expect( div.competitors ).toEqual( [
       { name: COMP_NAME }
-    ]);
+    ] );
   });
 
   it( 'adds an array of competitors', () => {
@@ -51,10 +51,10 @@ describe( 'division', () => {
     div.addCompetitor( COMP_NAME );
     div.addCompetitors( COMP_ARRAY.map( item => item.name ) );
 
-    expect( div.competitors ).toEqual([
+    expect( div.competitors ).toEqual( [
       { name: COMP_NAME },
       ...COMP_ARRAY
-    ]);
+    ] );
   });
 
   it( 'checks that division is not done when conferences have oustanding matches left', () => {
@@ -68,7 +68,7 @@ describe( 'division', () => {
       const { matches } = groupObj;
 
       matches.forEach( ( matchObj ) => {
-        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ]);
+        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
       });
     });
 
@@ -82,6 +82,16 @@ describe( 'division', () => {
   });
 
   it( 'begins postseason', () => {
-    // TODO:
+    // generate scores for all conferences
+    conferences.forEach( ( conf ) => {
+      const { groupObj } = conf;
+      const { matches } = groupObj;
+
+      matches.forEach( ( matchObj ) => {
+        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
+      });
+    });
+
+    divObj.startPostSeason();
   });
 });
