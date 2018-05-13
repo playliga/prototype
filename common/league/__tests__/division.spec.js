@@ -5,6 +5,31 @@ import GroupStage from 'groupstage';
 import { Division } from '../';
 
 describe( 'division', () => {
+  const SIZE = 256;
+  const CONF_SIZE = 8;
+
+  let divObj;
+  let conferences;
+
+  beforeEach( () => {
+    // reinstatiate division
+    divObj = new Division( 'Open', SIZE, CONF_SIZE );
+
+    // add competitors
+    for( let i = 0; i < SIZE; i++ ) {
+      divObj.addCompetitor( adjectiveAnimal.generateName() );
+    }
+
+    // create conferences
+    conferences = chunk( divObj.competitors, CONF_SIZE ).map( conf => ({
+      id: cuid(),
+      competitors: conf,
+      groupObj: new GroupStage( conf.length, { groupSize: CONF_SIZE })
+    }) );
+
+    divObj.setConferences( conferences );
+  });
+
   it( 'adds a competitor', () => {
     const COMP_NAME = 'compLexity Gaming';
     const div = new Division( 'Invite', 64 );
@@ -32,24 +57,11 @@ describe( 'division', () => {
     ]);
   });
 
-  it( 'checks for all conferences be completed', () => {
-    const SIZE = 256;
-    const CONF_SIZE = 8;
-    const divObj = new Division( 'Open', SIZE, CONF_SIZE );
+  it( 'checks that division is not done when conferences have oustanding matches left', () => {
+    expect( divObj.isDone() ).toBeFalsy();
+  });
 
-    // add competitors
-    for( let i = 0; i < SIZE; i++ ) {
-      divObj.addCompetitor( adjectiveAnimal.generateName() );
-    }
-
-    // create conferences
-    const conferences = chunk( SIZE, CONF_SIZE ).map( conf => ({
-      id: cuid(),
-      competitors: conf,
-      groupObj: new GroupStage( conf.length, { groupSize: CONF_SIZE })
-    }) );
-    divObj.setConferences( conferences );
-
+  it( 'generates random scores for all conferences and checks when division is all done', () => {
     // generate scores for all conferences
     conferences.forEach( ( conf ) => {
       const { groupObj } = conf;
@@ -63,5 +75,13 @@ describe( 'division', () => {
     // division should return true
     // when all conferences have completed their matches
     expect( divObj.isDone() ).toBeTruthy();
+  });
+
+  it( 'does not start post-season if there are outstanding conference matches left', () => {
+    expect( divObj.startPostSeason() ).toBeFalsy();
+  });
+
+  it( 'begins postseason', () => {
+    // TODO:
   });
 });

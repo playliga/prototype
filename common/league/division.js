@@ -7,6 +7,7 @@ class Division {
   conferenceSize: number
   competitors: Array<Competitor> = []
   conferences: Array<Conference>
+  promotionPercent: number = 0.15
 
   constructor( name: string, size: number = 256, conferenceSize: number = 8 ) {
     this.name = name;
@@ -46,6 +47,17 @@ class Division {
     }
 
     return done;
+  }
+
+  startPostSeason = (): boolean => {
+    // abort if pending matches
+    if( !this.isDone() ) {
+      return false;
+    }
+
+    // how many are eligible for promotion
+    const PROMOTION_NUM = this.size * this.promotionPercent;
+    return true;
   }
 }
 
