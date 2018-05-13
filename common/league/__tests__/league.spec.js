@@ -89,5 +89,15 @@ describe( 'league', () => {
     *   = 12 qualify for playoffs (3 from each conference(2nd, 3rd, 4th) * 4 conferences)
     *   = 1 playoff bracket
     **/
+
+    // loop through each division and start post-season (if applicable)
+    divisions.forEach( ( division ) => {
+      const divObj = leagueObj.getDivision( division.name );
+
+      // before starting post-season — division's conferences have to be *all* done
+      if( divObj.isDone() ) {
+        // TODO:
+      }
+    });
   });
 });

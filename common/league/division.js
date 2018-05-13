@@ -14,19 +14,38 @@ class Division {
     this.conferenceSize = conferenceSize;
   }
 
-  addCompetitor = ( name: string ) => {
+  addCompetitor = ( name: string ): void => {
     // TODO: check if competitor already exists?
     const comp = new Competitor( name );
     this.competitors.push( comp );
   }
 
-  addCompetitors = ( competitorsStrArr: Array<string> ) => {
+  addCompetitors = ( competitorsStrArr: Array<string> ): void => {
     const competitors = competitorsStrArr.map( name => new Competitor( name ) );
     this.competitors = [ ...this.competitors, ...competitors ];
   }
 
-  setConferences = ( conferences: Array<Conference> ) => {
+  setConferences = ( conferences: Array<Conference> ): void => {
     this.conferences = conferences;
+  }
+
+  isDone = (): boolean => {
+    // loop through each conference and ensure all are done
+    // bail on first false instance
+    let done = true;
+
+    // using a for loop here instead of Array.forEach
+    // because the latter does not support `break`
+    for( let i = 0; i < this.conferences.length; i++ ) {
+      const { groupObj } = this.conferences[ i ];
+
+      if( groupObj && !groupObj.isDone() ) {
+        done = false;
+        break;
+      }
+    }
+
+    return done;
   }
 }
 

@@ -12,7 +12,7 @@ class League {
     this.name = name;
   }
 
-  addDivision = ( name: string, size: number = 128, conferenceSize: number = 8 ) => {
+  addDivision = ( name: string, size: number = 128, conferenceSize: number = 8 ): Division => {
     // TODO: first check that division does not already exist in array
     const div = new Division( name, size, conferenceSize );
     this.divisions.push( div );
@@ -25,7 +25,7 @@ class League {
     return div;
   }
 
-  start = () => {
+  start = (): void => {
     this.divisions.forEach( ( div: Division ) => {
       // keep a copy of the groupstage object and store into memory
       // groupstage lib makes each competitor face *all* others in same group.
