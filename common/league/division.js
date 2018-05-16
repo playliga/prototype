@@ -89,7 +89,7 @@ class Division {
     return true;
   }
 
-  getCompetitorByName = ( name: string ): Object | null => {
+  getCompetitorGroupObj = ( name: string ): Object | null => {
     const { conferences } = this;
     let result = null;
 
@@ -108,6 +108,10 @@ class Division {
     }
 
     return result;
+  }
+
+  getCompetitorName = ( conference: number, seed: number ): string => {
+    return 'cooller';
   }
 }
 

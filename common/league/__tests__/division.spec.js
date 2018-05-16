@@ -95,15 +95,26 @@ describe( 'division', () => {
     divObj.startPostSeason();
   });
 
-  it( "gets a competitor's name", () => {
+  it( "gets a competitor's group info", () => {
     // override one of the randomly generated competitors with our own
     const NAME = 'dahang';
     divObj.conferences[ random( divObj.conferences.length ) ].competitors[ random( CONF_SIZE ) ] = NAME;
 
-    expect( divObj.getCompetitorByName( NAME ) ).not.toBeNull();
+    expect( divObj.getCompetitorGroupObj( NAME ) ).not.toBeNull();
   });
 
-  it( 'returns null if a competitor is not found', () => {
-    expect( divObj.getCompetitorByName( 'rapha' ) ).toBeNull();
+  it( "returns null if a competitor's group info is not found", () => {
+    expect( divObj.getCompetitorGroupObj( 'rapha' ) ).toBeNull();
+  });
+
+  it( 'returns a competitor name by seed and conference number', () => {
+    const CONF_NUM = random( divObj.conferences.length );
+    const SEED_NUM = random( CONF_SIZE );
+
+    // override one of the randomly generated competitors with our own
+    const NAME = 'cooller';
+    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = NAME;
+
+    expect( divObj.getCompetitorName( CONF_NUM, SEED_NUM ) ).toEqual( NAME );
   });
 });
