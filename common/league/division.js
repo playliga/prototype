@@ -73,12 +73,12 @@ class Division {
 
     this.conferences.forEach( ( conf: Conference ) => {
       const { groupObj } = conf;
-      const topFour = groupObj.results().slice( 0, PLAYOFF_TOPN );
+      const topn = groupObj.results().slice( 0, PLAYOFF_TOPN );
 
       // 1st place are automatically promoted and the next 3
       // are placed in the promotion playoffs
-      PROMOTED.push( topFour[ 0 ] );
-      topFour.slice( 1, PLAYOFF_TOPN ).forEach( i => PLAYOFFS.push( topFour[ i ] ) );
+      PROMOTED.push( topn[ 0 ] );
+      topn.slice( 1, PLAYOFF_TOPN ).forEach( i => PLAYOFFS.push( topn[ i ] ) );
     });
 
     // split playoffs into PLAYOFF_PROMOTION_NUM
