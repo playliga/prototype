@@ -88,6 +88,27 @@ class Division {
     // return
     return true;
   }
+
+  getCompetitorByName = ( name: string ): Object | null => {
+    const { conferences } = this;
+    let result = null;
+
+    for( let i = 0; i < conferences.length; i++ ) {
+      // return the name, seed number, position, etc
+      const conf = conferences[ i ];
+      const index = conf.competitors.indexOf( name );
+
+      if( index > -1 ) {
+        // found! seeds start at 1 so bump if 0
+        const seedNum = index === 0 ? index + 1 : index;
+
+        result = conf.groupObj.resultsFor( seedNum );
+        break;
+      }
+    }
+
+    return result;
+  }
 }
 
 export default Division;

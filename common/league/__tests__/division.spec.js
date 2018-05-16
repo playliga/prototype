@@ -94,4 +94,16 @@ describe( 'division', () => {
 
     divObj.startPostSeason();
   });
+
+  it( "gets a competitor's name", () => {
+    // override one of the randomly generated competitors with our own
+    const NAME = 'dahang';
+    divObj.conferences[ random( divObj.conferences.length ) ].competitors[ random( CONF_SIZE ) ] = NAME;
+
+    expect( divObj.getCompetitorByName( NAME ) ).not.toBeNull();
+  });
+
+  it( 'returns null if a competitor is not found', () => {
+    expect( divObj.getCompetitorByName( 'rapha' ) ).toBeNull();
+  });
 });
