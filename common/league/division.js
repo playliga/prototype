@@ -79,9 +79,9 @@ class Division {
       // 1st place are automatically promoted and the next 3
       // are placed in the promotion playoffs
       PROMOTED.push( topn[ 0 ] );
-      topn.slice( 1, PLAYOFF_TOPN ).forEach( item => (
-        PLAYOFFS.push( this.getCompetitorName( confNum, item.seed ) )
-      ) );
+      for( let index = 1; index < topn.length; index++ ) {
+        PLAYOFFS.push( this.getCompetitorName( confNum, index ) );
+      }
     });
 
     // split playoffs into PLAYOFF_PROMOTION_NUM
@@ -113,9 +113,9 @@ class Division {
     return result;
   }
 
-  getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
+  getCompetitorName = ( confNum: number, index: number ): Competitor => {
     const { competitors } = this.conferences[ confNum ];
-    return competitors[ seedNum ];
+    return competitors[ index ];
   }
 }
 
