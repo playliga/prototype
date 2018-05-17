@@ -94,7 +94,7 @@ class Division {
     let result = null;
 
     for( let i = 0; i < conferences.length; i++ ) {
-      // return the name, seed number, position, etc
+      // search the current conference's competitors
       const conf = conferences[ i ];
       const index = conf.competitors.indexOf( name );
 
@@ -110,8 +110,9 @@ class Division {
     return result;
   }
 
-  getCompetitorName = ( conference: number, seed: number ): string => {
-    return 'cooller';
+  getCompetitorName = ( confNum: number, seedNum: number ): string => {
+    const { competitors } = this.conferences[ confNum ];
+    return competitors[ seedNum ];
   }
 }
 
