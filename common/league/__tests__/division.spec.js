@@ -2,7 +2,7 @@ import adjectiveAnimal from 'adjective-animal';
 import cuid from 'cuid';
 import { chunk, random } from 'lodash';
 import GroupStage from 'groupstage';
-import { Division } from '../';
+import { Division, Competitor } from '../';
 
 describe( 'division', () => {
   const SIZE = 256;
@@ -98,7 +98,9 @@ describe( 'division', () => {
   it( "gets a competitor's group info", () => {
     // override one of the randomly generated competitors with our own
     const NAME = 'dahang';
-    divObj.conferences[ random( divObj.conferences.length ) ].competitors[ random( CONF_SIZE ) ] = NAME;
+    const CONF_NUM = random( divObj.conferences.length );
+    const SEED_NUM = random( CONF_SIZE );
+    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM] = new Competitor( NAME );
 
     expect( divObj.getCompetitorGroupObj( NAME ) ).not.toBeNull();
   });
@@ -113,8 +115,9 @@ describe( 'division', () => {
 
     // override one of the randomly generated competitors with our own
     const NAME = 'cooller';
-    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = NAME;
+    const competitorObj = new Competitor( NAME );
+    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = competitorObj;
 
-    expect( divObj.getCompetitorName( CONF_NUM, SEED_NUM ) ).toEqual( NAME );
+    expect( divObj.getCompetitorName( CONF_NUM, SEED_NUM ) ).toEqual( competitorObj );
   });
 });

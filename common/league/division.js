@@ -1,5 +1,6 @@
 // @flow
 import Competitor from './competitor';
+import { findIndex } from 'lodash';
 
 class Division {
   name: string
@@ -71,14 +72,16 @@ class Division {
     // for the promotion playoffs
     const PLAYOFF_TOPN = 4; // should this be hardcoded?
 
-    this.conferences.forEach( ( conf: Conference ) => {
+    this.conferences.forEach( ( conf: Conference, confNum: number ) => {
       const { groupObj } = conf;
       const topn = groupObj.results().slice( 0, PLAYOFF_TOPN );
 
       // 1st place are automatically promoted and the next 3
       // are placed in the promotion playoffs
       PROMOTED.push( topn[ 0 ] );
-      topn.slice( 1, PLAYOFF_TOPN ).forEach( i => PLAYOFFS.push( topn[ i ] ) );
+      topn.slice( 1, PLAYOFF_TOPN ).forEach( item => (
+        PLAYOFFS.push( this.getCompetitorName( confNum, item.seed ) )
+      ) );
     });
 
     // split playoffs into PLAYOFF_PROMOTION_NUM
@@ -96,7 +99,7 @@ class Division {
     for( let i = 0; i < conferences.length; i++ ) {
       // search the current conference's competitors
       const conf = conferences[ i ];
-      const index = conf.competitors.indexOf( name );
+      const index = findIndex( conf.competitors, ( competitor: Competitor ) => competitor.name === name );
 
       if( index > -1 ) {
         // found! seeds start at 1 so bump if 0
@@ -110,7 +113,7 @@ class Division {
     return result;
   }
 
-  getCompetitorName = ( confNum: number, seedNum: number ): string => {
+  getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
     const { competitors } = this.conferences[ confNum ];
     return competitors[ seedNum ];
   }
