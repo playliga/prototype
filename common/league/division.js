@@ -1,6 +1,8 @@
 // @flow
+import { findIndex, chunk } from 'lodash';
+import cuid from 'cuid';
+import Duel from 'duel';
 import Competitor from './competitor';
-import { findIndex } from 'lodash';
 
 class Division {
   name: string
@@ -9,6 +11,7 @@ class Division {
   competitors: Array<Competitor> = []
   conferences: Array<Conference>
   promotionPercent: number = 0.15
+  promotionConferences: Array<PromotionConference> = []
 
   constructor( name: string, size: number = 256, conferenceSize: number = 8 ) {
     this.name = name;
@@ -84,9 +87,18 @@ class Division {
       }
     });
 
-    // split playoffs into PLAYOFF_PROMOTION_NUM
-    // and create a playoff object for each one
-    // TODO:
+    // split playoffs into conferences
+    // for there to be 6 winners (PLAYOFF_PROMOTION_NUM)
+    chunk(
+      PLAYOFFS,
+      PLAYOFFS.length / PLAYOFF_PROMOTION_NUM
+    ).forEach( ( competitors: Array<Competitor> ) => {
+      this.promotionConferences.push({
+        id: cuid(),
+        competitors,
+        duelObj: new Duel( competitors.length )
+      });
+    });
 
     // return
     return true;
