@@ -81,20 +81,6 @@ describe( 'division', () => {
     expect( divObj.startPostSeason() ).toBeFalsy();
   });
 
-  it( 'begins postseason', () => {
-    // generate scores for all conferences
-    conferences.forEach( ( conf ) => {
-      const { groupObj } = conf;
-      const { matches } = groupObj;
-
-      matches.forEach( ( matchObj ) => {
-        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
-      });
-    });
-
-    divObj.startPostSeason();
-  });
-
   it( "gets a competitor's group info", () => {
     // override one of the randomly generated competitors with our own
     const NAME = 'dahang';
@@ -119,5 +105,19 @@ describe( 'division', () => {
     divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = competitorObj;
 
     expect( divObj.getCompetitorName( CONF_NUM, SEED_NUM ) ).toEqual( competitorObj );
+  });
+
+  it( 'begins postseason', () => {
+    // generate scores for all conferences
+    conferences.forEach( ( conf ) => {
+      const { groupObj } = conf;
+      const { matches } = groupObj;
+
+      matches.forEach( ( matchObj ) => {
+        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
+      });
+    });
+
+    divObj.startPostSeason();
   });
 });
