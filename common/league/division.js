@@ -96,7 +96,7 @@ class Division {
       this.promotionConferences.push({
         id: cuid(),
         competitors,
-        duelObj: new Duel( competitors.length )
+        duelObj: new Duel( competitors.length, { short: true }) // no bronze final needed
       });
     });
 
