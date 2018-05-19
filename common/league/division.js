@@ -115,7 +115,7 @@ class Division {
 
       if( index > -1 ) {
         // found! seeds start at 1 so bump if 0
-        const seedNum = index === 0 ? index + 1 : index;
+        const seedNum = index + 1;
 
         result = conf.groupObj.resultsFor( seedNum );
         break;
