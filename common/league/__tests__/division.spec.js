@@ -1,3 +1,4 @@
+// @flow
 import adjectiveAnimal from 'adjective-animal';
 import cuid from 'cuid';
 import { chunk, random } from 'lodash';
@@ -118,6 +119,58 @@ describe( 'division', () => {
       });
     });
 
-    divObj.startPostSeason();
+    // only continue if post season can be started
+    // kind of a dupe for the post-season unit tests but whatever
+    expect( divObj.startPostSeason() ).toBeTruthy();
+
+    // generate scores for all promotion conference playoffs
+    const { promotionConferences } = divObj;
+    promotionConferences.forEach( ( conf: PromotionConference ) => {
+      const { duelObj } = conf;
+      const { matches } = duelObj;
+
+      // for each match simulator a best-of-N
+      const BEST_OF = 5;
+      const WIN_AMT = 3;
+      matches.forEach( ( matchObj ) => {
+        let aFinalScore = 0;
+        let bFinalScore = 0;
+
+        // simulate a Bo5 game
+        // TODO: move into its own function to reuse elsewhere?
+        // TODO: possibly make class for simulator engine
+        for( let i = 0; i < BEST_OF; i++ ) {
+          // assign scores and check if they are tied
+          let aScore = random( 16 );
+          let bScore = random( 16 );
+
+          // if they are tied, keep trying until they aren't...
+          while( aScore === bScore ) {
+            aScore = random( 16 );
+            bScore = random( 16 );
+          }
+
+          // whomever won this round gets a point
+          aFinalScore = aScore > bScore ? aFinalScore + 1 : aFinalScore;
+          bFinalScore = bScore > aScore ? bFinalScore + 1 : bFinalScore;
+
+          // whomever reaches WIN_AMT wins
+          if( aFinalScore === WIN_AMT || bFinalScore === WIN_AMT ) {
+            break;
+          }
+        }
+
+        // submit the scores
+        // but only if they are scoreable. see:
+        // https://github.com/clux/tournament/blob/master/doc/base.md#ensuring-scorability--consistency
+        if( duelObj.unscorable( matchObj.id, [ aFinalScore, bFinalScore ] ) === null ) {
+          duelObj.score( matchObj.id, [ aFinalScore, bFinalScore ] );
+        }
+      });
+
+      // all games should be done. seems the duelObj.p (lowest power) === final round num.
+      // 4 lowest pow of 16 which is how many players there are
+      // so the final is played in round 4
+    });
   });
 });
