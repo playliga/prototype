@@ -100,7 +100,7 @@ describe( 'division', () => {
     const NAME = 'dahang';
     const CONF_NUM = random( divObj.conferences.length );
     const SEED_NUM = random( CONF_SIZE );
-    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM] = new Competitor( NAME );
+    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = new Competitor( NAME );
 
     expect( divObj.getCompetitorGroupObj( NAME ) ).not.toBeNull();
   });
