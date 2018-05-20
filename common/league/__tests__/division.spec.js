@@ -161,8 +161,7 @@ describe( 'division', () => {
         }
 
         // submit the scores
-        // but only if they are scoreable. see:
-        // https://github.com/clux/tournament/blob/master/doc/base.md#ensuring-scorability--consistency
+        // but only if they are scoreable. see: https://goo.gl/ym2n8e
         if( duelObj.unscorable( matchObj.id, [ aFinalScore, bFinalScore ] ) === null ) {
           duelObj.score( matchObj.id, [ aFinalScore, bFinalScore ] );
         }
