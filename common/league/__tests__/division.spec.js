@@ -151,11 +151,11 @@ describe( 'division', () => {
             bScore = random( 16 );
           }
 
-          // whomever won this round gets a point
+          // whoever won this round gets a point
           aFinalScore = aScore > bScore ? aFinalScore + 1 : aFinalScore;
           bFinalScore = bScore > aScore ? bFinalScore + 1 : bFinalScore;
 
-          // whomever reaches WIN_AMT wins
+          // whoever reaches WIN_AMT wins
           if( aFinalScore === WIN_AMT || bFinalScore === WIN_AMT ) {
             break;
           }
@@ -168,9 +168,10 @@ describe( 'division', () => {
         }
       });
 
-      // all games should be done. seems the duelObj.p (lowest power) === final round num.
-      // 4 lowest pow of 16 which is how many players there are
-      // so the final is played in round 4
+      // all games should be done. duelObj.p === final round num.
+      // duelObj.p = 2^(p-1) = number of games in *FIRST* round. ie:
+      // 16 players = 8 games first round = 2^(p-1) = 8 = 2^(4-1) = 8
+      // p = 4 = final round
     });
   });
 });
