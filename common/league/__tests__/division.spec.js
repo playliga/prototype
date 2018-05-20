@@ -58,8 +58,8 @@ describe( 'division', () => {
     ] );
   });
 
-  it( 'checks that division is not done when conferences have oustanding matches left', () => {
-    expect( divObj.isDone() ).toBeFalsy();
+  it( 'checks that division group stage is not done when conferences have oustanding matches left', () => {
+    expect( divObj.isGroupStageDone() ).toBeFalsy();
   });
 
   it( 'generates random scores for all conferences and checks when division is all done', () => {
@@ -75,7 +75,7 @@ describe( 'division', () => {
 
     // division should return true
     // when all conferences have completed their matches
-    expect( divObj.isDone() ).toBeTruthy();
+    expect( divObj.isGroupStageDone() ).toBeTruthy();
   });
 
   it( 'does not start post-season if there are outstanding conference matches left', () => {

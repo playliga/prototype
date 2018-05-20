@@ -95,7 +95,7 @@ describe( 'league', () => {
       const divObj = leagueObj.getDivision( division.name );
 
       // before starting post-season — division's conferences have to be *all* done
-      if( divObj.isDone() ) {
+      if( divObj.isGroupStageDone() ) {
         // TODO:
       }
     });

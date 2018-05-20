@@ -10,8 +10,10 @@ class Division {
   conferenceSize: number
   competitors: Array<Competitor> = []
   conferences: Array<Conference>
+  conferenceWinners: Array<Competitor> = []
   promotionPercent: number = 0.15
   promotionConferences: Array<PromotionConference> = []
+  promotionWinners: Array<Competitor> = []
 
   constructor( name: string, size: number = 256, conferenceSize: number = 8 ) {
     this.name = name;
@@ -34,7 +36,7 @@ class Division {
     this.conferences = conferences;
   }
 
-  isDone = (): boolean => {
+  isGroupStageDone = (): boolean => {
     // loop through each conference and ensure all are done
     // bail on first false instance
     let done = true;
@@ -81,7 +83,7 @@ class Division {
 
   startPostSeason = (): boolean => {
     // abort if pending matches
-    if( !this.isDone() ) {
+    if( !this.isGroupStageDone() ) {
       return false;
     }
 
