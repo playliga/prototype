@@ -58,11 +58,11 @@ describe( 'division', () => {
     ] );
   });
 
-  it( 'checks that division group stage is not done when conferences have oustanding matches left', () => {
+  it( 'ensures that division group stage is not done when conferences have oustanding matches left', () => {
     expect( divObj.isGroupStageDone() ).toBeFalsy();
   });
 
-  it( 'generates random scores for all conferences and checks when division is all done', () => {
+  it( 'generates random scores for all conferences and ensures that division group stage is done', () => {
     // generate scores for all conferences
     conferences.forEach( ( conf ) => {
       const { groupObj } = conf;
@@ -108,8 +108,8 @@ describe( 'division', () => {
     expect( divObj.getCompetitorName( CONF_NUM, SEED_NUM ) ).toEqual( competitorObj );
   });
 
-  it( 'begins postseason', () => {
-    // generate scores for all conferences
+  it( 'generates random scores for groupstage and promotion playoffs. ensures that division is all done.', () => {
+    // generate group stage scores for all conferences
     conferences.forEach( ( conf ) => {
       const { groupObj } = conf;
       const { matches } = groupObj;
@@ -173,5 +173,24 @@ describe( 'division', () => {
       // 16 players = 8 games first round = 2^(p-1) = 8 = 2^(4-1) = 8
       // p = 4 = final round
     });
+
+    expect( divObj.isDone() ).toBeTruthy();
+  });
+
+  it( 'ensures that division is not entirely done if there are still promotion playoffs to play', () => {
+    // generate group stage scores for all conferences
+    conferences.forEach( ( conf ) => {
+      const { groupObj } = conf;
+      const { matches } = groupObj;
+
+      matches.forEach( ( matchObj ) => {
+        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
+      });
+    });
+
+    // only continue if post season can be started
+    // kind of a dupe for the post-season unit tests but whatever
+    expect( divObj.startPostSeason() ).toBeTruthy();
+    expect( divObj.isDone() ).toBeFalsy();
   });
 });

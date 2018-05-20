@@ -55,6 +55,31 @@ class Division {
     return done;
   }
 
+  isDone = (): boolean => {
+    // bail early if group stage is not done
+    if( !this.isGroupStageDone() ) {
+      return false;
+    }
+
+    // loop through each promotion conference and ensure all are done
+    // bail on first false instance
+    let done = true;
+
+    // using a for loop here instead of Array.forEach
+    // because the latter does not support `break`
+    for( let i = 0; i < this.promotionConferences.length; i++ ) {
+      const { duelObj } = this.promotionConferences[ i ];
+
+      if( duelObj && !duelObj.isDone() ) {
+        done = false;
+        break;
+      }
+    }
+
+    // return
+    return done;
+  }
+
   getCompetitorGroupObj = ( name: string ): Object | null => {
     const { conferences } = this;
     let result = null;
