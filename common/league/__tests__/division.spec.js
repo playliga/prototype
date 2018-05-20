@@ -125,18 +125,19 @@ describe( 'division', () => {
 
     // generate scores for all promotion conference playoffs
     const { promotionConferences } = divObj;
+
     promotionConferences.forEach( ( conf: PromotionConference ) => {
       const { duelObj } = conf;
       const { matches } = duelObj;
 
-      // for each match simulator a best-of-N
+      // for each match simulate a best-of-N
       const BEST_OF = 5;
       const WIN_AMT = 3;
+
       matches.forEach( ( matchObj ) => {
         let aFinalScore = 0;
         let bFinalScore = 0;
 
-        // simulate a Bo5 game
         // TODO: move into its own function to reuse elsewhere?
         // TODO: possibly make class for simulator engine
         for( let i = 0; i < BEST_OF; i++ ) {
