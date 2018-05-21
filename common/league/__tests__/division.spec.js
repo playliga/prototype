@@ -5,6 +5,63 @@ import { chunk, random } from 'lodash';
 import GroupStage from 'groupstage';
 import { Division, Competitor } from '../';
 
+function generateGroupStageScores( conferences: Array<Conference> ) {
+  // generate scores for each conference
+  conferences.forEach( ( conf ) => {
+    const { groupObj } = conf;
+    const { matches } = groupObj;
+
+    matches.forEach( ( matchObj ) => {
+      groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
+    });
+  });
+}
+
+function generatePlayoffScores( promotionConferences: Array<PromotionConference> ) {
+  // generate scores for each conference
+  promotionConferences.forEach( ( conf: PromotionConference ) => {
+    const { duelObj } = conf;
+    const { matches } = duelObj;
+
+    // for each match simulate a best-of-N
+    const BEST_OF = 5;
+    const WIN_AMT = 3;
+
+    matches.forEach( ( matchObj ) => {
+      let aFinalScore = 0;
+      let bFinalScore = 0;
+
+      // TODO: possibly make class for simulator engine
+      for( let i = 0; i < BEST_OF; i++ ) {
+        // assign scores and check if they are tied
+        let aScore = random( 16 );
+        let bScore = random( 16 );
+
+        // if they are tied, keep trying until they aren't...
+        while( aScore === bScore ) {
+          aScore = random( 16 );
+          bScore = random( 16 );
+        }
+
+        // whoever won this round gets a point
+        aFinalScore = aScore > bScore ? aFinalScore + 1 : aFinalScore;
+        bFinalScore = bScore > aScore ? bFinalScore + 1 : bFinalScore;
+
+        // whoever reaches WIN_AMT wins
+        if( aFinalScore === WIN_AMT || bFinalScore === WIN_AMT ) {
+          break;
+        }
+      }
+
+      // submit the scores
+      // but only if they are scoreable. see: https://goo.gl/ym2n8e
+      if( duelObj.unscorable( matchObj.id, [ aFinalScore, bFinalScore ] ) === null ) {
+        duelObj.score( matchObj.id, [ aFinalScore, bFinalScore ] );
+      }
+    });
+  });
+}
+
 describe( 'division', () => {
   const SIZE = 256;
   const CONF_SIZE = 8;
@@ -64,14 +121,7 @@ describe( 'division', () => {
 
   it( 'generates random scores for all conferences and ensures that division group stage is done', () => {
     // generate scores for all conferences
-    conferences.forEach( ( conf ) => {
-      const { groupObj } = conf;
-      const { matches } = groupObj;
-
-      matches.forEach( ( matchObj ) => {
-        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
-      });
-    });
+    generateGroupStageScores( conferences );
 
     // division should return true
     // when all conferences have completed their matches
@@ -110,14 +160,7 @@ describe( 'division', () => {
 
   it( 'generates random scores for groupstage and promotion playoffs. ensures that division is all done.', () => {
     // generate group stage scores for all conferences
-    conferences.forEach( ( conf ) => {
-      const { groupObj } = conf;
-      const { matches } = groupObj;
-
-      matches.forEach( ( matchObj ) => {
-        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
-      });
-    });
+    generateGroupStageScores( conferences );
 
     // only continue if post season can be started
     // kind of a dupe for the post-season unit tests but whatever
@@ -125,68 +168,19 @@ describe( 'division', () => {
 
     // generate scores for all promotion conference playoffs
     const { promotionConferences } = divObj;
+    generatePlayoffScores( promotionConferences );
 
-    promotionConferences.forEach( ( conf: PromotionConference ) => {
-      const { duelObj } = conf;
-      const { matches } = duelObj;
-
-      // for each match simulate a best-of-N
-      const BEST_OF = 5;
-      const WIN_AMT = 3;
-
-      matches.forEach( ( matchObj ) => {
-        let aFinalScore = 0;
-        let bFinalScore = 0;
-
-        // TODO: move into its own function to reuse elsewhere?
-        // TODO: possibly make class for simulator engine
-        for( let i = 0; i < BEST_OF; i++ ) {
-          // assign scores and check if they are tied
-          let aScore = random( 16 );
-          let bScore = random( 16 );
-
-          // if they are tied, keep trying until they aren't...
-          while( aScore === bScore ) {
-            aScore = random( 16 );
-            bScore = random( 16 );
-          }
-
-          // whoever won this round gets a point
-          aFinalScore = aScore > bScore ? aFinalScore + 1 : aFinalScore;
-          bFinalScore = bScore > aScore ? bFinalScore + 1 : bFinalScore;
-
-          // whoever reaches WIN_AMT wins
-          if( aFinalScore === WIN_AMT || bFinalScore === WIN_AMT ) {
-            break;
-          }
-        }
-
-        // submit the scores
-        // but only if they are scoreable. see: https://goo.gl/ym2n8e
-        if( duelObj.unscorable( matchObj.id, [ aFinalScore, bFinalScore ] ) === null ) {
-          duelObj.score( matchObj.id, [ aFinalScore, bFinalScore ] );
-        }
-      });
-
-      // all games should be done. duelObj.p === final round num.
-      // duelObj.p = 2^(p-1) = number of games in *FIRST* round. ie:
-      // 16 players = 8 games first round = 2^(p-1) = 8 = 2^(4-1) = 8
-      // p = 4 = final round
-    });
+    // all games should be done. duelObj.p === final round num.
+    // duelObj.p = 2^(p-1) = number of games in *FIRST* round. ie:
+    // 16 players = 8 games first round = 2^(p-1) = 8 = 2^(4-1) = 8
+    // p = 4 = final round
 
     expect( divObj.isDone() ).toBeTruthy();
   });
 
   it( 'ensures that division is not entirely done if there are still promotion playoffs to play', () => {
     // generate group stage scores for all conferences
-    conferences.forEach( ( conf ) => {
-      const { groupObj } = conf;
-      const { matches } = groupObj;
-
-      matches.forEach( ( matchObj ) => {
-        groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
-      });
-    });
+    generateGroupStageScores( conferences );
 
     // only continue if post season can be started
     // kind of a dupe for the post-season unit tests but whatever
