@@ -101,9 +101,9 @@ class Division {
     return result;
   }
 
-  getCompetitorName = ( confNum: number, index: number ): Competitor => {
+  getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
     const { competitors } = this.conferences[ confNum ];
-    return competitors[ index ];
+    return competitors[ seedNum - 1 ]; // seeds are 1-based; array is 0-based...
   }
 
   startPostSeason = (): boolean => {
@@ -136,7 +136,7 @@ class Division {
       // are placed in the promotion playoffs
       PROMOTED.push( topn[ 0 ] );
       for( let index = 1; index < topn.length; index++ ) {
-        PLAYOFFS.push( this.getCompetitorName( confNum, index ) );
+        PLAYOFFS.push( this.getCompetitorName( confNum, topn[ index ].seed ) );
       }
     });
 

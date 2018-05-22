@@ -148,14 +148,15 @@ describe( 'division', () => {
 
   it( 'returns a competitor name by seed and conference number', () => {
     const CONF_NUM = random( divObj.conferences.length );
-    const SEED_NUM = random( CONF_SIZE );
+    const INDEX = random( CONF_SIZE );
 
     // override one of the randomly generated competitors with our own
     const NAME = 'cooller';
     const competitorObj = new Competitor( NAME );
-    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = competitorObj;
+    divObj.conferences[ CONF_NUM ].competitors[ INDEX ] = competitorObj;
 
-    expect( divObj.getCompetitorName( CONF_NUM, SEED_NUM ) ).toEqual( competitorObj );
+    // pad the index number to emulate the seed numbers which are 1-based
+    expect( divObj.getCompetitorName( CONF_NUM, INDEX + 1 ) ).toEqual( competitorObj );
   });
 
   it( 'generates random scores for groupstage and promotion playoffs. ensures that division is all done.', () => {
