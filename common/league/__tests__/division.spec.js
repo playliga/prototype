@@ -163,6 +163,31 @@ describe( 'division', () => {
     generateGroupStageScores( conferences );
 
     // only continue if post season can be started
+    expect( divObj.startPostSeason() ).toBeTruthy();
+
+    // generate scores for all promotion conference playoffs
+    const { promotionConferences } = divObj;
+    generatePlayoffScores( promotionConferences );
+
+    // division should be all done
+    expect( divObj.isDone() ).toBeTruthy();
+  });
+
+  it( 'ensures that division is not entirely done if there are still promotion playoffs to play', () => {
+    // generate group stage scores for all conferences
+    generateGroupStageScores( conferences );
+
+    // only continue if post season can be started
+    // kind of a dupe for the post-season unit tests but whatever
+    expect( divObj.startPostSeason() ).toBeTruthy();
+    expect( divObj.isDone() ).toBeFalsy();
+  });
+
+  it( 'compiles list of winners and promotion winners when division is done', () => {
+    // generate group stage scores for all conferences
+    generateGroupStageScores( conferences );
+
+    // only continue if post season can be started
     // kind of a dupe for the post-season unit tests but whatever
     expect( divObj.startPostSeason() ).toBeTruthy();
 
@@ -175,16 +200,14 @@ describe( 'division', () => {
     // 16 players = 8 games first round = 2^(p-1) = 8 = 2^(4-1) = 8
     // p = 4 = final round
 
+    // before continuing ensure division is entirely done
     expect( divObj.isDone() ).toBeTruthy();
-  });
+    expect( divObj.endPostSeason() ).toBeTruthy();
 
-  it( 'ensures that division is not entirely done if there are still promotion playoffs to play', () => {
-    // generate group stage scores for all conferences
-    generateGroupStageScores( conferences );
+    // conference winners should equal the same amount of conferences
+    expect( divObj.conferenceWinners.length ).toEqual( divObj.conferences.length );
 
-    // only continue if post season can be started
-    // kind of a dupe for the post-season unit tests but whatever
-    expect( divObj.startPostSeason() ).toBeTruthy();
-    expect( divObj.isDone() ).toBeFalsy();
+    // promotion winners should equal the same amount of promotion coneferences
+    expect( divObj.promotionWinners.length ).toEqual( divObj.promotionConferences.length );
   });
 });

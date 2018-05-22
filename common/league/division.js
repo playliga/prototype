@@ -153,6 +153,28 @@ class Division {
       });
     });
 
+    // copy over the promoted array to conferenceWinners array
+    this.conferenceWinners = PROMOTED;
+
+    // return
+    return true;
+  }
+
+  endPostSeason = (): boolean => {
+    // bail early if group stage or playoffs are not done
+    if( !this.isGroupStageDone() || !this.isDone() ) {
+      return false;
+    }
+
+    // loop through each promotion conference and compile the list of winners
+    this.promotionConferences.forEach( ( conf: PromotionConference ) => {
+      const { competitors, duelObj } = conf;
+      const [ winner ] = duelObj.results();
+
+      // seeds are 1-based. arrays are 0-based
+      this.promotionWinners.push( competitors[ winner.seed - 1 ] );
+    });
+
     // return
     return true;
   }
