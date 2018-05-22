@@ -134,7 +134,7 @@ class Division {
 
       // 1st place are automatically promoted and the next 3
       // are placed in the promotion playoffs
-      PROMOTED.push( topn[ 0 ] );
+      PROMOTED.push( this.getCompetitorName( confNum, topn[ 0 ].seed ) );
       for( let index = 1; index < topn.length; index++ ) {
         PLAYOFFS.push( this.getCompetitorName( confNum, topn[ index ].seed ) );
       }
