@@ -38,6 +38,54 @@ class League {
       div.setConferences( conferences );
     });
   }
+
+  isGroupStageDone = (): boolean => {
+    // loop through each division and ensure all are done
+    // bail on first false instance
+    let done = true;
+
+    // using a for loop here instead of Array.forEach
+    // because the latter does not support `break`
+    for( let i = 0; i < this.divisions.length; i++ ) {
+      const divObj = this.divisions[ i ];
+      if( !divObj.isGroupStageDone() ) {
+        done = false;
+        break;
+      }
+    }
+
+    return done;
+  }
+
+  isDone = (): boolean => {
+    // loop through each division and ensure all are done
+    // bail on first false instance
+    let done = true;
+
+    // using a for loop here instead of Array.forEach
+    // because the latter does not support `break`
+    for( let i = 0; i < this.divisions.length; i++ ) {
+      const divObj = this.divisions[ i ];
+      if( !divObj.isDone() ) {
+        done = false;
+        break;
+      }
+    }
+
+    return done;
+  }
+
+  startPostSeason = (): void => {
+    this.divisions.forEach( ( divObj: Division ) => {
+      divObj.startPostSeason();
+    });
+  }
+
+  endPostSeason = (): void => {
+    this.divisions.forEach( ( divObj: Division ) => {
+      divObj.endPostSeason();
+    });
+  }
 }
 
 export default League;

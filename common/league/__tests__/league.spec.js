@@ -83,25 +83,28 @@ describe( 'league', () => {
     *   = 1 playoff bracket
     **/
 
-    // loop through each division and start post-season (if applicable)
+    // start the league's post-season is all group stage matches are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // loop through each division and generate playoff scores
     divisions.forEach( ( division ) => {
       const divObj = leagueObj.getDivision( division.name );
 
-      // before starting post-season — division's conferences have to be *all* done
-      if( divObj.isGroupStageDone() ) {
-        divObj.startPostSeason();
-      }
-
       // now generate the playoff scores
       generatePlayoffScores( divObj.promotionConferences );
-
-      // ensure division is done before compiling list of winners
-      if( divObj.isDone() ) {
-        divObj.endPostSeason();
-      }
-
-      // handle promotions and relegations
-      // start the next season
     });
+
+    // if league's post-season is done compile list of winners
+    if( leagueObj.isDone() ) {
+      leagueObj.endPostSeason();
+    }
+
+    // handle promotions and relegations
+    // start the next season
+    // promotions = conferenceWinners, promotionWinners
+    // relegations = conferenceWinners.length + promotionWinners.length
+    // TODO: leagueObj.end()
   });
 });
