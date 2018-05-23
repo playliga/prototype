@@ -112,6 +112,16 @@ class Division {
       return false;
     }
 
+    // if we have one conference then promotion is not possible
+    // this means it's the top division
+    if( this.conferences.length === 1 ) {
+      const { groupObj } = this.conferences[ 0 ];
+      const [ winner ] = groupObj.results();
+
+      this.conferenceWinners.push( this.getCompetitorName( 0, winner.seed ) );
+      return true;
+    }
+
     // hold promoted and promotion playoff eligible arrays
     const PROMOTED = [];
     const PLAYOFFS = [];

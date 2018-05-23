@@ -1,6 +1,7 @@
 import adjectiveAnimal from 'adjective-animal';
 import { random } from 'lodash';
 import League from '../league';
+import { generateGroupStageScores } from './division.spec';
 
 describe( 'league', () => {
   it( 'DEBUG: sample use-case', () => {
@@ -30,14 +31,7 @@ describe( 'league', () => {
       const divObj = leagueObj.getDivision( division.name );
       const { conferences } = divObj;
 
-      conferences.forEach( ( conf ) => {
-        const { groupObj } = conf;
-        const { matches } = groupObj;
-
-        matches.forEach( ( matchObj ) => {
-          groupObj.score( matchObj.id, [ random( 16 ), random( 16 ) ] );
-        });
-      });
+      generateGroupStageScores( conferences );
     });
 
     /**
@@ -96,7 +90,7 @@ describe( 'league', () => {
 
       // before starting post-season — division's conferences have to be *all* done
       if( divObj.isGroupStageDone() ) {
-        // TODO:
+        divObj.startPostSeason();
       }
     });
   });

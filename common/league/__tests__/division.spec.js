@@ -5,7 +5,7 @@ import { chunk, random } from 'lodash';
 import GroupStage from 'groupstage';
 import { Division, Competitor } from '../';
 
-function generateGroupStageScores( conferences: Array<Conference> ) {
+export function generateGroupStageScores( conferences: Array<Conference> ) {
   // generate scores for each conference
   conferences.forEach( ( conf ) => {
     const { groupObj } = conf;
@@ -17,7 +17,7 @@ function generateGroupStageScores( conferences: Array<Conference> ) {
   });
 }
 
-function generatePlayoffScores( promotionConferences: Array<PromotionConference> ) {
+export function generatePlayoffScores( promotionConferences: Array<PromotionConference> ) {
   // generate scores for each conference
   promotionConferences.forEach( ( conf: PromotionConference ) => {
     const { duelObj } = conf;
