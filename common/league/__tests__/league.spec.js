@@ -1,7 +1,6 @@
 import adjectiveAnimal from 'adjective-animal';
-import { random } from 'lodash';
 import League from '../league';
-import { generateGroupStageScores } from './division.spec';
+import { generateGroupStageScores, generatePlayoffScores } from './division.spec';
 
 describe( 'league', () => {
   it( 'DEBUG: sample use-case', () => {
@@ -92,6 +91,17 @@ describe( 'league', () => {
       if( divObj.isGroupStageDone() ) {
         divObj.startPostSeason();
       }
+
+      // now generate the playoff scores
+      generatePlayoffScores( divObj.promotionConferences );
+
+      // ensure division is done before compiling list of winners
+      if( divObj.isDone() ) {
+        divObj.endPostSeason();
+      }
+
+      // handle promotions and relegations
+      // start the next season
     });
   });
 });
