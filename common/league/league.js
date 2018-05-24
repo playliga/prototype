@@ -25,20 +25,6 @@ class League {
     return div;
   }
 
-  start = (): void => {
-    this.divisions.forEach( ( div: Division ) => {
-      // keep a copy of the groupstage object and store into memory
-      // groupstage lib makes each competitor face *all* others in same group.
-      // so — split each division into "conferences" where each competitor only plays N matches
-      const conferences = chunk( div.competitors, div.conferenceSize ).map( ( conf: Array<Competitor> ) => ({
-        id: cuid(),
-        competitors: conf,
-        groupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize })
-      }) );
-      div.setConferences( conferences );
-    });
-  }
-
   isGroupStageDone = (): boolean => {
     // loop through each division and ensure all are done
     // bail on first false instance
@@ -73,6 +59,20 @@ class League {
     }
 
     return done;
+  }
+
+  start = (): void => {
+    this.divisions.forEach( ( div: Division ) => {
+      // keep a copy of the groupstage object and store into memory
+      // groupstage lib makes each competitor face *all* others in same group.
+      // so — split each division into "conferences" where each competitor only plays N matches
+      const conferences = chunk( div.competitors, div.conferenceSize ).map( ( conf: Array<Competitor> ) => ({
+        id: cuid(),
+        competitors: conf,
+        groupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize })
+      }) );
+      div.setConferences( conferences );
+    });
   }
 
   startPostSeason = (): void => {

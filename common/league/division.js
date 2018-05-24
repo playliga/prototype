@@ -36,6 +36,32 @@ class Division {
     this.conferences = conferences;
   }
 
+  getCompetitorGroupObj = ( name: string ): Object | null => {
+    const { conferences } = this;
+    let result = null;
+
+    for( let i = 0; i < conferences.length; i++ ) {
+      // search the current conference's competitors
+      const conf = conferences[ i ];
+      const index = findIndex( conf.competitors, ( competitor: Competitor ) => competitor.name === name );
+
+      if( index > -1 ) {
+        // found! seeds start at 1 so bump if 0
+        const seedNum = index + 1;
+
+        result = conf.groupObj.resultsFor( seedNum );
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
+    const { competitors } = this.conferences[ confNum ];
+    return competitors[ seedNum - 1 ]; // seeds are 1-based; array is 0-based...
+  }
+
   isGroupStageDone = (): boolean => {
     // loop through each conference and ensure all are done
     // bail on first false instance
@@ -78,32 +104,6 @@ class Division {
 
     // return
     return done;
-  }
-
-  getCompetitorGroupObj = ( name: string ): Object | null => {
-    const { conferences } = this;
-    let result = null;
-
-    for( let i = 0; i < conferences.length; i++ ) {
-      // search the current conference's competitors
-      const conf = conferences[ i ];
-      const index = findIndex( conf.competitors, ( competitor: Competitor ) => competitor.name === name );
-
-      if( index > -1 ) {
-        // found! seeds start at 1 so bump if 0
-        const seedNum = index + 1;
-
-        result = conf.groupObj.resultsFor( seedNum );
-        break;
-      }
-    }
-
-    return result;
-  }
-
-  getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
-    const { competitors } = this.conferences[ confNum ];
-    return competitors[ seedNum - 1 ]; // seeds are 1-based; array is 0-based...
   }
 
   startPostSeason = (): boolean => {
