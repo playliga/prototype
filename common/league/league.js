@@ -75,10 +75,23 @@ class League {
     });
   }
 
-  startPostSeason = (): void => {
-    this.divisions.forEach( ( divObj: Division ) => {
+  startPostSeason = (): boolean => {
+    let allDone = true;
+
+    // start post-season for each individual division
+    for( let i = 0; i < this.divisions.length; i++ ) {
+      const divObj = this.divisions[ i ];
+
+      // bail on first instance of an unfinished division
+      if( !divObj.isGroupStageDone() ) {
+        allDone = false;
+        break;
+      }
+
       divObj.startPostSeason();
-    });
+    }
+
+    return allDone;
   }
 
   endPostSeason = (): void => {

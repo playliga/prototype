@@ -105,6 +105,14 @@ describe( 'league', () => {
     expect( leagueObj.isGroupStageDone() ).toBeTruthy();
   });
 
+  it( 'does not start the promotion playoffs if there are pending group stage matches in any division', () => {
+    leagueObj.start();
+
+    // no group stage matches have been played
+    expect( leagueObj.isGroupStageDone() ).toBeFalsy();
+    expect( leagueObj.startPostSeason() ).toBeFalsy();
+  });
+
   it( "checks that a division's promotion playoffs are done", () => {
     // start the league
     leagueObj.start();
@@ -127,6 +135,24 @@ describe( 'league', () => {
     });
 
     expect( leagueObj.isDone() ).toBeTruthy();
+  });
+
+  it( 'is not done if a division still has promotion playoffs to play', () => {
+    leagueObj.start();
+
+    // generate group stage scores for each division
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name );
+      generateGroupStageScores( divObj.conferences );
+    });
+
+    // start post-season if all group stages are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // since no playoff matches have been played league is not done
+    expect( leagueObj.isDone() ).toBeFalsy();
   });
 
   it( 'runs through a whole season', () => {
