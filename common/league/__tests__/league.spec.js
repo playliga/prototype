@@ -155,6 +155,24 @@ describe( 'league', () => {
     expect( leagueObj.isDone() ).toBeFalsy();
   });
 
+  it( 'does not end post-season if a division still has promotion playoffs to play.', () => {
+    leagueObj.start();
+
+    // generate group stage scores for each division
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name );
+      generateGroupStageScores( divObj.conferences );
+    });
+
+    // start post-season if all group stages are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // since no playoff matches have been played league is not done
+    expect( leagueObj.endPostSeason() ).toBeFalsy();
+  });
+
   it( 'runs through a whole season', () => {
     // start the league
     leagueObj.start();

@@ -94,10 +94,23 @@ class League {
     return allDone;
   }
 
-  endPostSeason = (): void => {
-    this.divisions.forEach( ( divObj: Division ) => {
+  endPostSeason = (): boolean => {
+    let allDone = true;
+
+    // end post-season for each division
+    for( let i = 0; i < this.divisions.length; i++ ) {
+      const divObj = this.divisions[ i ];
+
+      // bail on first instance of an unfinished division
+      if( !divObj.isGroupStageDone() || !divObj.isDone() ) {
+        allDone = false;
+        break;
+      }
+
       divObj.endPostSeason();
-    });
+    }
+
+    return allDone;
   }
 }
 
