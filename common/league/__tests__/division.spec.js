@@ -135,7 +135,7 @@ describe( 'division', () => {
   it( "gets a competitor's group info", () => {
     // override one of the randomly generated competitors with our own
     const NAME = 'dahang';
-    const CONF_NUM = random( divObj.conferences.length );
+    const CONF_NUM = random( divObj.conferences.length - 1 );
     const SEED_NUM = random( CONF_SIZE );
     divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = new Competitor( NAME );
 
@@ -147,7 +147,7 @@ describe( 'division', () => {
   });
 
   it( 'returns a competitor name by seed and conference number', () => {
-    const CONF_NUM = random( divObj.conferences.length );
+    const CONF_NUM = random( divObj.conferences.length - 1 );
     const INDEX = random( CONF_SIZE );
 
     // override one of the randomly generated competitors with our own
