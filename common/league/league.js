@@ -112,6 +112,18 @@ class League {
 
     return allDone;
   }
+
+  end = (): void => {
+    // return array of divisions but with players promoted and relegated
+    // promotions: conferenceWinners + promotionWinners
+    // relegations: conferenceWinners.length + promotionWinners.length / conferences.length
+
+    // OPEN(256, 32, 8) = 38 move up
+    // INTERMEDIATE(128, 16, 8) = 38 move down, 19 move up
+    // MAIN(64, 8, 8) = 19 move down, 10 move up
+    // PREMIER(32, 4, 8) = 10 move down, 5 move up
+    // INVITE = 5 move down
+  }
 }
 
 export default League;

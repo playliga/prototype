@@ -173,7 +173,7 @@ describe( 'league', () => {
     expect( leagueObj.endPostSeason() ).toBeFalsy();
   });
 
-  it( 'runs through a whole season', () => {
+  it( 'ends the season with promotions and relegations', () => {
     // start the league
     leagueObj.start();
 
@@ -203,10 +203,6 @@ describe( 'league', () => {
       leagueObj.endPostSeason();
     }
 
-    // handle promotions and relegations
-    // start the next season
-    // promotions = conferenceWinners, promotionWinners
-    // relegations = conferenceWinners.length + promotionWinners.length
     // TODO: leagueObj.end()
   });
 });

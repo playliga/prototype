@@ -7,11 +7,11 @@ import Competitor from './competitor';
 class Division {
   name: string
   size: number
-  conferenceSize: number
   competitors: Array<Competitor> = []
+  promotionPercent: number = 0.15
+  conferenceSize: number
   conferences: Array<Conference>
   conferenceWinners: Array<Competitor> = []
-  promotionPercent: number = 0.15
   promotionConferences: Array<PromotionConference> = []
   promotionWinners: Array<Competitor> = []
 
@@ -134,7 +134,7 @@ class Division {
     const AUTOMATIC_PROMOTION_NUM = this.conferences.length;
     const PLAYOFF_PROMOTION_NUM = PROMOTION_NUM - AUTOMATIC_PROMOTION_NUM;
 
-    // TOP-N positions from each conferences are eligible (2nd, 3rd, 4th; currently)
+    // TOP-N positions from each conference are eligible (2nd, 3rd, 4th; currently)
     // for the promotion playoffs
     const PLAYOFF_TOPN = 4; // should this be hardcoded?
 
