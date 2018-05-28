@@ -135,50 +135,32 @@ class League {
         return;
       }
 
+      // pull relegation bottomfeeders from neighbor division into new division
+      const newDivision = new Division( division.name, division.conferenceSize );
+      newDivision.addCompetitors( neighbor.relegationBottomfeeders.map( ( bottomfeeder: Competitor ) => bottomfeeder.name ) );
+
+      // copy everyone but the topn that were pushed into new neighbor division
+      newDivision.addCompetitors( division.competitors.filter( ( comp: Competitor ) => {
+        const directPromoted = division.conferenceWinners.find( ( winner: Competitor ) => winner.name === comp.name );
+        const playoffPromoted = division.promotionWinners.find( ( winner: Competitor ) => winner.name === comp.name );
+
+        return directPromoted === undefined
+          && playoffPromoted === undefined;
+      }).map( ( comp: Competitor ) => comp.name ) );
+
       // push current division winners into new neighbor division
       const newNeighbor = new Division( neighbor.name, neighbor.conferenceSize );
       newNeighbor.addCompetitors( division.conferenceWinners.map( ( comp: Competitor ) => comp.name ) );
       newNeighbor.addCompetitors( division.promotionWinners.map( ( comp: Competitor ) => comp.name ) );
 
-      // pull relegation bottomfeeders from neighbor division into new division
-      const newDivision = new Division( division.name, division.conferenceSize );
-      newDivision.addCompetitors( neighbor.relegationBottomfeeders.map( ( bottomfeeder: Competitor ) => bottomfeeder.name ) );
-
-      // copy mid-table competitors from original neighbor division into new neighbor
+      // copy everyone but the relegation bottomfeeders to the new neighbor division
       newNeighbor.addCompetitors( neighbor.competitors.filter( ( comp: Competitor ) => {
-        // mid-table competitors are those who were not relegated
         const bottomfeederFound = neighbor.relegationBottomfeeders.find( ( bottomfeeder: Competitor ) => (
           bottomfeeder.name === comp.name
         ) );
 
-        // and those who were not promoted
-        const directPromoted = neighbor.conferenceWinners.find( ( winner: Competitor ) => winner.name === comp.name );
-        const playoffPromoted = neighbor.promotionWinners.find( ( winner: Competitor ) => winner.name === comp.name );
-
-        return bottomfeederFound === undefined
-          && directPromoted === undefined
-          && playoffPromoted === undefined;
+        return bottomfeederFound === undefined;
       }).map( ( comp: Competitor ) => comp.name ) );
-
-      // copy mid-table competitors from original division into new division
-      newDivision.addCompetitors( division.competitors.filter( ( comp: Competitor ) => {
-        // mid-table competitors are those who were not relegated
-        const bottomfeederFound = division.relegationBottomfeeders.find( ( bottomfeeder: Competitor ) => (
-          bottomfeeder.name === comp.name
-        ) );
-
-        // and those who were not promoted
-        const directPromoted = division.conferenceWinners.find( ( winner: Competitor ) => winner.name === comp.name );
-        const playoffPromoted = division.promotionWinners.find( ( winner: Competitor ) => winner.name === comp.name );
-
-        return bottomfeederFound === undefined
-          && directPromoted === undefined
-          && playoffPromoted === undefined;
-      }).map( ( comp: Competitor ) => comp.name ) );
-
-      // reassign modified divisions
-      this.postSeasonDivisions[ index ] = newDivision;
-      this.postSeasonDivisions[ index + 1 ] = newNeighbor;
 
       console.log( newDivision.name, newDivision.competitors.length );
     });
