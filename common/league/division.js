@@ -1,5 +1,5 @@
 // @flow
-import { findIndex, chunk } from 'lodash';
+import { findIndex, chunk, sortBy } from 'lodash';
 import cuid from 'cuid';
 import Duel from 'duel';
 import Competitor from './competitor';
@@ -14,6 +14,7 @@ class Division {
   conferenceWinners: Array<Competitor> = []
   promotionConferences: Array<PromotionConference> = []
   promotionWinners: Array<Competitor> = []
+  relegationBottomfeeders: Array<Competitor> = []
 
   constructor( name: string, size: number = 256, conferenceSize: number = 8 ) {
     this.name = name;
@@ -106,7 +107,7 @@ class Division {
     return done;
   }
 
-  startPostSeason = (): boolean => {
+  startPostSeason = ( neighborPromotionNum: number = 0 ): boolean => {
     // abort if pending matches
     if( !this.isGroupStageDone() ) {
       return false;
@@ -116,9 +117,13 @@ class Division {
     // this means it's the top division
     if( this.conferences.length === 1 ) {
       const { groupObj } = this.conferences[ 0 ];
-      const [ winner ] = groupObj.results();
+      const [ winner, ...otherStandings ] = groupObj.results();
+      const BOTN = Math.ceil( neighborPromotionNum );
 
       this.conferenceWinners.push( this.getCompetitorName( 0, winner.seed ) );
+      this.relegationBottomfeeders = otherStandings.slice( otherStandings.length - BOTN ).map( item => (
+        this.getCompetitorName( 0, item.seed )
+      ) );
       return true;
     }
 
@@ -128,6 +133,12 @@ class Division {
 
     // how many are eligible for promotion
     const PROMOTION_NUM = Math.floor( this.size * this.promotionPercent );
+
+    // how many will be relegated if neighbor promotion number arg was provided
+    let bottomfeeders = [];
+    const BOTN = neighborPromotionNum
+      ? Math.ceil( neighborPromotionNum / this.conferences.length )
+      : 0;
 
     // 1st-place positions from each conference are eligible for
     // automatic promotion. the rest are from promotion playoffs
@@ -139,8 +150,9 @@ class Division {
     const PLAYOFF_TOPN = 4; // should this be hardcoded?
 
     this.conferences.forEach( ( conf: Conference, confNum: number ) => {
-      const { groupObj } = conf;
-      const topn = groupObj.results().slice( 0, PLAYOFF_TOPN );
+      const standings = conf.groupObj.results();
+      const topn = standings.slice( 0, PLAYOFF_TOPN );
+      const bottomfeedersStandings = standings.slice( standings.length - BOTN );
 
       // 1st place are automatically promoted and the next 3
       // are placed in the promotion playoffs
@@ -148,7 +160,25 @@ class Division {
       for( let index = 1; index < topn.length; index++ ) {
         PLAYOFFS.push( this.getCompetitorName( confNum, topn[ index ].seed ) );
       }
+
+      // the BOTN from each conference is compiled into one big array
+      // for later to sort and trim if needed to match `neighborPromotionNum`
+      bottomfeedersStandings.forEach( ( groupObj ) => {
+        bottomfeeders.push({ confNum, groupObj });
+      });
     });
+
+    // sort and trim bottomfeeders to match `neighborPromotionNum`
+    // TODO: sort by pos? points? etc
+    if( bottomfeeders.length > neighborPromotionNum ) {
+      bottomfeeders = sortBy( bottomfeeders, bottomfeeder => bottomfeeder.groupObj.pos ).reverse();
+      bottomfeeders = bottomfeeders.slice( 0, neighborPromotionNum );
+    }
+
+    // and then add bottom feeders to relegation array
+    this.relegationBottomfeeders = bottomfeeders.map( bottomfeeder => (
+      this.getCompetitorName( bottomfeeder.confNum, bottomfeeder.groupObj.seed )
+    ) );
 
     // split playoffs into conferences
     // for there to be 6 winners (PLAYOFF_PROMOTION_NUM)
@@ -163,7 +193,7 @@ class Division {
       });
     });
 
-    // copy over the promoted array to conferenceWinners array
+    // add promoted players to conference winners array
     this.conferenceWinners = PROMOTED;
 
     // return

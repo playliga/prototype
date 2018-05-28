@@ -211,4 +211,87 @@ describe( 'division', () => {
     // promotion winners should equal the same amount of promotion coneferences
     expect( divObj.promotionWinners.length ).toEqual( divObj.promotionConferences.length );
   });
+
+  /**
+   * RELEGATION LOGIC
+   * Emulate a division other than 'Open' and how the division object
+   * handles relegations.
+   */
+  // MAIN(64, 8, 8) = 19 move down, 10 move up
+  // PREMIER(32, 4, 8) = 10 move down, 5 move up
+  it( 'compiles list of relegation bottomfeeders if a neighbor promotion num is provided', () => {
+    // create premier division object
+    const MAINDIV_PROMOTION_NUM = 10;
+    const PREM_SIZE = 32;
+    const PREM_CONF_SIZE = 8;
+    const premierDivision = new Division( 'Premier', PREM_SIZE, PREM_CONF_SIZE );
+
+    // add competitors
+    for( let i = 0; i < PREM_SIZE; i++ ) {
+      premierDivision.addCompetitor( adjectiveAnimal.generateName() );
+    }
+
+    // create conferences
+    conferences = chunk( premierDivision.competitors, PREM_CONF_SIZE ).map( conf => ({
+      id: cuid(),
+      competitors: conf,
+      groupObj: new GroupStage( conf.length, { groupSize: PREM_CONF_SIZE })
+    }) );
+
+    premierDivision.setConferences( conferences );
+
+    // generate scores for all conferences
+    generateGroupStageScores( conferences );
+
+    // division should return true
+    // when all conferences have completed their matches
+    expect( premierDivision.isGroupStageDone() ).toBeTruthy();
+
+    // now end the regular season but also pass in the number of competitors
+    // that will be moving up from the main division
+    expect( premierDivision.startPostSeason( MAINDIV_PROMOTION_NUM ) ).toBeTruthy();
+
+    // the number of relegated competitors should match the number of promoted competitors
+    // from the main division
+    expect( premierDivision.relegationBottomfeeders.length ).toEqual( MAINDIV_PROMOTION_NUM );
+  });
+
+  // PREMIER(32, 4, 8) = 10 move down, 5 move up
+  // INVITE(16, 1, 16 ) = 5 move down, 1 winner :)
+  it( 'compiles list of relegation bottomfeeders if a neighbor promotion num is provided for the top division', () => {
+    // create premier division object
+    const PREMDIV_PROMOTION_NUM = 5;
+    const INV_SIZE = 16;
+    const INV_CONF_SIZE = 16;
+    const inviteDivision = new Division( 'Invite', INV_SIZE, INV_CONF_SIZE );
+
+    // add competitors
+    for( let i = 0; i < INV_SIZE; i++ ) {
+      inviteDivision.addCompetitor( adjectiveAnimal.generateName() );
+    }
+
+    // create conferences
+    conferences = chunk( inviteDivision.competitors, INV_CONF_SIZE ).map( conf => ({
+      id: cuid(),
+      competitors: conf,
+      groupObj: new GroupStage( conf.length, { groupSize: INV_CONF_SIZE })
+    }) );
+
+    inviteDivision.setConferences( conferences );
+
+    // generate scores for all conferences
+    generateGroupStageScores( conferences );
+
+    // division should return true
+    // when all conferences have completed their matches
+    expect( inviteDivision.isGroupStageDone() ).toBeTruthy();
+
+    // now end the regular season but also pass in the number of competitors
+    // that will be moving up from the main division
+    expect( inviteDivision.startPostSeason( PREMDIV_PROMOTION_NUM ) ).toBeTruthy();
+
+    // the number of relegated competitors should match the number of promoted competitors
+    // from the main division
+    expect( inviteDivision.relegationBottomfeeders.length ).toEqual( PREMDIV_PROMOTION_NUM );
+  });
 });
