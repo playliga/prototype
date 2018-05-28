@@ -203,6 +203,6 @@ describe( 'league', () => {
       leagueObj.endPostSeason();
     }
 
-    // TODO: leagueObj.end()
+    leagueObj.end();
   });
 });

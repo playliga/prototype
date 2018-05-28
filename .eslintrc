@@ -65,7 +65,7 @@
     "keyword-spacing": 0,
     "max-len": [
       "warn",
-      { "code": 120 }
+      { "code": 150 }
     ],
     "new-cap": 0,
     "no-multi-spaces": 2,
