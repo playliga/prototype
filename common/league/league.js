@@ -1,5 +1,5 @@
 // @flow
-import { find, chunk, sortBy } from 'lodash';
+import { find, chunk } from 'lodash';
 import cuid from 'cuid';
 import GroupStage from 'groupstage';
 import Division from './division';
