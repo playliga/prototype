@@ -21,10 +21,13 @@ const CACHE_DIR = path.join( __dirname, './cache' );
 * Cloudscraper is a tool used to scrape sites that are protected by cloudflare
 * but unfortunately it does not return a promise. Here we're fixing that by
 * wrapping cloudscraper in one. :)
+*
+* NOTE: delaying response by five seconds
+* See: https://github.com/codemanki/cloudscraper#wat
 */
 function scraper( url ) {
   return new Promise( ( resolve, reject ) => {
-    cloudscraper.get( url, ( err, res, body ) => resolve( body ) );
+    cloudscraper.get( url, ( err, res, body ) => setTimeout( () => resolve( body ), 5000 ) );
   });
 }
 
