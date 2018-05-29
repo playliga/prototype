@@ -1,4 +1,5 @@
 // @flow
+import { find } from 'lodash';
 import adjectiveAnimal from 'adjective-animal';
 import { League, Division } from '../';
 import { generateGroupStageScores, generatePlayoffScores } from './division.spec';
@@ -173,7 +174,7 @@ describe( 'league', () => {
     expect( leagueObj.endPostSeason() ).toBeFalsy();
   });
 
-  it( 'ends the season with promotions and relegations', () => {
+  it( 'ends the season with promotions and relegations and ensures competitor sizes match', () => {
     // start the league
     leagueObj.start();
 
@@ -204,5 +205,62 @@ describe( 'league', () => {
     }
 
     leagueObj.end();
+
+    // post-season division competitor size must match the existing ones
+    DIVISIONS.forEach( ( division: Object, index: number ) => {
+      expect( leagueObj.postSeasonDivisions[ index ].competitors.length ).toEqual( division.size );
+    });
+  });
+
+  it( 'verifies competitors were moved accordingly for promotion and relegations', () => {
+    // start the league
+    leagueObj.start();
+
+    // generate group stage scores
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name );
+      const { conferences } = divObj;
+
+      generateGroupStageScores( conferences );
+    });
+
+    // start the league's post-season if all group stage matches are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // loop through each division and generate playoff scores
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name );
+
+      // now generate the playoff scores
+      generatePlayoffScores( divObj.promotionConferences );
+    });
+
+    // if league's post-season is done compile list of winners
+    if( leagueObj.isDone() ) {
+      leagueObj.endPostSeason();
+    }
+
+    leagueObj.end();
+
+    // collect relegations and promotions from neighboring divisions
+    const [ prevDivision,, nextDivision,, ] = leagueObj.divisions;
+    const promotedFromPrev = [ ...prevDivision.conferenceWinners, ...prevDivision.promotionWinners ];
+    const relegatedFromNext = nextDivision.relegationBottomfeeders;
+
+    // promoted and relegated from neighboring divisions should exist in the current post-season
+    const currentPostSeasonDivision = leagueObj.postSeasonDivisions[ 1 ];
+    promotedFromPrev.forEach( ( comp: Competitor ) => {
+      expect(
+        find( currentPostSeasonDivision.competitors, ( item: Competitor ) => item.name === comp.name )
+      ).not.toBe( undefined );
+    });
+
+    relegatedFromNext.forEach( ( comp: Competitor ) => {
+      expect(
+        find( currentPostSeasonDivision.competitors, ( item: Competitor ) => item.name === comp.name )
+      ).not.toBe( undefined );
+    });
   });
 });

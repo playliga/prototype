@@ -127,42 +127,47 @@ class League {
     // MAIN(64, 8, 8) = 19 move down, 10 move up
     // PREMIER(32, 4, 8) = 10 move down, 5 move up
     // INVITE = 5 move down
-    this.divisions.forEach( ( division: Division, index: number ) => {
-      // bail if top division in the league
-      const neighbor = this.divisions[ index + 1 ];
+    this.divisions.forEach( ( currentDivision: Division, index: number ) => {
+      const prevDivision = this.divisions[ index - 1 ];
+      const nextDivision = this.divisions[ index + 1 ];
+      const postSeasonDivision = new Division( currentDivision.name, currentDivision.conferenceSize );
 
-      if( !neighbor ) {
-        return;
+      // pull in the promoted competitors from the previous division
+      if( prevDivision ) {
+        postSeasonDivision.addCompetitors( prevDivision.conferenceWinners.map( ( item: Competitor ) => item.name ) );
+        postSeasonDivision.addCompetitors( prevDivision.promotionWinners.map( ( item: Competitor ) => item.name ) );
       }
 
-      // pull relegation bottomfeeders from neighbor division into new division
-      const newDivision = new Division( division.name, division.conferenceSize );
-      newDivision.addCompetitors( neighbor.relegationBottomfeeders.map( ( bottomfeeder: Competitor ) => bottomfeeder.name ) );
+      // pull in the relegated competitors from the next division
+      if( nextDivision ) {
+        postSeasonDivision.addCompetitors( nextDivision.relegationBottomfeeders.map( ( item: Competitor ) => item.name ) );
+      }
 
-      // copy everyone but the topn that were pushed into new neighbor division
-      newDivision.addCompetitors( division.competitors.filter( ( comp: Competitor ) => {
-        const directPromoted = division.conferenceWinners.find( ( winner: Competitor ) => winner.name === comp.name );
-        const playoffPromoted = division.promotionWinners.find( ( winner: Competitor ) => winner.name === comp.name );
-
-        return directPromoted === undefined
-          && playoffPromoted === undefined;
-      }).map( ( comp: Competitor ) => comp.name ) );
-
-      // push current division winners into new neighbor division
-      const newNeighbor = new Division( neighbor.name, neighbor.conferenceSize );
-      newNeighbor.addCompetitors( division.conferenceWinners.map( ( comp: Competitor ) => comp.name ) );
-      newNeighbor.addCompetitors( division.promotionWinners.map( ( comp: Competitor ) => comp.name ) );
-
-      // copy everyone but the relegation bottomfeeders to the new neighbor division
-      newNeighbor.addCompetitors( neighbor.competitors.filter( ( comp: Competitor ) => {
-        const bottomfeederFound = neighbor.relegationBottomfeeders.find( ( bottomfeeder: Competitor ) => (
+      // pull in the current division's mid table
+      postSeasonDivision.addCompetitors( currentDivision.competitors.filter( ( comp: Competitor ) => {
+        const directPromoted = currentDivision.conferenceWinners.find( ( winner: Competitor ) => winner.name === comp.name );
+        const playoffPromoted = currentDivision.promotionWinners.find( ( winner: Competitor ) => winner.name === comp.name );
+        const bottomFeederFound = currentDivision.relegationBottomfeeders.find( ( bottomfeeder: Competitor ) => (
           bottomfeeder.name === comp.name
         ) );
 
-        return bottomfeederFound === undefined;
+        return directPromoted === undefined
+          && playoffPromoted === undefined
+          && bottomFeederFound === undefined;
       }).map( ( comp: Competitor ) => comp.name ) );
 
-      console.log( newDivision.name, newDivision.competitors.length );
+      // for the bottom division relegation positions have no where to go. so include them too
+      if( !prevDivision ) {
+        postSeasonDivision.addCompetitors( currentDivision.relegationBottomfeeders.map( ( item: Competitor ) => item.name ) );
+      }
+
+      // for the top division the winner has no where to go. so include him too
+      if( !nextDivision ) {
+        postSeasonDivision.addCompetitors( currentDivision.conferenceWinners.map( ( item: Competitor ) => item.name ) );
+      }
+
+      // finally, reassign to the league object's post-season division array
+      this.postSeasonDivisions[ index ] = postSeasonDivision;
     });
   }
 }
