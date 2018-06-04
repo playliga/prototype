@@ -1,3 +1,5 @@
+// @flow
+
 /* eslint-disable no-console */
 /* eslint-disable import/no-extraneous-dependencies */
 import chalk from 'chalk';
@@ -15,7 +17,24 @@ const REGIONS = {
   eu: [ '2485', '2505' ]
 };
 
-const CACHE_DIR = path.join( __dirname, './cache' );
+type Player = {
+  id: string,
+  username: string,
+  countryCode: string,
+  teamId: string,
+  transferValue: number,
+  skillTemplate: string,
+  weaponTemplate: string
+};
+
+type Team = {
+  id: string,
+  tag: string,
+  countryCode: string,
+  division: string,
+  skillTemplate: string,
+  squad: Array<Player>
+};
 
 /*
 * Cloudscraper is a tool used to scrape sites that are protected by cloudflare
@@ -47,6 +66,8 @@ function scraper( url ) {
 * specified id was found in cache. If not, it will send the request and then
 * store the returned data in cache.
 */
+const CACHE_DIR = path.join( __dirname, './cache' );
+
 function cacheDirCheck() {
   console.log( chalk.green( 'Checking if cache directory exists...' ) );
 
@@ -58,7 +79,7 @@ function cacheDirCheck() {
   console.log( chalk.green( 'Done.\n' ) );
 }
 
-function cacheFileCheck( fileId ) {
+function cacheFileCheck( fileId: string ) {
   return new Promise( ( resolve, reject ) => {
     glob( `**/*+(${fileId}).html`, { cwd: CACHE_DIR }, ( err, files ) => {
       resolve( files );
@@ -66,7 +87,7 @@ function cacheFileCheck( fileId ) {
   });
 }
 
-async function cacheFileFetch( url, fileId ) {
+async function cacheFileFetch( url: string, fileId: string ) {
   // Do we have a cached file to load from?
   const CACHE_FILENAME = `${Date.now()}_${fileId}.html`;
   const CACHE_FILELIST = await cacheFileCheck( fileId );
@@ -90,7 +111,7 @@ async function cacheFileFetch( url, fileId ) {
 * Useful functions for scraping the data off of the html page fetched for each
 * region and its divisions
 */
-function extractTeamURLs( data ) {
+function extractTeamURLs( data ): Array<Object> {
   const $ = cheerio.load( data );
   const teamListElem = $( '#league-standings table tr[class*="row"]' );
   const outputArr = [];
@@ -112,7 +133,7 @@ function extractTeamURLs( data ) {
   return outputArr;
 }
 
-function extractTeamInfo( teamData, html ) {
+function extractTeamInfo( teamData, html ): Team {
   const $ = cheerio.load( html );
   const profileElem = $( '#teams-profile hr + section' );
   const profileInfoElem = profileElem.children( 'div#profile-info' );
@@ -121,13 +142,13 @@ function extractTeamInfo( teamData, html ) {
   // TODO: there are multiple div.row1 instances that DO NOT hold the roster. need to find a better selector
   const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
 
-  const teamObj = {
+  const teamObj: Team = {
     id: camelCase( teamnameElem.text() ),
     name: teamnameElem.text(),
     tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
-    countryCode: undefined,
+    countryCode: '',
     division: teamData.division,
-    skillTemplate: undefined,
+    skillTemplate: '',
     squad: []
   };
 
@@ -184,7 +205,7 @@ function extractTeamInfo( teamData, html ) {
   return teamObj;
 }
 
-function uniqueURLs( arr ) {
+function uniqueURLs( arr: Array<Object> ): Array<Object> {
   const unique = [];
   const parsed = [];
 
@@ -212,11 +233,11 @@ function init() {
   // create cache directory if it does not already exist
   cacheDirCheck();
 
-  Object.keys( REGIONS ).map( async ( regionId ) => {
-    const regionArr = REGIONS[ regionId ];
+  Object.keys( REGIONS ).map( async ( regionId: string ) => {
+    const regionDivisionIds = REGIONS[ regionId ];
 
-    for( let i = 0; i < regionArr.length; i++ ) {
-      const divisionId = regionArr[ i ];
+    for( let i = 0; i < regionDivisionIds.length; i++ ) {
+      const divisionId = regionDivisionIds[ i ];
       const divisionHTML = await cacheFileFetch( DIVISION_URL + divisionId, divisionId );
 
       // remove any duplicates (post-season/pre-season)
@@ -225,13 +246,13 @@ function init() {
 
       // each team url is fetched and added to an array of promises
       // once fetched, check for cache too!
-      teamURLs.forEach( async ( teamInfo ) => {
+      teamURLs.forEach( async ( urlInfo ) => {
         // extract team's id from the url. (it's in there somewhere :D)
-        const teamURL = BASE_URL + teamInfo.url;
+        const teamURL = BASE_URL + urlInfo.url;
         const teamId = teamURL.split( '?' )[ 0 ].split( 'teams/' )[ 1 ];
         const teamHTML = await cacheFileFetch( teamURL, teamId );
 
-        extractTeamInfo( teamInfo, teamHTML );
+        console.log( extractTeamInfo( urlInfo, teamHTML ) );
       });
     }
   });
