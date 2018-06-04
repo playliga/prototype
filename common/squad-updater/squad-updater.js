@@ -1,7 +1,6 @@
 // @flow
 
 /* eslint-disable no-console */
-/* eslint-disable import/no-extraneous-dependencies */
 import chalk from 'chalk';
 import cheerio from 'cheerio';
 import cloudscraper from 'cloudscraper';
