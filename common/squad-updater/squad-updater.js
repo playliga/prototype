@@ -159,6 +159,7 @@ function init() {
   const cacheManager = new CacheManager();
   cacheManager.initCacheDir();
 
+  // do the thang
   Object.keys( REGIONS ).map( async ( regionId: string ) => {
     const regionDivisionIds = REGIONS[ regionId ];
 

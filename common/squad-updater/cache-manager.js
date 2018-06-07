@@ -1,10 +1,7 @@
 // @flow
 
-/* eslint-disable no-console */
-
 import path from 'path';
 import fs from 'fs';
-import chalk from 'chalk';
 import cloudscraper from 'cloudscraper';
 import glob from 'glob';
 
@@ -35,15 +32,10 @@ export default class CacheManager {
   * Create cache directory if not already exists. It's fine to block execution
   * as we'd do the same thing if we were to do it async.
   */
-  initCacheDir = (): void => {
-    console.log( chalk.green( 'Checking if cache directory exists...' ) );
-
+  initCacheDir = () => {
     if( !fs.existsSync( this.cacheDir ) ) {
-      console.log( chalk.red( 'Cache directory not found. Creating...' ) );
       fs.mkdirSync( this.cacheDir );
     }
-
-    console.log( chalk.green( 'Done.\n' ) );
   }
 
   /*
@@ -77,7 +69,6 @@ export default class CacheManager {
     // we save the data to cache
     const body = await scraper( url );
     fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
-    console.log( chalk.blue( `[cache created] ${this.cacheDir}/${CACHE_FILENAME}` ) );
 
     return Promise.resolve( body );
   }
