@@ -8,26 +8,28 @@ import chalk from 'chalk';
 import cloudscraper from 'cloudscraper';
 import glob from 'glob';
 
+/*
+* Cloudscraper is a tool used to scrape sites that are protected by cloudflare
+* but unfortunately it does not return a promise. Here we're fixing that by
+* wrapping cloudscraper in one. :)
+*
+* NOTE: delaying response by five seconds
+* See: https://github.com/codemanki/cloudscraper#wat
+*/
+function scraper( url: string ): Promise<any> {
+  return new Promise( ( resolve, reject ) => {
+    cloudscraper.get( url, ( err, res, body ) => {
+      setTimeout( () => resolve( body ), 5000 );
+    });
+  });
+}
+
 export default class CacheManager {
   cacheDir: string = path.join( __dirname, './cache' )
 
   constructor( cacheDir: string | null = null ) {
     this.cacheDir = cacheDir || this.cacheDir;
   }
-
-  /*
-  * Cloudscraper is a tool used to scrape sites that are protected by cloudflare
-  * but unfortunately it does not return a promise. Here we're fixing that by
-  * wrapping cloudscraper in one. :)
-  *
-  * NOTE: delaying response by five seconds
-  * See: https://github.com/codemanki/cloudscraper#wat
-  */
-  scraper = ( url: string ): Promise<any> => (
-    new Promise( ( resolve, reject ) => {
-      cloudscraper.get( url, ( err, res, body ) => setTimeout( () => resolve( body ), 5000 ) );
-    })
-  )
 
   /*
   * Create cache directory if not already exists. It's fine to block execution
@@ -73,7 +75,7 @@ export default class CacheManager {
 
     // If no cache, we can continue with making our request. After that's done
     // we save the data to cache
-    const body = await this.scraper( url );
+    const body = await scraper( url );
     fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
     console.log( chalk.blue( `[cache created] ${this.cacheDir}/${CACHE_FILENAME}` ) );
 
