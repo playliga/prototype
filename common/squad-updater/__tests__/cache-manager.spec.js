@@ -15,7 +15,8 @@ describe( 'cache manager', () => {
     // declare config as a variable
     // to later add a key whose value is derived from a function
     const config = {
-      '/var/': {/* empty directory */}
+      '/var/': {/* empty directory */},
+      '/opt/cache/09120192-my-file.html': 'file content'
     };
 
     // add the parent directory as a path to test default path later
@@ -39,5 +40,24 @@ describe( 'cache manager', () => {
     cacheManager.initCacheDir();
 
     expect( fs.existsSync( '/var/cache' ) ).toBeTruthy();
+  });
+
+  it( 'returns specified file from cache', async () => {
+    const cacheManager = new CacheManager( '/opt/cache/' );
+    cacheManager.initCacheDir();
+
+    expect( await cacheManager.checkFileCache( 'my-file' ) ).toBeInstanceOf( Array );
+  });
+
+  it( 'throws exception if specified cache file not found', async () => {
+    const cacheManager = new CacheManager( '/opt/cache/' );
+    cacheManager.initCacheDir();
+
+    try {
+      expect( await cacheManager.checkFileCache( 'my-fake-file' ) )
+        .rejects.toThrow( /not found/ );
+    } catch( err ) {
+      // nothing to see here...
+    }
   });
 });
