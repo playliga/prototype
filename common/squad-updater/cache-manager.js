@@ -32,7 +32,7 @@ export default class CacheManager {
   * Create cache directory if not already exists. It's fine to block execution
   * as we'd do the same thing if we were to do it async.
   */
-  initCacheDir = () => {
+  initCacheDir = (): void => {
     if( !fs.existsSync( this.cacheDir ) ) {
       fs.mkdirSync( this.cacheDir );
     }
@@ -42,7 +42,7 @@ export default class CacheManager {
   * Search for specified division's cache files.
   * Useful for when deciding whether to fetch directly from website or not
   */
-  checkFileCache = ( fileId: string ): Promise<any> => (
+  checkFileCache = ( fileId: string ): Promise<Array<string>> => (
     new Promise( ( resolve, reject ) => {
       glob( `**/*+(${fileId}).html`, { cwd: this.cacheDir }, ( err, files ) => {
         resolve( files );

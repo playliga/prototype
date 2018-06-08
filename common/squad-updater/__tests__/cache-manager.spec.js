@@ -27,14 +27,14 @@ describe( 'cache manager', () => {
     mock.restore();
   });
 
-  it( 'create cache directory in default path if not already exists', () => {
+  it( 'creates cache directory in default path if it does not already exist', () => {
     const cacheManager = new CacheManager();
     cacheManager.initCacheDir();
 
     expect( fs.existsSync( path.join( __dirname, '../', 'cache' ) ) ).toBeTruthy();
   });
 
-  it( 'create cache directory in specified path if not already exists', () => {
+  it( 'creates cache directory in specified path if it does not already exist', () => {
     const cacheManager = new CacheManager( '/var/cache/' );
     cacheManager.initCacheDir();
 
