@@ -60,4 +60,12 @@ describe( 'cache manager', () => {
       // nothing to see here...
     }
   });
+
+  it( 'returns the content of the specified cached file', async () => {
+    const cacheManager = new CacheManager( '/opt/cache/' );
+    cacheManager.initCacheDir();
+
+    expect( await cacheManager.fetchFile( 'http://nowhere', 'my-file' ) )
+      .toEqual( 'file content' );
+  });
 });

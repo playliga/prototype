@@ -62,15 +62,18 @@ export default class CacheManager {
   fetchFile = async ( url: string, fileId: string ): Promise<any> => {
     // Do we have a cached file to load from?
     const CACHE_FILENAME = `${Date.now()}_${fileId}.html`;
-    const CACHE_FILELIST = await this.checkFileCache( fileId );
 
-    if( CACHE_FILELIST.length > 0 ) {
-      const body = fs.readFileSync( `${this.cacheDir}/${CACHE_FILELIST[ 0 ]}`, 'utf-8' );
+    try {
+      const filelist = await this.checkFileCache( fileId );
+      const body = fs.readFileSync( `${this.cacheDir}/${filelist[ 0 ]}`, 'utf-8' );
+
       return Promise.resolve( body );
+    } catch( err ) {
+      // file not found, continue
     }
 
-    // If no cache, we can continue with making our request. After that's done
-    // we save the data to cache
+    // If no cache, we can continue with making our request.
+    // After that's done, we save the data to cache
     const body = await scraper( url );
     fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
 
