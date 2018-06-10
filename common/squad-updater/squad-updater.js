@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 import cheerio from 'cheerio';
 import { camelCase } from 'lodash';
-import CacheManager from './cache-manager';
+import CachedScraper from './cached-scraper';
 
 const BASE_URL = 'https://play.esea.net';
 const DIVISION_URL = `${BASE_URL}/index.php?s=league&d=standings&division_id=`;
@@ -156,8 +156,8 @@ function uniqueURLs( arr: Array<Object> ): Array<Object> {
 */
 function init() {
   // create cache directory if it does not already exist
-  const cacheManager = new CacheManager();
-  cacheManager.initCacheDir();
+  const cachedScraper = new CachedScraper();
+  cachedScraper.initCacheDir();
 
   // do the thang
   Object.keys( REGIONS ).map( async ( regionId: string ) => {
@@ -165,7 +165,7 @@ function init() {
 
     for( let i = 0; i < regionDivisionIds.length; i++ ) {
       const divisionId = regionDivisionIds[ i ];
-      const divisionHTML = await cacheManager.fetchFile( DIVISION_URL + divisionId, divisionId );
+      const divisionHTML = await cachedScraper.scrape( DIVISION_URL + divisionId, divisionId );
 
       // remove any duplicates (post-season/pre-season)
       let teamURLs = extractTeamURLs( divisionHTML );
@@ -177,7 +177,7 @@ function init() {
         // extract team's id from the url. (it's in there somewhere :D)
         const teamURL = BASE_URL + urlInfo.url;
         const teamId = teamURL.split( '?' )[ 0 ].split( 'teams/' )[ 1 ];
-        const teamHTML = await cacheManager.fetchFile( teamURL, teamId );
+        const teamHTML = await cachedScraper.scrape( teamURL, teamId );
 
         console.log( extractTeamInfo( urlInfo, teamHTML ) );
       });

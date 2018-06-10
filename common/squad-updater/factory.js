@@ -1,16 +1,16 @@
 // @flow
 
-import { CacheManager } from './';
+import { CachedScraper } from './';
 
 export default class Factory {
   url: string
-  cacherObj: CacheManager
+  scraperObj: CachedScraper
 
   constructor( url: string, cacheDir: string | null = null ) {
     this.url = url;
 
-    this.cacherObj = new CacheManager( cacheDir );
-    this.cacherObj.initCacheDir();
+    this.scraperObj = new CachedScraper( cacheDir );
+    this.scraperObj.initCacheDir();
   }
 
   generate = (): void => {

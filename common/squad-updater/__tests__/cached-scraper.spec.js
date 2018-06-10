@@ -4,13 +4,13 @@ import mock from 'mock-fs';
 import fs from 'fs';
 import path from 'path';
 
-import { CacheManager } from '../';
+import { CachedScraper } from '../';
 
 // NOTE: workaround for a bug in mock-fs
 // SEE: https://github.com/facebook/jest/issues/5792#issuecomment-376678248
 console.log = jest.fn();
 
-describe( 'cache manager', () => {
+describe( 'cached scraper', () => {
   beforeAll( () => {
     // declare config as a variable
     // to later add a key whose value is derived from a function
@@ -29,32 +29,32 @@ describe( 'cache manager', () => {
   });
 
   it( 'creates cache directory in default path if it does not already exist', () => {
-    const cacheManager = new CacheManager();
-    cacheManager.initCacheDir();
+    const cachedScraper = new CachedScraper();
+    cachedScraper.initCacheDir();
 
     expect( fs.existsSync( path.join( __dirname, '../', 'cache' ) ) ).toBeTruthy();
   });
 
   it( 'creates cache directory in specified path if it does not already exist', () => {
-    const cacheManager = new CacheManager( '/var/cache/' );
-    cacheManager.initCacheDir();
+    const cachedScraper = new CachedScraper( '/var/cache/' );
+    cachedScraper.initCacheDir();
 
     expect( fs.existsSync( '/var/cache' ) ).toBeTruthy();
   });
 
   it( 'returns specified file from cache', async () => {
-    const cacheManager = new CacheManager( '/opt/cache/' );
-    cacheManager.initCacheDir();
+    const cachedScraper = new CachedScraper( '/opt/cache/' );
+    cachedScraper.initCacheDir();
 
-    expect( await cacheManager.checkFileCache( 'my-file' ) ).toBeInstanceOf( Array );
+    expect( await cachedScraper.getCachedFile( 'my-file' ) ).toBeInstanceOf( Array );
   });
 
   it( 'throws exception if specified cache file not found', async () => {
-    const cacheManager = new CacheManager( '/opt/cache/' );
-    cacheManager.initCacheDir();
+    const cachedScraper = new CachedScraper( '/opt/cache/' );
+    cachedScraper.initCacheDir();
 
     try {
-      expect( await cacheManager.checkFileCache( 'my-fake-file' ) )
+      expect( await cachedScraper.getCachedFile( 'my-fake-file' ) )
         .rejects.toThrow( /not found/ );
     } catch( err ) {
       // nothing to see here...
@@ -62,10 +62,10 @@ describe( 'cache manager', () => {
   });
 
   it( 'returns the content of the specified cached file', async () => {
-    const cacheManager = new CacheManager( '/opt/cache/' );
-    cacheManager.initCacheDir();
+    const cachedScraper = new CachedScraper( '/opt/cache/' );
+    cachedScraper.initCacheDir();
 
-    expect( await cacheManager.fetchFile( 'http://nowhere', 'my-file' ) )
+    expect( await cachedScraper.scrape( 'http://nowhere', 'my-file' ) )
       .toEqual( 'file content' );
   });
 });

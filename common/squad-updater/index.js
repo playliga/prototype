@@ -1,3 +1,3 @@
 export SquadUpdater from './squad-updater';
-export CacheManager from './cache-manager';
+export CachedScraper from './cached-scraper';
 export Factory from './factory';

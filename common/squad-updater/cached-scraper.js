@@ -6,24 +6,9 @@ import cloudscraper from 'cloudscraper';
 import glob from 'glob';
 import { promisify } from 'util';
 
-/*
-* Cloudscraper is a tool used to scrape sites that are protected by cloudflare
-* but unfortunately it does not return a promise. Here we're fixing that by
-* wrapping cloudscraper in one. :)
-*
-* NOTE: delaying response by five seconds
-* See: https://github.com/codemanki/cloudscraper#wat
-*/
-function scraper( url: string ): Promise<any> {
-  return new Promise( ( resolve, reject ) => {
-    cloudscraper.get( url, ( err, res, body ) => {
-      setTimeout( () => resolve( body ), 5000 );
-    });
-  });
-}
-
-export default class CacheManager {
+export default class CachedScraper {
   cacheDir: string = path.join( __dirname, './cache' )
+  scraperThrottleDelay: number = 5000
 
   constructor( cacheDir: string | null = null ) {
     this.cacheDir = cacheDir || this.cacheDir;
@@ -43,9 +28,9 @@ export default class CacheManager {
   * Search for specified division's cache files.
   * Useful for when deciding whether to fetch directly from website or not
   */
-  checkFileCache = async ( fileId: string ): Promise<Array<string>> => {
+  getCachedFile = async ( filename: string ): Promise<Array<string>> => {
     const globPromise = promisify( glob );
-    const result = await globPromise( `**/*+(${fileId}).html`, { cwd: this.cacheDir });
+    const result = await globPromise( `**/*+(${filename}).html`, { cwd: this.cacheDir });
 
     if( result.length === 0 ) {
       throw new Error( 'Specified file id not found' );
@@ -55,16 +40,32 @@ export default class CacheManager {
   }
 
   /*
+  * Cloudscraper is a tool used to scrape sites that are protected by cloudflare
+  * but unfortunately it does not return a promise. Here we're fixing that by
+  * wrapping cloudscraper in one. :)
+  *
+  * NOTE: delaying response by five seconds
+  * See: https://github.com/codemanki/cloudscraper#wat
+  */
+  scraper = ( url: string ): Promise<any> => (
+    new Promise( ( resolve, reject ) => {
+      cloudscraper.get( url, ( err, res, body ) => {
+        setTimeout( () => resolve( body ), this.scraperThrottleDelay );
+      });
+    })
+  )
+
+  /*
   * Used when fetching the html of a page. Will first check to see if the
   * specified id was found in cache. If not, it will send the request and then
   * store the returned data in cache.
   */
-  fetchFile = async ( url: string, fileId: string ): Promise<any> => {
+  scrape = async ( url: string, filename: string ): Promise<any> => {
     // Do we have a cached file to load from?
-    const CACHE_FILENAME = `${Date.now()}_${fileId}.html`;
+    const CACHE_FILENAME = `${Date.now()}_${filename}.html`;
 
     try {
-      const filelist = await this.checkFileCache( fileId );
+      const filelist = await this.getCachedFile( filename );
       const body = fs.readFileSync( `${this.cacheDir}/${filelist[ 0 ]}`, 'utf-8' );
 
       return Promise.resolve( body );
@@ -74,7 +75,7 @@ export default class CacheManager {
 
     // If no cache, we can continue with making our request.
     // After that's done, we save the data to cache
-    const body = await scraper( url );
+    const body = await this.scraper( url );
     fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
 
     return Promise.resolve( body );
