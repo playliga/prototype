@@ -51,7 +51,7 @@ export default class CachedScraper {
   * NOTE: delaying response by X-amount of seconds
   * See: https://github.com/codemanki/cloudscraper#wat
   */
-  delayedScraper = ( url: string ): Promise<any> => (
+  delayedScraper = ( url: string ): Promise<string> => (
     new Promise( ( resolve, reject ) => {
       cloudscraper.get( url, ( err, res, body ) => {
         setTimeout( () => resolve( body ), this.scraperThrottleDelay );
@@ -64,7 +64,7 @@ export default class CachedScraper {
   * specified id was found in cache. If not, it will send the request and then
   * store the returned data in cache.
   */
-  scrape = async ( url: string, filename: string ): Promise<any> => {
+  scrape = async ( url: string, filename: string ): Promise<string> => {
     // Do we have a cached file to load from?
     const CACHE_FILENAME = `${Date.now()}_${filename}.html`;
 
