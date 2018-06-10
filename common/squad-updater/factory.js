@@ -3,6 +3,8 @@
 import cheerio from 'cheerio';
 import adjectiveAnimal from 'adjective-animal';
 
+import type { CheerioElement } from 'cheerio';
+
 import { CachedScraper } from './';
 
 export default class Factory {
@@ -26,7 +28,7 @@ export default class Factory {
     let divisionString = $( '#league-standings section.division h1' ).html();
     divisionString = divisionString.split( 'CS:GO' );
 
-    teamListElem.each( ( counter, el ) => {
+    teamListElem.each( ( counter: number, el: CheerioElement ) => {
       const teamContainerElem = $( el ).children( 'td:nth-child(2)' );
       const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' );
 

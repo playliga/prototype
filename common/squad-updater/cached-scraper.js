@@ -52,8 +52,8 @@ export default class CachedScraper {
   * See: https://github.com/codemanki/cloudscraper#wat
   */
   delayedScraper = ( url: string ): Promise<string> => (
-    new Promise( ( resolve, reject ) => {
-      cloudscraper.get( url, ( err, res, body ) => {
+    new Promise( ( resolve: Function, reject: Function ) => {
+      cloudscraper.get( url, ( err, res, body: string ) => {
         setTimeout( () => resolve( body ), this.scraperThrottleDelay );
       });
     })
