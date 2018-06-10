@@ -25,7 +25,7 @@ export default class CachedScraper {
   }
 
   /*
-  * Search for specified division's cache files.
+  * Search for specified cache file.
   * Useful for when deciding whether to fetch directly from website or not
   */
   getCachedFile = async ( filename: string ): Promise<Array<string>> => {
@@ -44,10 +44,10 @@ export default class CachedScraper {
   * but unfortunately it does not return a promise. Here we're fixing that by
   * wrapping cloudscraper in one. :)
   *
-  * NOTE: delaying response by five seconds
+  * NOTE: delaying response by X-amount of seconds
   * See: https://github.com/codemanki/cloudscraper#wat
   */
-  scraper = ( url: string ): Promise<any> => (
+  delayedScraper = ( url: string ): Promise<any> => (
     new Promise( ( resolve, reject ) => {
       cloudscraper.get( url, ( err, res, body ) => {
         setTimeout( () => resolve( body ), this.scraperThrottleDelay );
@@ -75,7 +75,7 @@ export default class CachedScraper {
 
     // If no cache, we can continue with making our request.
     // After that's done, we save the data to cache
-    const body = await this.scraper( url );
+    const body = await this.delayedScraper( url );
     fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
 
     return Promise.resolve( body );
