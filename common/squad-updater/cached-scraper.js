@@ -14,6 +14,10 @@ export default class CachedScraper {
     this.cacheDir = cacheDir || this.cacheDir;
   }
 
+  setThrottleDelay( num: number ): void {
+    this.scraperThrottleDelay = num;
+  }
+
   /*
   * Create cache directory if not already exists. It's fine to block execution
   * as we'd do the same thing if we were to do it async.

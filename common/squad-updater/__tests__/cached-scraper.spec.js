@@ -1,8 +1,12 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, import/first */
 
-import mock from 'mock-fs';
 import fs from 'fs';
 import path from 'path';
+import mock from 'mock-fs';
+import cloudscraper from 'cloudscraper';
+
+// mock cloudscraper before CachedScraper is imported
+jest.mock( 'cloudscraper' );
 
 import { CachedScraper } from '../';
 
@@ -67,5 +71,19 @@ describe( 'cached scraper', () => {
 
     expect( await cachedScraper.scrape( 'http://nowhere', 'my-file' ) )
       .toEqual( 'file content' );
+  });
+
+  it( 'fetches contents from url when specified cached file is not found', async () => {
+    const cachedScraper = new CachedScraper( '/opt/cache' );
+    cachedScraper.initCacheDir();
+    cachedScraper.setThrottleDelay( 100 );
+
+    // mock what cloudscraper is getting from the "internet"
+    cloudscraper.get.mockImplementationOnce( ( url, callback ) => {
+      callback( null, null, 'my other file content' );
+    });
+
+    expect( await cachedScraper.scrape( 'http://somewhere.com', 'my-other-file' ) )
+      .toEqual( 'my other file content' );
   });
 });
