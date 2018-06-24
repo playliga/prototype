@@ -42,7 +42,7 @@ export default class Factory {
     return outputArr;
   }
 
-  generate = async (): Promise<string> => {
+  generate = async (): Array<Object> => {
     // we know the site we're dealing with (ESEA) so massage the data accordingly
 
     // get the page content from the cached scraper
@@ -55,8 +55,6 @@ export default class Factory {
     }
 
     // parse the page content and fetch the division URLs to fetch
-    console.warn( this.extractTeamURLs( content ) );
-
-    return content;
+    return this.extractTeamURLs( content );
   }
 }
