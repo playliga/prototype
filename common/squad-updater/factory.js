@@ -1,5 +1,6 @@
 // @flow
 
+import { uniqBy } from 'lodash';
 import cheerio from 'cheerio';
 import adjectiveAnimal from 'adjective-animal';
 
@@ -39,7 +40,9 @@ export default class Factory {
       });
     });
 
-    return outputArr;
+    // before returning remove duplicate URLs due to
+    // pre and post-seasons
+    return uniqBy( outputArr, 'url' );
   }
 
   generate = async (): Promise<Array<Object>> => {
