@@ -8,7 +8,7 @@ import { promisify } from 'util';
 
 export default class CachedScraper {
   cacheDir: string = path.join( __dirname, './cache' )
-  scraperThrottleDelay: number = 5000
+  scraperThrottleDelay: number = 8000
 
   constructor( cacheDir: string | null = null ) {
     this.cacheDir = cacheDir || this.cacheDir;
@@ -54,7 +54,11 @@ export default class CachedScraper {
   delayedScraper = ( url: string ): Promise<string> => (
     new Promise( ( resolve: Function, reject: Function ) => {
       cloudscraper.get( url, ( err, res, body: string ) => {
-        setTimeout( () => resolve( body ), this.scraperThrottleDelay );
+        if( err ) {
+          reject( err );
+        } else {
+          setTimeout( () => resolve( body ), this.scraperThrottleDelay );
+        }
       });
     })
   )
@@ -79,9 +83,13 @@ export default class CachedScraper {
 
     // If no cache, we can continue with making our request.
     // After that's done, we save the data to cache
-    const body = await this.delayedScraper( url );
-    fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
+    try {
+      const body = await this.delayedScraper( url );
+      fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
 
-    return Promise.resolve( body );
+      return Promise.resolve( body );
+    } catch( err ) {
+      return Promise.reject( err );
+    }
   }
 }
