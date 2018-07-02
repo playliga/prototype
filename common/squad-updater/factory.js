@@ -1,61 +1,224 @@
 // @flow
 
-import { uniqBy } from 'lodash';
+import { uniqBy, camelCase } from 'lodash';
 import cheerio from 'cheerio';
-import adjectiveAnimal from 'adjective-animal';
-
 import type { CheerioElement } from 'cheerio';
 
 import { CachedScraper } from './';
 
-export default class Factory {
+type Player = {
+  id: string,
+  username: string,
+  countryCode: string,
+  teamId: string,
+  transferValue: number,
+  skillTemplate: string,
+  weaponTemplate: string
+};
+
+class Team {
+  id: string
   url: string
-  cacheFilename: string
-  scraperObj: CachedScraper
+  placement: number
+  tag: string = ''
+  countryCode: string = ''
+  division: string = ''
+  skillTemplate: string = ''
+  squad: Array<Player> = []
 
-  constructor( url: string, cacheFilename: string | null = null, cacheDir: string | null = null ) {
+  constructor( url: string, placement: number ) {
     this.url = url;
-    this.cacheFilename = cacheFilename || adjectiveAnimal.generateName();
+    this.placement = placement;
+    this.id = url.split( '?' )[ 0 ].split( 'teams/' )[ 1 ];
+  }
+}
 
+class Division {
+  id: string;
+  url: string;
+  name: string = '';
+  teams: Array<Team> = [];
+
+  constructor( url: string ) {
+    this.url = url;
+    this.id = url.split( 'division_id=' )[ 1 ];
+  }
+}
+
+class Region {
+  id: string;
+  divisions: Array<Division>;
+
+  constructor( id: string, divisions: Array<Division> ) {
+    this.id = id;
+    this.divisions = divisions;
+  }
+}
+
+export default class Factory {
+  // @constants
+  BASE_URL: string = 'https://play.esea.net';
+  DIVISION_BASE_URL: string = 'index.php?s=league&d=standings&division_id';
+
+  // @properties
+  scraperObj: CachedScraper;
+  regions: Array<Region>;
+
+  constructor( cacheDir: string ) {
     this.scraperObj = new CachedScraper( cacheDir );
     this.scraperObj.initCacheDir();
+
+    this.regions = [
+      new Region(
+        'na', [
+          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2490` ),
+          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2491` )
+        ]
+      ),
+      new Region(
+        'eu', [
+          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2485` ),
+          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2505` )
+        ]
+      )
+    ];
   }
 
-  extractTeamURLs = ( data: string ): Array<Object> => {
+  /**
+   * Build a unique array of team URLs for the current division object.
+   * Modifies the passed in division object and returns it.
+   */
+  buildDivision = ( divisionObj: Division, data: string ): Division => {
     const $ = cheerio.load( data );
     const teamListElem = $( '#league-standings table tr[class*="row"]' );
-    const outputArr = [];
 
     let divisionString = $( '#league-standings section.division h1' ).html();
     divisionString = divisionString.split( 'CS:GO' );
+
+    divisionObj.name = divisionString[ 1 ].trim();
 
     teamListElem.each( ( counter: number, el: CheerioElement ) => {
       const teamContainerElem = $( el ).children( 'td:nth-child(2)' );
       const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' );
 
-      outputArr.push({
-        division: divisionString[ 1 ].trim(),
-        placement: counter,
-        url: teamURL.replace( /\./g, '&period[' )
-      });
+      divisionObj.teams.push( new Team(
+        this.BASE_URL + teamURL.replace( /\./g, '&period[' ),
+        counter
+      ) );
     });
 
     // before returning remove duplicate URLs due to
     // pre and post-seasons
-    return uniqBy( outputArr, 'url' );
+    divisionObj.teams = uniqBy( divisionObj.teams, 'url' );
+    return divisionObj;
   }
 
-  generate = async (): Promise<Array<Object>> => {
-    // get the page content from the cached scraper
-    let content;
+  buildTeam = ( team: Team, html: string ) => {
+    const $ = cheerio.load( html );
+    const profileElem = $( '#teams-profile hr + section' );
+    const profileInfoElem = profileElem.children( 'div#profile-info' );
+    const teamnameElem = profileElem.children( 'div#profile-header' ).children( 'h1' );
 
-    try {
-      content = await this.scraperObj.scrape( this.url, this.cacheFilename );
-    } catch( err ) {
-      throw err;
+    // TODO: there are multiple div.row1 instances that DO NOT hold the roster. need to find a better selector
+    const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
+
+    const teamObj: Team = {
+      placement: team.placement,
+      url: team.url,
+      id: camelCase( teamnameElem.text() ),
+      name: teamnameElem.text(),
+      tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
+      countryCode: '',
+      division: team.division,
+      skillTemplate: '',
+      squad: []
+    };
+
+    // Professional = Elite
+    // Premier = Expert, Very Hard
+    // Main = Hard, Tough
+    // Intermediate = Normal, Fair
+    // Open = Easy
+    switch( teamObj.division ) {
+      case 'Professional':
+        teamObj.skillTemplate = 'Elite';
+        break;
+      case 'Premier':
+        teamObj.skillTemplate = ( ( team.placement < 3 ) ? 'Expert' : 'Very Hard' );
+        break;
+      case 'Main':
+        teamObj.skillTemplate = ( ( team.placement < 3 ) ? 'Hard' : 'Tough' );
+        break;
+      case 'Intermediate':
+        teamObj.skillTemplate = ( ( team.placement < 3 ) ? 'Normal' : 'Fair' );
+        break;
+      case 'Amateur':
+        teamObj.skillTemplate = 'Easy';
+        break;
+      default:
+        break;
     }
 
-    // parse the page content and fetch the division URLs to fetch
-    return Promise.resolve( this.extractTeamURLs( content ) );
+    // TODO: a team may not have a roster. eg: https://goo.gl/DfhSNi
+    // TODO: what to do in this case?
+    profileRosterElem.each( ( counter: number, el: CheerioElement ) => {
+      const countryElem = $( el ).children( 'a' ).children( 'img' );
+      const nameElem = $( el ).children( 'a:nth-child(3)' );
+
+      const index = countryElem.attr( 'src' ).indexOf( '.gif' );
+      const countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
+
+      // Inherit first player's country code as the team's
+      if( counter === 0 ) {
+        teamObj.countryCode = countryCode;
+      }
+
+      teamObj.squad.push({
+        id: camelCase( nameElem.text() ),
+        username: nameElem.text(),
+        countryCode,
+        teamId: teamObj.id,
+        transferValue: 0, // TODO
+        skillTemplate: teamObj.skillTemplate,
+        weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
+      });
+    });
+
+    return teamObj;
+  }
+
+  generate = async (): Promise<Array<Region>> => {
+    // scrape division URLs from each region
+    for( let i = 0; i < this.regions.length; i++ ) {
+      const region = this.regions[ i ];
+
+      // fetch and cache the content for each region division
+      for( let j = 0; j < region.divisions.length; j++ ) {
+        try {
+          const divisionObj = region.divisions[ j ];
+          const content = await this.scraperObj.scrape( divisionObj.url, divisionObj.id );
+
+          region.divisions[ j ] = this.buildDivision( divisionObj, content );
+        } catch( err ) {
+          throw err;
+        }
+      }
+    }
+
+    // main page scrapped, now loop through the abstracted team URLs
+    // and build the team objects
+    // try {
+    //   this.divisions.teams.forEach( async ( teamObj: Team ) => {
+    //     // extract team's id from the url. (it's in there somewhere :D)
+    //     const { url, id } = teamObj;
+    //     const teamHTML = await this.scraperObj.scrape( url, id );
+
+    //     console.log( this.buildTeam( teamObj, teamHTML ) );
+    //   });
+    // } catch( err ) {
+    //   // TODO:
+    // }
+
+    return Promise.resolve( this.regions );
   }
 }
