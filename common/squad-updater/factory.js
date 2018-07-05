@@ -17,14 +17,14 @@ type Player = {
 };
 
 class Team {
-  id: string
-  url: string
-  placement: number
-  tag: string = ''
-  countryCode: string = ''
-  division: string = ''
-  skillTemplate: string = ''
-  squad: Array<Player> = []
+  id: string;
+  url: string;
+  placement: number;
+  tag: string = '';
+  countryCode: string = '';
+  division: string = '';
+  skillTemplate: string = '';
+  squad: Array<Player> = [];
 
   constructor( url: string, placement: number ) {
     this.url = url;
