@@ -6,15 +6,20 @@ import type { CheerioElement } from 'cheerio';
 
 import { CachedScraper } from './';
 
-type Player = {
-  id: string,
-  username: string,
-  countryCode: string,
-  teamId: string,
-  transferValue: number,
-  skillTemplate: string,
-  weaponTemplate: string
-};
+
+class Player {
+  id: string;
+  username: string;
+  countryCode: string;
+  teamId: string;
+  transferValue: number;
+  skillTemplate: string;
+  weaponTemplate: string;
+
+  constructor( id: string ) {
+    this.id = id;
+  }
+}
 
 class Team {
   id: string;
@@ -56,7 +61,7 @@ class Region {
   }
 }
 
-export default class Factory {
+class Factory {
   // @constants
   BASE_URL: string = 'https://play.esea.net';
   DIVISION_BASE_URL: string = 'index.php?s=league&d=standings&division_id';
@@ -114,6 +119,10 @@ export default class Factory {
     return divisionObj;
   }
 
+  /**
+   * Build the team object and its squad from the scraped html data.
+   * Modified the passed in team object5 and returns it.
+   */
   buildTeam = ( teamObj: Team, html: string ) => {
     const $ = cheerio.load( html );
     const profileElem = $( '#teams-profile hr + section' );
@@ -163,15 +172,15 @@ export default class Factory {
         teamObj.countryCode = countryCode;
       }
 
-      teamObj.squad.push({
-        id: camelCase( nameElem.text() ),
-        username: nameElem.text(),
-        countryCode,
-        teamId: teamObj.id,
-        transferValue: 0, // TODO:
-        skillTemplate: teamObj.skillTemplate,
-        weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
-      });
+      const playerObj = new Player( camelCase( nameElem.text() ) );
+      playerObj.username = nameElem.text();
+      playerObj.countryCode = teamObj.countryCode;
+      playerObj.teamId = teamObj.id;
+      playerObj.transferValue = 0; // TODO:
+      playerObj.skillTemplate = teamObj.skillTemplate;
+      playerObj.weaponTemplate = ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' );
+
+      teamObj.squad.push( playerObj );
     });
 
     return teamObj;
@@ -217,3 +226,5 @@ export default class Factory {
     return Promise.resolve( this.regions );
   }
 }
+
+export default Factory;
