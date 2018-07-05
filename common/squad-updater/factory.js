@@ -188,36 +188,36 @@ export default class Factory {
   }
 
   generate = async (): Promise<Array<Region>> => {
-    // scrape division URLs from each region
     for( let i = 0; i < this.regions.length; i++ ) {
       const region = this.regions[ i ];
 
-      // fetch and cache the content for each region division
       for( let j = 0; j < region.divisions.length; j++ ) {
-        try {
-          const divisionObj = region.divisions[ j ];
-          const content = await this.scraperObj.scrape( divisionObj.url, divisionObj.id );
+        let divisionObj = region.divisions[ j ];
 
-          region.divisions[ j ] = this.buildDivision( divisionObj, content );
+        // fetch the team URLs for the current division
+        try {
+          const content = await this.scraperObj.scrape( divisionObj.url, divisionObj.id );
+          divisionObj = this.buildDivision( divisionObj, content );
         } catch( err ) {
           throw err;
         }
+
+        // by this point we have the list of teams for the current division
+        // now we need to scrape their pages
+        const { teams } = divisionObj;
+
+        for( let k = 0; k < teams.length; k++ ) {
+          let teamObj = teams[ k ];
+
+          try {
+            const content = await this.scraperObj.scrape( teamObj.url, teamObj.id );
+            teamObj = this.buildTeam( teamObj, content );
+          } catch( err ) {
+            throw err;
+          }
+        }
       }
     }
-
-    // main page scrapped, now loop through the abstracted team URLs
-    // and build the team objects
-    // try {
-    //   this.divisions.teams.forEach( async ( teamObj: Team ) => {
-    //     // extract team's id from the url. (it's in there somewhere :D)
-    //     const { url, id } = teamObj;
-    //     const teamHTML = await this.scraperObj.scrape( url, id );
-
-    //     console.log( this.buildTeam( teamObj, teamHTML ) );
-    //   });
-    // } catch( err ) {
-    //   // TODO:
-    // }
 
     return Promise.resolve( this.regions );
   }
