@@ -18,6 +18,7 @@ type Player = {
 
 class Team {
   id: string;
+  name: string = '';
   url: string;
   placement: number;
   tag: string = '';
@@ -113,26 +114,15 @@ export default class Factory {
     return divisionObj;
   }
 
-  buildTeam = ( team: Team, html: string ) => {
+  buildTeam = ( teamObj: Team, html: string ) => {
     const $ = cheerio.load( html );
     const profileElem = $( '#teams-profile hr + section' );
     const profileInfoElem = profileElem.children( 'div#profile-info' );
     const teamnameElem = profileElem.children( 'div#profile-header' ).children( 'h1' );
-
-    // TODO: there are multiple div.row1 instances that DO NOT hold the roster. need to find a better selector
     const profileRosterElem = profileElem.children( 'div#profile-column-right' ).children( 'div.row1' );
 
-    const teamObj: Team = {
-      placement: team.placement,
-      url: team.url,
-      id: camelCase( teamnameElem.text() ),
-      name: teamnameElem.text(),
-      tag: profileInfoElem.children( 'div.content' ).children( 'div.data' ).html(),
-      countryCode: '',
-      division: team.division,
-      skillTemplate: '',
-      squad: []
-    };
+    teamObj.name = teamnameElem.text();
+    teamObj.tag = profileInfoElem.children( 'div.content' ).children( 'div.data' ).html();
 
     // Professional = Elite
     // Premier = Expert, Very Hard
@@ -144,13 +134,13 @@ export default class Factory {
         teamObj.skillTemplate = 'Elite';
         break;
       case 'Premier':
-        teamObj.skillTemplate = ( ( team.placement < 3 ) ? 'Expert' : 'Very Hard' );
+        teamObj.skillTemplate = ( ( teamObj.placement < 3 ) ? 'Expert' : 'Very Hard' );
         break;
       case 'Main':
-        teamObj.skillTemplate = ( ( team.placement < 3 ) ? 'Hard' : 'Tough' );
+        teamObj.skillTemplate = ( ( teamObj.placement < 3 ) ? 'Hard' : 'Tough' );
         break;
       case 'Intermediate':
-        teamObj.skillTemplate = ( ( team.placement < 3 ) ? 'Normal' : 'Fair' );
+        teamObj.skillTemplate = ( ( teamObj.placement < 3 ) ? 'Normal' : 'Fair' );
         break;
       case 'Amateur':
         teamObj.skillTemplate = 'Easy';
@@ -178,7 +168,7 @@ export default class Factory {
         username: nameElem.text(),
         countryCode,
         teamId: teamObj.id,
-        transferValue: 0, // TODO
+        transferValue: 0, // TODO:
         skillTemplate: teamObj.skillTemplate,
         weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
       });
@@ -188,13 +178,18 @@ export default class Factory {
   }
 
   generate = async (): Promise<Array<Region>> => {
-    for( let i = 0; i < this.regions.length; i++ ) {
-      const region = this.regions[ i ];
+    const regions = this.regions;
+
+    for( let i = 0; i < regions.length; i++ ) {
+      // each region has divisions we must loop through in order
+      // to scrape information for itself, the teams, and squads
+      const region = regions[ i ];
 
       for( let j = 0; j < region.divisions.length; j++ ) {
         let divisionObj = region.divisions[ j ];
 
-        // fetch the team URLs for the current division
+        // scrape the current division's information and collect
+        // its list of teams
         try {
           const content = await this.scraperObj.scrape( divisionObj.url, divisionObj.id );
           divisionObj = this.buildDivision( divisionObj, content );
@@ -202,8 +197,8 @@ export default class Factory {
           throw err;
         }
 
-        // by this point we have the list of teams for the current division
-        // now we need to scrape their pages
+        // we have the list of teams for the current division
+        // now we need to scrape each team's page and collect information and squad
         const { teams } = divisionObj;
 
         for( let k = 0; k < teams.length; k++ ) {

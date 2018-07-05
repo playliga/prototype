@@ -9,6 +9,12 @@ describe( 'factory', () => {
     const factoryObj = new Factory( CACHE_DIR );
     factoryObj.scraperObj.setThrottleDelay( 100 );
 
-    console.warn( await factoryObj.generate() );
+    const regions = await factoryObj.generate();
+
+    regions.forEach( ( region ) => {
+      region.divisions.forEach( ( division ) => {
+        division.teams.forEach( team => console.warn( team.squad ) );
+      });
+    });
   });
 });
