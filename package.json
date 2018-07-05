@@ -130,7 +130,6 @@
     "start:dev": "npm run start:dev-server -- --dev-electron",
     "start:dev-electron": "NODE_ENV=development electron -r babel-register -r babel-polyfill ./main",
     "start:dev-server": "NODE_ENV=development node -r babel-register ./webpack/server.js",
-    "squad-updater": "node -r babel-register ./common/squad-updater/index.js",
     "test": "cross-env NODE_ENV=test jest",
     "test:coverage": "npm test -- --coverage",
     "test:watch": "npm test -- --watch"
