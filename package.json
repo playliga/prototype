@@ -118,7 +118,8 @@
     },
     "notify": true,
     "collectCoverageFrom": [
-      "common/**/*.{js,jsx}"
+      "common/**/*.{js,jsx}",
+      "!common/squad-updater/scrapers/**/*.{js,jsx}"
     ]
   },
   "scripts": {

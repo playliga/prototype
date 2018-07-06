@@ -4,7 +4,7 @@ import { uniqBy, camelCase } from 'lodash';
 import cheerio from 'cheerio';
 import type { CheerioElement } from 'cheerio';
 
-import { CachedScraper } from './';
+import { CachedScraper, ScraperFactory } from '../';
 
 
 class Player {
@@ -61,7 +61,7 @@ class Region {
   }
 }
 
-class Factory {
+class ESEA_CSGO extends ScraperFactory {
   // @constants
   BASE_URL: string = 'https://play.esea.net';
   DIVISION_BASE_URL: string = 'index.php?s=league&d=standings&division_id';
@@ -71,6 +71,8 @@ class Factory {
   regions: Array<Region>;
 
   constructor( cacheDir: string ) {
+    super();
+
     this.scraperObj = new CachedScraper( cacheDir );
     this.scraperObj.initCacheDir();
 
@@ -227,4 +229,4 @@ class Factory {
   }
 }
 
-export default Factory;
+export default ESEA_CSGO;

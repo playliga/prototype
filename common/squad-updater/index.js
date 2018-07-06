@@ -1,4 +1,4 @@
 import 'babel-polyfill';
 
 export CachedScraper from './cached-scraper';
-export Factory from './factory';
+export ScraperFactory from './scraper-factory';
