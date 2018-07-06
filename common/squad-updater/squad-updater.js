@@ -1,4 +1,10 @@
 // @flow
-
 /* eslint-disable no-console */
-// TODO:
+
+import path from 'path';
+import { ScraperFactory } from './';
+
+export default async function run() {
+  const factoryObj = new ScraperFactory( path.join( __dirname, 'cache' ), 'esea-csgo' );
+  console.log( await factoryObj.generate() );
+}
