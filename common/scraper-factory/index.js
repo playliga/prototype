@@ -1,6 +1,9 @@
+/* eslint-disable no-inner-declarations, no-console */
 import 'babel-polyfill';
 import minimist from 'minimist';
-import run from './squad-updater';
+import path from 'path';
+
+import ScraperFactory from './scraper-factory';
 
 export CachedScraper from './cached-scraper';
 export ScraperFactory from './scraper-factory';
@@ -12,5 +15,10 @@ const args = minimist( process.argv.slice( 2 ), {
 });
 
 if( args.console ) {
+  async function run() {
+    const factoryObj = new ScraperFactory( path.join( __dirname, 'cache' ), 'esea-csgo' );
+    console.log( await factoryObj.generate() );
+  }
+
   run();
 }
