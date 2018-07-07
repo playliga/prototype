@@ -6,5 +6,5 @@ import { ScraperFactory } from './';
 
 export default async function run() {
   const factoryObj = new ScraperFactory( path.join( __dirname, 'cache' ), 'esea-csgo' );
-  console.log( await factoryObj.generate() );
+  await factoryObj.generate();
 }
