@@ -8,7 +8,7 @@ import cloudscraper from 'cloudscraper';
 // mock cloudscraper before CachedScraper is imported
 jest.mock( 'cloudscraper' );
 
-import { CachedScraper } from '../';
+import CachedScraper from '../cached-scraper';
 
 // NOTE: workaround for a bug in mock-fs
 // SEE: https://github.com/facebook/jest/issues/5792#issuecomment-376678248

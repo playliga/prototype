@@ -119,7 +119,7 @@
     "notify": true,
     "collectCoverageFrom": [
       "common/**/*.{js,jsx}",
-      "!common/squad-updater/scrapers/**/*.{js,jsx}"
+      "!common/scraper-factory/scrapers/**/*.{js,jsx}"
     ]
   },
   "scripts": {

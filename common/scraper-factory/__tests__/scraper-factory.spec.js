@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import path from 'path';
-import { ScraperFactory } from '../';
+import ScraperFactory from '../scraper-factory';
 
 const CACHE_DIR = path.join( __dirname, 'cache' );
 

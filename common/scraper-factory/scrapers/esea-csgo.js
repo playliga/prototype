@@ -4,7 +4,7 @@ import { uniqBy, camelCase } from 'lodash';
 import cheerio from 'cheerio';
 import type { CheerioElement } from 'cheerio';
 
-import { CachedScraper } from '../';
+import CachedScraper from '../cached-scraper';
 
 
 class Player {
