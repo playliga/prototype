@@ -11,7 +11,9 @@ export default class ScraperFactory {
     // try to dynamically load `scraperName` via file
     try {
       // $FlowSkip
-      const factoryObj = require( path.join( __dirname, 'scrapers', `${scraperName}.js` ) ).default;
+      const factoryObj = require(
+        path.join( __dirname, 'scrapers', `${scraperName}.js` )
+      ).default;
       this.innerFactoryObj = new factoryObj( cacheDir );
     } catch( err ) {
       throw err;
