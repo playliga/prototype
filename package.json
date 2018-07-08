@@ -38,15 +38,15 @@
     "groupstage-tb-duel": "1.2.0",
     "lodash": "4.17.10",
     "masters": "3.1.0",
-    "react": "15.6.1",
-    "react-dom": "15.6.1",
-    "react-hot-loader": "3.0.0-beta.7",
-    "react-router": "4.2.0",
+    "react": "16.4.1",
+    "react-dom": "16.4.1",
+    "react-hot-loader": "4.3.3",
+    "react-router": "4.3.1",
     "roundrobin": "1.0.3",
     "tiebreaker": "3.1.0",
     "tournament": "3.2.0",
     "tourney": "1.2.1",
-    "webpack-hot-middleware": "2.18.2"
+    "webpack-hot-middleware": "2.22.2"
   },
   "devDependencies": {
     "babel-core": "6.26.0",
