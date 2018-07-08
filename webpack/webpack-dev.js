@@ -5,6 +5,7 @@ import webpackConfig from './webpack-shared.js';
 const PORT = process.env.PORT || 3000;
 
 export default {
+  mode: 'development',
   resolve: webpackConfig.resolve,
   entry: [
     'react-hot-loader/patch',
@@ -17,7 +18,7 @@ export default {
     filename: 'bundle.js'
   },
   module: {
-    loaders: [
+    rules: [
       webpackConfig.loaders.js,
       webpackConfig.loaders.eslint,
       {
@@ -73,12 +74,7 @@ export default {
   },
   plugins: [
     // https://webpack.github.io/docs/hot-module-replacement-with-webpack.html
-    new webpack.HotModuleReplacementPlugin(),
-
-    // If you are using the CLI, the webpack process will not exit with an
-    // error code by enabling this plugin:
-    // https://github.com/webpack/docs/wiki/list-of-plugins#noerrorsplugin
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.HotModuleReplacementPlugin()
   ],
 
   // needed to set all of electron built-in modules as externals plus some

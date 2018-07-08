@@ -88,6 +88,7 @@
     "radix": 0,
     "react/jsx-boolean-value": 2,
     "react/jsx-closing-bracket-location": 2,
+    "react/jsx-curly-brace-presence": 0,
     "react/jsx-handler-names": 2,
     "react/jsx-indent-props": 2,
     "react/jsx-key": 2,

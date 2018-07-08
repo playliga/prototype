@@ -17,7 +17,7 @@ export default {
     filename: 'main.bundle.js'
   },
   module: {
-    loaders: [
+    rules: [
       webpackConfig.loaders.js,
       webpackConfig.loaders.eslint
     ]
