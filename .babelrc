@@ -3,14 +3,10 @@
     "es2015",
     "stage-0"
   ],
-  "env":{
-    "test": {
-      "plugins": [
-        "transform-flow-strip-types",
-        "transform-es2015-modules-commonjs",
-        "syntax-dynamic-import",
-        "dynamic-import-node"
-      ]
-    }
-  }
+  "plugins": [
+    "transform-flow-strip-types",
+    "transform-es2015-modules-commonjs",
+    "syntax-dynamic-import",
+    "dynamic-import-node"
+  ]
 }
