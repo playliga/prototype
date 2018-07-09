@@ -63,6 +63,7 @@
     "jsx-quotes": [ "error", "prefer-double" ],
     "key-spacing": 0,
     "keyword-spacing": 0,
+    "lines-between-class-members": 0,
     "max-len": [
       "warn",
       { "code": 150 }
@@ -85,6 +86,7 @@
         "arraysInObjects": false
       }
     ],
+    "prefer-destructuring": 0,
     "radix": 0,
     "react/jsx-boolean-value": 2,
     "react/jsx-closing-bracket-location": 2,
