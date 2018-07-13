@@ -1,12 +1,13 @@
 import path from 'path';
 import webpack from 'webpack';
-import webpackConfig from './webpack-shared.js';
+import webpackConfigShared from './webpack-shared.js';
+import webpackConfigResolve from './webpack-resolve.js';
 
 const PORT = process.env.PORT || 3000;
 
 export default {
   mode: 'development',
-  resolve: webpackConfig.resolve,
+  resolve: webpackConfigResolve,
   entry: [
     'react-hot-loader/patch',
     `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
@@ -19,8 +20,8 @@ export default {
   },
   module: {
     rules: [
-      webpackConfig.loaders.js,
-      webpackConfig.loaders.eslint,
+      webpackConfigShared.loaders.js,
+      webpackConfigShared.loaders.eslint,
       {
         test: /\.css$/,
         use: [

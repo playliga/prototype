@@ -4,11 +4,12 @@
 */
 import path from 'path';
 import webpack from 'webpack';
-import webpackConfig from './webpack-shared.js';
+import webpackConfigShared from './webpack-shared.js';
+import webpackConfigResolve from './webpack-resolve.js';
 
 export default {
   devtool: 'source-map',
-  resolve: webpackConfig.resolve,
+  resolve: webpackConfigResolve,
   entry: [
     path.join( __dirname, '../main' )
   ],
@@ -18,8 +19,8 @@ export default {
   },
   module: {
     rules: [
-      webpackConfig.loaders.js,
-      webpackConfig.loaders.eslint
+      webpackConfigShared.loaders.js,
+      webpackConfigShared.loaders.eslint
     ]
   }
   plugins: [

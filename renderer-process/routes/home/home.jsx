@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import Particles from 'react-particles-js';
 
-import { AnimatedLink } from '../../components';
+import { AnimatedLink } from 'components';
 
 import styles from './home.scss';
 import particleConfig from './particle-config.json';

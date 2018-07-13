@@ -1,6 +1,6 @@
-dist/
-flow-typed/
-node_modules/
+dist/*
+flow-typed/*
 webpack/*
+coverage/*
 
 !webpack/server.js
