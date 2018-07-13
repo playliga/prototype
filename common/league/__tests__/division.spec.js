@@ -3,7 +3,7 @@ import adjectiveAnimal from 'adjective-animal';
 import cuid from 'cuid';
 import { chunk, random } from 'lodash';
 import GroupStage from 'groupstage';
-import { Division, Competitor } from '../';
+import { Division, Competitor } from '..';
 
 export function generateGroupStageScores( conferences: Array<Conference> ) {
   // generate scores for each conference

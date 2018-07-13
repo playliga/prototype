@@ -1,7 +1,7 @@
 // @flow
 import { find } from 'lodash';
 import adjectiveAnimal from 'adjective-animal';
-import { League, Division } from '../';
+import { League, Division } from '..';
 import { generateGroupStageScores, generatePlayoffScores } from './division.spec';
 
 /**
