@@ -1,0 +1,1 @@
+export AnimatedLink from './animated-link';

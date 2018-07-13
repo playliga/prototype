@@ -1,0 +1,15 @@
+// Using keyframes with css-loader is a little wonky.
+// see: https://gist.github.com/DavidWells/1f977cc310feb1264b41
+@keyframes :global(blink) {
+  25% { opacity: 0; }
+  50% { opacity: 1; }
+  75% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+:global {
+  .blink {
+    border-right: 8px solid white;
+    animation: blink 0.75s ease-in-out;
+  }
+}

@@ -1,9 +1,12 @@
 import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+
+import Routes from './routes';
 
 const App = () => (
-  <h1>
-    {'Back to da basics'}
-  </h1>
+  <MemoryRouter>
+    <Routes />
+  </MemoryRouter>
 );
 
 export default App;

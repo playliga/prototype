@@ -1,9 +1,15 @@
 // @flow
 import { app, BrowserWindow } from 'electron';
+import minimist from 'minimist';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
+
+// configure command line args
+const args = minimist( process.argv.slice( 2 ), {
+  boolean: [ 'dev-console' ]
+});
 
 function createWindow() {
   // Create the browser window.
@@ -19,7 +25,11 @@ function createWindow() {
 
   // and load the index.html of the app
   win.loadURL( `file://${__dirname}/renderer-process/index.html` );
-  win.openDevTools();
+
+  // open dev tools if provided via cli args
+  if( args[ 'dev-console' ] ) {
+    win.openDevTools();
+  }
 
   // Emitted when the window is closed.
   win.on( 'closed', () => {

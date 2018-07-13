@@ -23,5 +23,5 @@ exports.resolve = {
     path.resolve( __dirname, '../renderer-process' ),
     path.resolve( __dirname, '../common' ),
     path.resolve( __dirname, '../node_modules' )
-  ],
+  ]
 };

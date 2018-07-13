@@ -38,6 +38,8 @@ app.use( wdm );
 app.use( webpackHotMiddleware( compiler ) );
 
 // start the server!
+let childProcess;
+
 const server = app.listen( PORT, 'localhost', ( err ) => {
   if( err ) {
     console.error( err );
@@ -46,7 +48,7 @@ const server = app.listen( PORT, 'localhost', ( err ) => {
 
   // are we also starting electron?
   if( argv[ 'dev-electron' ] ) {
-    spawn( 'npm', [ 'run', 'start:dev-electron' ], {
+    childProcess = spawn( 'npm', [ 'run', 'start:dev-electron', argv[ 'dev-console' ] ? '-- --dev-console' : '' ], {
       shell: true,
       env: process.env,
       stdio: 'inherit'
@@ -62,6 +64,7 @@ const server = app.listen( PORT, 'localhost', ( err ) => {
 process.on( 'SIGTERM', () => {
   console.log( 'Stopping dev server' );
 
+  childProcess.kill();
   wdm.close();
   server.close( () => process.exit( 0 ) );
 });
