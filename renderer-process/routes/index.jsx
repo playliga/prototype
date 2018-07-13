@@ -1,11 +1,3 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import Home from './home';
-
-const Routes = () => (
-  <section>
-    <Route exact path="/" component={Home} />
-  </section>
-);
+import Routes from './routes';
 
 export default Routes;

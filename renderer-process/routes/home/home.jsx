@@ -20,7 +20,7 @@ class Home extends Component<Props> {
   props: Props;
 
   links: Array<LinkItem> = [
-    { to: '/', label: 'New Career' },
+    { to: '/new-career', label: 'New Career' },
     { to: '/load-career', label: 'Load Career' },
     { to: '/settings', label: 'Settings' }
   ]
