@@ -44,6 +44,7 @@
     "react-particles-js": "2.2.0",
     "react-router": "4.3.1",
     "react-router-dom": "4.3.1",
+    "react-transition-group": "2.4.0",
     "roundrobin": "1.0.3",
     "tiebreaker": "3.1.0",
     "tournament": "3.2.0",
