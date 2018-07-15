@@ -1,11 +1,8 @@
 // @flow
 import React, { Component } from 'react';
-import Particles from 'react-particles-js';
-
 import { AnimatedLink } from 'components';
-
 import styles from './home.scss';
-import particleConfig from './particle-config.json';
+
 
 type Props = {
   history: Object
@@ -28,10 +25,6 @@ class Home extends Component<Props> {
   render() {
     return (
       <section className={styles.container}>
-        <Particles
-          params={particleConfig}
-          className={styles.canvasWrapper}
-        />
         <section className={styles.content}>
           <h1>{'La Liga'}</h1>
           <nav>
