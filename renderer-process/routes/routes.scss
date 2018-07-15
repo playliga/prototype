@@ -8,4 +8,23 @@
     opacity: 1;
     transition: opacity 300ms ease-in-out;
   }
+
+  .fade-exit {
+    opacity: 1;
+  }
+
+  .fade-exit.fade-exit-active {
+    opacity: 0;
+    transition: opacity 300ms ease-in-out;
+  }
+}
+
+.container {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url( '../assets/images/home.jpg' );
+  background-size: cover;
+  background-position: center top;
+  overflow: hidden;
+  color: white;
 }

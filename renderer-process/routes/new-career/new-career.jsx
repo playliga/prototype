@@ -14,7 +14,9 @@ import styles from './new-career.scss';
  */
 const NewCareer = () => (
   <section className={styles.container}>
-    <h1 style={{ color: 'red' }}>{'Hi'}</h1>
+    <section className={styles.content}>
+      <h1 style={{ color: 'red' }}>{'Hi'}</h1>
+    </section>
   </section>
 );
 
