@@ -26,7 +26,9 @@ class Home extends Component<Props> {
     return (
       <section className={styles.container}>
         <section className={styles.content}>
-          <h1>{'La Liga'}</h1>
+          <h1 className={styles.title}>
+            {'La Liga'}
+          </h1>
           <nav>
             {this.links.map( ( item: LinkItem, index: number ) => (
               <AnimatedLink

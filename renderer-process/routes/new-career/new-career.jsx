@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-
 import styles from './new-career.scss';
 
 
@@ -15,7 +14,9 @@ import styles from './new-career.scss';
 const NewCareer = () => (
   <section className={styles.container}>
     <section className={styles.content}>
-      <h1>{'New Career'}</h1>
+      <h1 className={styles.title}>
+        {'New Career'}
+      </h1>
     </section>
   </section>
 );
