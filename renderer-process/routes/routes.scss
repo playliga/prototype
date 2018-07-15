@@ -1,14 +1,22 @@
 :global {
+  /**
+  * Slide in from right when entering
+  */
   .fade-enter {
-    opacity: 0;
     z-index: 1;
+    right: -100px;
+    opacity: 0;
   }
 
   .fade-enter.fade-enter-active {
+    right: 0;
     opacity: 1;
-    transition: opacity 300ms ease-in-out;
+    transition: opacity 300ms ease-in-out, right 300ms ease-in-out;
   }
 
+  /**
+  * Simple fade out animation when exiting
+  */
   .fade-exit {
     opacity: 1;
   }
