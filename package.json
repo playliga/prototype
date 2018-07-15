@@ -26,6 +26,7 @@
     "lint": "eslint --ext .js,.jsx ./",
     "start": "NODE_ENV=production electron ./dist/main.bundle.js",
     "start:dev": "npm run start:dev-server -- --dev-electron",
+    "start:dev:console": "npm run start:dev-server -- --dev-electron --dev-console",
     "start:dev-electron": "NODE_ENV=development electron -r babel-register -r babel-polyfill ./main",
     "start:dev-server": "NODE_ENV=development node -r babel-register ./webpack/server.js",
     "squad-updater": "node -r babel-register ./common/scraper-factory/index.js",
