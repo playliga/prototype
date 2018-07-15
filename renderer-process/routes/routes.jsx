@@ -17,7 +17,7 @@ const Routes = () => (
       <section className={styles.container}>
         <Particles
           params={particleConfig}
-          className={styles.canvasWrapper}
+          className={styles.particlesWrapper}
         />
         <TransitionGroup>
           <CSSTransition key={location.key} classNames="fade" timeout={300}>
