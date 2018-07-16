@@ -60,6 +60,7 @@
       2,
       { "SwitchCase": 1 }
     ],
+    "jsx-a11y/label-has-for": 0,
     "jsx-quotes": [ "error", "prefer-double" ],
     "key-spacing": 0,
     "keyword-spacing": 0,
