@@ -6,9 +6,19 @@
 .content {
   position: absolute;
   top: 50px;
-  right: 40px;
+  right: 100px;
+  width: 25%;
 }
 
 h1.title {
+  margin-bottom: 20px;
   font-size: 2em;
+}
+
+.fieldSet {
+  margin-bottom: 10px;
+
+  input {
+    width: 100%;
+  }
 }

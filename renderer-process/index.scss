@@ -21,6 +21,19 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 100;
 }
 
+input {
+  background-color: transparentize( black, .6 );
+  border: 1px solid transparentize( white, .8 );
+  padding: 10px 5px;
+  font-family: 'Roboto', sans-serif;
+  font-size: inherit;
+  color: white;
+
+  &:focus {
+    outline: 0px;
+  }
+}
+
 :global {
   #root {
     // Disable text selection, or your app will feel like a web page

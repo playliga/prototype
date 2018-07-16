@@ -20,17 +20,21 @@ const NewCareer = () => (
       </h1>
 
       <Form id="player">
-        <label htmlFor="fname">{'First Name'}</label>
-        <Text field="fname" id="fname" />
+        <div className={styles.fieldSet}>
+          <Text field="fname" id="fname" placeholder="First Name" />
+        </div>
 
-        <label htmlFor="lname">{'Last Name'}</label>
-        <Text field="lname" id="lname" />
+        <div className={styles.fieldSet}>
+          <Text field="lname" id="lname" placeholder="Last Name" />
+        </div>
 
-        <label htmlFor="alias">{'Alias'}</label>
-        <Text field="alias" id="alias" />
+        <div className={styles.fieldSet}>
+          <Text field="alias" id="alias" placeholder="Alias" />
+        </div>
 
-        <label htmlFor="country">{'Country'}</label>
-        <Text field="country" id="country" />
+        <div className={styles.fieldSet}>
+          <Text field="country" id="country" placeholder="Country" />
+        </div>
 
         <button type="submit">
           {'Submit'}
