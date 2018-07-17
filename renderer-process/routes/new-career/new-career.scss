@@ -6,13 +6,20 @@
 .content {
   position: absolute;
   top: 50px;
-  right: 100px;
-  width: 25%;
+  right: 40px;
+  width: 40%;
 }
 
 h1.title {
   margin-bottom: 20px;
   font-size: 2em;
+}
+
+h2.subtitle {
+  border-bottom: 1px solid transparentize( white, 0.6 );
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  font-size: 1.2em;
 }
 
 .fieldSet {

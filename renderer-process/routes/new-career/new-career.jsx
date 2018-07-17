@@ -20,12 +20,16 @@ const NewCareer = () => (
       </h1>
 
       <Form id="player">
+        <h2 className={styles.subtitle}>
+          {'Player Information'}
+        </h2>
+
         <div className={styles.fieldSet}>
-          <Text field="fname" id="fname" placeholder="First Name" />
+          <Text field="fname" id="fname" placeholder="First name" />
         </div>
 
         <div className={styles.fieldSet}>
-          <Text field="lname" id="lname" placeholder="Last Name" />
+          <Text field="lname" id="lname" placeholder="Last name" />
         </div>
 
         <div className={styles.fieldSet}>
