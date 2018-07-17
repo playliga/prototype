@@ -40,7 +40,7 @@ const NewCareer = () => (
           <Text field="country" id="country" placeholder="Country" />
         </div>
 
-        <button type="submit">
+        <button type="submit" className={styles.submit}>
           {'Submit'}
         </button>
       </Form>

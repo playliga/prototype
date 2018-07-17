@@ -35,6 +35,18 @@ input {
   }
 }
 
+button {
+  background-color: lavender;
+  border: 1px solid transparentize( black, .6 );
+  padding: 10px 40px;
+  font-family: 'Roboto', sans-serif;
+  color: gray;
+
+  &:focus {
+    outline: 0;
+  }
+}
+
 :global {
   #root {
     // Disable text selection, or your app will feel like a web page
