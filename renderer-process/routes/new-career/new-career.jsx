@@ -1,8 +1,12 @@
 // @flow
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Form, Text } from 'informed';
 import styles from './new-career.scss';
 
+
+const validate = value => (
+  value.length > 1 ? null : ''
+);
 
 /**
  * This route will have nested routes which will represent the
@@ -20,29 +24,65 @@ const NewCareer = () => (
       </h1>
 
       <Form id="player">
-        <h2 className={styles.subtitle}>
-          {'Player Information'}
-        </h2>
+        {({ formState }) => (
+          <Fragment>
+            <h2 className={styles.subtitle}>
+              {'Player Information'}
+            </h2>
 
-        <div className={styles.fieldSet}>
-          <Text field="fname" id="fname" placeholder="First name" />
-        </div>
+            <div className={styles.fieldSet}>
+              <Text
+                field="fname"
+                id="fname"
+                placeholder="First name"
+                validateOnChange
+                validate={validate}
+              />
+            </div>
 
-        <div className={styles.fieldSet}>
-          <Text field="lname" id="lname" placeholder="Last name" />
-        </div>
+            <div className={styles.fieldSet}>
+              <Text
+                field="lname"
+                id="lname"
+                placeholder="Last name"
+                validateOnChange
+                validate={validate}
+              />
+            </div>
 
-        <div className={styles.fieldSet}>
-          <Text field="alias" id="alias" placeholder="Alias" />
-        </div>
+            <div className={styles.fieldSet}>
+              <Text
+                field="alias"
+                id="alias"
+                placeholder="Alias"
+                validateOnChange
+                validate={validate}
+              />
+            </div>
 
-        <div className={styles.fieldSet}>
-          <Text field="country" id="country" placeholder="Country" />
-        </div>
+            <div className={styles.fieldSet}>
+              <Text
+                field="country"
+                id="country"
+                placeholder="Country"
+                validateOnChange
+                validate={validate}
+              />
+            </div>
 
-        <button type="submit" className={styles.submit}>
-          {'Submit'}
-        </button>
+            <button
+              type="submit"
+              className={styles.submit}
+              disabled={
+                formState.invalid
+                || formState.pristine
+                || Object.keys( formState.values ).length !== 4
+              }
+            >
+              {'Submit'}
+            </button>
+          </Fragment>
+        )}
       </Form>
     </section>
   </section>

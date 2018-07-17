@@ -23,7 +23,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 input {
-  background-color: transparentize( black, .6 );
+  background-color: transparentize( black, .3 );
   border: 1px solid transparentize( white, .8 );
   padding: 10px 5px;
   font-family: 'Roboto', sans-serif;
@@ -36,14 +36,20 @@ input {
 }
 
 button {
-  background-color: lavender;
-  border: 1px solid transparentize( black, .6 );
+  background-color: salmon;
+  border: 0px;
   padding: 10px 40px;
   font-family: 'Roboto', sans-serif;
-  color: gray;
+  color: white;
+  transition: background-color 150ms ease-in-out;
 
   &:focus {
     outline: 0;
+  }
+
+  &:disabled {
+    background-color: lavender;
+    cursor: not-allowed;
   }
 }
 
