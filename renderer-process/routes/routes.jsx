@@ -11,6 +11,18 @@ import styles from './routes.scss';
 import particleConfig from './particle-config.json';
 
 
+const Header = ( props ) => {
+  const { state } = props.location;
+
+  return (
+    <header className={styles.content}>
+      <h1 className={styles.title}>
+        {state.title}
+      </h1>
+    </header>
+  );
+};
+
 const Routes = () => (
   <Route
     render={({ location }) => (
@@ -19,6 +31,9 @@ const Routes = () => (
           params={particleConfig}
           className={styles.particlesWrapper}
         />
+
+        <Route path="/new-career" component={Header} />
+
         <TransitionGroup>
           <CSSTransition key={location.key} classNames="fade" timeout={300}>
             <Switch location={location}>

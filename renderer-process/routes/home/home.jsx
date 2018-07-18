@@ -9,6 +9,7 @@ type Props = {
 };
 
 type LinkItem = {
+  title: string,
   to: string,
   label: string
 };
@@ -17,9 +18,9 @@ class Home extends Component<Props> {
   props: Props;
 
   links: Array<LinkItem> = [
-    { to: '/new-career', label: 'New Career' },
-    { to: '/load-career', label: 'Load Career' },
-    { to: '/settings', label: 'Settings' }
+    { title: 'New Career', to: '/new-career', label: 'New Career' },
+    { title: 'Load Career', to: '/load-career', label: 'Load Career' },
+    { title: 'Settings', to: '/settings', label: 'Settings' }
   ]
 
   render() {
@@ -35,7 +36,7 @@ class Home extends Component<Props> {
                 key={index}
                 delay={1000}
                 animationType={'blink'}
-                onClick={() => this.props.history.push( item.to )}
+                onClick={() => this.props.history.push( item.to, { title: item.title })}
               >
                 {item.label}
               </AnimatedLink>

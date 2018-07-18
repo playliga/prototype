@@ -40,4 +40,15 @@
   background-position: center top;
   overflow: hidden;
   color: white;
+
+  header.content {
+    position: absolute;
+    top: 50px;
+    right: 40px;
+    width: 40%;
+  }
+
+  h1.title {
+    font-size: 2em;
+  }
 }

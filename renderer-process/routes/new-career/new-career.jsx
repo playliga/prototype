@@ -26,7 +26,7 @@ const Squad = () => (
 const TeamInformation = props => (
   <Form
     id="team"
-    onSubmit={() => props.history.push( '/new-career/squad' )}
+    onSubmit={() => props.history.push( '/new-career/squad', { title: 'New Career' })}
   >
     {({ formState }) => (
       <Fragment>
@@ -84,7 +84,7 @@ const TeamInformation = props => (
 const PlayerInformation = props => (
   <Form
     id="player"
-    onSubmit={() => props.history.push( '/new-career/team' )}
+    onSubmit={() => props.history.push( '/new-career/team', { title: 'New Career' })}
   >
     {({ formState }) => (
       <Fragment>
@@ -151,10 +151,6 @@ const PlayerInformation = props => (
 const NewCareer = () => (
   <section className={styles.container}>
     <section className={styles.content}>
-      <h1 className={styles.title}>
-        {'New Career'}
-      </h1>
-
       <Route exact path="/new-career" component={PlayerInformation} />
       <Route exact path="/new-career/team" component={TeamInformation} />
       <Route exact path="/new-career/squad" component={Squad} />
