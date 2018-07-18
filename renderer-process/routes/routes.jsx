@@ -23,7 +23,7 @@ const Routes = () => (
           <CSSTransition key={location.key} classNames="fade" timeout={300}>
             <Switch location={location}>
               <Route exact path="/" component={Home} />
-              <Route exact path="/new-career" component={NewCareer} />
+              <Route path="/new-career" component={NewCareer} />
             </Switch>
           </CSSTransition>
         </TransitionGroup>
