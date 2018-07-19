@@ -14,6 +14,8 @@ import particleConfig from './particle-config.json';
 const Header = ( props ) => {
   const { state } = props.location;
 
+  if( !state ) return null;
+
   return (
     <header className={styles.content}>
       <h1 className={styles.title}>
@@ -32,7 +34,11 @@ const Routes = () => (
           className={styles.particlesWrapper}
         />
 
-        <Route path="/new-career" component={Header} />
+        {/**
+        * each route will have a header. it is rendered
+        * here to not animate for nested routes
+        */}
+        <Route component={Header} />
 
         <TransitionGroup>
           <CSSTransition key={location.key} classNames="fade" timeout={300}>
