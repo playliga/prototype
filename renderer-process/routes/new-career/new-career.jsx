@@ -18,17 +18,31 @@ const validate = value => (
  * - Starting V (technically 4 because user is included)
  */
 const Squad = () => (
-  <section className={styles.container}>
-    <section className={styles.content}>
-      <h2 className={styles.subtitle}>
-        {'Squad'}
-      </h2>
-    </section>
+  <Form id="squad" className={styles.container}>
+    {({ formState }) => (
+      <Fragment>
+        <section className={styles.content}>
+          <h2 className={styles.subtitle}>
+            {'Squad'}
+          </h2>
 
-    <Form id="squad" className={styles.wideContent}>
-      {'Hey'}
-    </Form>
-  </section>
+          <div className={styles.fieldSet}>
+            <Text
+              field="search"
+              id="search"
+              placeholder="Search"
+              validateOnChange
+              validate={validate}
+            />
+          </div>
+        </section>
+
+        <section className={styles.wideContent}>
+          {'Hey'}
+        </section>
+      </Fragment>
+    )}
+  </Form>
 );
 
 const TeamInformation = props => (
