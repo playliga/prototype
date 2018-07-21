@@ -10,6 +10,13 @@
   width: 40%;
 }
 
+.wideContent {
+  position: absolute;
+  top: 160px;
+  width: 100%;
+  padding: 0 40px;
+}
+
 h2.subtitle {
   border-bottom: 1px solid transparentize( white, 0.6 );
   margin-bottom: 10px;
