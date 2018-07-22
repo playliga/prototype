@@ -27,10 +27,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: transparentize( black, 0.35 );
+    background-color: transparentize( black, 0.2 );
     height: 40px;
     max-height: 10%;
     padding: 0 5px;
+    font-weight: bold;
   }
 
   div.tbody {
@@ -44,7 +45,7 @@
     padding: 10px 5px;
 
     &:nth-child( even ) {
-      background-color: transparentize( black, .7 );
+      background-color: transparentize( black, 0.5 );
     }
   }
 
