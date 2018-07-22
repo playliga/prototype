@@ -32,7 +32,7 @@ class SquadInformation extends Component<{}, SquadState> {
     search: ''
   };
 
-  static animals = ipcRenderer.sendSync( 'adjective-animal' )
+  static animals = ipcRenderer.sendSync( 'adjective-animal', 100 )
     .map( item => ({
       username: startCase( item ).replace( '-', ' ' ),
       skillTemplate: SkillTemplates[ random( 0, 1 ) ],

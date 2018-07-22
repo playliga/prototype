@@ -6,8 +6,8 @@ import adjectiveAnimal from 'adjective-animal';
 // Use IPC for the adjective-animal library since it calls
 // __dirname internally, and electron's renderer process mangles
 // that built in
-ipcMain.on( 'adjective-animal', ( e ) => {
-  e.returnValue = adjectiveAnimal.generateNameList( 100 );
+ipcMain.on( 'adjective-animal', ( e: Object, arg: number ) => {
+  e.returnValue = adjectiveAnimal.generateNameList( arg );
 });
 
 // Keep a global reference of the window object, if you don't, the window will
