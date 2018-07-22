@@ -26,9 +26,24 @@
 }
 
 .listContainer {
+  width: inherit;
+  height: 300px;
   margin-top: 20px;
   overflow-y: scroll;
-  height: 300px;
+
+  div.lhead {
+    background-color: transparentize( black, 0.35 );
+  }
+
+  div {
+    display: flex;
+    justify-content: space-between;
+
+    span {
+      flex-grow: 1;
+      flex-basis: 0;
+    }
+  }
 }
 
 h2.subtitle {

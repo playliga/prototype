@@ -2,6 +2,7 @@
 import { ipcRenderer } from 'electron';
 import React, { Component, Fragment } from 'react';
 import { Form, Text } from 'informed';
+import { random } from 'lodash';
 import styles from '../new-career.scss';
 
 
@@ -13,12 +14,17 @@ type SquadState = {
   search: string
 };
 
-export default class Squad extends Component<{}, SquadState> {
+export default class SquadInformation extends Component<{}, SquadState> {
   state = {
     search: ''
   };
 
-  static animals = ipcRenderer.sendSync( 'adjective-animal' );
+  static animals = ipcRenderer.sendSync( 'adjective-animal' )
+    .map( item => ({
+      name: item,
+      skill: Math.round( random( 0.5, 1.5 ) * 100 ) / 100,
+      transferValue: 0
+    }) );
 
   render() {
     return (
@@ -48,11 +54,18 @@ export default class Squad extends Component<{}, SquadState> {
 
             <section className={styles.wideContent}>
               <section className={styles.listContainer}>
-                {Squad.animals
-                  .filter( value => value.toLowerCase().includes( this.state.search.toLowerCase() ) )
-                  .map( ( item: string, index: number ) => (
+                <div className={styles.lhead}>
+                  <span>{'Name'}</span>
+                  <span>{'Skill Level'}</span>
+                  <span>{'Transfer Value'}</span>
+                </div>
+                {SquadInformation.animals
+                  .filter( value => value.name.toLowerCase().includes( this.state.search.toLowerCase() ) )
+                  .map( ( item: Object, index: number ) => (
                     <div key={index}>
-                      <span>{item}</span>
+                      <span>{item.name}</span>
+                      <span>{item.skill}</span>
+                      <span>{item.transferValue}</span>
                     </div>
                   ) )
                 }

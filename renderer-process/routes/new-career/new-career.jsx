@@ -19,7 +19,7 @@ import {
  */
 const NewCareer = () => (
   <Fragment>
-    <Route exact path="/new-career" component={PlayerInformation} />
+    <Route exact path="/new-career" component={SquadInformation} />
     <Route exact path="/new-career/team" component={TeamInformation} />
     <Route exact path="/new-career/squad" component={SquadInformation} />
   </Fragment>
