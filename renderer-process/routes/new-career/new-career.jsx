@@ -1,5 +1,6 @@
 // @flow
-import React, { Fragment } from 'react';
+import { ipcRenderer } from 'electron';
+import React, { Component, Fragment } from 'react';
 import { Route } from 'react-router-dom';
 import { Form, Text } from 'informed';
 import styles from './new-career.scss';
@@ -17,33 +18,59 @@ const validate = value => (
  * - Team information
  * - Starting V (technically 4 because user is included)
  */
-const Squad = () => (
-  <Form id="squad" className={styles.container}>
-    {({ formState }) => (
-      <Fragment>
-        <section className={styles.content}>
-          <h2 className={styles.subtitle}>
-            {'Squad'}
-          </h2>
+type SquadState = {
+  search: string
+};
 
-          <div className={styles.fieldSet}>
-            <Text
-              field="search"
-              id="search"
-              placeholder="Search"
-              validateOnChange
-              validate={validate}
-            />
-          </div>
-        </section>
+class Squad extends Component<{}, SquadState> {
+  state = {
+    search: ''
+  };
 
-        <section className={styles.wideContent}>
-          {'Hey'}
-        </section>
-      </Fragment>
-    )}
-  </Form>
-);
+  static animals = ipcRenderer.sendSync( 'adjective-animal' );
+
+  render() {
+    return (
+      <Form
+        id="squad"
+        className={styles.container}
+        onValueChange={search => this.setState({ ...search })}
+      >
+        {({ formState }) => (
+          <Fragment>
+            <section className={styles.content}>
+              <h2 className={styles.subtitle}>
+                {'Squad'}
+              </h2>
+
+              <div className={styles.fieldSet}>
+                <Text
+                  field="search"
+                  id="search"
+                  placeholder={'Search'}
+                  value={this.state.search}
+                  validateOnChange
+                  validate={validate}
+                />
+              </div>
+            </section>
+
+            <section className={styles.wideContent}>
+              {Squad.animals
+                .filter( value => value.toLowerCase().includes( this.state.search.toLowerCase() ) )
+                .map( ( item: string, index: number ) => (
+                  <div key={index}>
+                    <span>{item}</span>
+                  </div>
+                ) )
+              }
+            </section>
+          </Fragment>
+        )}
+      </Form>
+    );
+  }
+}
 
 const TeamInformation = props => (
   <section className={styles.container}>
@@ -178,7 +205,7 @@ const PlayerInformation = props => (
 
 const NewCareer = () => (
   <Fragment>
-    <Route exact path="/new-career" component={PlayerInformation} />
+    <Route exact path="/new-career" component={Squad} />
     <Route exact path="/new-career/team" component={TeamInformation} />
     <Route exact path="/new-career/squad" component={Squad} />
   </Fragment>

@@ -12,9 +12,17 @@
 
 .wideContent {
   position: absolute;
-  top: 200px;
+  top: 220px;
   width: 100%;
   padding: 0 40px;
+
+  div {
+    padding: 10px 5px;
+
+    &:nth-child( even ) {
+      background-color: transparentize( black, .7 );
+    }
+  }
 }
 
 h2.subtitle {

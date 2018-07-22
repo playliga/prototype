@@ -1,6 +1,14 @@
 // @flow
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import minimist from 'minimist';
+import adjectiveAnimal from 'adjective-animal';
+
+// Use IPC for the adjective-animal library since it calls
+// __dirname internally, and electron's renderer process mangles
+// that built in
+ipcMain.on( 'adjective-animal', ( e ) => {
+  e.returnValue = adjectiveAnimal.generateNameList( 100 );
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
