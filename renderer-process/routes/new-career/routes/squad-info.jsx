@@ -2,7 +2,7 @@
 import { ipcRenderer } from 'electron';
 import React, { Component, Fragment } from 'react';
 import { Form, Text } from 'informed';
-import styles from './common.scss';
+import styles from '../new-career.scss';
 
 
 const validate = value => (

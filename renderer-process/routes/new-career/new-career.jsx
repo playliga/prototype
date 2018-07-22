@@ -2,9 +2,11 @@
 import React, { Fragment } from 'react';
 import { Route } from 'react-router-dom';
 
-import PlayerInformation from './player-info';
-import TeamInformation from './team-info';
-import SquadInformation from './squad-info';
+import {
+  PlayerInformation,
+  TeamInformation,
+  SquadInformation
+} from './routes';
 
 
 /**
