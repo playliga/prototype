@@ -12,7 +12,7 @@
 
 .wideContent {
   position: absolute;
-  top: 220px;
+  top: 200px;
   width: 100%;
   padding: 0 40px;
 
@@ -23,6 +23,12 @@
       background-color: transparentize( black, .7 );
     }
   }
+}
+
+.listContainer {
+  margin-top: 20px;
+  overflow-y: scroll;
+  height: 300px;
 }
 
 h2.subtitle {

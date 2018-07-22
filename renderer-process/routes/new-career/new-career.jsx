@@ -56,14 +56,16 @@ class Squad extends Component<{}, SquadState> {
             </section>
 
             <section className={styles.wideContent}>
-              {Squad.animals
-                .filter( value => value.toLowerCase().includes( this.state.search.toLowerCase() ) )
-                .map( ( item: string, index: number ) => (
-                  <div key={index}>
-                    <span>{item}</span>
-                  </div>
-                ) )
-              }
+              <section className={styles.listContainer}>
+                {Squad.animals
+                  .filter( value => value.toLowerCase().includes( this.state.search.toLowerCase() ) )
+                  .map( ( item: string, index: number ) => (
+                    <div key={index}>
+                      <span>{item}</span>
+                    </div>
+                  ) )
+                }
+              </section>
             </section>
           </Fragment>
         )}
@@ -205,7 +207,7 @@ const PlayerInformation = props => (
 
 const NewCareer = () => (
   <Fragment>
-    <Route exact path="/new-career" component={Squad} />
+    <Route exact path="/new-career" component={PlayerInformation} />
     <Route exact path="/new-career/team" component={TeamInformation} />
     <Route exact path="/new-career/squad" component={Squad} />
   </Fragment>
