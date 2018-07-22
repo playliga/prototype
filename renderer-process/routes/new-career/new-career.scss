@@ -42,6 +42,7 @@
   div.row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px 5px;
 
     &:nth-child( even ) {
@@ -49,12 +50,22 @@
     }
   }
 
-  span {
+  div.cell {
     flex-grow: 1;
     flex-basis: 0;
 
     &:first-child {
       text-align: left;
+    }
+
+    div.subtitle {
+      font-size: .75em;
+      letter-spacing: 2px;
+    }
+
+    b {
+      font-weight: bold;
+      font-size: 1em;
     }
   }
 }

@@ -2,7 +2,7 @@
 import { ipcRenderer } from 'electron';
 import React, { Component, Fragment } from 'react';
 import { Form, Text } from 'informed';
-import { random } from 'lodash';
+import { random, startCase } from 'lodash';
 import cuid from 'cuid';
 import Ratings from 'react-ratings-declarative';
 import styles from '../new-career.scss';
@@ -11,6 +11,17 @@ import styles from '../new-career.scss';
 const validate = value => (
   value.length > 1 ? null : ''
 );
+
+const SkillTemplates = [
+  { name: 'Easy', value: 0.5 },
+  { name: 'Fair', value: 1 },
+  { name: 'Normal', value: 1.5 },
+  { name: 'Tough', value: 2.0 },
+  { name: 'Hard', value: 2.5 },
+  { name: 'Very Hard', value: 3 },
+  { name: 'Expert', value: 3.5 },
+  { name: 'Elite', value: 4 }
+];
 
 type SquadState = {
   search: string
@@ -23,10 +34,10 @@ class SquadInformation extends Component<{}, SquadState> {
 
   static animals = ipcRenderer.sendSync( 'adjective-animal' )
     .map( item => ({
-      username: item,
-      skillTemplate: Math.round( random( 0.5, 1.5 ) * 100 ) / 100,
+      username: startCase( item ).replace( '-', ' ' ),
+      skillTemplate: SkillTemplates[ random( 0, 1 ) ],
       transferValue: 'Free Agent',
-      weaponTemplate: 'Rifle'
+      weaponTemplate: random( 5 ) > 4 ? 'Sniper' : 'Rifle'
     }) );
 
   renderTableBody = () => (
@@ -35,10 +46,18 @@ class SquadInformation extends Component<{}, SquadState> {
         value.username.toLowerCase().includes( this.state.search.toLowerCase() )
       ) ).map( ( item: Object, index: number ) => (
         <div key={index} className={styles.row}>
-          <span>{item.username}</span>
-          <span>
+          <div className={styles.cell}>
+            <div className={styles.title}>
+              {item.username}
+            </div>
+            <div className={styles.subtitle}>
+              <b>{'Playstyle: '}</b>
+              {item.weaponTemplate}
+            </div>
+          </div>
+          <div className={styles.cell}>
             <Ratings
-              rating={item.skillTemplate}
+              rating={item.skillTemplate.value}
               widgetDimensions={'16px'}
               widgetRatedColors={'salmon'}
             >
@@ -46,8 +65,10 @@ class SquadInformation extends Component<{}, SquadState> {
                 <Ratings.Widget key={cuid()} />
               ) )}
             </Ratings>
-          </span>
-          <span>{item.transferValue}</span>
+          </div>
+          <div className={styles.cell}>
+            {item.transferValue}
+          </div>
         </div>
       ) )}
     </Fragment>
@@ -82,10 +103,17 @@ class SquadInformation extends Component<{}, SquadState> {
             <section className={styles.wideContent}>
               <div className={styles.table}>
                 <div className={styles.thead}>
-                  <span>{'Name'}</span>
-                  <span>{'Skill Level'}</span>
-                  <span>{'Transfer Value'}</span>
+                  <div className={styles.cell}>
+                    {'Name'}
+                  </div>
+                  <div className={styles.cell}>
+                    {'Skill Level'}
+                  </div>
+                  <div className={styles.cell}>
+                    {'Transfer Value'}
+                  </div>
                 </div>
+
                 <div className={styles.tbody}>
                   {this.renderTableBody()}
                 </div>
