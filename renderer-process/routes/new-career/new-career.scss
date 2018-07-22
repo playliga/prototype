@@ -14,34 +14,46 @@
   position: absolute;
   top: 200px;
   width: 100%;
+  height: 60%; // relative to the viewport
   padding: 0 40px;
+}
 
-  div {
+.table {
+  height: 100%;
+  margin-top: 20px;
+  text-align: center;
+
+  div.thead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparentize( black, 0.35 );
+    height: 40px;
+    max-height: 10%;
+    padding: 0 5px;
+  }
+
+  div.tbody {
+    height: 90%;
+    overflow-y: scroll;
+  }
+
+  div.row {
+    display: flex;
+    justify-content: space-between;
     padding: 10px 5px;
 
     &:nth-child( even ) {
       background-color: transparentize( black, .7 );
     }
   }
-}
 
-.listContainer {
-  width: inherit;
-  height: 300px;
-  margin-top: 20px;
-  overflow-y: scroll;
+  span {
+    flex-grow: 1;
+    flex-basis: 0;
 
-  div.lhead {
-    background-color: transparentize( black, 0.35 );
-  }
-
-  div {
-    display: flex;
-    justify-content: space-between;
-
-    span {
-      flex-grow: 1;
-      flex-basis: 0;
+    &:first-child {
+      text-align: left;
     }
   }
 }

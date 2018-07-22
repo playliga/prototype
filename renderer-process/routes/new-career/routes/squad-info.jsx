@@ -53,23 +53,25 @@ export default class SquadInformation extends Component<{}, SquadState> {
             </section>
 
             <section className={styles.wideContent}>
-              <section className={styles.listContainer}>
-                <div className={styles.lhead}>
+              <div className={styles.table}>
+                <div className={styles.thead}>
                   <span>{'Name'}</span>
                   <span>{'Skill Level'}</span>
                   <span>{'Transfer Value'}</span>
                 </div>
-                {SquadInformation.animals
-                  .filter( value => value.name.toLowerCase().includes( this.state.search.toLowerCase() ) )
-                  .map( ( item: Object, index: number ) => (
-                    <div key={index}>
-                      <span>{item.name}</span>
-                      <span>{item.skill}</span>
-                      <span>{item.transferValue}</span>
-                    </div>
-                  ) )
-                }
-              </section>
+                <div className={styles.tbody}>
+                  {SquadInformation.animals
+                    .filter( value => value.name.toLowerCase().includes( this.state.search.toLowerCase() ) )
+                    .map( ( item: Object, index: number ) => (
+                      <div key={index} className={styles.row}>
+                        <span>{item.name}</span>
+                        <span>{item.skill}</span>
+                        <span>{item.transferValue}</span>
+                      </div>
+                    ) )
+                  }
+                </div>
+              </div>
             </section>
           </Fragment>
         )}
