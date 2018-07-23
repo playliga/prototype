@@ -6,6 +6,7 @@ import { random, startCase } from 'lodash';
 import cuid from 'cuid';
 import Ratings from 'react-ratings-declarative';
 import styles from '../new-career.scss';
+import userImage from './user.png';
 
 
 const validate = value => (
@@ -47,11 +48,14 @@ class SquadInformation extends Component<{}, SquadState> {
       ) ).map( ( item: Object, index: number ) => (
         <div key={index} className={styles.row}>
           <div className={styles.cell}>
+            <div className={styles.avatar}>
+              <img src={userImage} alt={'User'} />
+            </div>
             <div className={styles.title}>
               {item.username}
             </div>
             <div className={styles.subtitle}>
-              <b>{'Playstyle: '}</b>
+              {'Playstyle: '}
               {item.weaponTemplate}
             </div>
           </div>
