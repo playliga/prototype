@@ -63,7 +63,7 @@ class SquadInformation extends Component<{}, SquadState> {
             <Ratings
               rating={item.skillTemplate.value}
               widgetDimensions={'16px'}
-              widgetRatedColors={'salmon'}
+              widgetRatedColors={'gold'}
             >
               {Array.from( Array( 5 ) ).map( () => (
                 <Ratings.Widget key={cuid()} />
