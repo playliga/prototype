@@ -4,14 +4,8 @@
 }
 
 .container {
-  position: relative;
-  background-image: url( '../../assets/images/home.jpg' );
-  background-size: cover;
-  background-position: center top;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  color: white;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
 }
 
 .content {
@@ -20,10 +14,7 @@
   right: 40px;
 }
 
-h1 {
-  letter-spacing: 3px;
-  font-family: 'Roboto', 'sans-serif';
-  font-weight: 100;
+h1.title {
   font-size: 5em;
 }
 
