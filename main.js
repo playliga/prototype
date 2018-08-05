@@ -12,9 +12,9 @@ ipcMain.on( 'adjective-animal', ( e: Object, arg: number ) => {
 });
 
 // Set up the database
-const sequelize = new Sequelize( null, null, null, {
+const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: 'la-liga.db',
+  storage: 'database/la-liga.db',
   operatorsAliases: false,
 
   // define this to always force sync for models
