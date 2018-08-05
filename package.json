@@ -21,10 +21,11 @@
   ],
   "scripts": {
     "build:main": "NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config ./webpack/webpack-electron.js --progress --profile --colors",
+    "db:sequelize": "sequelize $@",
+    "db:console": "sqlite3 $@",
     "flow": "flow",
     "flow-typed:install": "flow-typed install --overwrite",
     "lint": "eslint --ext .js,.jsx ./",
-    "sequelize": "sequelize $@",
     "start": "NODE_ENV=production electron ./dist/main.bundle.js",
     "start:dev": "npm run start:dev-server -- --dev-electron",
     "start:dev:console": "npm run start:dev-server -- --dev-electron --dev-console",
