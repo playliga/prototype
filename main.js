@@ -1,8 +1,17 @@
 // @flow
+/* eslint-disable import/no-dynamic-require */
 import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
 import minimist from 'minimist';
 import adjectiveAnimal from 'adjective-animal';
 import Sequelize from 'sequelize';
+
+import Models from './database/models';
+
+// $FlowSkip
+const config = require(
+  path.join( __dirname, 'database/config/config.json' )
+)[ process.env.NODE_ENV || 'development' ];
 
 // Use IPC for the adjective-animal library since it calls
 // __dirname internally, and electron's renderer process mangles
@@ -12,17 +21,13 @@ ipcMain.on( 'adjective-animal', ( e: Object, arg: number ) => {
 });
 
 // Set up the database
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: 'database/la-liga.db',
-  operatorsAliases: false,
-
-  // define this to always force sync for models
-  sync: { force: true }
-});
+const sequelize = new Sequelize( config );
 
 sequelize.authenticate()
-  .then( () => console.log( 'success' ) )
+  .then( () => (
+    Models.sequelize.sync()
+      .then( () => console.log( 'success' ) )
+  ) )
   .catch( err => console.log( 'error' ) );
 
 // Keep a global reference of the window object, if you don't, the window will
