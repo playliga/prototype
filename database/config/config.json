@@ -1,0 +1,14 @@
+{
+  "development": {
+    "database": "la-liga.db",
+    "dialect": "sqlite"
+  },
+  "test": {
+    "database": "la-liga.db",
+    "dialect": "mysql"
+  },
+  "production": {
+    "database": "la-liga.db",
+    "dialect": "mysql"
+  }
+}
