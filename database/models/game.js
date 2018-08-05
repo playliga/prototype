@@ -7,23 +7,17 @@ export default ( sequelize, DataTypes ) => {
 
   let model = null;
 
-  FIELDS.username = {
+  FIELDS.name = {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
   };
 
-  FIELDS.transferValue = {
-    type: DataTypes.DECIMAL( 10, 2 ),
-    defaultValue: 0.00
-  };
-
   OPTIONS.classMethods.associate = ( models ) => {
-    model.belongsTo( models.team );
-    model.belongsTo( models.game );
-    model.belongsTo( models.country );
+    model.hasMany( models.user );
+    model.hasMany( models.team );
   };
 
-  model = sequelize.define( 'player', FIELDS, OPTIONS );
+  model = sequelize.define( 'game', FIELDS, OPTIONS );
   return model;
 };
