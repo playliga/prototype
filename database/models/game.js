@@ -1,29 +1,25 @@
-export default ( sequelize, DataTypes ) => {
-  const FIELDS = {};
-  const OPTIONS = {
-    timestamps: false,
-    classMethods: {}
+import { Model, DataTypes } from 'sequelize';
+
+module.exports = class Game extends Model {
+  FIELDS = {
+    name: {
+      type: DataTypes.STRING( 128 ),
+      allowNull: false,
+      unique: true
+    },
+    shortname: {
+      type: DataTypes.STRING( 16 ),
+      allowNull: false,
+      unique: true
+    }
   };
 
-  let model = null;
+  static init( sequelize ) {
+    return super.init( this.FIELDS, { sequelize });
+  }
 
-  FIELDS.name = {
-    type: DataTypes.STRING( 128 ),
-    allowNull: false,
-    unique: true
-  };
-
-  FIELDS.shortname = {
-    type: DataTypes.STRING( 16 ),
-    allowNull: false,
-    unique: true
-  };
-
-  OPTIONS.classMethods.associate = ( models ) => {
-    model.hasMany( models.user );
-    model.hasMany( models.team );
-  };
-
-  model = sequelize.define( 'game', FIELDS, OPTIONS );
-  return model;
+  static associate( models ) {
+    this.hasMany( models.Player );
+    this.hasMany( models.Team );
+  }
 };

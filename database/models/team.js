@@ -1,30 +1,26 @@
-export default ( sequelize, DataTypes ) => {
-  const FIELDS = {};
-  const OPTIONS = {
-    timestamps: false,
-    classMethods: {}
-  };
+import { Model, DataTypes } from 'sequelize';
 
-  let model = null;
+module.exports = class Team extends Model {
+  FIELDS = {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    budget: {
+      type: DataTypes.DECIMAL( 10, 2 ),
+      defaultValue: 0.00
+    }
+  }
 
-  FIELDS.name = {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
-  };
+  static init( sequelize ) {
+    return super.init( this.FIELDS, { sequelize });
+  }
 
-  FIELDS.budget = {
-    type: DataTypes.DECIMAL( 10, 2 ),
-    defaultValue: 0.00
-  };
-
-  OPTIONS.classMethods.associate = ( models ) => {
-    model.belongsTo( models.division );
-    model.belongsTo( models.game );
-    model.belongsTo( models.country );
-    model.hasMany( models.player );
-  };
-
-  model = sequelize.define( 'team', FIELDS, OPTIONS );
-  return model;
+  static associate( models ) {
+    this.belongsTo( models.Division );
+    this.belongsTo( models.Game );
+    this.belongsTo( models.Country );
+    this.hasMany( models.Player );
+  }
 };

@@ -1,22 +1,19 @@
-export default ( sequelize, DataTypes ) => {
-  const FIELDS = {};
-  const OPTIONS = {
-    timestamps: false,
-    classMethods: {}
-  };
+import { Model, DataTypes } from 'sequelize';
 
-  let model = null;
+module.exports = class Division extends Model {
+  FIELDS = {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    }
+  }
 
-  FIELDS.name = {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
-  };
+  static init( sequelize ) {
+    return super.init( this.FIELDS, { sequelize });
+  }
 
-  OPTIONS.classMethods.associate = ( models ) => {
-    model.hasMany( models.team );
-  };
-
-  model = sequelize.define( 'division', FIELDS, OPTIONS );
-  return model;
+  static associate( models ) {
+    this.hasMany( models.Team );
+  }
 };

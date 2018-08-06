@@ -1,28 +1,24 @@
-export default ( sequelize, DataTypes ) => {
-  const FIELDS = {};
-  const OPTIONS = {
-    timestamps: false,
-    classMethods: {}
-  };
+import { Model, DataTypes } from 'sequelize';
 
-  let model = null;
+module.exports = class Continent extends Model {
+  FIELDS = {
+    code: {
+      type: DataTypes.STRING( 2 ),
+      allowNull: false,
+      unique: true
+    },
+    name: {
+      type: DataTypes.STRING( 64 ),
+      allowNull: false,
+      unique: true
+    }
+  }
 
-  FIELDS.code = {
-    type: DataTypes.STRING( 2 ),
-    allowNull: false,
-    unique: true
-  };
+  static init( sequelize ) {
+    return super.init( this.FIELDS, { sequelize });
+  }
 
-  FIELDS.name = {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
-  };
-
-  OPTIONS.classMethods.associate = ( models ) => {
-    model.hasMany( models.country );
-  };
-
-  model = sequelize.define( 'continent', FIELDS, OPTIONS );
-  return model;
+  static associate( models ) {
+    this.hasMany( models.Country );
+  }
 };
