@@ -1,17 +1,11 @@
 // @flow
-/* eslint-disable import/no-dynamic-require */
 import { app, BrowserWindow, ipcMain } from 'electron';
-import path from 'path';
 import minimist from 'minimist';
 import adjectiveAnimal from 'adjective-animal';
 import Sequelize from 'sequelize';
 
 import Models from './database/models';
-
-// $FlowSkip
-const config = require(
-  path.join( __dirname, 'database/config/config.json' )
-)[ process.env.NODE_ENV || 'development' ];
+import DBConfig from './database/config/config.json';
 
 // Use IPC for the adjective-animal library since it calls
 // __dirname internally, and electron's renderer process mangles
@@ -21,7 +15,7 @@ ipcMain.on( 'adjective-animal', ( e: Object, arg: number ) => {
 });
 
 // Set up the database
-const sequelize = new Sequelize( config );
+const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
 
 sequelize.authenticate()
   .then( () => (
