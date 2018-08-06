@@ -1,7 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 
 module.exports = class Player extends Model {
-  FIELDS = {
+  static FIELDS = {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -13,8 +13,15 @@ module.exports = class Player extends Model {
     }
   }
 
+  static OPTIONS = {
+    timestamps: false
+  }
+
   static init( sequelize ) {
-    return super.init( this.FIELDS, { sequelize });
+    return super.init( Player.FIELDS, {
+      ...Player.OPTIONS,
+      sequelize
+    });
   }
 
   static associate( models ) {
