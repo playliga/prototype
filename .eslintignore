@@ -1,7 +1,7 @@
+coverage/*
 dist/*
 flow-typed/*
-webpack/*
-coverage/*
 node_modules/*
+webpack/*
 
 !webpack/server.js

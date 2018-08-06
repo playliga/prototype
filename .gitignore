@@ -1,10 +1,9 @@
 coverage/
 dist/
+database/*.db
 node_modules/
-database/la-liga.db
 
 .DS_Store
-
 *.swp
 *.log
 *.mwb

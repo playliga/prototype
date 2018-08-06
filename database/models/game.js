@@ -8,7 +8,13 @@ export default ( sequelize, DataTypes ) => {
   let model = null;
 
   FIELDS.name = {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING( 128 ),
+    allowNull: false,
+    unique: true
+  };
+
+  FIELDS.shortname = {
+    type: DataTypes.STRING( 16 ),
     allowNull: false,
     unique: true
   };
