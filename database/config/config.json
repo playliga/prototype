@@ -1,18 +1,18 @@
 {
   "development": {
-    "database": "la-liga.db",
+    "database": "la-liga",
     "storage": "database/la-liga.db",
     "dialect": "sqlite",
     "operatorsAliases": false
   },
   "test": {
-    "database": "la-liga.db",
+    "database": "la-liga",
     "storage": "database/la-liga.db",
     "dialect": "mysql",
     "operatorsAliases": false
   },
   "production": {
-    "database": "la-liga.db",
+    "database": "la-liga",
     "storage": "database/la-liga.db",
     "dialect": "mysql",
     "operatorsAliases": false

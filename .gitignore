@@ -1,6 +1,7 @@
 coverage/
 dist/
 node_modules/
+database/la-liga.db
 
 .DS_Store
 
