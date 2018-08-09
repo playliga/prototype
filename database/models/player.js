@@ -28,5 +28,6 @@ module.exports = class Player extends Model {
     this.belongsTo( models.Team );
     this.belongsTo( models.Game );
     this.belongsTo( models.Country );
+    this.belongsToMany( models.Meta, { through: models.MetaPlayer });
   }
 };
