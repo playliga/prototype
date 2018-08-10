@@ -144,8 +144,7 @@
     },
     "notify": true,
     "collectCoverageFrom": [
-      "common/**/*.{js,jsx}",
-      "!common/scraper-factory/scrapers/**/*.{js,jsx}"
+      "common/**/*.{js,jsx}"
     ]
   }
 }
