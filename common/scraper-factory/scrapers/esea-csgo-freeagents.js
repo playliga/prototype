@@ -68,6 +68,15 @@ export default class ESEA_CSGO_FREEAGENTS {
       throw err;
     }
 
+    // build the EU region free agents
+    try {
+      const url = this.BASE_URL + this.EU_REGION_ID;
+      const content = await this.scraperObj.scrape( url, 'eu_freeagents' );
+      regions.EU = this.buildPlayerList( content );
+    } catch( err ) {
+      throw err;
+    }
+
     return Promise.resolve( this.regions );
   }
 }
