@@ -2,6 +2,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import minimist from 'minimist';
 import adjectiveAnimal from 'adjective-animal';
+import Sequelize from 'sequelize';
+
+import Models from './database/models';
+import DBConfig from './database/config/config.json';
 
 // Use IPC for the adjective-animal library since it calls
 // __dirname internally, and electron's renderer process mangles
@@ -9,6 +13,16 @@ import adjectiveAnimal from 'adjective-animal';
 ipcMain.on( 'adjective-animal', ( e: Object, arg: number ) => {
   e.returnValue = adjectiveAnimal.generateNameList( arg );
 });
+
+// Set up the database
+const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
+
+sequelize.authenticate()
+  .then( () => (
+    Models.sequelize.sync()
+      .then( () => console.log( 'success' ) )
+  ) )
+  .catch( err => console.log( 'error' ) );
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

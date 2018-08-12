@@ -10,6 +10,9 @@
 .*/node_modules/react/lib/React.js
 .*/node_modules/react/lib/ReactDOM.js
 
+# Ignore any broken dependencies
+.*/node_modules/config-chain/.*
+
 [include]
 renderer-process/
 common/
