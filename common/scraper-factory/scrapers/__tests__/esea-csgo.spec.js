@@ -5,7 +5,7 @@ import ESEA_CSGO from '../esea-csgo';
 const CACHE_DIR = path.join( __dirname, 'cache' );
 
 describe( 'esea_csgo scraper', () => {
-  it( 'creates cache directory in default path if it does not already exist', async () => {
+  it( 'generates a division and its teams and squads', async () => {
     jest.setTimeout( 30000 );
 
     // overwrite the default regions with just one for testing purposes
@@ -17,6 +17,11 @@ describe( 'esea_csgo scraper', () => {
     eseacsgo.regions = [ testRegion ];
 
     const res = await eseacsgo.generate();
-    console.log( res[ 0 ].divisions[ 0 ].teams[ 0 ].squad );
+    res[ 0 ].divisions[ 0 ].teams.forEach( ( team, index ) => {
+      console.log( `
+        ${team.name}
+        squad: ${team.squad.map( player => player.username ).join( ', ' )}
+      ` );
+    });
   });
 });
