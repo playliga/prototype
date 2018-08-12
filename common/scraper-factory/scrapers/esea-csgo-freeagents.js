@@ -5,6 +5,20 @@ import type { CheerioElement } from 'cheerio';
 
 import CachedScraper from '../cached-scraper';
 
+class Player {
+  id: string;
+  username: string;
+  countryCode: string;
+  teamId: string;
+  transferValue: number;
+  skillTemplate: string;
+  weaponTemplate: string;
+
+  constructor( id: string ) {
+    this.id = id;
+  }
+}
+
 type Regions = {
   [x: string]: Array<Object>
 };
@@ -43,14 +57,15 @@ export default class ESEA_CSGO_FREEAGENTS {
       const index = countryElem.attr( 'src' ).indexOf( '.gif' );
       const countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
 
-      playerList.push({
-        id: camelCase( nameElem.text() ),
-        username: nameElem.text(),
-        countryCode,
-        transferValue: 0,
-        skillTemplate: 'Easy', // TODO: maybe the topN guys are a skill above
-        weaponTemplate: ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' )
-      });
+      const playerObj = new Player( camelCase( nameElem.text() ) );
+      playerObj.username = nameElem.text();
+      playerObj.countryCode = countryCode;
+      playerObj.teamId = '';
+      playerObj.transferValue = 0;
+      playerObj.skillTemplate = 'Easy'; // TODO: maybe the topN guys are a skill above
+      playerObj.weaponTemplate = ( ( counter % 4 === 0 ) ? 'Sniper' : 'Rifle' );
+
+      playerList.push( playerObj );
     });
 
     return playerList;
@@ -63,6 +78,7 @@ export default class ESEA_CSGO_FREEAGENTS {
     try {
       const url = this.BASE_URL + this.NA_REGION_ID;
       const content = await this.scraperObj.scrape( url, 'na_freeagents' );
+
       regions.NA = this.buildPlayerList( content );
     } catch( err ) {
       throw err;
@@ -72,6 +88,7 @@ export default class ESEA_CSGO_FREEAGENTS {
     try {
       const url = this.BASE_URL + this.EU_REGION_ID;
       const content = await this.scraperObj.scrape( url, 'eu_freeagents' );
+
       regions.EU = this.buildPlayerList( content );
     } catch( err ) {
       throw err;
