@@ -21,10 +21,10 @@ describe( 'esea_csgo scraper', () => {
     const res = await eseacsgo.generate();
     const { name: divisionName, teams } = res[ 0 ].divisions[ 0 ];
 
-    expect( divisionName ).toEqual( 'Professional' );
-
     teams.forEach( ( team ) => {
       expect( team.squad.length ).toBeGreaterThanOrEqual( 5 );
     });
+
+    expect( divisionName ).toEqual( 'Professional' );
   });
 });

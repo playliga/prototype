@@ -8,9 +8,22 @@ describe( 'esea_csgo free agents scraper', () => {
   it( 'generates free agents for the na and eu regions', async () => {
     // increase the default jest timeout
     // due to the async nature of this test
-    jest.setTimeout( 30000 );
+    jest.setTimeout( 500 );
 
     const eseacsgofa = new ESEA_CSGO_FREEAGENTS( CACHE_DIR );
-    console.log( await eseacsgofa.generate() );
+    const res = await eseacsgofa.generate();
+    const NA_PLAYERS = res.NA;
+    const EU_PLAYERS = res.EU;
+
+    NA_PLAYERS.forEach( ( player ) => {
+      expect( player.id ).toBeDefined();
+    });
+
+    EU_PLAYERS.forEach( ( player ) => {
+      expect( player.id ).toBeDefined();
+    });
+
+    expect( NA_PLAYERS.length ).toBeGreaterThan( 10 );
+    expect( EU_PLAYERS.length ).toBeGreaterThan( 10 );
   });
 });
