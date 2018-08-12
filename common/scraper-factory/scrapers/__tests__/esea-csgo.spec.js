@@ -19,9 +19,9 @@ describe( 'esea_csgo scraper', () => {
     eseacsgo.regions = [ testRegion ];
 
     const res = await eseacsgo.generate();
-    const { name, teams } = res[ 0 ].divisions[ 0 ];
+    const { name: divisionName, teams } = res[ 0 ].divisions[ 0 ];
 
-    expect( name ).toEqual( 'Professional' );
+    expect( divisionName ).toEqual( 'Professional' );
 
     teams.forEach( ( team ) => {
       expect( team.squad.length ).toBeGreaterThanOrEqual( 5 );
