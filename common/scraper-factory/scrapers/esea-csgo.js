@@ -32,8 +32,9 @@ class Team {
   skillTemplate: string = '';
   squad: Array<Player> = [];
 
-  constructor( url: string, placement: number ) {
+  constructor( url: string, division: string, placement: number ) {
     this.url = url;
+    this.division = division;
     this.placement = placement;
     this.id = url.split( '?' )[ 0 ].split( 'teams/' )[ 1 ];
   }
@@ -109,6 +110,7 @@ class ESEA_CSGO {
 
       divisionObj.teams.push( new Team(
         this.BASE_URL + teamURL.replace( /\./g, '&period[' ),
+        divisionObj.name,
         counter
       ) );
     });
