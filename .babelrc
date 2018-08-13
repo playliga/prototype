@@ -1,6 +1,10 @@
 {
   "presets": [
-    "es2015",
+    [ "env", {
+      "targets": {
+        "node": "current"
+      }
+    }],
     "stage-0"
   ],
   "plugins": [

@@ -1,10 +1,18 @@
 // @flow
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import minimist from 'minimist';
 import Sequelize from 'sequelize';
 
 import Models from './database/models';
 import DBConfig from './database/config/config.json';
+
+// Temporary interface to the models
+ipcMain.on( 'fetch-countries', async ( event: Object ) => {
+  const CountryModel = Models.Country;
+  const countries = await CountryModel.findAll();
+
+  event.sender.send( 'receive-countries', countries );
+});
 
 // Set up the database
 const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
