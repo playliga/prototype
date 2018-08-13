@@ -12,7 +12,6 @@ const TeamInformation = props => (
     <Form
       id="team"
       className={styles.content}
-      onSubmit={() => props.history.push( '/new-career/squad', { title: 'New Career' })}
     >
       {({ formState }) => (
         <Fragment>

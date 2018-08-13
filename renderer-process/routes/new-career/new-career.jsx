@@ -4,8 +4,7 @@ import { Route } from 'react-router-dom';
 
 import {
   PlayerInformation,
-  TeamInformation,
-  SquadInformation
+  TeamInformation
 } from './routes';
 
 
@@ -21,7 +20,6 @@ const NewCareer = () => (
   <Fragment>
     <Route exact path="/new-career" component={PlayerInformation} />
     <Route exact path="/new-career/team" component={TeamInformation} />
-    <Route exact path="/new-career/squad" component={SquadInformation} />
   </Fragment>
 );
 

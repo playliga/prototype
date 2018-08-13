@@ -1,18 +1,10 @@
 // @flow
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import minimist from 'minimist';
-import adjectiveAnimal from 'adjective-animal';
 import Sequelize from 'sequelize';
 
 import Models from './database/models';
 import DBConfig from './database/config/config.json';
-
-// Use IPC for the adjective-animal library since it calls
-// __dirname internally, and electron's renderer process mangles
-// that built in
-ipcMain.on( 'adjective-animal', ( e: Object, arg: number ) => {
-  e.returnValue = adjectiveAnimal.generateNameList( arg );
-});
 
 // Set up the database
 const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
