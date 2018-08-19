@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Form, Text } from 'informed';
+import { Form, Text, asField } from 'informed';
 import Select from 'react-select';
 import styles from '../new-career.scss';
 import CountriesContext from '../countries-context';
@@ -9,8 +9,12 @@ const validate = value => (
   value.length > 1 ? null : ''
 );
 
+const InformedSelect = asField( ({ ...props }) => (
+  <Select {...props} />
+) );
+
 const Content = ( props ) => {
-  const options = Array.from( props.countries, country => ({
+  const options = props.countries.map( country => ({
     label: country.name,
     value: country.id
   }) );
@@ -22,7 +26,7 @@ const Content = ( props ) => {
         className={styles.content}
         onSubmit={() => props.history.push( '/new-career/team', { title: 'New Career' })}
       >
-        {({ formState }) => (
+        {({ formState, formApi }) => (
           <Fragment>
             <h2 className={styles.subtitle}>
               {'Player Information'}
@@ -59,10 +63,12 @@ const Content = ( props ) => {
             </div>
 
             <div className={styles.fieldSet}>
-              <Select
+              <InformedSelect
+                field="country"
                 options={options}
                 className={'react-select-container'}
                 classNamePrefix={'react-select'}
+                onChange={option => formApi.setValue( 'country', option )}
               />
             </div>
 
