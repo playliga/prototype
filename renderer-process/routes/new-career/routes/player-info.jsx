@@ -98,7 +98,7 @@ const PlayerInformation = props => (
   <CountriesContext.Consumer>
     {countries => (
       <Content
-        router={props.router}
+        history={props.history}
         countries={countries}
       />
     )}
