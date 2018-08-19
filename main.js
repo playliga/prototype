@@ -9,9 +9,11 @@ import DBConfig from './database/config/config.json';
 // Temporary interface to the models
 ipcMain.on( 'fetch-countries', async ( event: Object ) => {
   const CountryModel = Models.Country;
-  const countries = await CountryModel.findAll({ raw: true });
+  const countries = await CountryModel.findAll({
+    include: Models.Continent
+  });
 
-  event.sender.send( 'receive-countries', countries );
+  event.sender.send( 'receive-countries', JSON.stringify( countries ) );
 });
 
 // Set up the database

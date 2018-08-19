@@ -11,7 +11,7 @@ let countries = [];
 
 ipcRenderer.send( 'fetch-countries' );
 ipcRenderer.on( 'receive-countries', ( event, res ) => {
-  countries = res;
+  countries = JSON.parse( res );
 });
 
 
