@@ -9,6 +9,10 @@ const validate = value => (
   value.length > 1 ? null : ''
 );
 
+const validateSelect = value => (
+  !Array.isArray( value ) ? null : ''
+);
+
 const InformedSelect = asField( ({ ...props }) => (
   <Select {...props} />
 ) );
@@ -68,6 +72,8 @@ const Content = ( props ) => {
                 options={options}
                 className={'react-select-container'}
                 classNamePrefix={'react-select'}
+                validateOnChange
+                validate={validateSelect}
                 onChange={option => formApi.setValue( 'country', option )}
               />
             </div>
