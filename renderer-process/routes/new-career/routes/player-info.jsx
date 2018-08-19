@@ -59,16 +59,6 @@ const Content = ( props ) => {
             </div>
 
             <div className={styles.fieldSet}>
-              <Text
-                field="country"
-                id="country"
-                placeholder="Country"
-                validateOnChange
-                validate={validate}
-              />
-            </div>
-
-            <div className={styles.fieldSet}>
               <Select
                 options={options}
                 className={'react-select-container'}
