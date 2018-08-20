@@ -21,7 +21,7 @@ const Content = ( props ) => {
   const options = props.countries.map( continent => ({
     label: continent.name,
     options: continent.Countries.map( country => ({
-      label: country.name,
+      label: `${country.emoji} ${country.name}`,
       value: country.id
     }) )
   }) );

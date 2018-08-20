@@ -11,6 +11,10 @@ module.exports = class Country extends Model {
       type: DataTypes.STRING( 64 ),
       allowNull: false,
       unique: true
+    },
+    emoji: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   };
 

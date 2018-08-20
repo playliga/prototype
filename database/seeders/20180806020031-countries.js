@@ -13,6 +13,7 @@ Object.keys( countries ).forEach( ( countryCode ) => {
   formatted.push({
     name: country.name,
     code: countryCode,
+    emoji: country.emoji,
     continentId: continentIdMap[ country.continent ]
   });
 });
