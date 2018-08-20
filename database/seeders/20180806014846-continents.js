@@ -2,7 +2,11 @@ module.exports = {
   up: ( queryInterface, Sequelize ) => (
     queryInterface.bulkInsert( 'continents', [
       { code: 'EU', name: 'Europe' },
-      { code: 'NA', name: 'North America' }
+      { code: 'NA', name: 'North America' },
+      { code: 'SA', name: 'South America' },
+      { code: 'AS', name: 'Asia' },
+      { code: 'OC', name: 'Oceania' },
+      { code: 'AF', name: 'Africa' }
     ], {})
   ),
 
