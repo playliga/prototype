@@ -85,7 +85,6 @@
   "south america": {
     "id": 3,
     "countries": {
-      "gd": "south georgia",
       "py": "paraguay",
       "co": "colombia",
       "ve": "venezuela",
@@ -108,9 +107,7 @@
       "mn": "mongolia",
       "cn": "china",
       "af": "afghanistan",
-      "am": "armenia",
       "vn": "vietnam",
-      "ge": "georgia",
       "in": "india",
       "az": "azerbaijan",
       "id": "indonesia",
@@ -163,7 +160,7 @@
       "ck": "cook islands",
       "pw": "palau",
       "tv": "tuvalu",
-      "na": "nauru",
+      "nr": "nauru",
       "ki": "kiribati",
       "mh": "marshall islands",
       "nu": "niue",
