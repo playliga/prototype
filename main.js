@@ -8,12 +8,14 @@ import DBConfig from './database/config/config.json';
 
 // Temporary interface to the models
 ipcMain.on( 'fetch-countries', async ( event: Object ) => {
-  const CountryModel = Models.Country;
-  const countries = await CountryModel.findAll({
-    include: Models.Continent
+  const { Country, Continent } = Models;
+
+  // get all the continents and their countries
+  const continents = await Continent.findAll({
+    include: Country
   });
 
-  event.sender.send( 'receive-countries', JSON.stringify( countries ) );
+  event.sender.send( 'receive-countries', JSON.stringify( continents ) );
 });
 
 // Set up the database

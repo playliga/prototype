@@ -18,9 +18,12 @@ const InformedSelect = asField( ({ ...props }) => (
 ) );
 
 const Content = ( props ) => {
-  const options = props.countries.map( country => ({
-    label: country.name,
-    value: country.id
+  const options = props.countries.map( continent => ({
+    label: continent.name,
+    options: continent.Countries.map( country => ({
+      label: country.name,
+      value: country.id
+    }) )
   }) );
 
   return (
