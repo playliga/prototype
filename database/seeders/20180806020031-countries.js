@@ -1,5 +1,4 @@
-const continents = require( '../seeders-data/continents.json' );
-const countries = require( '../seeders-data/countries.json' );
+const { continents, countries } = require( 'countries-list' );
 
 const formatted = [];
 const continentIdMap = {};

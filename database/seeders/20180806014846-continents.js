@@ -1,4 +1,4 @@
-const continents = require( '../seeders-data/continents.json' );
+const { continents } = require( 'countries-list' );
 
 const formatted = [];
 Object.keys( continents ).forEach( ( continentCode ) => {
