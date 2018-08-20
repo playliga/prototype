@@ -1,17 +1,20 @@
+const continents = require( '../seeders-data/continents.json' );
 const countries = require( '../seeders-data/countries.json' );
 
 const formatted = [];
+const continentIdMap = {};
 
-Object.keys( countries ).forEach( ( continentLabel ) => {
-  const continent = countries[ continentLabel ];
+Object.keys( continents ).forEach( ( code, index ) => {
+  continentIdMap[ code ] = index + 1;
+});
 
-  Object.keys( continent.countries ).forEach( ( countryCode ) => {
-    const country = continent.countries[ countryCode ];
-    formatted.push({
-      name: country,
-      code: countryCode,
-      continentId: continent.id
-    });
+Object.keys( countries ).forEach( ( countryCode ) => {
+  const country = countries[ countryCode ];
+
+  formatted.push({
+    name: country.name,
+    code: countryCode,
+    continentId: continentIdMap[ country.continent ]
   });
 });
 

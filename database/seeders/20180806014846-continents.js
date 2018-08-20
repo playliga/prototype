@@ -1,13 +1,16 @@
+const continents = require( '../seeders-data/continents.json' );
+
+const formatted = [];
+Object.keys( continents ).forEach( ( continentCode ) => {
+  formatted.push({
+    code: continentCode,
+    name: continents[ continentCode ]
+  });
+});
+
 module.exports = {
   up: ( queryInterface, Sequelize ) => (
-    queryInterface.bulkInsert( 'continents', [
-      { code: 'EU', name: 'Europe' },
-      { code: 'NA', name: 'North America' },
-      { code: 'SA', name: 'South America' },
-      { code: 'AS', name: 'Asia' },
-      { code: 'OC', name: 'Oceania' },
-      { code: 'AF', name: 'Africa' }
-    ], {})
+    queryInterface.bulkInsert( 'continents', formatted, {})
   ),
 
   down: ( queryInterface, Sequelize ) => {
