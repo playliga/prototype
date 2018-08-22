@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { Form, Text, asField } from 'informed';
 import Select from 'react-select';
 import styles from '../new-career.scss';
-import CountriesContext from '../countries-context';
+import ContinentsContext from '../continents-context';
 
 
 const validate = value => (
@@ -17,8 +17,10 @@ const InformedSelect = asField( ({ ...props }) => (
   <Select {...props} />
 ) );
 
-const Content = ( props ) => {
-  const options = props.countries.map( continent => ({
+const Content = ({ history, continents }) => {
+  let options = [];
+
+  options = continents.map( continent => ({
     label: continent.name,
     options: continent.Countries.map( country => ({
       label: `${country.emoji} ${country.name}`,
@@ -31,7 +33,7 @@ const Content = ( props ) => {
       <Form
         id="player"
         className={styles.content}
-        onSubmit={() => props.history.push( '/new-career/team', { title: 'New Career' })}
+        onSubmit={() => history.push( '/new-career/team', { title: 'New Career' })}
       >
         {({ formState, formApi }) => (
           <Fragment>
@@ -100,14 +102,14 @@ const Content = ( props ) => {
 };
 
 const PlayerInformation = props => (
-  <CountriesContext.Consumer>
-    {countries => (
+  <ContinentsContext.Consumer>
+    {continents => (
       <Content
         history={props.history}
-        countries={countries}
+        continents={continents}
       />
     )}
-  </CountriesContext.Consumer>
+  </ContinentsContext.Consumer>
 );
 
 export default PlayerInformation;

@@ -4,14 +4,14 @@ import { ipcRenderer } from 'electron';
 import { Route } from 'react-router-dom';
 
 import { PlayerInformation, TeamInformation } from './routes';
-import CountriesContext from './countries-context';
+import ContinentsContext from './continents-context';
 
 // Temporary interface into models
-let countries = [];
+let continents = [];
 
-ipcRenderer.send( 'fetch-countries' );
-ipcRenderer.on( 'receive-countries', ( event, res ) => {
-  countries = JSON.parse( res );
+ipcRenderer.send( 'fetch-continents' );
+ipcRenderer.on( 'receive-continents', ( event, res ) => {
+  continents = JSON.parse( res );
 });
 
 
@@ -24,10 +24,10 @@ ipcRenderer.on( 'receive-countries', ( event, res ) => {
  * - Starting V (technically 4 because user is included)
  */
 const NewCareer = () => (
-  <CountriesContext.Provider value={countries}>
+  <ContinentsContext.Provider value={continents}>
     <Route exact path="/new-career" component={PlayerInformation} />
     <Route exact path="/new-career/team" component={TeamInformation} />
-  </CountriesContext.Provider>
+  </ContinentsContext.Provider>
 );
 
 export default NewCareer;
