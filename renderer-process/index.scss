@@ -14,6 +14,7 @@
     div[class*="control"] {
       background-color: transparentize( black, .3 );
       border: 1px solid transparentize( white, .8 );
+      border-radius: 0;
       color: white;
     }
 
