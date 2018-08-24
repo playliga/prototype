@@ -17,7 +17,7 @@ const InformedSelect = asField( ({ ...props }) => (
   <Select {...props} />
 ) );
 
-const Content = ({ history, continents }) => {
+const Content = ({ history, continents, onSubmit }) => {
   let options = [];
 
   options = continents.map( continent => ({
@@ -33,7 +33,10 @@ const Content = ({ history, continents }) => {
       <Form
         id="player"
         className={styles.content}
-        onSubmit={() => history.push( '/new-career/team', { title: 'New Career' })}
+        onSubmit={( values ) => {
+          onSubmit( values );
+          history.push( '/new-career/team', { title: 'New Career' });
+        }}
       >
         {({ formState, formApi }) => (
           <Fragment>
@@ -106,7 +109,7 @@ const PlayerInformation = props => (
   <ContinentsContext.Consumer>
     {continents => (
       <Content
-        history={props.history}
+        {...props}
         continents={continents}
       />
     )}

@@ -25,8 +25,26 @@ ipcRenderer.on( 'receive-continents', ( event, res ) => {
  */
 const NewCareer = () => (
   <ContinentsContext.Provider value={continents}>
-    <Route exact path="/new-career" component={PlayerInformation} />
-    <Route exact path="/new-career/team" component={TeamInformation} />
+    <Route
+      exact
+      path="/new-career"
+      render={props => (
+        <PlayerInformation
+          {...props}
+          onSubmit={data => console.log( data )}
+        />
+      )}
+    />
+    <Route
+      exact
+      path="/new-career/team"
+      render={props => (
+        <TeamInformation
+          {...props}
+          onSubmit={data => console.log( data )}
+        />
+      )}
+    />
   </ContinentsContext.Provider>
 );
 
