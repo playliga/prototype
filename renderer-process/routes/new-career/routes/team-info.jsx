@@ -63,6 +63,7 @@ const Content = ({ history, continents }) => {
             <div className={styles.fieldSet}>
               <InformedSelect
                 field="country"
+                placeholder={'Choose country'}
                 options={options}
                 className={'react-select-container'}
                 classNamePrefix={'react-select'}
