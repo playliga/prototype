@@ -1,21 +1,11 @@
 import React, { Fragment } from 'react';
-import { Form, Text, asField } from 'informed';
-import Select from 'react-select';
+import { Form, Text } from 'informed';
+import { validate, validateSelect } from 'utils';
+import { InformedSelect } from 'components';
+
 import styles from '../new-career.scss';
 import ContinentsContext from '../continents-context';
 
-
-const validate = value => (
-  value.length > 1 ? null : ''
-);
-
-const validateSelect = value => (
-  !Array.isArray( value ) ? null : ''
-);
-
-const InformedSelect = asField( ({ ...props }) => (
-  <Select {...props} />
-) );
 
 const Content = ({ history, continents, onSubmit }) => {
   let options = [];
