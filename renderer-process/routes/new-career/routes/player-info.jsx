@@ -86,7 +86,7 @@ const Content = ({ history, continents, onSubmit }) => {
                 || Object.keys( formState.values ).length !== 4
               }
             >
-              {'Submit'}
+              {'Next'}
             </button>
           </Fragment>
         )}
