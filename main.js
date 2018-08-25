@@ -18,6 +18,11 @@ ipcMain.on( 'fetch-continents', async ( event: Object ) => {
   event.sender.send( 'receive-continents', JSON.stringify( continents ) );
 });
 
+ipcMain.on( 'new-carrer', ( event: Object, data: Array<Object> ) => {
+  // close the current window
+  // create a new window that generates the world (season, leagues, etc)
+});
+
 // Set up the database
 const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
 

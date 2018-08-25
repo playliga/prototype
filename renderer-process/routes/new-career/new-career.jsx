@@ -32,7 +32,8 @@ const formsdata = [];
 class NewCareer extends Component<{}, {}> {
   handleFinish = ( data: Object ) => {
     formsdata.push( data );
-    console.log( formsdata );
+
+    ipcRenderer.send( 'new-career', formsdata );
   }
 
   render() {
