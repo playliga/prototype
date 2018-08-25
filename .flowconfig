@@ -12,8 +12,6 @@
 
 # Ignore any broken dependencies
 .*/node_modules/config-chain/.*
-.*/node_modules/react-select/src/.*
-.*/node_modules/react-select/lib/.*
 
 [include]
 renderer-process/
