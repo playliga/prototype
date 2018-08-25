@@ -8,15 +8,17 @@ const PORT = process.env.PORT || 3000;
 export default {
   mode: 'development',
   resolve: webpackConfigResolve,
-  entry: [
-    'react-hot-loader/patch',
-    `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-    path.join( __dirname, '../renderer-process/index' )
-  ],
+  entry: {
+    splash: [
+      'react-hot-loader/patch',
+      `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
+      path.join( __dirname, '../renderer-process/splash-page/index' )
+    ]
+  },
   output: {
+    filename: '[name].js',
     path: path.join( __dirname, '../dist' ),
-    publicPath: `http://localhost:${PORT}/dist/`,
-    filename: 'bundle.js'
+    publicPath: `http://localhost:${PORT}/dist/`
   },
   module: {
     rules: [

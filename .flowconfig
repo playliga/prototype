@@ -10,10 +10,14 @@
 .*/node_modules/react/lib/React.js
 .*/node_modules/react/lib/ReactDOM.js
 
-# Ignore any broken dependencies
+# The following libs are dependencies of our dependencies
+# and they are broken. Ignore them below
 .*/node_modules/config-chain/.*
-.*/node_modules/react-select/src/.*
-.*/node_modules/react-select/lib/.*
+
+[untyped]
+# The following libs are direct dependencies but they are broken
+# Ignore them below
+.*/node_modules/react-select/.*
 
 [include]
 renderer-process/
