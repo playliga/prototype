@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Text } from 'informed';
-import { validate, validateSelect } from 'utils';
-import { InformedSelect } from 'components';
+import { validate, validateSelect } from 'splash-page/utils';
+import { InformedSelect } from 'splash-page/components';
 
 import styles from '../new-career.scss';
 import ContinentsContext from '../continents-context';

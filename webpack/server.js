@@ -48,11 +48,19 @@ const server = app.listen( PORT, 'localhost', ( err ) => {
 
   // are we also starting electron?
   if( argv[ 'dev-electron' ] ) {
-    childProcess = spawn( 'npm', [ 'run', 'start:dev-electron', argv[ 'dev-console' ] ? '-- --dev-console' : '' ], {
-      shell: true,
-      env: process.env,
-      stdio: 'inherit'
-    }).on( 'close', code => process.exit( code ) )
+    childProcess = spawn(
+      'npm',
+      [
+        'run',
+        'start:dev-electron',
+        argv[ 'dev-console' ] ? '-- --dev-console' : ''
+      ], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit'
+      }
+    )
+      .on( 'close', code => process.exit( code ) )
       .on( 'error', spawnError => console.error( spawnError ) );
   }
 
