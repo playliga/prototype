@@ -1,9 +1,9 @@
 coverage/
-dist/
 database/*.db
+dist/
 node_modules/
 
 .DS_Store
-*.swp
 *.log
 *.mwb
+*.swp
