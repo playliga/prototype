@@ -11,6 +11,7 @@ module.exports = {
   extensions: [ '.js', '.jsx' ],
   modules: [
     path.resolve( __dirname, '../renderer-process' ),
+    path.resolve( __dirname, '../renderer-process/splash-page' ),
     path.resolve( __dirname, '../common' ),
     path.resolve( __dirname, '../node_modules' )
   ]

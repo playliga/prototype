@@ -55,7 +55,7 @@ function createWindow() {
   });
 
   // and load the index.html of the app
-  win.loadURL( `file://${__dirname}/renderer-process/index.html` );
+  win.loadURL( `file://${__dirname}/renderer-process/splash-page/index.html` );
 
   // open dev tools if provided via cli args
   if( args[ 'dev-console' ] ) {
