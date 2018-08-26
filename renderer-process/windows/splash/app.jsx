@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
-import Routes from 'splash-page/routes';
+import Routes from 'windows/splash/routes';
 
 const App = () => (
   <MemoryRouter>

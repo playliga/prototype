@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Text } from 'informed';
-import { validate, validateSelect } from 'splash-page/utils';
-import { InformedSelect } from 'splash-page/components';
+import { validate, validateSelect } from 'windows/splash/utils';
+import { InformedSelect } from 'windows/splash/components';
 
 import styles from '../new-career.scss';
 import ContinentsContext from '../continents-context';
@@ -21,23 +21,24 @@ const Content = ({ history, continents, onSubmit }) => {
   return (
     <section className={styles.container}>
       <Form
-        id="team"
+        id="player"
         className={styles.content}
         onSubmit={( values ) => {
           onSubmit( values );
+          history.push( '/new-career/team', { title: 'New Career' });
         }}
       >
         {({ formState, formApi }) => (
           <Fragment>
             <h2 className={styles.subtitle}>
-              {'Team Information'}
+              {'Player Information'}
             </h2>
 
             <div className={styles.fieldSet}>
               <Text
-                field="tname"
-                id="tname"
-                placeholder="Name"
+                field="fname"
+                id="fname"
+                placeholder="First name"
                 validateOnChange
                 validate={validate}
               />
@@ -45,9 +46,19 @@ const Content = ({ history, continents, onSubmit }) => {
 
             <div className={styles.fieldSet}>
               <Text
-                field="tag"
-                id="tag"
-                placeholder="Tag"
+                field="lname"
+                id="lname"
+                placeholder="Last name"
+                validateOnChange
+                validate={validate}
+              />
+            </div>
+
+            <div className={styles.fieldSet}>
+              <Text
+                field="alias"
+                id="alias"
+                placeholder="Alias"
                 validateOnChange
                 validate={validate}
               />
@@ -72,10 +83,10 @@ const Content = ({ history, continents, onSubmit }) => {
               disabled={
                 formState.invalid
                 || formState.pristine
-                || Object.keys( formState.values ).length !== 3
+                || Object.keys( formState.values ).length !== 4
               }
             >
-              {'Finish'}
+              {'Next'}
             </button>
           </Fragment>
         )}
@@ -84,7 +95,7 @@ const Content = ({ history, continents, onSubmit }) => {
   );
 };
 
-const TeamInformation = props => (
+const PlayerInformation = props => (
   <ContinentsContext.Consumer>
     {continents => (
       <Content
@@ -95,4 +106,4 @@ const TeamInformation = props => (
   </ContinentsContext.Consumer>
 );
 
-export default TeamInformation;
+export default PlayerInformation;

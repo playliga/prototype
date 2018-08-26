@@ -12,7 +12,7 @@ export default {
     splash: [
       'react-hot-loader/patch',
       `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-      path.join( __dirname, '../renderer-process/splash-page/index' )
+      path.join( __dirname, '../renderer-process/windows/splash/index' )
     ]
   },
   output: {

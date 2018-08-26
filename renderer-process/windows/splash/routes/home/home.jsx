@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { AnimatedLink } from 'splash-page/components';
+import { AnimatedLink } from 'windows/splash/components';
 import styles from './home.scss';
 
 
