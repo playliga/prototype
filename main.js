@@ -10,7 +10,7 @@ const args = minimist( process.argv.slice( 2 ), {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-const windowList: Array<Object> = [];
+const windowList: Array<BrowserWindow> = [];
 
 // Declare url and options for the main window
 const mainWin = {
@@ -28,7 +28,7 @@ function createWindow(
   url: string,
   options: Object,
   onClose: Function | void = undefined
-): Object {
+): BrowserWindow {
   // Create the browser window.
   // https://github.com/electron/electron/blob/master/docs/api/browser-window.md
   // https://github.com/electron/electron/blob/master/docs/api/frameless-window.md
