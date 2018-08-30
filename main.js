@@ -1,52 +1,22 @@
 // @flow
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import minimist from 'minimist';
-import Sequelize from 'sequelize';
 
-import Models from './database/models';
-import DBConfig from './database/config/config.json';
-
-// Temporary interface to the models
-ipcMain.on( 'fetch-continents', async ( event: Object ) => {
-  const { Country, Continent } = Models;
-
-  // get all the continents and their countries
-  const continents = await Continent.findAll({
-    include: Country
-  });
-
-  event.sender.send( 'receive-continents', JSON.stringify( continents ) );
-});
-
-ipcMain.on( 'new-carrer', ( event: Object, data: Array<Object> ) => {
-  // close the current window
-  // create a new window that generates the world (season, leagues, etc)
-});
-
-// Set up the database
-const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
-
-sequelize.authenticate()
-  .then( () => (
-    Models.sequelize.sync()
-      .then( () => console.log( 'success' ) )
-  ) )
-  .catch( err => console.log( 'error' ) );
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
+const windowList: Array<Object> = [];
 
 // configure command line args
 const args = minimist( process.argv.slice( 2 ), {
   boolean: [ 'dev-console' ]
 });
 
-function createWindow() {
+function createWindow(): Object {
   // Create the browser window.
   // https://github.com/electron/electron/blob/master/docs/api/browser-window.md
   // https://github.com/electron/electron/blob/master/docs/api/frameless-window.md
-  win = new BrowserWindow({
+  let win = new BrowserWindow({
     titleBarStyle: 'hidden',
     backgroundColor: '#000000',
     minWidth: 800,
@@ -69,12 +39,16 @@ function createWindow() {
     // when you should delete the corresponding element.
     win = null;
   });
+
+  return win;
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on( 'ready', createWindow );
+app.on( 'ready', () => {
+  windowList.push( createWindow() );
+});
 
 // Quit when all windows are closed.
 app.on( 'window-all-closed', () => {
@@ -88,7 +62,7 @@ app.on( 'window-all-closed', () => {
 app.on( 'activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if( win === null ) {
-    createWindow();
+  if( windowList.length === 0 ) {
+    windowList.push( createWindow() );
   }
 });
