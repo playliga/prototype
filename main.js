@@ -2,6 +2,8 @@
 import { app, BrowserWindow } from 'electron';
 import minimist from 'minimist';
 
+import ipc from './main-process/ipc';
+
 
 // configure command line args
 const args = minimist( process.argv.slice( 2 ), {
@@ -55,6 +57,7 @@ function createWindow(
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on( 'ready', () => {
+  ipc();
   windowList.push( createWindow( mainWin.URL, mainWin.OPTS ) );
 });
 
