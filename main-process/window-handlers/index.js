@@ -1,0 +1,1 @@
+export SplashWindow from './splash';
