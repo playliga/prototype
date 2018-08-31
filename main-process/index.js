@@ -1,9 +1,12 @@
 // @flow
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import Sequelize from 'sequelize';
 
 import ipc from './ipc';
 import { createWindow } from './utils';
+import Models from '../database/models';
+import DBConfig from '../database/config/config.json';
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -11,6 +14,14 @@ import { createWindow } from './utils';
 const windowList: Array<BrowserWindow> = [];
 
 export default () => {
+  // Set up the database
+  const sequelize = new Sequelize( DBConfig[ process.env.NODE_ENV || 'development' ] );
+
+  sequelize.authenticate()
+    .then( () => Models.sequelize.sync() )
+    .then( () => console.log( 'success' ) )
+    .catch( err => console.log( 'error' ) );
+
   // Declare url and options for the main window
   const ROOT = path.join( __dirname, '../' );
 
