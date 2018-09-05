@@ -16,7 +16,7 @@ export default () => {
     event.sender.send( 'receive-continents', JSON.stringify( continents ) );
   });
 
-  ipcMain.on( 'new-carrer', ( event: Object, data: Array<Object> ) => {
+  ipcMain.on( 'new-career', ( event: Object, data: Array<Object> ) => {
     // close the current window
     // create a new window that generates the world (season, leagues, etc)
   });
