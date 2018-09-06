@@ -1,3 +1,4 @@
+.vscode/
 coverage/
 database/*.db
 dist/
