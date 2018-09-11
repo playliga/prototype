@@ -7,8 +7,8 @@ export default () => {
     // close the current window
     // create a new window that generates the world (season, leagues, etc)
     const win = new ProgressBar({
-      text: 'Generating world...',
-      detail: '',
+      text: 'Creating world...',
+      detail: 'Generating teams...',
       browserWindow: {
         titleBarStyle: 'hidden'
       }
