@@ -1,2 +1,2 @@
 export SplashWindow from './splash';
-export WorldGenWindow from './worldgen';
+export WorldGenProgressWindow from './worldgen-progress';

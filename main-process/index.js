@@ -3,7 +3,7 @@ import { app, BrowserWindow } from 'electron';
 import Sequelize from 'sequelize';
 
 import ipc from './ipc';
-import { SplashWindow, WorldGenWindow } from './window-handlers';
+import { SplashWindow, WorldGenProgressWindow } from './window-handlers';
 import Models from '../database/models';
 import DBConfig from '../database/config/config.json';
 
@@ -27,7 +27,7 @@ export default () => {
   app.on( 'ready', () => {
     ipc();
     SplashWindow( windowList );
-    WorldGenWindow();
+    WorldGenProgressWindow();
   });
 
   // Quit when all windows are closed.
