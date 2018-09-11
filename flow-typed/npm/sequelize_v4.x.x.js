@@ -1,5 +1,5 @@
-// flow-typed signature: 2cf100d1fd58e4ec12c31db507bbd03e
-// flow-typed version: 46e6211087/sequelize_v4.x.x/flow_>=v0.42.x
+// flow-typed signature: c3f74373a11d2e4c9a55d85dee46201e
+// flow-typed version: 84914f9a4e/sequelize_v4.x.x/flow_>=v0.42.x
 
 // @flow
 
@@ -1341,7 +1341,7 @@ declare module "sequelize" {
      * A string or a data type
      */
     type: DataTypeAbstract,
-    
+
     allowNull?: boolean,
 
     values?: Array<any>,
@@ -2145,7 +2145,7 @@ declare module "sequelize" {
     /**
      * Transaction to run query under
      */
-    transaction?: Transaction,
+    transaction?: ?Transaction,
 
     /**
      * An optional parameter to specify the schema search_path (Postgres only)
@@ -2166,7 +2166,7 @@ declare module "sequelize" {
     /**
      * Transaction to run query under
      */
-    transaction?: Transaction
+    transaction?: ?Transaction
   }
 
 
@@ -2187,7 +2187,7 @@ declare module "sequelize" {
     /**
      * Transaction to run the query in
      */
-    transaction?: Transaction
+    transaction?: ?Transaction
   }
 
 
@@ -2247,7 +2247,7 @@ declare module "sequelize" {
     /**
      * Transaction to run query under
      */
-    transaction?: Transaction,
+    transaction?: ?Transaction,
 
     /**
      * An optional parameter to specify the schema search_path (Postgres only)
@@ -2941,7 +2941,7 @@ declare module "sequelize" {
     /**
      * Transaction to run query under
      */
-    transaction?: Transaction
+    transaction?: ?Transaction
   } & LoggingOptions
 
   /**
@@ -2983,7 +2983,7 @@ declare module "sequelize" {
     /**
      * Transaction to run query under
      */
-    transaction?: Transaction,
+    transaction?: ?Transaction,
 
     /**
      * If true, the updatedAt timestamp will not be updated.
@@ -3031,7 +3031,7 @@ declare module "sequelize" {
     /**
      * Transaction to run query under
      */
-    transaction?: Transaction,
+    transaction?: ?Transaction,
 
     /**
      * If true, the updatedAt timestamp will not be updated.
@@ -3064,7 +3064,7 @@ declare module "sequelize" {
     /**
      * The transaction that the query should be executed under
      */
-    transaction?: Transaction,
+    transaction?: ?Transaction,
 
     /**
      * When `true`, the first returned value of `aggregateFunction` is cast to `dataType` and returned.
@@ -5719,9 +5719,9 @@ declare module "sequelize" {
    */
   declare export type RetryOptions = {
     /**
-     * Only retry a query if the error matches one of these strings.
+     * Only retry a query if the error matches one of these strings or Regexes.
      */
-    match?: string[],
+    match?: Array<string | RegExp>,
 
     /**
      * How many times a failing query is automatically retried. Set to 0 to disable retrying on SQL_BUSY error.
@@ -7444,4 +7444,3 @@ declare module "sequelize" {
     logic: string | Object
   }
 }
-
