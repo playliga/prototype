@@ -20,8 +20,9 @@
 .*/node_modules/react-select/.*
 
 [include]
-renderer-process/
 common/
+main-process/
+renderer-process/
 
 [libs]
 ./flow-typed/
