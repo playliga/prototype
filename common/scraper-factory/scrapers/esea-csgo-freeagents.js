@@ -19,8 +19,8 @@ class Player {
   }
 }
 
-type Regions = {
-  [x: string]: Array<Object>
+export type Regions = {
+  [x: string]: Array<Player>
 };
 
 export default class ESEA_CSGO_FREEAGENTS {

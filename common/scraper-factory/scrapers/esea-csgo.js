@@ -7,7 +7,7 @@ import type { CheerioElement } from 'cheerio';
 import CachedScraper from '../cached-scraper';
 
 
-class Player {
+export class Player {
   id: string;
   username: string;
   countryCode: string;
@@ -21,7 +21,7 @@ class Player {
   }
 }
 
-class Team {
+export class Team {
   id: string;
   name: string = '';
   url: string;
@@ -40,7 +40,7 @@ class Team {
   }
 }
 
-class Division {
+export class Division {
   id: string;
   url: string;
   name: string = '';
@@ -52,7 +52,7 @@ class Division {
   }
 }
 
-class Region {
+export class Region {
   id: string;
   divisions: Array<Division>;
 
@@ -62,6 +62,8 @@ class Region {
   }
 }
 
+export type Regions = Array<Region>;
+
 class ESEA_CSGO {
   // @constants
   BASE_URL: string = 'https://play.esea.net';
@@ -69,7 +71,7 @@ class ESEA_CSGO {
 
   // @properties
   scraperObj: CachedScraper;
-  regions: Array<Region>;
+  regions: Regions;
 
   constructor( cacheDir: string ) {
     this.scraperObj = new CachedScraper( cacheDir );
@@ -188,7 +190,7 @@ class ESEA_CSGO {
     return teamObj;
   }
 
-  generate = async (): Promise<Array<Region>> => {
+  generate = async (): Promise<Regions> => {
     const regions = this.regions;
 
     for( let i = 0; i < regions.length; i++ ) {
