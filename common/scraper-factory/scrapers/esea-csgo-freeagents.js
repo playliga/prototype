@@ -5,7 +5,7 @@ import type { CheerioElement } from 'cheerio';
 
 import CachedScraper from '../cached-scraper';
 
-class Player {
+export class Player {
   id: string;
   username: string;
   countryCode: string;

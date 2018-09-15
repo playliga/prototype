@@ -2,10 +2,16 @@
 import path from 'path';
 import { ipcMain } from 'electron';
 import ProgressBar from 'electron-progressbar';
+import Models from '../../database/models';
 import { ScraperFactory } from '../../common/scraper-factory';
 
-import type { Regions as ESEA_CSGO_Regions } from '../../common/scraper-factory/scrapers/esea-csgo';
-import type { Regions as ESEA_CSGO_FA_Regions } from '../../common/scraper-factory/scrapers/esea-csgo-freeagents';
+import type {
+  Regions as ESEA_CSGO_Regions,
+} from '../../common/scraper-factory/scrapers/esea-csgo';
+import type {
+  Regions as ESEA_CSGO_FA_Regions,
+  Player as ESEA_CSGO_FA_Player
+} from '../../common/scraper-factory/scrapers/esea-csgo-freeagents';
 
 
 const CACHE_DIR = path.join( __dirname, 'cache' );
@@ -29,22 +35,76 @@ function generateTeamsAndPlayers(): Promise<Array<ESEA_CSGO_Regions>> {
   ).generate();
 }
 
-function ipcHandler( event: Object, data: Array<Object> ): void {
-  // close the current window
-  // create a new window that generates the world (season, leagues, etc)
+async function ipcHandler( event: Object, data: Array<Object> ) {
+  // prefetch countries metadata
+  const { Country, Player, Meta } = Models;
+  const countries = await Country.findAll();
+
+  // create a new window that shows the world gen progress
+  // to the user
   const win = new ProgressBar( WIN_OPTS );
 
   generateFreeAgents()
-    .then( ( res: ESEA_CSGO_FA_Regions ) => {
+    .then( ( regions: ESEA_CSGO_FA_Regions ) => {
+      // we've got a list of free agents separated by
+      // regions (NA, EU currently)
+      const { NA } = regions;
+
+      // loop through the NA players and add them to the database
+      NA.forEach( async ( player: ESEA_CSGO_FA_Player ) => {
+        const playerObj = await Player.create({
+          username: player.username,
+          transferValue: player.transferValue
+        });
+
+        // add the player's country (if found)
+        const countryObj = countries.find( country => country.code === player.countryCode );
+
+        if( countryObj ) {
+          playerObj.setCountry( countryObj );
+        }
+
+        // anything that isn't the below fields is a metadata
+        // field that needs to be registered with the DB first
+        Object
+          .keys( player )
+          .filter( ( key: string ) => (
+            key !== 'id'
+            && key !== 'username'
+            && key !== 'transferValue'
+            && key !== 'countryCode'
+            && key !== 'teamId' ) )
+          .forEach( async ( key: string ) => {
+            // if the metadata field exists return it
+            let metaObj = await Meta.findAll({
+              where: { name: key }
+            });
+
+            // otherwise create it
+            if( !metaObj ) {
+              metaObj = await Meta.create({ name: key });
+            }
+
+            playerObj.addMeta( metaObj, {
+              through: { // $FlowSkip
+                value: player[ key ]
+              }
+            });
+          });
+      });
+
       win.detail = 'Generating teams and players...';
       return generateTeamsAndPlayers();
     })
     .then( ( res: Array<ESEA_CSGO_Regions> ) => {
-      console.log( res );
       win.detail = 'Generating leagues...';
     })
-    .catch( err => console.log( err ) )
-    .finally( () => setTimeout( () => win.setCompleted(), 5000 ) );
+    .catch( ( err: Error ) => {
+      console.log( err );
+    })
+    .finally( () => {
+      setTimeout( () => win.setCompleted(), 5000 );
+    });
 }
 
 export default () => {
