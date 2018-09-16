@@ -29,7 +29,7 @@ function generateFreeAgents(): Promise<ESEA_CSGO_FA_Regions> {
   ).generate();
 }
 
-function generateTeamsAndPlayers(): Promise<Array<ESEA_CSGO_Regions>> {
+function generateTeamsAndPlayers(): Promise<ESEA_CSGO_Regions> {
   return new ScraperFactory(
     CACHE_DIR, 'esea-csgo'
   ).generate();
@@ -109,6 +109,10 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   return Promise.all( playerPromises );
 }
 
+async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
+  return Promise.resolve( 'boop' );
+}
+
 async function ipcHandler( event: Object, data: Array<Object> ) {
   // create a new window that shows the world gen progress
   // to the user
@@ -123,7 +127,11 @@ async function ipcHandler( event: Object, data: Array<Object> ) {
       win.detail = 'Generating teams and players...';
       return generateTeamsAndPlayers();
     })
-    .then( ( res: Array<ESEA_CSGO_Regions> ) => {
+    .then( ( regions: ESEA_CSGO_Regions ) => {
+      win.detail = 'Saving teams and players to database...';
+      return saveTeamsAndPlayers( regions );
+    })
+    .then( () => {
       win.detail = 'Generating leagues...';
     })
     .catch( ( err: Error ) => {
