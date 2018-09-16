@@ -40,21 +40,28 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   const { Country, Player, Meta } = Models;
   const countries = await Country.findAll();
 
-  // we've got a list of free agents separated by
-  // regions (currently only NA and EU)
-  const { NA } = regions;
+  // merge the arrays that are separated by region into
+  // one so that *all* players can be looped through and added
+  // to our collection of promises
+  const playerList = [];
 
-  // loop through the NA players and add them to the database
-  // collect into an array of promises
-  const regionpromises = NA.map( async ( player: ESEA_CSGO_FA_Player ) => {
-    // create the initial player object
+  Object.keys( regions ).forEach( ( regionKey: string ) => {
+    playerList.push( ...regions[ regionKey ] );
+  });
+
+  // loop through our playerList and add to a collection of promises
+  const playerPromises = playerList.map( async ( player: ESEA_CSGO_FA_Player ) => {
+    // create the initial player model and save to the DB
+    // necessary in order to register model associations
     const playerObj = await Player.create({
       username: player.username,
       transferValue: player.transferValue
     });
 
     // add the player's country (if found)
-    const countryObj = countries.find( country => country.code === player.countryCode );
+    const countryObj = countries.find( country => (
+      country.code === player.countryCode
+    ) );
 
     if( countryObj ) {
       playerObj.setCountry( countryObj );
@@ -70,8 +77,9 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
       && key !== 'teamId'
     ) );
 
-    // store all the promises in an array as well
-    // return later on
+    // register all the metadata associated with this player
+    // and store it in an array of promises. only continue when
+    // all metadata has been saved to the DB...
     const metapromises = keys.map( async ( key: string ) => {
       // if the metadata field exists return it
       let metaObj = await Meta.findAll({
@@ -83,10 +91,11 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
         metaObj = await Meta.create({ name: key });
       }
 
+      // Skipping flow checks for now. Complaining about the
+      // player object not being iterable...
       return playerObj.addMeta( metaObj, {
-        through: { // $FlowSkip
-          value: player[ key ]
-        }
+        // $FlowSkip
+        through: { value: player[ key ] }
       });
     });
 
@@ -97,7 +106,7 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
 
   // return after all regions' promises
   // have resolved
-  return Promise.all( regionpromises );
+  return Promise.all( playerPromises );
 }
 
 async function ipcHandler( event: Object, data: Array<Object> ) {
