@@ -36,9 +36,8 @@ function generateTeamsAndPlayers(): Promise<Array<ESEA_CSGO_Regions>> {
 }
 
 async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
-  const { Country, Player, Meta } = Models;
-
   // fetch all registered countries from the DB
+  const { Country, Player, Meta } = Models;
   const countries = await Country.findAll();
 
   // we've got a list of free agents separated by
@@ -46,30 +45,33 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   const { NA } = regions;
 
   // loop through the NA players and add them to the database
-  NA.forEach( async ( player: ESEA_CSGO_FA_Player ) => {
-    const playerObj = await Player.create({
-      username: player.username,
-      transferValue: player.transferValue
-    });
+  // return only after all the inner-queries resolve
+  return Promise.all(
+    NA.map( async ( player: ESEA_CSGO_FA_Player ) => {
+      const playerObj = await Player.create({
+        username: player.username,
+        transferValue: player.transferValue
+      });
 
-    // add the player's country (if found)
-    const countryObj = countries.find( country => country.code === player.countryCode );
+      // add the player's country (if found)
+      const countryObj = countries.find( country => country.code === player.countryCode );
 
-    if( countryObj ) {
-      playerObj.setCountry( countryObj );
-    }
+      if( countryObj ) {
+        playerObj.setCountry( countryObj );
+      }
 
-    // anything that isn't the below fields is a metadata
-    // field that needs to be registered with the DB first
-    Object
-      .keys( player )
-      .filter( ( key: string ) => (
+      // anything that isn't the below fields is a metadata
+      // field that needs to be registered with the DB first
+      const keys = Object.keys( player ).filter( ( key: string ) => (
         key !== 'id'
         && key !== 'username'
         && key !== 'transferValue'
         && key !== 'countryCode'
-        && key !== 'teamId' ) )
-      .forEach( async ( key: string ) => {
+        && key !== 'teamId'
+      ) );
+
+      // return only after all the queries resolve
+      return Promise.all( keys.map( async ( key: string ) => {
         // if the metadata field exists return it
         let metaObj = await Meta.findAll({
           where: { name: key }
@@ -80,13 +82,14 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
           metaObj = await Meta.create({ name: key });
         }
 
-        playerObj.addMeta( metaObj, {
+        return playerObj.addMeta( metaObj, {
           through: { // $FlowSkip
             value: player[ key ]
           }
         });
-      });
-  });
+      }) );
+    })
+  );
 }
 
 async function ipcHandler( event: Object, data: Array<Object> ) {
