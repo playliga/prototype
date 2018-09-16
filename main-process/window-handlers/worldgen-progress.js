@@ -45,51 +45,59 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   const { NA } = regions;
 
   // loop through the NA players and add them to the database
-  // return only after all the inner-queries resolve
-  return Promise.all(
-    NA.map( async ( player: ESEA_CSGO_FA_Player ) => {
-      const playerObj = await Player.create({
-        username: player.username,
-        transferValue: player.transferValue
+  // collect into an array of promises
+  const regionpromises = NA.map( async ( player: ESEA_CSGO_FA_Player ) => {
+    // create the initial player object
+    const playerObj = await Player.create({
+      username: player.username,
+      transferValue: player.transferValue
+    });
+
+    // add the player's country (if found)
+    const countryObj = countries.find( country => country.code === player.countryCode );
+
+    if( countryObj ) {
+      playerObj.setCountry( countryObj );
+    }
+
+    // anything that isn't the below fields is a metadata
+    // field that needs to be registered with the DB first
+    const keys = Object.keys( player ).filter( ( key: string ) => (
+      key !== 'id'
+      && key !== 'username'
+      && key !== 'transferValue'
+      && key !== 'countryCode'
+      && key !== 'teamId'
+    ) );
+
+    // store all the promises in an array as well
+    // return later on
+    const metapromises = keys.map( async ( key: string ) => {
+      // if the metadata field exists return it
+      let metaObj = await Meta.findAll({
+        where: { name: key }
       });
 
-      // add the player's country (if found)
-      const countryObj = countries.find( country => country.code === player.countryCode );
-
-      if( countryObj ) {
-        playerObj.setCountry( countryObj );
+      // otherwise create it
+      if( !metaObj ) {
+        metaObj = await Meta.create({ name: key });
       }
 
-      // anything that isn't the below fields is a metadata
-      // field that needs to be registered with the DB first
-      const keys = Object.keys( player ).filter( ( key: string ) => (
-        key !== 'id'
-        && key !== 'username'
-        && key !== 'transferValue'
-        && key !== 'countryCode'
-        && key !== 'teamId'
-      ) );
-
-      // return only after all the queries resolve
-      return Promise.all( keys.map( async ( key: string ) => {
-        // if the metadata field exists return it
-        let metaObj = await Meta.findAll({
-          where: { name: key }
-        });
-
-        // otherwise create it
-        if( !metaObj ) {
-          metaObj = await Meta.create({ name: key });
+      return playerObj.addMeta( metaObj, {
+        through: { // $FlowSkip
+          value: player[ key ]
         }
+      });
+    });
 
-        return playerObj.addMeta( metaObj, {
-          through: { // $FlowSkip
-            value: player[ key ]
-          }
-        });
-      }) );
-    })
-  );
+    // return only after all metadata promises
+    // have resolved
+    return Promise.all( metapromises );
+  });
+
+  // return after all regions' promises
+  // have resolved
+  return Promise.all( regionpromises );
 }
 
 async function ipcHandler( event: Object, data: Array<Object> ) {
