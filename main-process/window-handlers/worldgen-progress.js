@@ -36,6 +36,8 @@ function generateTeamsAndPlayers(): Promise<ESEA_CSGO_Regions> {
 }
 
 async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
+  return Promise.resolve();
+
   // fetch all registered countries from the DB
   const { Country, Player, Meta } = Models;
   const countries = await Country.findAll();
