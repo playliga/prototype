@@ -6,6 +6,10 @@ import Models from '../../database/models';
 import { ScraperFactory } from '../../common/scraper-factory';
 
 import type {
+  Team as ESEA_CSGO_Team,
+  Player as ESEA_CSGO_Player,
+  Division as ESEA_CSGO_Division,
+  Region as ESEA_CSGO_Region,
   Regions as ESEA_CSGO_Regions,
 } from '../../common/scraper-factory/scrapers/esea-csgo';
 import type {
@@ -23,6 +27,15 @@ const WIN_OPTS = {
   }
 };
 
+const {
+  Country,
+  Division,
+  Game,
+  Meta,
+  Team,
+  Player
+} = Models;
+
 function generateFreeAgents(): Promise<ESEA_CSGO_FA_Regions> {
   return new ScraperFactory(
     CACHE_DIR, 'esea-csgo-freeagents'
@@ -39,7 +52,6 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   return Promise.resolve();
 
   // fetch all registered countries from the DB
-  const { Country, Player, Meta } = Models;
   const countries = await Country.findAll();
 
   // merge the arrays that are separated by region into
@@ -112,6 +124,132 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
 }
 
 async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
+  const countries = await Country.findAll();
+  const divisions = await Division.findAll();
+
+  // game is hardcoded for now
+  const gameObj = await Game.fineOne({
+    where: { shortname: 'csgo' }
+  });
+
+  regions.forEach( ( region: ESEA_CSGO_Region ) => {
+    region.divisions.forEach( ( division: ESEA_CSGO_Division ) => {
+      // fetch the current division object model
+      const divisionObj = divisions.find( div => (
+        div.name === division.name
+      ) );
+
+      const divisionPromises = division.teams.map( async ( team: ESEA_CSGO_Team ) => {
+        // create the team object model
+        const teamObj = await Team.create({
+          name: team.name,
+          budget: 0.00
+        });
+
+        // get the team's country object model
+        const countryObj = countries.find( country => (
+          country.code === team.countryCode
+        ) );
+
+        // add the rest of the team's associations
+        teamObj.setCountry( countryObj );
+        teamObj.setDivision( divisionObj );
+        teamObj.setGame( gameObj );
+
+        // look for the following keys to associate as metadata
+        const keys = Object.keys( team ).filter( ( key: string ) => (
+          key === 'placement'
+          || key === 'tag'
+          || key === 'skillTemplate'
+        ) );
+
+        // register all the metadata associated with this team
+        // and store it in an array of promises. only continue when
+        // all metadata has been saved to the DB...
+        const metapromises = keys.map( async ( key: string ) => {
+          // if the metadata field exists return it
+          let metaObj = await Meta.findAll({
+            where: { name: key }
+          });
+
+          // otherwise create it
+          if( !metaObj ) {
+            metaObj = await Meta.create({ name: key });
+          }
+
+          // Skipping flow checks for now. Complaining about the
+          // team object not being iterable...
+          return teamObj.addMeta( metaObj, {
+            // $FlowSkip
+            through: { value: team[ key ] }
+          });
+        });
+
+        // create all players within this team's squad
+        // and associate with the team as well. note we're also
+        // storing the results in an array of promises
+        const squadpromises = team.squad.map( async ( player: ESEA_CSGO_Player ) => {
+          // create the initial player model and save to the DB
+          // necessary in order to register model associations
+          const playerObj = await Player.create({
+            username: player.username,
+            transferValue: player.transferValue
+          });
+
+          // add the player's country (if found)
+          const playerCountryObj = countries.find( country => (
+            country.code === player.countryCode
+          ) );
+
+          if( playerCountryObj ) {
+            playerObj.setCountry( playerCountryObj );
+          }
+
+          // anything that isn't the below fields is a metadata
+          // field that needs to be registered with the DB first
+          const playerKeys = Object.keys( player ).filter( ( key: string ) => (
+            key !== 'id'
+            && key !== 'username'
+            && key !== 'transferValue'
+            && key !== 'countryCode'
+            && key !== 'teamId'
+          ) );
+
+          // register all the metadata associated with this player
+          // and store it in an array of promises. only continue when
+          // all metadata has been saved to the DB...
+          const playerMetaPromises = playerKeys.map( async ( key: string ) => {
+            // if the metadata field exists return it
+            let metaObj = await Meta.findAll({
+              where: { name: key }
+            });
+
+            // otherwise create it
+            if( !metaObj ) {
+              metaObj = await Meta.create({ name: key });
+            }
+
+            // Skipping flow checks for now. Complaining about the
+            // player object not being iterable...
+            return playerObj.addMeta( metaObj, {
+              // $FlowSkip
+              through: { value: player[ key ] }
+            });
+          });
+
+          // return only after all metadata promises
+          // have resolved
+          return Promise.all( playerMetaPromises );
+        });
+
+        // return once metadata and squad has been saved to the database
+        return Promise.all( [ ...metapromises, ...squadpromises ] );
+      });
+
+      // return once all divisions and their teams have been saved to the database
+      return Promise.all( divisionPromises );
+    });
+  });
   return Promise.resolve( 'boop' );
 }
 
