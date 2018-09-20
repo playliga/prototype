@@ -48,23 +48,14 @@ function generateTeamsAndPlayers(): Promise<ESEA_CSGO_Regions> {
   ).generate();
 }
 
-async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
-  return Promise.resolve();
-
-  // fetch all registered countries from the DB
+async function savePlayers(
+  playerList: Array<Object>,
+  teamObj: Object | void = undefined
+): Promise<any> {
   const countries = await Country.findAll();
 
-  // merge the arrays that are separated by region into
-  // one so that *all* players can be looped through and added
-  // to our collection of promises
-  const playerList = [];
-
-  Object.keys( regions ).forEach( ( regionKey: string ) => {
-    playerList.push( ...regions[ regionKey ] );
-  });
-
   // loop through our playerList and add to a collection of promises
-  const playerPromises = playerList.map( async ( player: ESEA_CSGO_FA_Player ) => {
+  const playerPromises = playerList.map( async ( player: Object ) => {
     // create the initial player model and save to the DB
     // necessary in order to register model associations
     const playerObj = await Player.create({
@@ -118,9 +109,25 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
     return Promise.all( metapromises );
   });
 
-  // return after all regions' promises
-  // have resolved
+  // return after all player promises have resolved
   return Promise.all( playerPromises );
+}
+
+async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
+  // merge the arrays that are separated by region into
+  // one so that *all* players can be looped through and added
+  // to our collection of promises
+  const playerList = [];
+
+  Object.keys( regions ).forEach( ( regionKey: string ) => {
+    playerList.push( ...regions[ regionKey ] );
+  });
+
+  // loop through our playerList and add to a collection of promises
+  const playerPromises = savePlayers( playerList );
+
+  // return after all regions' promises have resolved
+  return Promise.all( [ playerPromises ] );
 }
 
 async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
@@ -188,62 +195,10 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
         // create all players within this team's squad
         // and associate with the team as well. note we're also
         // storing the results in an array of promises
-        const squadpromises = team.squad.map( async ( player: ESEA_CSGO_Player ) => {
-          // create the initial player model and save to the DB
-          // necessary in order to register model associations
-          const playerObj = await Player.create({
-            username: player.username,
-            transferValue: player.transferValue
-          });
-
-          // add the player's country (if found)
-          const playerCountryObj = countries.find( country => (
-            country.code === player.countryCode
-          ) );
-
-          if( playerCountryObj ) {
-            playerObj.setCountry( playerCountryObj );
-          }
-
-          // anything that isn't the below fields is a metadata
-          // field that needs to be registered with the DB first
-          const playerKeys = Object.keys( player ).filter( ( key: string ) => (
-            key !== 'id'
-            && key !== 'username'
-            && key !== 'transferValue'
-            && key !== 'countryCode'
-            && key !== 'teamId'
-          ) );
-
-          // register all the metadata associated with this player
-          // and store it in an array of promises. only continue when
-          // all metadata has been saved to the DB...
-          const playerMetaPromises = playerKeys.map( async ( key: string ) => {
-            // if the metadata field exists return it
-            let metaObj = await Meta.findAll({
-              where: { name: key }
-            });
-
-            // otherwise create it
-            if( !metaObj ) {
-              metaObj = await Meta.create({ name: key });
-            }
-
-            // Skipping flow checks for now. Complaining about the
-            // player object not being iterable...
-            return playerObj.addMeta( metaObj, {
-              // $FlowSkip
-              through: { value: player[ key ] }
-            });
-          });
-
-          // return only after all metadata promises
-          // have resolved
-          return Promise.all( playerMetaPromises );
-        });
+        const squadpromises = savePlayers( team.squad, teamObj );
 
         // return once metadata and squad has been saved to the database
-        return Promise.all( [ ...metapromises, ...squadpromises ] );
+        return Promise.all( [ ...metapromises, squadpromises ] );
       });
 
       // return once all divisions and their teams have been saved to the database
@@ -269,7 +224,8 @@ async function ipcHandler( event: Object, data: Array<Object> ) {
     })
     .then( ( regions: ESEA_CSGO_Regions ) => {
       win.detail = 'Saving teams and players to database...';
-      return saveTeamsAndPlayers( regions );
+      return Promise.resolve();
+      // return saveTeamsAndPlayers( regions );
     })
     .then( () => {
       win.detail = 'Generating leagues...';
