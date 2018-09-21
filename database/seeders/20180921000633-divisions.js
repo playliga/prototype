@@ -1,7 +1,7 @@
 module.exports = {
   up: ( queryInterface, Sequelize ) => (
     queryInterface.bulkInsert( 'divisions', [
-      { name: 'Invite' },
+      { name: 'Professional' },
       { name: 'Premier' },
       { name: 'Main' },
       { name: 'Intermediate' },

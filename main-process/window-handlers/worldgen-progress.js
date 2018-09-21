@@ -61,19 +61,14 @@ async function savePlayers(
       transferValue: player.transferValue
     });
 
-    // add the player's country (if found)
+    // does the player country exist?
     const countryObj = countries.find( country => (
       country.code === player.countryCode
     ) );
 
-    if( countryObj ) {
-      playerObj.setCountry( countryObj );
-    }
-
-    // associate with a team (if provided)
-    if( teamObj ) {
-      playerObj.setTeam( teamObj );
-    }
+    // save player associations (if found)
+    if( countryObj ) playerObj.setCountry( countryObj );
+    if( teamObj ) playerObj.setTeam( teamObj );
 
     // anything that isn't the below fields is a metadata
     // field that needs to be registered with the DB first
@@ -161,10 +156,10 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
           country.code === team.countryCode
         ) );
 
-        // add the rest of the team's associations
-        teamObj.setCountry( countryObj );
-        teamObj.setDivision( divisionObj );
-        teamObj.setGame( gameObj );
+        // add the rest of the team's associations (if they exist)
+        if( countryObj ) teamObj.setCountry( countryObj );
+        if( divisionObj ) teamObj.setDivision( divisionObj );
+        if( gameObj ) teamObj.setGame( gameObj );
 
         // look for the following keys to associate as metadata
         const keys = Object.keys( team ).filter( ( key: string ) => (
@@ -223,8 +218,8 @@ async function ipcHandler( event: Object, data: Array<Object> ) {
   generateFreeAgents()
     .then( ( regions: ESEA_CSGO_FA_Regions ) => {
       win.detail = 'Saving free agents to database...';
-      return Promise.resolve();
-      // return saveFreeAgents( regions );
+      // return Promise.resolve();
+      return saveFreeAgents( regions );
     })
     .then( () => {
       win.detail = 'Generating teams and players...';
