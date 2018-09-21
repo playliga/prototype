@@ -46,6 +46,36 @@ function generateTeamsAndPlayers(): Promise<ESEA_CSGO_Regions> {
   ).generate();
 }
 
+async function saveMetadata(
+  keys: Array<string>,
+  plainObj: Object,
+  sqlObj: Object
+): Promise<any> {
+  // register all the metadata associated with this object
+  // and store it in an array of promises. only continue when
+  // all metadata has been saved to the DB...
+  const metapromises = keys.map( async ( key: string ) => {
+    // if the metadata field exists return it
+    let metaObj = await Meta.findAll({
+      where: { name: key }
+    });
+
+    // otherwise create it
+    if( !metaObj ) {
+      metaObj = await Meta.create({ name: key });
+    }
+
+    // is the current key a part of the provided plain object?
+    const value = plainObj[ key ];
+
+    return value
+      ? sqlObj.addMeta( metaObj, { through: { value }})
+      : Promise.resolve();
+  });
+
+  return Promise.all( metapromises );
+}
+
 async function savePlayers(
   playerList: Array<Object>,
   teamObj: Object | void = undefined
@@ -70,41 +100,18 @@ async function savePlayers(
     if( countryObj ) playerObj.setCountry( countryObj );
     if( teamObj ) playerObj.setTeam( teamObj );
 
-    // anything that isn't the below fields is a metadata
-    // field that needs to be registered with the DB first
-    const keys = Object.keys( player ).filter( ( key: string ) => (
-      key !== 'id'
-      && key !== 'username'
-      && key !== 'transferValue'
-      && key !== 'countryCode'
-      && key !== 'teamId'
-    ) );
-
     // register all the metadata associated with this player
     // and store it in an array of promises. only continue when
     // all metadata has been saved to the DB...
-    const metapromises = keys.map( async ( key: string ) => {
-      // if the metadata field exists return it
-      let metaObj = await Meta.findAll({
-        where: { name: key }
-      });
-
-      // otherwise create it
-      if( !metaObj ) {
-        metaObj = await Meta.create({ name: key });
-      }
-
-      // Skipping flow checks for now. Complaining about the
-      // player object not being iterable...
-      return playerObj.addMeta( metaObj, {
-        // $FlowSkip
-        through: { value: player[ key ] }
-      });
-    });
+    const metapromises = saveMetadata(
+      [ 'skillTemplate', 'weaponTemplate' ],
+      player,
+      playerObj
+    );
 
     // return only after all metadata promises
     // have resolved
-    return Promise.all( metapromises );
+    return Promise.all( [ metapromises ] );
   });
 
   // return after all player promises have resolved
@@ -161,34 +168,14 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
         if( divisionObj ) teamObj.setDivision( divisionObj );
         if( gameObj ) teamObj.setGame( gameObj );
 
-        // look for the following keys to associate as metadata
-        const keys = Object.keys( team ).filter( ( key: string ) => (
-          key === 'placement'
-          || key === 'tag'
-          || key === 'skillTemplate'
-        ) );
-
         // register all the metadata associated with this team
         // and store it in an array of promises. only continue when
         // all metadata has been saved to the DB...
-        const metapromises = keys.map( async ( key: string ) => {
-          // if the metadata field exists return it
-          let metaObj = await Meta.findAll({
-            where: { name: key }
-          });
-
-          // otherwise create it
-          if( !metaObj ) {
-            metaObj = await Meta.create({ name: key });
-          }
-
-          // Skipping flow checks for now. Complaining about the
-          // team object not being iterable...
-          return teamObj.addMeta( metaObj, {
-            // $FlowSkip
-            through: { value: team[ key ] }
-          });
-        });
+        const metapromises = saveMetadata(
+          [ 'placement', 'tag', 'skillTemplate' ],
+          team,
+          teamObj
+        );
 
         // create all players within this team's squad
         // and associate with the team as well. note we're also
@@ -196,7 +183,7 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
         const squadpromises = savePlayers( team.squad, teamObj );
 
         // return once metadata and squad has been saved to the database
-        return Promise.all( [ ...metapromises, squadpromises ] );
+        return Promise.all( [ metapromises, squadpromises ] );
       });
 
       // return once all teams have been saved to the database
