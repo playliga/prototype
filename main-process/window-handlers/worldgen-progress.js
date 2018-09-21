@@ -7,14 +7,12 @@ import { ScraperFactory } from '../../common/scraper-factory';
 
 import type {
   Team as ESEA_CSGO_Team,
-  Player as ESEA_CSGO_Player,
   Division as ESEA_CSGO_Division,
   Region as ESEA_CSGO_Region,
   Regions as ESEA_CSGO_Regions,
 } from '../../common/scraper-factory/scrapers/esea-csgo';
 import type {
-  Regions as ESEA_CSGO_FA_Regions,
-  Player as ESEA_CSGO_FA_Player
+  Regions as ESEA_CSGO_FA_Regions
 } from '../../common/scraper-factory/scrapers/esea-csgo-freeagents';
 
 
@@ -70,6 +68,11 @@ async function savePlayers(
 
     if( countryObj ) {
       playerObj.setCountry( countryObj );
+    }
+
+    // associate with a team (if provided)
+    if( teamObj ) {
+      playerObj.setTeam( teamObj );
     }
 
     // anything that isn't the below fields is a metadata
@@ -135,18 +138,18 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
   const divisions = await Division.findAll();
 
   // game is hardcoded for now
-  const gameObj = await Game.fineOne({
+  const gameObj = await Game.findOne({
     where: { shortname: 'csgo' }
   });
 
-  regions.forEach( ( region: ESEA_CSGO_Region ) => {
-    region.divisions.forEach( ( division: ESEA_CSGO_Division ) => {
+  const regionpromises = regions.map( ( region: ESEA_CSGO_Region ) => {
+    const divisionpromises = region.divisions.map( ( division: ESEA_CSGO_Division ) => {
       // fetch the current division object model
       const divisionObj = divisions.find( div => (
         div.name === division.name
       ) );
 
-      const divisionPromises = division.teams.map( async ( team: ESEA_CSGO_Team ) => {
+      const teampromises = division.teams.map( async ( team: ESEA_CSGO_Team ) => {
         // create the team object model
         const teamObj = await Team.create({
           name: team.name,
@@ -201,11 +204,15 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
         return Promise.all( [ ...metapromises, squadpromises ] );
       });
 
-      // return once all divisions and their teams have been saved to the database
-      return Promise.all( divisionPromises );
+      // return once all teams have been saved to the database
+      return Promise.all( teampromises );
     });
+
+    // return once all divisions and their teams have been saved to the database
+    return Promise.all( divisionpromises );
   });
-  return Promise.resolve( 'boop' );
+
+  return Promise.all( regionpromises );
 }
 
 async function ipcHandler( event: Object, data: Array<Object> ) {
@@ -216,7 +223,8 @@ async function ipcHandler( event: Object, data: Array<Object> ) {
   generateFreeAgents()
     .then( ( regions: ESEA_CSGO_FA_Regions ) => {
       win.detail = 'Saving free agents to database...';
-      return saveFreeAgents( regions );
+      return Promise.resolve();
+      // return saveFreeAgents( regions );
     })
     .then( () => {
       win.detail = 'Generating teams and players...';
@@ -224,8 +232,8 @@ async function ipcHandler( event: Object, data: Array<Object> ) {
     })
     .then( ( regions: ESEA_CSGO_Regions ) => {
       win.detail = 'Saving teams and players to database...';
-      return Promise.resolve();
-      // return saveTeamsAndPlayers( regions );
+      // return Promise.resolve();
+      return saveTeamsAndPlayers( regions );
     })
     .then( () => {
       win.detail = 'Generating leagues...';

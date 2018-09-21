@@ -22,5 +22,6 @@ module.exports = class Meta extends Model {
 
   static associate( models ) {
     this.belongsToMany( models.Player, { through: models.MetaPlayer });
+    this.belongsToMany( models.Team, { through: models.MetaTeam });
   }
 };
