@@ -53,7 +53,7 @@ async function saveMetadata(
   // all metadata has been saved to the DB...
   const metapromises = keys.map( async ( key: string ) => {
     // if the metadata field exists return it
-    let metaObj = await Meta.findAll({
+    let metaObj = await Meta.findOne({
       where: { name: key }
     });
 
