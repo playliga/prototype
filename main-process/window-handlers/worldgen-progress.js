@@ -120,10 +120,7 @@ function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   });
 
   // loop through our playerList and add to a collection of promises
-  const playerPromises = savePlayers( playerList );
-
-  // return after all regions' promises have resolved
-  return playerPromises;
+  return savePlayers( playerList );
 }
 
 async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
