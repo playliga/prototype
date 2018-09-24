@@ -16,6 +16,12 @@ import type {
 } from '../../common/scraper-factory/scrapers/esea-csgo-freeagents';
 
 
+const {
+  Country, Division,
+  Game, Meta,
+  Team, Player
+} = Models;
+
 const CACHE_DIR = path.join( __dirname, 'cache' );
 const WIN_OPTS = {
   text: 'Creating world.',
@@ -24,15 +30,6 @@ const WIN_OPTS = {
     titleBarStyle: 'hidden'
   }
 };
-
-const {
-  Country,
-  Division,
-  Game,
-  Meta,
-  Team,
-  Player
-} = Models;
 
 function generateFreeAgents(): Promise<ESEA_CSGO_FA_Regions> {
   return new ScraperFactory(
@@ -111,7 +108,7 @@ async function savePlayers(
 
     // return only after all metadata promises
     // have resolved
-    return Promise.all( [ metapromises ] );
+    return metapromises;
   });
 
   // return after all player promises have resolved
@@ -132,7 +129,7 @@ async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   const playerPromises = savePlayers( playerList );
 
   // return after all regions' promises have resolved
-  return Promise.all( [ playerPromises ] );
+  return playerPromises;
 }
 
 async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
