@@ -98,24 +98,18 @@ async function savePlayers(
     if( teamObj ) playerObj.setTeam( teamObj );
 
     // register all the metadata associated with this player
-    // and store it in an array of promises. only continue when
-    // all metadata has been saved to the DB...
-    const metapromises = saveMetadata(
+    return saveMetadata(
       [ 'skillTemplate', 'weaponTemplate' ],
       player,
       playerObj
     );
-
-    // return only after all metadata promises
-    // have resolved
-    return metapromises;
   });
 
   // return after all player promises have resolved
   return Promise.all( playerPromises );
 }
 
-async function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
+function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   // merge the arrays that are separated by region into
   // one so that *all* players can be looped through and added
   // to our collection of promises
