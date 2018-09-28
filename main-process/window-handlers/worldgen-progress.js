@@ -59,13 +59,23 @@ async function saveMetadata(
 
     // otherwise create it
     if( !metaObj ) {
-      metaObj = await Meta.create({ name: key });
+      try {
+        metaObj = await Meta.create({ name: key });
+      } catch( e ) {
+        // due to race condition, if it was a unique constraint error
+        // attempt to fetch the meta key a second time
+        if( e.name === 'SequelizeUniqueConstraintError' ) {
+          metaObj = await Meta.findOne({
+            where: { name: key }
+          });
+        }
+      }
     }
 
     // is the current key a part of the provided plain object?
     const value = plainObj[ key ];
 
-    return value
+    return value && metaObj
       ? sqlObj.addMeta( metaObj, { through: { value }})
       : Promise.resolve();
   });
