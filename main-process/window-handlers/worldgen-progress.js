@@ -31,17 +31,20 @@ const WIN_OPTS = {
   }
 };
 
+
 function generateFreeAgents(): Promise<ESEA_CSGO_FA_Regions> {
   return new ScraperFactory(
     CACHE_DIR, 'esea-csgo-freeagents'
   ).generate();
 }
 
+
 function generateTeamsAndPlayers(): Promise<ESEA_CSGO_Regions> {
   return new ScraperFactory(
     CACHE_DIR, 'esea-csgo'
   ).generate();
 }
+
 
 async function saveMetadata(
   keys: Array<string>,
@@ -83,6 +86,7 @@ async function saveMetadata(
   return Promise.all( metapromises );
 }
 
+
 async function savePlayers(
   playerList: Array<Object>,
   teamObj: Object | void = undefined
@@ -119,6 +123,7 @@ async function savePlayers(
   return Promise.all( playerPromises );
 }
 
+
 function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   // merge the arrays that are separated by region into
   // one so that *all* players can be looped through and added
@@ -132,6 +137,7 @@ function saveFreeAgents( regions: ESEA_CSGO_FA_Regions ): Promise<any> {
   // loop through our playerList and add to a collection of promises
   return savePlayers( playerList );
 }
+
 
 async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
   const countries = await Country.findAll();
@@ -195,6 +201,7 @@ async function saveTeamsAndPlayers( regions: ESEA_CSGO_Regions ): Promise<any> {
   return Promise.all( regionpromises );
 }
 
+
 async function ipcHandler( event: Object, data: Array<Object> ) {
   // create a new window that shows the world gen progress
   // to the user
@@ -225,6 +232,7 @@ async function ipcHandler( event: Object, data: Array<Object> ) {
       setTimeout( () => win.setCompleted(), 5000 );
     });
 }
+
 
 export default () => {
   ipcMain.on( 'new-career', ipcHandler );
