@@ -30,6 +30,11 @@ ipcRenderer.on( 'receive-continents', ( event: Event, res: string ) => {
 const formsdata = [];
 
 class NewCareer extends Component<{}, {}> {
+  componentWillMount() {
+    // DEBUG: delete when done
+    ipcRenderer.send( 'new-career', formsdata );
+  }
+
   handleFinish = ( data: Object ) => {
     formsdata.push( data );
 

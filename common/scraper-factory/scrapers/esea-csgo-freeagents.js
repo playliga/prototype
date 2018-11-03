@@ -5,7 +5,7 @@ import type { CheerioElement } from 'cheerio';
 
 import CachedScraper from '../cached-scraper';
 
-class Player {
+export class Player {
   id: string;
   username: string;
   countryCode: string;
@@ -19,13 +19,13 @@ class Player {
   }
 }
 
-type Regions = {
-  [x: string]: Array<Object>
+export type Regions = {
+  [x: string]: Array<Player>
 };
 
 export default class ESEA_CSGO_FREEAGENTS {
   // @constants
-  BASE_URL: string = 'https://play.esea.net?index.php?s=stats&d=overall';
+  BASE_URL: string = 'https://play.esea.net/index.php?s=stats&d=overall';
   NA_REGION_ID: string = '&region_id=1';
   EU_REGION_ID: string = '&region_id=2';
 
