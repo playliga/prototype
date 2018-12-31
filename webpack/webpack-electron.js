@@ -7,26 +7,29 @@ import webpack from 'webpack';
 import webpackConfigShared from './webpack-shared.js';
 import webpackConfigResolve from './webpack-resolve.js';
 
+
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+
 export default {
-  devtool: 'source-map',
+  mode: IS_PROD ? 'production' : 'development',
   resolve: webpackConfigResolve,
   entry: [
     path.join( __dirname, '../main' )
   ],
   output: {
-    path: path.join( __dirname, '../dist' ),
+    path: path.join( __dirname, '../' ),
     filename: 'main.bundle.js'
   },
   module: {
     rules: [
       webpackConfigShared.loaders.js,
-      webpackConfigShared.loaders.eslint
+      webpackConfigShared.loaders.eslint,
+      webpackConfigShared.loaders.images
     ]
-  }
+  },
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true
-    })
+    // @TODO
   ],
 
   // Set target to Electron specific node.js env

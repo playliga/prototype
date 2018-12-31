@@ -1,7 +1,6 @@
 .vscode/
 cache/
 coverage/
-database/*.db
 dist/
 node_modules/
 
@@ -9,3 +8,5 @@ node_modules/
 *.log
 *.mwb
 *.swp
+
+main.bundle.js

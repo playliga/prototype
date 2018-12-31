@@ -3,6 +3,7 @@
 .*/dist/.*
 .*/release/.*
 .*/git/.*
+main.bundle.js
 
 # Flow has a built-in definition for the 'react' module which we prefer to use
 # over the currently-untyped source
@@ -17,10 +18,8 @@
 [untyped]
 # The following libs are direct dependencies but they are broken
 # Ignore them below
-.*/node_modules/react-select/.*
 
 [include]
-common/
 main-process/
 renderer-process/
 
@@ -34,10 +33,11 @@ esproposal.export_star_as=enable
 module.name_mapper='.*\(.css\)' -> 'empty/object'
 module.name_mapper='.*\(.scss\)' -> 'empty/object'
 module.name_mapper='.*\(.gif\)' -> 'empty/object'
-module.system.node.resolve_dirname=node_modules
+module.name_mapper='^main' -> '<PROJECT_ROOT>/main-process'
+module.name_mapper='^renderer' -> '<PROJECT_ROOT>/renderer-process'
 module.system.node.resolve_dirname=main-process
+module.system.node.resolve_dirname=node_modules
 module.system.node.resolve_dirname=renderer-process
-module.system.node.resolve_dirname=common
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_comment=\\(.\\|\n\\)*\\$FlowSkip

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
+import Particles from 'react-particles-js';
 
-import 'font-awesome/css/font-awesome.css';
 import './index.scss';
-
 import App from './app';
+import particleConfig from './assets/particle-config.json';
+
 
 const render = ( Component ) => {
   ReactDOM.render(
@@ -16,8 +17,18 @@ const render = ( Component ) => {
   );
 };
 
-render( App );
+const Wrapper = () => (
+  <Fragment>
+    <Particles
+      params={particleConfig}
+      className="particles"
+    />
+    <App />
+  </Fragment>
+);
+
+render( Wrapper );
 
 if( module.hot ) {
-  module.hot.accept( './app', () => { render( App ); });
+  module.hot.accept( './app', () => { render( Wrapper ); });
 }

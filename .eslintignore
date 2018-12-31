@@ -4,4 +4,5 @@ flow-typed/*
 node_modules/*
 webpack/*
 
-!webpack/server.js
+!webpack/compiler.js
+main.bundle.js

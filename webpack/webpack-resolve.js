@@ -9,9 +9,11 @@ const path = require( 'path' );
 
 module.exports = {
   extensions: [ '.js', '.jsx' ],
+  alias: {
+    main: path.resolve( __dirname, '../main-process' ),
+    renderer: path.resolve( __dirname, '../renderer-process' )
+  },
   modules: [
-    path.resolve( __dirname, '../renderer-process' ),
-    path.resolve( __dirname, '../common' ),
     path.resolve( __dirname, '../node_modules' )
   ]
 };

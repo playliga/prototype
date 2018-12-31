@@ -41,9 +41,6 @@
 
   "rules": {
     "array-bracket-spacing": [ "warn", "always" ],
-    "camelcase": [ 0, {
-      "ignoreDestructuring": true
-    }],
     "comma-dangle": 0,
     "computed-property-spacing": 0,
     "consistent-return": 0,
@@ -58,11 +55,7 @@
     "id-length": 0,
     "import/no-unresolved": 0,
     "import/no-extraneous-dependencies": 0,
-    "indent": [
-      "error",
-      2,
-      { "SwitchCase": 1 }
-    ],
+    "indent": 0,
     "jsx-a11y/label-has-for": 0,
     "jsx-quotes": [ "error", "prefer-double" ],
     "key-spacing": 0,
@@ -82,6 +75,7 @@
       "error",
       { "args": "none" }
     ],
+    "object-curly-newline": 0,
     "object-curly-spacing": [
       "error",
       "always",
@@ -122,6 +116,7 @@
     "react/sort-comp": [
       "error", {
         "order": [
+          "instance-variables",
           "props",
           "state",
           "type-annotations",
@@ -140,6 +135,7 @@
         "exceptions": [ "{}" ]
       }
     ],
-    "spaced-comment": 0
+    "spaced-comment": 0,
+    "template-curly-spacing": 0
   }
 }
