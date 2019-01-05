@@ -27,8 +27,9 @@ class Two extends Component<Props, State> {
       validateStatus: 'success',
       errorMsg: null,
       pristine: true,
-      placeholder: 'First Name',
+      placeholder: 'Team Name',
       icontype: 'user',
+      regex: /^[\w ]+$/
     }
   }
 

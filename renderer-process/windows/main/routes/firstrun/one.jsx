@@ -1,5 +1,5 @@
 // @flow
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Form, Button, Input, Select, Icon } from 'antd';
 import { validateForm, handleInputChange } from './common';
 import type { Field } from './common';
@@ -28,7 +28,7 @@ class One extends Component<Props, State> {
       errorMsg: null,
       pristine: true,
       placeholder: 'First Name',
-      icontype: 'user',
+      icontype: 'user'
     },
     lname: {
       value: '',
@@ -44,7 +44,9 @@ class One extends Component<Props, State> {
       errorMsg: null,
       pristine: true,
       placeholder: 'Alias',
-      icontype: 'robot'
+      icontype: 'robot',
+      regex: /^[\w]+$/,
+      regexErrorMsg: 'Only alphanumeric & underscores allowed.'
     }
   }
 

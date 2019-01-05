@@ -1,4 +1,7 @@
 // @flow
+import { isEmpty } from 'validator';
+
+
 export type Field = {
   value: string,
   validateStatus: 'success' | 'error',
@@ -9,18 +12,25 @@ export type Field = {
 };
 
 export function handleInputChange( input: Object, existing: Object ) {
+  const regex = existing.regex ? existing.regex : /^[a-zA-Z ]+$/;
+  const errorMsg = existing.regexErrorMsg ? existing.regexErrorMsg : 'Only a-z and spaces allowed.';
   const { value, id } = input;
   const output = {};
+
   let invalid = false;
 
-  if( value.length <= 4 ) {
+  if( isEmpty( value, { ignore_whitespace: true }) ) {
+    invalid = true;
+  }
+
+  if( !invalid && !regex.test( value ) ) {
     invalid = true;
   }
 
   output[ id ] = {
     ...existing, // merge with existing state
     validateStatus: invalid ? 'error' : 'success',
-    errorMsg: invalid ? 'Min length: 4' : null,
+    errorMsg: invalid && errorMsg,
     pristine: false,
     value,
   };
