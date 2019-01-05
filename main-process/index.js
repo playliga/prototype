@@ -1,11 +1,12 @@
 // @flow
 import { app } from 'electron';
 import WindowManager from 'main/lib/window-manager';
-import { SplashWindow } from 'main/window-handlers';
+import { SplashWindow, MainWindow } from 'main/window-handlers';
 
 
 function handleOnReady() {
   SplashWindow();
+  MainWindow();
 }
 
 function handleAllClosed() {

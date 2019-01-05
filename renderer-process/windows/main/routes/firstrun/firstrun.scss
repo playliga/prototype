@@ -1,0 +1,47 @@
+#firstrun {
+  width: 35%;
+  height: 100%;
+  margin: 0 auto;
+  padding-top: 50px;
+  text-align: center;
+
+  img {
+    width: 50%;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-variant: small-caps;
+    font-weight: 100;
+  }
+
+  .content {
+    position: absolute;
+    width: 35%; // same as parent's
+  }
+
+  /**
+  * Slide in from right when entering
+  */
+  .fade-enter {
+    right: -999px;
+  }
+
+  .fade-enter.fade-enter-active {
+    right: 0;
+    transition: right 300ms ease-in-out;
+  }
+
+  /**
+  * Simple fade out animation when exiting
+  */
+  .fade-exit {
+    left: 0;
+    opacity: 1;
+  }
+
+  .fade-exit.fade-exit-active {
+    left: -999px;
+    transition: left 300ms ease-in-out;
+  }
+}

@@ -9,8 +9,9 @@ import is from 'electron-is';
 export const MenuItems: Object = {
   APPNAME: 0,
   FILE: is.osx() ? 1 : 0,
-  VIEW: is.osx() ? 2 : 1,
-  WINDOW: is.osx() ? 3 : 2,
+  EDIT: is.osx() ? 2 : 1,
+  VIEW: is.osx() ? 3 : 2,
+  WINDOW: is.osx() ? 4 : 3,
   HELP: is.osx() ? 4 : 3
 };
 
@@ -19,6 +20,20 @@ export const RawDefaultMenuTemplate: Array<Object> = [
     label: 'File',
     submenu: [
       { role: 'quit' }
+    ]
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { role: 'pasteandmatchstyle' },
+      { role: 'delete' },
+      { role: 'selectall' }
     ]
   },
   {
