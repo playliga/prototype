@@ -66,7 +66,7 @@ class One extends Component<Props, State> {
         <h1>{'Welcome!'}</h1>
 
         <Form onSubmit={this.handleSubmit}>
-          {this.plaintxtfields.map( ( id: string ) => {
+          {this.plaintxtfields.map( ( id: string, idx: number ) => {
             const field = this.state[ id ];
 
             return (
@@ -77,7 +77,7 @@ class One extends Component<Props, State> {
                 help={field.errorMsg || ''}
               >
                 <Input
-                  autoFocus
+                  autoFocus={idx === 0}
                   id={id}
                   placeholder={field.placeholder}
                   value={field.value || null}
