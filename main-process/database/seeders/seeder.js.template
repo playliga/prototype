@@ -1,0 +1,11 @@
+// @flow
+
+export default class Seeder {
+  static up( db: Object ) {
+    // should return a promise
+  }
+
+  static down( db: Object ) {
+    // should return a promise
+  }
+}

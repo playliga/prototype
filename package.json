@@ -20,13 +20,15 @@
     "simulator"
   ],
   "scripts": {
-    "build": "cross-env NODE_ENV=production node -r babel-register ./webpack/compiler.js",
+    "build": "cross-env NODE_ENV=production node -r babel-register ./webpack/compiler.js --mac",
+    "db:seed:generate": "node -r babel-register ./main-process/database/index.js generate $1",
+    "db:seed:all": "node -r babel-register ./main-process/database/index.js all $1",
     "flow": "flow",
     "flow-typed:install": "flow-typed install --overwrite",
     "lint": "eslint --ext .js,.jsx ./",
     "start": "cross-env NODE_ENV=development node -r babel-register ./webpack/compiler.js",
     "start:electron": "cross-env NODE_ENV=development electron ./main.bundle.js",
-    "squad-updater": "node -r babel-register ./renderer-process/lib/scraper-factory/index.js",
+    "squad-updater": "node -r babel-register ./main-process/lib/scraper-factory/index.js",
     "test": "cross-env NODE_ENV=test jest",
     "test:coverage": "npm test -- --coverage",
     "test:watch": "npm test -- --watch"
@@ -78,6 +80,7 @@
     "lodash": "4.17.11",
     "masters": "3.1.0",
     "minimist": "1.2.0",
+    "nedb": "1.8.0",
     "react": "16.7.0",
     "react-dom": "16.7.0",
     "react-hot-loader": "4.6.3",
