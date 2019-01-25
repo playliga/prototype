@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=production node -r babel-register ./webpack/compiler.js --mac",
-    "db:seed:generate": "node -r babel-register ./main-process/database/index.js generate $1",
-    "db:seed:all": "node -r babel-register ./main-process/database/index.js all $1",
+    "db:seed:generate": "node -r babel-register ./main-process/database/database-cli.js generate $1",
+    "db:seed:all": "node -r babel-register ./main-process/database/database-cli.js all $1",
     "flow": "flow",
     "flow-typed:install": "flow-typed install --overwrite",
     "lint": "eslint --ext .js,.jsx ./",

@@ -1,0 +1,15 @@
+// @flow
+
+
+export default class Seeder {
+  static up( docs: Object, Database: Object ) {
+    return Database.insert(
+      docs.continents,
+      [ 'Europe', 'America' ]
+    );
+  }
+
+  static down( db: Object ) {
+    // should return a promise
+  }
+}

@@ -6,7 +6,8 @@ import { SplashWindow, MainWindow } from 'main/window-handlers';
 
 
 function handleOnReady() {
-  Database.connect().then( ( db: Object ) => {
+  new Database().connect().then( ( db: Object ) => {
+    console.log( db );
     SplashWindow();
     MainWindow();
   });
