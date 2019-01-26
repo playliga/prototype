@@ -49,8 +49,9 @@
       "buildResources": "resources"
     },
     "files": [
+      "dist/renderer/windows/**/*",
       "main.bundle.js",
-      "dist/renderer/windows/**/*"
+      "resources/**/*"
     ],
     "publish": {
       "provider": "github",
