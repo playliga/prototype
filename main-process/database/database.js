@@ -9,6 +9,49 @@ const datastores = {
 };
 
 
+function _checkInstance(): boolean {
+  // loop through all docs and check
+  // if any are undefined
+  const notloaded = Object.keys( datastores )
+    .map( ( id: string ) => datastores[ id ] )
+    .map( ( ds: Object | void ) => typeof ds === 'undefined' );
+
+  // return true only if we did not find
+  // any loaded docs
+  return notloaded.length <= 0;
+}
+
+
+function _asyncLoadDatastore( dbpath: string, id: string ): Promise<*> {
+  if( !datastores[ id ] ) {
+    const filepath = path.join( dbpath, `${id}.db` );
+    datastores[ id ] = new Datastore( filepath );
+  }
+
+  return new Promise( ( resolve: Function, reject: Function ) => {
+    datastores[ id ].loadDatabase( ( err: Error ) => {
+      if( err ) {
+        reject( err );
+      }
+
+      resolve();
+    });
+  });
+}
+
+
+function _initdatastores( resolve: Function, reject: Function ): void {
+  // `this` context is provided by the calling
+  // by function using `.bind()`
+  const promises = Object.keys( datastores )
+    .map( ( id: string ) => _asyncLoadDatastore( this.dbpath, id ) );
+
+  Promise.all( promises )
+    .then( () => resolve( datastores ) )
+    .catch( ( err: Error ) => reject( err ) );
+}
+
+
 export default class Database {
   dbpath: string
 
@@ -40,44 +83,6 @@ export default class Database {
     });
   }
 
-  _checkInstance = () => {
-    // loop through all docs and check
-    // if any are undefined
-    const notloaded = Object.keys( datastores )
-      .map( ( id: string ) => datastores[ id ] )
-      .map( ( ds: Object | void ) => typeof ds === 'undefined' );
-
-    // return true only if we did not find
-    // any loaded docs
-    return notloaded.length <= 0;
-  }
-
-  _asyncLoadDatastore = ( id: string ): Promise<*> => {
-    if( !datastores[ id ] ) {
-      const filepath = path.join( this.dbpath, `${id}.db` );
-      datastores[ id ] = new Datastore( filepath );
-    }
-
-    return new Promise( ( resolve: Function, reject: Function ) => {
-      datastores[ id ].loadDatabase( ( err: Error ) => {
-        if( err ) {
-          reject( err );
-        }
-
-        resolve();
-      });
-    });
-  }
-
-  _initdatastores = ( resolve: Function, reject: Function ): void => {
-    const promises = Object.keys( datastores )
-      .map( ( id: string ) => this._asyncLoadDatastore( id ) );
-
-    Promise.all( promises )
-      .then( () => resolve( datastores ) )
-      .catch( ( err: Error ) => reject( err ) );
-  }
-
   // in some cases it might be useful to know where all
   // of the datastores are located in the filesystem
   getDatastorePaths(): Array<string> {
@@ -89,10 +94,10 @@ export default class Database {
   }
 
   connect = (): Promise<*> => {
-    // only load docs if they haven't
-    // been loaded already
-    if( !this._checkInstance() ) {
-      return new Promise( this._initdatastores );
+    // only load datastores if they
+    // haven't been loaded already
+    if( !_checkInstance() ) {
+      return new Promise( _initdatastores.bind( this ) );
     }
 
     return Promise.resolve( datastores );
