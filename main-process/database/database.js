@@ -1,6 +1,5 @@
 // @flow
 import path from 'path';
-import { app } from 'electron';
 import Datastore from 'nedb';
 
 
@@ -13,10 +12,8 @@ const datastores = {
 export default class Database {
   dbpath: string
 
-  constructor( dbpath: string | void = undefined ) {
-    this.dbpath = !dbpath
-      ? path.join( app.getPath( 'userData' ), 'databases' )
-      : dbpath;
+  constructor( dbpath: string ) {
+    this.dbpath = dbpath;
   }
 
   static find( ds: Object, query: Object = {}): Promise<*> {
@@ -79,6 +76,16 @@ export default class Database {
     Promise.all( promises )
       .then( () => resolve( datastores ) )
       .catch( ( err: Error ) => reject( err ) );
+  }
+
+  // in some cases it might be useful to know where all
+  // of the datastores are located in the filesystem
+  getDatastorePaths(): Array<string> {
+    return (
+      Object
+        .keys( datastores )
+        .map( ( id: string ) => path.join( this.dbpath, `${id}.db` ) )
+    );
   }
 
   connect = (): Promise<*> => {

@@ -1,17 +1,49 @@
 // @flow
+import path from 'path';
+import fs from 'fs';
 import { app } from 'electron';
 import Database from 'main/database';
 import WindowManager from 'main/lib/window-manager';
 import { SplashWindow, MainWindow } from 'main/window-handlers';
 
 
+function setupDB() {
+  const dbpath = path.join( app.getPath( 'userData' ), 'databases' );
+  const dbinstance = new Database( dbpath );
+  const datastorepaths = dbinstance.getDatastorePaths();
+
+  // if for whatever the dbpath folder does
+  // exist we will create it
+  if( !fs.existsSync( dbpath ) ) {
+    fs.mkdirSync( dbpath );
+  }
+
+  // if any of the datastore paths do not exist in the appdata
+  // directory then copy them over from the resources folder
+  datastorepaths.forEach( ( dspath: string ) => {
+    if( !fs.existsSync( dspath ) ) {
+      // copy from local resources
+      // into target db path
+      const dsfilename = path.basename( dspath );
+      fs.copyFileSync(
+        path.join( __dirname, 'resources/databases', dsfilename ),
+        dspath
+      );
+    }
+  });
+
+  // now we can finally connect to the db
+  return dbinstance.connect();
+}
+
+
 function handleOnReady() {
-  new Database().connect().then( ( db: Object ) => {
-    console.log( db );
+  setupDB().then( ( db: Object ) => {
     SplashWindow();
     MainWindow();
   });
 }
+
 
 function handleAllClosed() {
   // On macOS it is common for applications and their menu bar
@@ -21,6 +53,7 @@ function handleAllClosed() {
   }
 }
 
+
 function handleOnActivate() {
   const windows = WindowManager.getWindows();
 
@@ -28,6 +61,7 @@ function handleOnActivate() {
     SplashWindow();
   }
 }
+
 
 export default () => {
   // This method will be called when Electron has finished
