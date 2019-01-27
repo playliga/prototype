@@ -1,67 +1,64 @@
 // @flow
 import path from 'path';
-import Datastore from 'nedb';
+import NeDB from 'nedb';
 
 
-const datastores = {
-  continents: undefined,
-  seeds: undefined
-};
+/**
+ * Persist this variable outside the scope of the database
+ * class in order to support singleton behavior
+ */
+const _nedbinstances = {};
 
 
-function _checkInstance(): boolean {
-  // loop through all docs and check
-  // if any are undefined
-  const notloaded = Object.keys( datastores )
-    .map( ( id: string ) => datastores[ id ] )
-    .map( ( ds: Object | void ) => typeof ds === 'undefined' );
+class Datastore {
+  basepath: string;
+  fullpath: string;
+  name: string;
 
-  // return true only if we did not find
-  // any loaded docs
-  return notloaded.length <= 0;
-}
-
-
-function _asyncLoadDatastore( dbpath: string, id: string ): Promise<*> {
-  if( !datastores[ id ] ) {
-    const filepath = path.join( dbpath, `${id}.db` );
-    datastores[ id ] = new Datastore( filepath );
+  constructor( basepath: string ) {
+    this.basepath = basepath;
   }
 
-  return new Promise( ( resolve: Function, reject: Function ) => {
-    datastores[ id ].loadDatabase( ( err: Error ) => {
-      if( err ) {
-        reject( err );
-      }
-
-      resolve();
-    });
-  });
-}
-
-
-function _initdatastores( resolve: Function, reject: Function ): void {
-  // `this` context is provided by the calling
-  // by function using `.bind()`
-  const promises = Object.keys( datastores )
-    .map( ( id: string ) => _asyncLoadDatastore( this.dbpath, id ) );
-
-  Promise.all( promises )
-    .then( () => resolve( datastores ) )
-    .catch( ( err: Error ) => reject( err ) );
-}
-
-
-export default class Database {
-  dbpath: string
-
-  constructor( dbpath: string ) {
-    this.dbpath = dbpath;
+  /**
+   * override the getter method and
+   * return the singleton instead
+  **/
+  get nedbinstance() {
+    return _nedbinstances[ this.name ];
   }
 
-  static find( ds: Object, query: Object = {}): Promise<*> {
+  get fullpath() {
+    return path.join( this.basepath, `${this.name}.db` );
+  }
+
+  connect(): Promise<any> {
+    if( this.nedbinstance ) {
+      return Promise.resolve( this.nedbinstance );
+    }
+
+    // set the singleton object
+    _nedbinstances[ this.name ] = new NeDB(
+      this.fullpath
+    );
+
     return new Promise( ( resolve: Function, reject: Function ) => {
-      ds.find( query, ( err: Error, res: any ) => {
+      this.nedbinstance.loadDatabase( ( err: Error ) => {
+        if( err ) {
+          reject( err );
+        }
+
+        resolve();
+      });
+    });
+  }
+
+  find( query: Object = {}): Promise<any> {
+    if( !this.nedbinstance ) {
+      throw new Error( 'Datastore not instantiated!' );
+    }
+
+    return new Promise( ( resolve: Function, reject: Function ) => {
+      this.nedbinstance.find( query, ( err: Error, res: any ) => {
         if( err ) {
           reject( err );
         }
@@ -71,9 +68,9 @@ export default class Database {
     });
   }
 
-  static insert( ds: Object, doc: Object ): Promise<*> {
+  insert( doc: Object ): Promise<any> {
     return new Promise( ( resolve: Function, reject: Function ) => {
-      ds.insert( doc, ( err: Error, newDoc: Object ) => {
+      this.nedbinstance.insert( doc, ( err: Error, newDoc: Object ) => {
         if( err ) {
           reject( err );
         }
@@ -82,24 +79,43 @@ export default class Database {
       });
     });
   }
+}
 
-  // in some cases it might be useful to know where all
-  // of the datastores are located in the filesystem
-  getDatastorePaths(): Array<string> {
-    return (
-      Object
-        .keys( datastores )
-        .map( ( id: string ) => path.join( this.dbpath, `${id}.db` ) )
-    );
+
+class ContinentDatastore extends Datastore {
+  name = 'continents';
+}
+
+
+class SeedDatastore extends Datastore {
+  name = 'seeds';
+}
+
+
+export default class Database {
+  dbpath: string;
+  datastores: Object;
+
+  constructor( dbpath: string ) {
+    this.dbpath = dbpath;
+    this.datastores = {
+      seeds: new SeedDatastore( this.dbpath ),
+      continents: new ContinentDatastore( this.dbpath )
+    };
   }
 
-  connect = (): Promise<*> => {
-    // only load datastores if they
-    // haven't been loaded already
-    if( !_checkInstance() ) {
-      return new Promise( _initdatastores.bind( this ) );
-    }
+  get datastorepaths(): Array<string> {
+    return Object
+      .keys( this.datastores )
+      .map( ( dskey: string ) => this.datastores[ dskey ] )
+      .map( ( ds: Datastore ) => ds.fullpath );
+  }
 
-    return Promise.resolve( datastores );
+  connect(): Promise<any> {
+    const promises = Object.keys( this.datastores )
+      .map( ( dskey: string ) => this.datastores[ dskey ] )
+      .map( ( ds: Object ) => ds.connect() );
+
+    return Promise.all( promises );
   }
 }

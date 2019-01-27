@@ -18,9 +18,9 @@ function continentFormatter( continentCode: string ) {
 
 
 export default class Seeder {
-  static up( docs: Object, Database: Object ) {
+  static up( docs: Object ) {
     const data = Object.keys( continents ).map( continentFormatter );
-    return Database.insert( docs.continents, data );
+    return docs.continents.insert( data );
   }
 
   static down( db: Object ) {

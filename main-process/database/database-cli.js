@@ -55,33 +55,27 @@ function generateSeeder() {
 /**
  * Coming soon...
 **/
-async function loadAllSeeds(): Promise<*> {
-  const datastores = await new Database( DBPATH ).connect();
-  const allseeds = await promisify( glob )(
+async function loadAllSeeds( dbinstance: Object ): Promise<*> {
+  const { seeds } = dbinstance.datastores;
+  const seederfilenames = await promisify( glob )(
     '**/*.js',
     { cwd: SEEDERSPATH }
   );
 
-  // appease flow by bailing if for whatever reason
-  // seeds never resolves and we end up with null
-  if( !datastores.seeds ) {
-    return Promise.resolve();
-  }
-
   // load all the seeds that were executed
-  const oldseeds = await Database.find( datastores.seeds );
+  const allseeds = await seeds.find();
   let pendingseeds = [];
 
   // if no needs have been previously executed
   // we're going to run them all
-  if( oldseeds.length === 0 ) {
-    pendingseeds = allseeds;
+  if( allseeds.length === 0 ) {
+    pendingseeds = seederfilenames;
   }
 
   // otherwise filter seeds by those that have not been
-  // run. the oldseeds array stores past executed seeds
-  pendingseeds = allseeds.filter( ( filename: string ) => {
-    const found = oldseeds.findIndex( ( seedobj: Object ) => (
+  // run. the allseeds array stores past executed seeds
+  pendingseeds = seederfilenames.filter( ( filename: string ) => {
+    const found = allseeds.findIndex( ( seedobj: Object ) => (
       seedobj.filename === filename
     ) );
 
@@ -95,10 +89,10 @@ async function loadAllSeeds(): Promise<*> {
       `${path.join( SEEDERSPATH, filename )}`
     ).default;
 
-    return seeder.up( datastores, Database ).then( () => (
+    return seeder.up( dbinstance.datastores, Database ).then( () => (
       // after the seeder completes we must add its
       // filename to our list of executed seeders
-      Database.insert( datastores.seeds, { filename })
+      seeds.insert({ filename })
     ) );
   });
 
@@ -114,12 +108,16 @@ async function loadAllSeeds(): Promise<*> {
  * the positional arguments passed into the script.
 **/
 if( POSARGS.length > 0 ) {
+  const dbinstance = new Database( DBPATH );
+
   switch( POSARGS[ 0 ] ) {
     case 'generate':
       generateSeeder();
       break;
     case 'all':
-      loadAllSeeds();
+      dbinstance.connect().then( () => {
+        loadAllSeeds( dbinstance );
+      });
       break;
     default:
       // do nothing...

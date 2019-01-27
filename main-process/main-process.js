@@ -10,7 +10,9 @@ import { SplashWindow, MainWindow } from 'main/window-handlers';
 function setupDB() {
   const dbpath = path.join( app.getPath( 'userData' ), 'databases' );
   const dbinstance = new Database( dbpath );
-  const datastorepaths = dbinstance.getDatastorePaths();
+  const datastorepaths = dbinstance.datastorepaths;
+
+  console.log( datastorepaths );
 
   // if for whatever the dbpath folder does
   // exist we will create it
