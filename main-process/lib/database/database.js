@@ -5,8 +5,9 @@ import NeDB from 'nedb';
 
 /**
  * Persist this variable outside the scope of the database
- * class in order to support singleton behavior
- */
+ * class. Each property should be a singleton Datastore
+ * instance.
+**/
 const _nedbinstances = {};
 
 
@@ -31,6 +32,13 @@ class Datastore {
     return path.join( this.basepath, `${this.name}.db` );
   }
 
+  /**
+   * Connects (loads) the datastore. This datastore is a
+   * singleton instance so it returns if datastore
+   * has already been loaded.
+   *
+   * @return Promise
+  **/
   connect(): Promise<any> {
     if( this.nedbinstance ) {
       return Promise.resolve( this.nedbinstance );
@@ -104,6 +112,11 @@ export default class Database {
     };
   }
 
+  /**
+   * Getter for returning an array of all of the datastore
+   * paths. Mainly used by the app hen cloning the
+   * database on a fresh install.
+  **/
   get datastorepaths(): Array<string> {
     return Object
       .keys( this.datastores )
@@ -111,6 +124,11 @@ export default class Database {
       .map( ( ds: Datastore ) => ds.fullpath );
   }
 
+  /**
+   * Loop through all the datastores and load them.
+   * Returns a promise once all databastores have
+   * been loaded.
+  **/
   connect(): Promise<any> {
     const promises = Object.keys( this.datastores )
       .map( ( dskey: string ) => this.datastores[ dskey ] )

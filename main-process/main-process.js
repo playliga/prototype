@@ -2,8 +2,9 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import Database from 'main/database';
+import Database from 'main/lib/database';
 import WindowManager from 'main/lib/window-manager';
+import { DatabaseAPI } from 'main/app-handlers';
 import { SplashWindow, MainWindow } from 'main/window-handlers';
 
 
@@ -12,10 +13,8 @@ function setupDB() {
   const dbinstance = new Database( dbpath );
   const datastorepaths = dbinstance.datastorepaths;
 
-  console.log( datastorepaths );
-
-  // if for whatever the dbpath folder does
-  // exist we will create it
+  // if for whatever reason the dbpath folder does
+  // not exist create it
   if( !fs.existsSync( dbpath ) ) {
     fs.mkdirSync( dbpath );
   }
@@ -40,7 +39,8 @@ function setupDB() {
 
 
 function handleOnReady() {
-  setupDB().then( ( db: Object ) => {
+  setupDB().then( () => {
+    DatabaseAPI();
     SplashWindow();
     MainWindow();
   });

@@ -13,7 +13,7 @@ import Database from './database';
 // module-level variables and functions
 const ARGS = minimist( process.argv.slice( 2 ) );
 const POSARGS = ARGS._ || [];
-const ROOTPATH = path.join( __dirname, '../../' );
+const ROOTPATH = path.join( __dirname, '../../../' );
 const DBPATH = path.join( ROOTPATH, 'resources/databases' );
 const SEEDERSPATH = path.join( ROOTPATH, 'resources/seeders' );
 

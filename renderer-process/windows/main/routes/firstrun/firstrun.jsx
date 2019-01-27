@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Route, Switch } from 'react-router-dom';
 
@@ -23,6 +24,15 @@ class FirstRun extends Component<Props, State> {
 
   state = {
     // @TODO
+  }
+
+  componentDidMount() {
+    ipcRenderer.send( '/database/continents' );
+    ipcRenderer.on( '/database/continents', this.handleContinentsFetch );
+  }
+
+  handleContinentsFetch = ( evt: Object, data: any ) => {
+    console.log( data );
   }
 
   handleSubmit = ( evt: Object ) => {
