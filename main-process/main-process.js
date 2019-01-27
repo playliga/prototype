@@ -8,6 +8,11 @@ import { DatabaseAPI } from 'main/app-handlers';
 import { SplashWindow, MainWindow } from 'main/window-handlers';
 
 
+/**
+ * Needs to run before we can show any application windows. This
+ * function ensures that the app always uses a source-controlled
+ * snapshot of the database.
+**/
 function setupDB() {
   const dbpath = path.join( app.getPath( 'userData' ), 'databases' );
   const dbinstance = new Database( dbpath );
@@ -40,7 +45,11 @@ function setupDB() {
 
 function handleOnReady() {
   setupDB().then( () => {
+    // application handlers to be executed
+    // before windows are shown.
     DatabaseAPI();
+
+    // window handlers
     SplashWindow();
     MainWindow();
   });
