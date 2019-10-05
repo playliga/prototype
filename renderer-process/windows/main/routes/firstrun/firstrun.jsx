@@ -6,11 +6,14 @@ import { Route, Switch } from 'react-router-dom';
 
 import One from './one';
 import Two from './two';
+import Finish from './finish';
+
 import './firstrun.scss';
 
 
 type State = {
-  // @TODO
+  continents: Array<Object>,
+  formdata: Array<any>
 };
 
 type Props = {
@@ -19,37 +22,61 @@ type Props = {
 };
 
 
-class FirstRun extends Component<Props, State> {
+export const FormContext = React.createContext({});
+
+
+export default class FirstRun extends Component<Props, State> {
   imgdata = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
 
   state = {
-    // @TODO
+    continents: [],
+    formdata: []
   }
 
   componentDidMount() {
-    ipcRenderer.send( '/database/continents' );
-    ipcRenderer.on( '/database/continents', this.handleContinentsFetch );
+    ipcRenderer.send( '/database/find', { dsname: 'continents' });
+    ipcRenderer.on( '/database/find', this.handleContinentsFetch );
   }
 
-  handleContinentsFetch = ( evt: Object, data: any ) => {
-    console.log( data );
+  handleContinentsFetch = ( evt: Object, continents: Array<Object> ) => {
+    this.setState({ continents });
   }
 
-  handleSubmit = ( evt: Object ) => {
-    evt.preventDefault();
-    this.props.history.push( '/?firstrun=false' );
+  handleSubmit = ( data: Object, next: string = '' ) => {
+    const { formdata } = this.state;
+    formdata.push( data );
+
+    // start the save process if we're done
+    // collecting form data
+    if( next === 'finish' ) {
+      ipcRenderer.send( '/windows/main/firstrun/save', formdata );
+    }
+
+    this.props.history.push( `/firstrun/${next}` );
+    this.setState({ formdata });
   }
+
+  renderRoutes = () => (
+    <FormContext.Provider
+      value={{
+        continents: this.state.continents,
+        onSubmit: this.handleSubmit
+      }}
+    >
+      <Route exact path="/firstrun" component={One} />
+      <Route exact path="/firstrun/two" component={Two} />
+      <Route exact path="/firstrun/finish" component={Finish} />
+    </FormContext.Provider>
+  )
 
   render() {
     return (
       <div id="firstrun">
         <img src={this.imgdata} alt="La Liga" />
-
         <TransitionGroup>
           <CSSTransition key={this.props.location.key} classNames="fade" timeout={300}>
             <Switch location={this.props.location}>
-              <Route exact path="/firstrun" component={One} />
-              <Route exact path="/firstrun/two" component={Two} />
+              {this.renderRoutes()}
             </Switch>
           </CSSTransition>
         </TransitionGroup>
@@ -57,5 +84,3 @@ class FirstRun extends Component<Props, State> {
     );
   }
 }
-
-export default FirstRun;

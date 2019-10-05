@@ -2,6 +2,8 @@
 import React, { Component } from 'react';
 import { Form, Button, Input, Select, Icon } from 'antd';
 import { validateForm, handleInputChange } from './common';
+import { FormContext } from './firstrun';
+
 import type { Field } from './common';
 
 
@@ -14,7 +16,8 @@ type State = {
 };
 
 type Props = {
-  history: Object
+  continents: Array<Object>,
+  onSubmit: Function
 };
 
 
@@ -40,7 +43,10 @@ class Two extends Component<Props, State> {
 
   handleSubmit = ( evt: Object ) => {
     evt.preventDefault();
-    this.props.history.push( '/firstrun/finish' );
+
+    // massage the data and pass it back to
+    // the parent route
+    this.props.onSubmit({ foo: 'bar' }, 'finish' );
   }
 
   render() {
@@ -76,11 +82,17 @@ class Two extends Component<Props, State> {
               placeholder="Select a Country"
               optionFilterProp="children"
             >
-              <OptGroup label={'North America'}>
-                <Option value="1">Jack</Option>
-                <Option value="2">Lucy</Option>
-                <Option value="3">Tom</Option>
-              </OptGroup>
+              {/* Render continents and their countries as option groups */}
+              {this.props.continents.map( ( continent: Object ) => (
+                <OptGroup key={continent.code} label={continent.name}>
+                  {continent.countries.map( ( country: Object ) => (
+                    <Option key={country.name} value={country.name}>
+                      {country.emoji}
+                      {country.name}
+                    </Option>
+                  ) )}
+                </OptGroup>
+              ) )}
             </Select>
           </FormItem>
           <Button
@@ -96,4 +108,14 @@ class Two extends Component<Props, State> {
   }
 }
 
-export default Two;
+/* REACT.CONTEXT HOC */
+export default ( props: Props ) => (
+  <FormContext.Consumer>
+    {formdata => (
+      <Two
+        {...props}
+        {...formdata}
+      />
+    )}
+  </FormContext.Consumer>
+);

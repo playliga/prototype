@@ -23,8 +23,7 @@ const CONFIG = {
     width: WIDTH,
     height: HEIGHT,
     minWidth: WIDTH,
-    minHeight: HEIGHT,
-    fullscreenable: false
+    minHeight: HEIGHT
   }
 };
 
@@ -42,7 +41,13 @@ function openWindowHandler( evt: Object, data: Object ) {
 }
 
 
+function saveFirstRunHandler( evt: Object, data: Object ) {
+  console.log( data );
+}
+
+
 export default () => {
   // ipc listeners
   ipcMain.on( '/windows/main/open', openWindowHandler );
+  ipcMain.on( '/windows/main/firstrun/save', saveFirstRunHandler );
 };

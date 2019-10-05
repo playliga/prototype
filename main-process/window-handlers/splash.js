@@ -24,8 +24,7 @@ const CONFIG = {
     maximizable: false,
     resizable: false,
     movable: false,
-    minimizable: false,
-    fullscreenable: false
+    minimizable: false
   }
 };
 

@@ -1,12 +1,20 @@
 // @flow
 import { ipcMain } from 'electron';
+import { Datastore } from 'main/lib/database';
 
 
-function handleContinentsFetch( evt: Object, data: Object ) {
-  evt.sender.send( '/database/continents', [ { foo: 'bar' } ] );
+type Query = {
+  dsname: string,
+  q?: Object
+};
+
+
+async function handleDBFetch( evt: Object, query: Query ) {
+  const dsinstance = new Datastore( query.dsname );
+  evt.sender.send( '/database/find', await dsinstance.find( query.q || {}) );
 }
 
 
 export default () => {
-  ipcMain.on( '/database/continents', handleContinentsFetch );
+  ipcMain.on( '/database/find', handleDBFetch );
 };

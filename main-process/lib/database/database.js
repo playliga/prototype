@@ -11,12 +11,13 @@ import NeDB from 'nedb';
 const _nedbinstances = {};
 
 
-class Datastore {
+export class Datastore {
   basepath: string;
   fullpath: string;
   name: string;
 
-  constructor( basepath: string ) {
+  constructor( name: string, basepath: string = '' ) {
+    this.name = name;
     this.basepath = basepath;
   }
 
@@ -90,16 +91,6 @@ class Datastore {
 }
 
 
-class ContinentDatastore extends Datastore {
-  name = 'continents';
-}
-
-
-class SeedDatastore extends Datastore {
-  name = 'seeds';
-}
-
-
 export default class Database {
   dbpath: string;
   datastores: Object;
@@ -107,8 +98,8 @@ export default class Database {
   constructor( dbpath: string ) {
     this.dbpath = dbpath;
     this.datastores = {
-      seeds: new SeedDatastore( this.dbpath ),
-      continents: new ContinentDatastore( this.dbpath )
+      seeds: new Datastore( 'seeds', this.dbpath ),
+      continents: new Datastore( 'continents', this.dbpath )
     };
   }
 

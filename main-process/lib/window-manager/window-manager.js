@@ -40,19 +40,30 @@ export default class WindowManager {
       return windows[ id ];
     }
 
-    // otherwise continue...
-    //
     // configure command line args
     const args = minimist( process.argv.slice( 2 ), {
       boolean: [ 'dev-console' ]
     });
+
+    // configure default window options which
+    // can be overriden by incoming options
+    const defaultoptions = {
+      fullscreenable: false,
+
+      // force `nodeIntegration` to true due to deprecation
+      // in Electron 5.0 API.
+      // see: https://bit.ly/2B7no8d
+      webPreferences: {
+        nodeIntegration: true
+      }
+    };
 
     // Create the browser window.
     // https://github.com/electron/electron/blob/master/docs/api/browser-window.md
     // https://github.com/electron/electron/blob/master/docs/api/frameless-window.md
     const window: Window = {
       id,
-      handle: new BrowserWindow( options )
+      handle: new BrowserWindow({ ...defaultoptions, ...options })
     };
 
     window.handle.loadURL( url, urlOptions );
