@@ -1,4 +1,3 @@
-// @flow
 import path from 'path';
 import NeDB from 'nedb';
 
@@ -12,11 +11,10 @@ const _nedbinstances = {};
 
 
 export class Datastore {
-  basepath: string;
-  fullpath: string;
-  name: string;
+  basepath;
+  name;
 
-  constructor( name: string, basepath: string = '' ) {
+  constructor( name, basepath = '' ) {
     this.name = name;
     this.basepath = basepath;
   }
@@ -40,7 +38,7 @@ export class Datastore {
    *
    * @return Promise
   **/
-  connect(): Promise<any> {
+  connect() {
     if( this.nedbinstance ) {
       return Promise.resolve( this.nedbinstance );
     }
@@ -50,8 +48,8 @@ export class Datastore {
       this.fullpath
     );
 
-    return new Promise( ( resolve: Function, reject: Function ) => {
-      this.nedbinstance.loadDatabase( ( err: Error ) => {
+    return new Promise( ( resolve, reject ) => {
+      this.nedbinstance.loadDatabase( ( err ) => {
         if( err ) {
           reject( err );
         }
@@ -61,13 +59,13 @@ export class Datastore {
     });
   }
 
-  find( query: Object = {}): Promise<any> {
+  find( query = {}) {
     if( !this.nedbinstance ) {
       throw new Error( 'Datastore not instantiated!' );
     }
 
-    return new Promise( ( resolve: Function, reject: Function ) => {
-      this.nedbinstance.find( query, ( err: Error, res: any ) => {
+    return new Promise( ( resolve, reject ) => {
+      this.nedbinstance.find( query, ( err, res ) => {
         if( err ) {
           reject( err );
         }
@@ -77,9 +75,9 @@ export class Datastore {
     });
   }
 
-  insert( doc: Object ): Promise<any> {
-    return new Promise( ( resolve: Function, reject: Function ) => {
-      this.nedbinstance.insert( doc, ( err: Error, newDoc: Object ) => {
+  insert( doc ) {
+    return new Promise( ( resolve, reject ) => {
+      this.nedbinstance.insert( doc, ( err, newDoc ) => {
         if( err ) {
           reject( err );
         }
@@ -92,10 +90,10 @@ export class Datastore {
 
 
 export default class Database {
-  dbpath: string;
-  datastores: Object;
+  dbpath;
+  datastores;
 
-  constructor( dbpath: string ) {
+  constructor( dbpath ) {
     this.dbpath = dbpath;
     this.datastores = {
       seeds: new Datastore( 'seeds', this.dbpath ),
@@ -108,11 +106,11 @@ export default class Database {
    * paths. Mainly used by the app hen cloning the
    * database on a fresh install.
   **/
-  get datastorepaths(): Array<string> {
+  get datastorepaths() {
     return Object
       .keys( this.datastores )
-      .map( ( dskey: string ) => this.datastores[ dskey ] )
-      .map( ( ds: Datastore ) => ds.fullpath );
+      .map( ( dskey ) => this.datastores[ dskey ] )
+      .map( ( ds ) => ds.fullpath );
   }
 
   /**
@@ -120,10 +118,10 @@ export default class Database {
    * Returns a promise once all databastores have
    * been loaded.
   **/
-  connect(): Promise<any> {
+  connect() {
     const promises = Object.keys( this.datastores )
-      .map( ( dskey: string ) => this.datastores[ dskey ] )
-      .map( ( ds: Object ) => ds.connect() );
+      .map( ( dskey ) => this.datastores[ dskey ] )
+      .map( ( ds ) => ds.connect() );
 
     return Promise.all( promises );
   }

@@ -1,1 +1,0 @@
-export DatabaseAPI from './database-api';

@@ -19,12 +19,12 @@ exports.compilerConfig = {
 
 exports.loaders = {
   js: {
-    test: /\.jsx?$/,
+    test: /\.(ts|js)x?$/,
     exclude: /node_modules/,
     loader: 'babel-loader'
   },
   eslint: {
-    test: /\.jsx?$/,
+    test: /\.(ts|js)x?$/,
     enforce: 'pre',
     exclude: /node_modules/,
     loader: 'eslint-loader',

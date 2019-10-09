@@ -1,12 +1,11 @@
-// @flow
 import { continents, countries } from 'countries-list';
 
 
-function continentFormatter( continentCode: string ) {
+function continentFormatter( continentCode ) {
   // collect countries for current continent
   const continentCountries = Object.keys( countries )
     .map( ( countryCode: string ) => countries[ countryCode ] )
-    .filter( ( country: Object ) => country.continent === continentCode );
+    .filter( ( country ) => country.continent === continentCode );
 
   // return object with continent and country data
   return {
@@ -18,12 +17,12 @@ function continentFormatter( continentCode: string ) {
 
 
 export default class Seeder {
-  static up( docs: Object ) {
+  static up( docs ) {
     const data = Object.keys( continents ).map( continentFormatter );
     return docs.continents.insert( data );
   }
 
-  static down( db: Object ) {
+  static down( db ) {
     // should return a promise
   }
 }

@@ -8,7 +8,7 @@
 const path = require( 'path' );
 
 module.exports = {
-  extensions: [ '.js', '.jsx' ],
+  extensions: [ '.ts', '.tsx', '.js', '.json' ],
   alias: {
     main: path.resolve( __dirname, '../main-process' ),
     renderer: path.resolve( __dirname, '../renderer-process' )

@@ -36,10 +36,10 @@ log.transports.file.file = path.join( __dirname, '/compiler.log' );
 function handleErrors( err, stats ) {
   // bail on any fatal errors
   if( err ) {
-    console.error( err.stack || err );
+    log.error( err.stack || err );
 
     if( err.details ) {
-      console.error( err.details );
+      log.error( err.details );
     }
 
     process.exit( 1 );
@@ -50,17 +50,21 @@ function handleErrors( err, stats ) {
   const info = stats.toJson( sharedconfig.compilerConfig );
 
   if( stats.hasErrors() ) {
-    console.error( info.errors );
+    log.error( info.errors );
     process.exit( 1 );
   }
 
-  // we're done! print out compiler info
+  if( stats.hasWarnings() ) {
+    log.info( info.warnings );
+  }
+
+  // we're done! print out compiler logs
   log.debug( info );
 }
 
 function launchElectron( err ) {
   if( err ) {
-    console.error( err );
+    log.error( err );
     process.exit( 1 );
   }
 
@@ -78,9 +82,8 @@ function launchElectron( err ) {
       env: process.env,
       stdio: 'inherit'
     }
-  )
-  .on( 'close', code => process.exit( code ) )
-  .on( 'error', spawnError => console.error( spawnError ) );
+  ) .on( 'close', code => process.exit( code ) )
+    .on( 'error', spawnError => console.error( spawnError ) );
 }
 
 /**
@@ -91,7 +94,7 @@ function launchElectron( err ) {
  * @param {*} config Webpack config to compile
  */
 function compile( config ) {
-  return new Promise( ( resolve, reject ) => {
+  return new Promise( ( resolve ) => {
     webpack( config ).run( ( err, stats ) => {
       handleErrors( err, stats );
       return resolve( stats );
@@ -124,47 +127,47 @@ function handleProd() {
 
   log.info( 'Compiling electron...' );
   compile( electronconfig )
-  .then( () => {
-    log.info( 'Compiling renderer...' );
-    return compile( rendererconfig );
-  })
-  .then( () => {
-    log.info( 'Building application...' );
-    return build({
-      targets: createTargets( platforms ),
-      publish: ARGS.publish
+    .then( () => {
+      log.info( 'Compiling renderer...' );
+      return compile( rendererconfig );
+    })
+    .then( () => {
+      log.info( 'Building application...' );
+      return build({
+        targets: createTargets( platforms ),
+        publish: ARGS.publish
+      });
+    })
+    .then( ( output ) => {
+      log.info( output );
+    })
+    .catch( ( err ) => {
+      log.error( err );
     });
-  })
-  .then( ( output ) => {
-    log.info( output );
-  })
-  .catch( ( err ) => {
-    log.error( err );
-  });
 }
 
 function handleDev() {
   log.info( 'Compiling electron...' );
   compile( electronconfig )
-  .then( () => {
-    log.info( 'Compiling renderer...' );
+    .then( () => {
+      log.info( 'Compiling renderer...' );
 
-    const app = express();
-    const compiler = webpack( rendererconfig );
+      const app = express();
+      const compiler = webpack( rendererconfig );
 
-    wdm = webpackDevMiddleware( compiler, {
-      quiet: false,
-      logLevel: 'silent',
-      publicPath: rendererconfig.output.publicPath,
-      stats: sharedconfig.compilerConfig
+      wdm = webpackDevMiddleware( compiler, {
+        quiet: false,
+        logLevel: 'warn',
+        publicPath: rendererconfig.output.publicPath,
+        stats: sharedconfig.compilerConfig
+      });
+      wdm.waitUntilValid( () => {
+        server = app.listen( PORT, 'localhost', launchElectron );
+      });
+
+      app.use( wdm );
+      app.use( webpackHotMiddleware( compiler ) );
     });
-    wdm.waitUntilValid( () => {
-      server = app.listen( PORT, 'localhost', launchElectron );
-    });
-
-    app.use( wdm );
-    app.use( webpackHotMiddleware( compiler ) );
-  });
 }
 
 

@@ -1,6 +1,3 @@
-// @flow
-/* eslint-disable no-console */
-/* eslint-disable import/no-dynamic-require */
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -55,7 +52,7 @@ function generateSeeder() {
 /**
  * Coming soon...
 **/
-async function loadAllSeeds( dbinstance: Object ): Promise<*> {
+async function loadAllSeeds( dbinstance ) {
   const { seeds } = dbinstance.datastores;
   const seederfilenames = await promisify( glob )(
     '**/*.js',
@@ -74,8 +71,8 @@ async function loadAllSeeds( dbinstance: Object ): Promise<*> {
 
   // otherwise filter seeds by those that have not been
   // run. the allseeds array stores past executed seeds
-  pendingseeds = seederfilenames.filter( ( filename: string ) => {
-    const found = allseeds.findIndex( ( seedobj: Object ) => (
+  pendingseeds = seederfilenames.filter( ( filename ) => {
+    const found = allseeds.findIndex( ( seedobj ) => (
       seedobj.filename === filename
     ) );
 
@@ -83,8 +80,7 @@ async function loadAllSeeds( dbinstance: Object ): Promise<*> {
     return found === -1;
   });
 
-  const promises = pendingseeds.map( ( filename: string ) => {
-    // $FlowSkip
+  const promises = pendingseeds.map( ( filename ) => {
     const seeder = require(
       `${path.join( SEEDERSPATH, filename )}`
     ).default;

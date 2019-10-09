@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "react",
+    "lib": ["es6", "dom"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "paths": {
+      "main*": [ "main-process*" ],
+      "renderer*": [ "renderer-process*" ]
+    },
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "esnext",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./main-process/@types"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js"
+  ]
+}
