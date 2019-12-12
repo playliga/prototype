@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import Particles from 'react-particles-js';
 
-import './index.scss';
-import App from './app';
+import './assets/styles.scss';
+import Splash from './splash';
 import particleConfig from './assets/particle-config.json';
 
 
@@ -24,7 +24,7 @@ const Wrapper = () => (
       params={particleConfig}
       className="particles"
     />
-    <App />
+    <Splash />
   </Fragment>
 );
 
@@ -33,5 +33,5 @@ render( Wrapper );
 
 
 if( module.hot ) {
-  module.hot.accept( './app', () => { render( Wrapper ); });
+  module.hot.accept( './splash', () => { render( Wrapper ); });
 }

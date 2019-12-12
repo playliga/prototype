@@ -3,10 +3,10 @@ import { MemoryRouter } from 'react-router-dom';
 import Routes from 'renderer/windows/main/routes';
 
 
-const App = () => (
+const Main = () => (
   <MemoryRouter>
     <Routes />
   </MemoryRouter>
 );
 
-export default App;
+export default Main;

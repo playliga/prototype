@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { Icon } from 'antd';
-import './app.scss';
 
 
 interface State {
@@ -10,7 +9,7 @@ interface State {
 }
 
 
-class App extends Component<{}, State> {
+class Splash extends Component<{}, State> {
   statuses = {
     CHECKING: 'Checking for updates...',
     ERROR: 'Error checking for update. See logs for more information.',
@@ -91,4 +90,5 @@ class App extends Component<{}, State> {
   }
 }
 
-export default App;
+
+export default Splash;

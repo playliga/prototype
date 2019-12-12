@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Layout, Menu, Icon, Card } from 'antd';
-import './home.scss';
 
 
 const imgdata = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';

@@ -6,7 +6,6 @@ import { Continent } from 'main/lib/database/types';
 import One from './one';
 import Two from './two';
 import Finish from './finish';
-import './firstrun.scss';
 
 
 interface State {
