@@ -11,8 +11,8 @@ const WIDTH = 800;
 const HEIGHT = 600;
 const CONFIG = {
   url: is.production()
-    ? `file://${path.join( __dirname, 'dist/renderer/windows/main/index.html' )}`
-    : `http://localhost:${PORT}/windows/main/index.html`,
+    ? `file://${path.join( __dirname, 'dist/renderer/windows/firstrun/index.html' )}`
+    : `http://localhost:${PORT}/windows/firstrun/index.html`,
   opts: {
     backgroundColor: '#f5f5f5', // "whitesmoke"
     width: WIDTH,
@@ -25,7 +25,7 @@ const CONFIG = {
 
 // ipc handlers
 function openWindowHandler() {
-  const win = WindowManager.createWindow( '/windows/main', CONFIG.url, CONFIG.opts );
+  const win = WindowManager.createWindow( '/windows/firstrun', CONFIG.url, CONFIG.opts );
   win.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on
@@ -36,7 +36,13 @@ function openWindowHandler() {
 }
 
 
+function saveFirstRunHandler( evt: object, data: object ) {
+  console.log( data );
+}
+
+
 export default () => {
   // ipc listeners
-  ipcMain.on( '/windows/main/open', openWindowHandler );
+  ipcMain.on( '/windows/firstrun/open', openWindowHandler );
+  ipcMain.on( '/windows/firstrun/save', saveFirstRunHandler );
 };

@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
 import { Route } from 'react-router-dom';
-import Home from './home';
+import FirstRun from './firstrun';
 
 
 const Routes = () => (
   <Fragment>
-    <Route path="/" component={Home} />
+    <Route path="/" component={FirstRun} />
   </Fragment>
 );
 

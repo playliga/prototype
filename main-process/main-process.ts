@@ -4,7 +4,7 @@ import { app } from 'electron';
 import { DatabaseAPI } from 'main/app-handlers';
 import Database from 'main/lib/database';
 import WindowManager from 'main/lib/window-manager';
-import { SplashWindow, MainWindow } from 'main/window-handlers';
+import { SplashWindow, MainWindow, FirstRunWindow } from 'main/window-handlers';
 
 
 /**
@@ -50,6 +50,7 @@ function handleOnReady() {
 
     // window handlers
     SplashWindow();
+    FirstRunWindow();
     MainWindow();
   });
 }

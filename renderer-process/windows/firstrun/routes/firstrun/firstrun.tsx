@@ -55,7 +55,7 @@ export default class FirstRun extends Component<RouteComponentProps, State> {
         onSubmit: this.handleSubmit
       }}
     >
-      <Route exact path="/firstrun" component={One} />
+      <Route exact path="/" component={One} />
       <Route exact path="/firstrun/two" component={Two} />
       <Route exact path="/firstrun/finish" component={Finish} />
     </FormContext.Provider>

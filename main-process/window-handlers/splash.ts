@@ -8,6 +8,11 @@ import { Window } from 'main/lib/window-manager/types';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
 
 
+// @todo: the firstrun redirect logic.
+const FIRSTRUN = true;
+const REDIRECT_TARGET = FIRSTRUN ? 'firstrun' : 'main';
+
+
 // module-level variables and constants
 const PORT = process.env.PORT || 3000;
 const WIDTH = 300;
@@ -44,7 +49,7 @@ function handleError( err: Error ) {
 
   // attempt to launch the main application anyways
   setTimeout( () => {
-    ipcMain.emit( '/windows/main/open' );
+    ipcMain.emit( `/windows/${REDIRECT_TARGET}/open` );
     win.handle.close();
   }, 2000 );
 }
@@ -59,7 +64,7 @@ function handleNoUpdateAvail() {
   // close the splash window after 2 seconds
   // and open the main application window
   setTimeout( () => {
-    ipcMain.emit( '/windows/main/open' );
+    ipcMain.emit( `/windows/${REDIRECT_TARGET}/open` );
     win.handle.close();
   }, 2000 );
 }
@@ -90,7 +95,7 @@ function handleUpdateDownloaded() {
 
     // otherwise, manually close this window
     // and open the main application window
-    ipcMain.emit( '/windows/main/open' );
+    ipcMain.emit( `/windows/${REDIRECT_TARGET}/open` );
     win.handle.close();
   }, 2000 );
 }
