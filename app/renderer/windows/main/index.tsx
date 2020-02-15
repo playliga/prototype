@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import './assets/styles.scss';
-import Main from './main';
+import Root from './root';
 
 
 const render = ( Component: React.ReactType<unknown> ) => {
@@ -15,9 +15,9 @@ const render = ( Component: React.ReactType<unknown> ) => {
 };
 
 
-render( Main );
+render( Root );
 
 
 if( module.hot ) {
-  module.hot.accept( './main', () => { render( Main ); });
+  module.hot.accept( './root', () => { render( Root ); });
 }
