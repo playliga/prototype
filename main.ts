@@ -1,3 +1,3 @@
-import main from './main-process';
+import main from './app/main';
 
 main();

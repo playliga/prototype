@@ -21,11 +21,11 @@
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=production node -r @babel/register ./webpack/compiler.js --mac",
-    "db:seed:generate": "node -r @babel/register ./main-process/lib/database/database-cli.js generate $1",
-    "db:seed:all": "node -r @babel/register ./main-process/lib/database/database-cli.js all $1",
+    "db:seed:generate": "node -r @babel/register ./app/main/lib/database/database-cli.js generate $1",
+    "db:seed:all": "node -r @babel/register ./app/main/lib/database/database-cli.js all $1",
     "start": "cross-env NODE_ENV=development node -r @babel/register ./webpack/compiler.js",
     "start:electron": "cross-env NODE_ENV=development electron ./main.bundle.js",
-    "squad-updater": "ts-node ./main-process/lib/scraper-factory/index.ts",
+    "squad-updater": "ts-node ./app/main/lib/scraper-factory/index.ts",
     "test": "cross-env NODE_ENV=test jest",
     "test:coverage": "npm test -- --coverage"
   },

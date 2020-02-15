@@ -10,15 +10,15 @@
     "moduleResolution": "node",
     "noEmit": true,
     "paths": {
-      "main*": [ "main-process*" ],
-      "renderer*": [ "renderer-process*" ]
+      "main*": [ "app/main*" ],
+      "renderer*": [ "app/renderer*" ]
     },
     "resolveJsonModule": true,
     "strict": true,
     "target": "esnext",
     "typeRoots": [
       "./node_modules/@types",
-      "./main-process/@types"
+      "./app/main/@types"
     ]
   },
   "exclude": [

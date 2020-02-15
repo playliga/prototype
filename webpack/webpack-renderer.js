@@ -31,7 +31,7 @@ function devEntries() {
     output[item] = [
       'react-hot-loader/patch',
       `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-      path.join( ROOT, `renderer-process/windows/${item}/index` )
+      path.join( ROOT, `app/renderer/windows/${item}/index` )
     ];
   });
 
@@ -68,7 +68,7 @@ function prodEntries() {
   const output = {};
 
   ENTRIES.forEach( ( item ) => {
-    output[item] = path.join( ROOT, `renderer-process/windows/${item}/index` );
+    output[item] = path.join( ROOT, `app/renderer/windows/${item}/index` );
   });
 
   return output;
