@@ -11,7 +11,7 @@ module.exports = {
   },
   "moduleDirectories": [
     "node_modules",
-    "main/lib"
+    "app/main/lib"
   ],
   "coverageThreshold": {
     "global": {
@@ -29,7 +29,7 @@ module.exports = {
     "app/main/lib/**/*.{ts,tsx}"
   ],
   "roots": [
-    "<rootDir>/main/lib"
+    "<rootDir>/app/main/lib"
   ],
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
