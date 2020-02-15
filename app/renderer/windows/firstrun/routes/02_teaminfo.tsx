@@ -1,8 +1,7 @@
 import React, { Component, FormEvent } from 'react';
 import { Form, Button, Input, Select, Icon } from 'antd';
 import { Continent, Country } from 'main/lib/database/types';
-import { validateForm, handleInputChange, Field } from './common';
-import { FormContext } from './common';
+import { validateForm, handleInputChange, Field, FormContext } from '../common';
 
 
 const FormItem = Form.Item;

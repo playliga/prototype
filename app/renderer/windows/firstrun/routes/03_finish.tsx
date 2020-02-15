@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Spin } from 'antd';
-import { FormContext } from './common';
+import { FormContext } from '../common';
 
 
 class Finish extends Component<unknown> {

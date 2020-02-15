@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import { Continent } from 'main/lib/database/types';
-import { FormContext } from './common';
+import { FormContext } from '../common';
 import One from './01_userinfo';
 import Two from './02_teaminfo';
 import Finish from './03_finish';
