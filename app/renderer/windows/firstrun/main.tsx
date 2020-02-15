@@ -1,11 +1,11 @@
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route } from 'react-router-dom';
 import Routes from 'renderer/windows/firstrun/routes';
 
 
 const Main = () => (
   <MemoryRouter>
-    <Routes />
+    <Route path="/" component={Routes} />
   </MemoryRouter>
 );
 

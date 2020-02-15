@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Spin } from 'antd';
-import { FormContext } from './firstrun';
+import { FormContext } from './common';
 
 
 class Finish extends Component<unknown> {
-  render() {
+  public render() {
     return (
       <section className="content">
         <h1>{'Finishing...'}</h1>

@@ -1,4 +1,8 @@
 import { isEmpty } from 'validator';
+import React from 'react';
+
+
+export const FormContext = React.createContext({});
 
 
 export interface Field {

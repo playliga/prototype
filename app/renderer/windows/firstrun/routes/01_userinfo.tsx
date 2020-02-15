@@ -2,7 +2,7 @@ import React, { Component, FormEvent } from 'react';
 import { Form, Button, Input, Select, Icon } from 'antd';
 import { Continent, Country } from 'main/lib/database/types';
 import { validateForm, handleInputChange, Field } from './common';
-import { FormContext } from './firstrun';
+import { FormContext } from './common';
 
 
 const FormItem = Form.Item;
@@ -20,22 +20,39 @@ interface Props {
 }
 
 
-class Two extends Component<Props, State> {
-  private plaintxtfields = [ 'name' ]
+class One extends Component<Props, State> {
+  private plaintxtfields = [ 'fname', 'lname', 'alias' ]
 
   public state: State = {
-    name: {
+    fname: {
       value: '',
       validateStatus: 'success' as 'success',
       errorMsg: null,
       pristine: true,
-      placeholder: 'Team Name',
-      icontype: 'user',
-      regex: /^[\w ]+$/
+      placeholder: 'First Name',
+      icontype: 'user'
+    },
+    lname: {
+      value: '',
+      validateStatus: 'success' as 'success',
+      errorMsg: null,
+      pristine: true,
+      placeholder: 'Last Name',
+      icontype: 'user'
+    },
+    alias: {
+      value: '',
+      validateStatus: 'success' as 'success',
+      errorMsg: null,
+      pristine: true,
+      placeholder: 'Alias',
+      icontype: 'robot',
+      regex: /^[\w]+$/,
+      regexErrorMsg: 'Only alphanumeric & underscores allowed.'
     }
   }
 
-  handleInputChange = ( evt: React.ChangeEvent ) => {
+  private handleInputChange = ( evt: React.ChangeEvent ) => {
     const field = this.state[ evt.target.id ];
     this.setState(
       handleInputChange(
@@ -45,21 +62,21 @@ class Two extends Component<Props, State> {
     );
   }
 
-  handleSubmit = ( evt: FormEvent<HTMLFormElement> ) => {
+  private handleSubmit = ( evt: FormEvent<HTMLFormElement> ) => {
     evt.preventDefault();
 
     // massage the data and pass it back to
     // the parent route
-    this.props.onSubmit({ foo: 'bar' }, 'finish' );
+    this.props.onSubmit({ foo: 'bar' }, 'two' );
   }
 
-  render() {
+  public render() {
     return (
       <section className="content">
-        <h1>{'Team Info!'}</h1>
+        <h1>{'Welcome!'}</h1>
 
         <Form onSubmit={this.handleSubmit}>
-          {this.plaintxtfields.map( ( id: string ) => {
+          {this.plaintxtfields.map( ( id: string, idx: number ) => {
             const field = this.state[ id ];
 
             return (
@@ -70,7 +87,7 @@ class Two extends Component<Props, State> {
                 help={field.errorMsg || ''}
               >
                 <Input
-                  autoFocus
+                  autoFocus={idx === 0}
                   id={id}
                   placeholder={field.placeholder}
                   value={field.value || undefined}
@@ -87,6 +104,7 @@ class Two extends Component<Props, State> {
               optionFilterProp="children"
             >
               {/* Render continents and their countries as option groups */}
+              {/* @TODO move this to a common lib to be re-used */}
               {this.props.continents.map( ( continent: Continent ) => (
                 <OptGroup key={continent.code} label={continent.name}>
                   {continent.countries.map( ( country: Country ) => (
@@ -104,7 +122,7 @@ class Two extends Component<Props, State> {
             htmlType="submit"
             disabled={validateForm( this.state )}
           >
-            {'Finish'}
+            {'Next'}
           </Button>
         </Form>
       </section>
@@ -116,7 +134,7 @@ class Two extends Component<Props, State> {
 export default ( props: Props ) => (
   <FormContext.Consumer>
     {formdata => (
-      <Two
+      <One
         {...props}
         {...formdata}
       />
