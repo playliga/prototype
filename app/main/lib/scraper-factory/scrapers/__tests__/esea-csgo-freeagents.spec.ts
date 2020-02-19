@@ -9,7 +9,7 @@ describe( 'esea_csgo free agents scraper', () => {
   it( 'generates free agents for the na and eu regions', async () => {
     // increase the default jest timeout
     // due to the async nature of this test
-    jest.setTimeout( 500 );
+    jest.setTimeout( 10000 );
 
     const eseacsgofa = new ESEA_CSGO_FREEAGENTS( CACHE_DIR );
     const res = await eseacsgofa.generate();

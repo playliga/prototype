@@ -9,7 +9,7 @@ describe( 'esea_csgo scraper', () => {
   it( 'generates a division and its teams and squads', async () => {
     // increase the default jest timeout
     // due to the async nature of this test
-    jest.setTimeout( 500 );
+    jest.setTimeout( 10000 );
 
     // overwrite the default regions with just one for testing purposes
     // and also use only one division for that region

@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import CachedScraper from '../cached-scraper';
 
 
-export class Player {
+export class ESEA_CSGO_Player {
   id: string;
   username = '';
   countryCode = '';
@@ -18,7 +18,7 @@ export class Player {
 }
 
 
-export class Team {
+export class ESEA_CSGO_Team {
   id: string;
   name = '';
   url: string;
@@ -27,7 +27,7 @@ export class Team {
   countryCode = '';
   division = '';
   skillTemplate = '';
-  squad: Array<Player> = [];
+  squad: Array<ESEA_CSGO_Player> = [];
 
   constructor( url: string, division: string, placement: number ) {
     this.id = url.split( '?' )[ 0 ].split( 'teams/' )[ 1 ];
@@ -37,11 +37,11 @@ export class Team {
   }
 }
 
-export class Division {
+export class ESEA_CSGO_Division {
   id: string;
   url: string;
   name = '';
-  teams: Array<Team> = [];
+  teams: Array<ESEA_CSGO_Team> = [];
 
   constructor( url: string ) {
     this.id = url.split( 'division_id=' )[ 1 ];
@@ -49,17 +49,17 @@ export class Division {
   }
 }
 
-export class Region {
+export class ESEA_CSGO_Region {
   id: string;
-  divisions: Array<Division>;
+  divisions: Array<ESEA_CSGO_Division>;
 
-  constructor( id: string, divisions: Array<Division> ) {
+  constructor( id: string, divisions: Array<ESEA_CSGO_Division> ) {
     this.id = id;
     this.divisions = divisions;
   }
 }
 
-export type Regions = Array<Region>;
+export type ESEA_CSGO_Regions = Array<ESEA_CSGO_Region>;
 
 
 class ESEA_CSGO {
@@ -67,23 +67,23 @@ class ESEA_CSGO {
   DIVISION_BASE_URL = 'index.php?s=league&d=standings&division_id';
 
   scraperObj: CachedScraper;
-  regions: Regions;
+  regions: ESEA_CSGO_Regions;
 
   constructor( cacheDir: string ) {
     this.scraperObj = new CachedScraper( cacheDir );
     this.scraperObj.initCacheDir();
 
     this.regions = [
-      new Region(
+      new ESEA_CSGO_Region(
         'na', [
-          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2490` ),
-          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2491` )
+          new ESEA_CSGO_Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2490` ),
+          new ESEA_CSGO_Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2491` )
         ]
       ),
-      new Region(
+      new ESEA_CSGO_Region(
         'eu', [
-          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2485` ),
-          new Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2505` )
+          new ESEA_CSGO_Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2485` ),
+          new ESEA_CSGO_Division( `${this.BASE_URL}/${this.DIVISION_BASE_URL}=2505` )
         ]
       )
     ];
@@ -93,7 +93,7 @@ class ESEA_CSGO {
    * Build a unique array of team URLs for the current division object.
    * Modifies the passed in division object and returns it.
    */
-  buildDivision = ( divisionObj: Division, data: string ): Division => {
+  buildDivision = ( divisionObj: ESEA_CSGO_Division, data: string ): ESEA_CSGO_Division => {
     const $ = cheerio.load( data );
     const teamListElem = $( '#league-standings table tr[class*="row"]' );
 
@@ -106,7 +106,7 @@ class ESEA_CSGO {
       const teamContainerElem = $( el ).children( 'td:nth-child(2)' );
       const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' );
 
-      divisionObj.teams.push( new Team(
+      divisionObj.teams.push( new ESEA_CSGO_Team(
         this.BASE_URL + teamURL.replace( /\./g, '&period[' ),
         divisionObj.name,
         counter
@@ -123,7 +123,7 @@ class ESEA_CSGO {
    * Build the team object and its squad from the scraped html data.
    * Modified the passed in team object5 and returns it.
    */
-  buildTeam = ( teamObj: Team, html: string ) => {
+  buildTeam = ( teamObj: ESEA_CSGO_Team, html: string ) => {
     const $ = cheerio.load( html );
     const profileElem = $( '#teams-profile hr + section' );
     const profileInfoElem = profileElem.children( 'div#profile-info' );
@@ -172,7 +172,7 @@ class ESEA_CSGO {
         teamObj.countryCode = countryCode;
       }
 
-      const playerObj = new Player( camelCase( nameElem.text() ) );
+      const playerObj = new ESEA_CSGO_Player( camelCase( nameElem.text() ) );
       playerObj.username = nameElem.text();
       playerObj.countryCode = teamObj.countryCode;
       playerObj.teamId = teamObj.id;
@@ -186,7 +186,7 @@ class ESEA_CSGO {
     return teamObj;
   }
 
-  generate = async (): Promise<Regions> => {
+  generate = async (): Promise<ESEA_CSGO_Regions> => {
     const regions = this.regions;
 
     for( let i = 0; i < regions.length; i++ ) {
@@ -199,9 +199,14 @@ class ESEA_CSGO {
 
         // scrape the current division's information and collect
         // its list of teams
-        const content = await this.scraperObj.scrape( divisionObj.url, divisionObj.id );
-        divisionObj = this.buildDivision( divisionObj, content );
-
+        try {
+          const content = await this.scraperObj.scrape( divisionObj.url, divisionObj.id );
+          divisionObj = this.buildDivision( divisionObj, content );
+        } catch( err ) {
+          console.log( `\nskipping ${divisionObj.id}...` );
+          console.log( err.message );
+          continue;
+        }
 
         // we have the list of teams for the current division
         // now we need to scrape each team's page and collect information and squad

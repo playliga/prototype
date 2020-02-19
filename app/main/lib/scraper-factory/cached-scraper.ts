@@ -6,14 +6,14 @@ import { promisify } from 'util';
 
 
 export default class CachedScraper {
-  cacheDir: string = path.join( __dirname, './cache' )
-  scraperThrottleDelay = 8000
+  private cacheDir: string = path.join( __dirname, './cache' )
+  private scraperThrottleDelay = 8000
 
   constructor( cacheDir: string | null = null ) {
     this.cacheDir = cacheDir || this.cacheDir;
   }
 
-  setThrottleDelay( num: number ): void {
+  public setThrottleDelay( num: number ): void {
     this.scraperThrottleDelay = num;
   }
 
@@ -21,7 +21,7 @@ export default class CachedScraper {
   * Create cache directory if not already exists. It's fine to block execution
   * as we'd do the same thing if we were to do it async.
   */
-  initCacheDir = (): void => {
+  public initCacheDir = (): void => {
     if( !fs.existsSync( this.cacheDir ) ) {
       fs.mkdirSync( this.cacheDir );
     }
@@ -31,7 +31,7 @@ export default class CachedScraper {
   * Search for specified cache file.
   * Useful for when deciding whether to fetch directly from website or not
   */
-  getCachedFile = async ( filename: string ): Promise<string[]> => {
+  public getCachedFile = async ( filename: string ): Promise<string[]> => {
     const globPromise = promisify( glob );
     const result = await globPromise( `**/*+(${filename}).html`, { cwd: this.cacheDir });
 
@@ -49,7 +49,7 @@ export default class CachedScraper {
   * NOTE: delaying response by X-amount of seconds
   * See: https://github.com/codemanki/cloudscraper#wat
   */
-  delayedScraper = ( url: string ): Promise<string> => (
+  public delayedScraper = ( url: string ): Promise<string> => (
     new Promise( ( resolve: Function, reject: Function ) => {
       cloudscraper
         .get( url )
@@ -65,7 +65,7 @@ export default class CachedScraper {
   * specified id was found in cache. If not, it will send the request and then
   * store the returned data in cache.
   */
-  scrape = async ( url: string, filename: string ): Promise<string> => {
+  public scrape = async ( url: string, filename: string ): Promise<string> => {
     // Do we have a cached file to load from?
     const CACHE_FILENAME = `${Date.now()}_${filename}.html`;
 
@@ -81,7 +81,8 @@ export default class CachedScraper {
     // If no cache, we can continue with making our request.
     // After that's done, we save the data to cache
     try {
-      const body = await this.delayedScraper( url );
+      // const body = await this.delayedScraper( url );
+      const body = await cloudscraper.get( url );
       fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
 
       return Promise.resolve( body );

@@ -25,7 +25,11 @@ const CONFIG = {
 
 // ipc handlers
 function openWindowHandler() {
-  const win = WindowManager.createWindow( '/windows/firstrun', CONFIG.url, CONFIG.opts );
+  const win = WindowManager.createWindow(
+    '/windows/firstrun',
+    CONFIG.url,
+    CONFIG.opts
+  );
   win.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on

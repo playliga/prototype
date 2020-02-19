@@ -4,13 +4,13 @@ import { promisify } from 'util';
 import minimist from 'minimist';
 import chalk from 'chalk';
 import glob from 'glob';
-import Database from './database';
+import Database from '../app/main/lib/database/database';
 
 
 // module-level variables and functions
 const ARGS = minimist( process.argv.slice( 2 ) );
 const POSARGS = ARGS._ || [];
-const ROOTPATH = path.join( __dirname, '../../../' );
+const ROOTPATH = path.join( __dirname, '../' );
 const DBPATH = path.join( ROOTPATH, 'resources/databases' );
 const SEEDERSPATH = path.join( ROOTPATH, 'resources/seeders' );
 

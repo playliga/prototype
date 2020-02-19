@@ -97,7 +97,9 @@ export default class Database {
     this.dbpath = dbpath;
     this.datastores = {
       seeds: new Datastore( 'seeds', this.dbpath ),
-      continents: new Datastore( 'continents', this.dbpath )
+      continents: new Datastore( 'continents', this.dbpath ),
+      players: new Datastore( 'players', this.dbpath ),
+      teams: new Datastore( 'teams', this.dbpath )
     };
   }
 
