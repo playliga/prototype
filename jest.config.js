@@ -28,6 +28,9 @@ module.exports = {
   "collectCoverageFrom": [
     "app/main/lib/**/*.{ts,tsx}"
   ],
+  coveragePathIgnorePatterns: [
+    "/scrapers/"
+  ],
   "roots": [
     "<rootDir>/app/main/lib"
   ],
