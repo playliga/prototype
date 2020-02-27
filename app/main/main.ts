@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { DatabaseAPI } from 'main/app-handlers';
+import { DatabaseAPI } from 'main/ipc-handlers/core';
+import { SplashWindow, MainWindow, FirstRunWindow } from 'main/ipc-handlers/window';
 import Database from 'main/lib/database';
 import WindowManager from 'main/lib/window-manager';
-import { SplashWindow, MainWindow, FirstRunWindow } from 'main/window-handlers';
 
 
 /**
