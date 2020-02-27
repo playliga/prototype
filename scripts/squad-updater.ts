@@ -18,21 +18,12 @@ cnx.then( run );
 
 
 async function run() {
-  // get esea:csgo teams and their players
-  const factoryObj = new ScraperFactory(
+  // scrape hltv for top-tier teams
+  const hltvscraper = new ScraperFactory(
     path.join( THISPATH, 'cache' ),
-    'esea-csgo'
+    'hltv-csgo'
   );
 
-  const esea_regions = await factoryObj.generate() as ESEA_CSGO_Region[];
-  // region { id, divisions }
-  // divisions { id, name, teams }
-  // team { id, name, placement, ..., squad: player[] }
-  // player { id, ..., username }
-
-  esea_regions.forEach( r => {
-    r.divisions.forEach( d => {
-      d.teams.forEach( t => console.log( d.name, t.name ) );
-    });
-  });
+  const tier0 = await hltvscraper.generate();
+  console.log( tier0 );
 }
