@@ -116,6 +116,7 @@
     "antd": "3.23.6",
     "cheerio": "1.0.0-rc.3",
     "cloudscraper": "4.6.0",
+    "console.table": "0.10.0",
     "countries-list": "2.4.3",
     "cuid": "2.1.6",
     "dedent": "0.7.0",
