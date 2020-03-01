@@ -12,11 +12,11 @@ export default class ScraperFactory {
     this.innerFactoryObj = new factoryObj( cacheDir );
   }
 
-  public generate = (): Promise<unknown> => {
+  public generate = ( args: unknown = '' ): Promise<unknown> => {
     if( typeof this.innerFactoryObj.generate !== 'function' ) {
       throw new Error( 'Factory `generate()` method not implemented.' );
     }
 
-    return this.innerFactoryObj.generate();
+    return this.innerFactoryObj.generate( args );
   }
 }

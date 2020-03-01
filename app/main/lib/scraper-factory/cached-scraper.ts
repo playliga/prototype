@@ -81,8 +81,8 @@ export default class CachedScraper {
     // If no cache, we can continue with making our request.
     // After that's done, we save the data to cache
     try {
-      // const body = await this.delayedScraper( url );
-      const body = await cloudscraper.get( url );
+      const body = await this.delayedScraper( url );
+      // const body = await cloudscraper.get( url );
       fs.writeFileSync( `${this.cacheDir}/${CACHE_FILENAME}`, body );
 
       return Promise.resolve( body );

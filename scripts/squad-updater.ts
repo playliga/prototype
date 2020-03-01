@@ -1,7 +1,7 @@
 import path from 'path';
+import dedent from 'dedent';
 import Database from '../app/main/lib/database';
 import { ScraperFactory } from '../app/main/lib/scraper-factory';
-import { ESEA_CSGO_Region } from '../app/main/lib/scraper-factory/scrapers/esea-csgo';
 
 
 // module-level variables and functions
@@ -18,12 +18,29 @@ cnx.then( run );
 
 
 async function run() {
-  // scrape hltv for top-tier teams
-  const hltvscraper = new ScraperFactory(
+  // scrape liquipedia for top-tier teams
+  const lqscraper = new ScraperFactory(
     path.join( THISPATH, 'cache' ),
-    'hltv-csgo'
+    'liquipedia-csgo-esea'
   );
 
-  const tier0 = await hltvscraper.generate();
-  console.log( tier0 );
+  const season = 32;
+  const regions = [ 'Europe', 'North_America' ];
+  const tiers = [ 'Premier', 'Advanced', 'Main' ];
+
+  regions.forEach( region => {
+    tiers.forEach( async tier => {
+      const url = `ESEA/Season_${season}/${tier}/${region}`;
+      const data = await lqscraper.generate( url ) as any[];
+      const output = dedent`
+        --------------------------
+        season: ${season}
+        region: ${region}
+        division: ${tier}
+        num. teams: ${data.length}
+        --------------------------
+      `;
+      console.log( output );
+    });
+  });
 }
