@@ -37,8 +37,18 @@ class Region {
 }
 
 
-// --------------------------------------
-
+/**
+ * LIQUIPEDIA SCRAPER
+ *
+ * Generates data for the top three divisions:
+ * - Premier
+ * - Advanced
+ * - Main
+ *
+ * The data is fetched recursively in chunks organized
+ * by seasons. If the team count does not meet the
+ * requirements another season is fetched.
+ */
 
 // init current season counter
 let currentseason = STARTSEASON;
