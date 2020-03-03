@@ -99,6 +99,12 @@ export default class LIQUIPEDIA_CSGO_ESEA {
     );
   }
 
+  private extractSeason( segment: string ) {
+    // ESEA/Season_32/Advanced/Europe
+    const res = segment.match(/Season_(\d+)/);
+    return res ? res[ 1 ] : null;
+  }
+
   private extractDivisionId( segment: string ) {
     // ESEA/Season_32/Advanced/Europe
     const res = segment.match(/Season_\d+\/(.+)\//);
@@ -118,7 +124,8 @@ export default class LIQUIPEDIA_CSGO_ESEA {
     const url = this.buildURL( segment );
     const divisionid = this.extractDivisionId( segment );
     const region = this.extractRegion( segment );
-    const res = await this.scraper.scrape( url, `lq_teams_esea_${divisionid}_${region}` );
+    const season = this.extractSeason( segment );
+    const res = await this.scraper.scrape( url, `lq_teams_esea_${season}_${divisionid}_${region}` );
     const html = JSON.parse( res ).parse.text['*'];
 
     // for readability:

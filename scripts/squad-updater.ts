@@ -11,7 +11,7 @@ const DBPATH          = path.join( ROOTPATH, 'resources/databases' );
 const DBINSTANCE      = new Database( DBPATH );
 const SCRAPER_TIMEOUT = 4000;   // timeout for requests to not get banned
 const STARTSEASON     = 32;     // starting season
-const ENDSEASON       = 30;     // and then work backards
+const ENDSEASON       = 25;     // and then work backards
 const TIERS = [
   { name: 'Premier', minlen: 20, teams: [] },
   { name: 'Advanced', minlen: 20, teams: [] },
@@ -96,9 +96,14 @@ async function gentier( tier: Tier, regionname: string ): Promise<Tier> {
     return Promise.resolve( tier );
   }
 
+  // get the team data
   const url = `ESEA/Season_${currentseason}/${tier.name}/${regionname}`;
   const data = await lqscraper.generate( url ) as never[];
-  const teams = [ ...tier.teams, ...data ];
+
+  // dedupe logic
+  const existingteams = tier.teams.map( ( t: any ) => t.name );
+  const newteams = data.filter( ( d: any ) => existingteams.indexOf( d.name ) < 0 );
+  const teams = [ ...tier.teams, ...newteams ];
 
   return new Promise( res => {
     setTimeout(
@@ -119,23 +124,31 @@ async function genregion( region: Region ): Promise<Region> {
 }
 
 
-async function genseason( regions: Region[] ) {
+async function genseason( regions: Region[] ): Promise<Region[]> {
   const result = await Promise.all( regions.map( genregion ) );
   printresults( result );
 
   // keep track of tiers that still need players
   const missing = findmissing( result );
 
-  // tiers missing players so we
-  // must continue the main loop
+  // tiers missing players so we must
+  // try again with another season
   if( missing && currentseason > ENDSEASON ) {
     currentseason -= 1;
-    genseason( result );
+    return genseason( result );
   }
+
+  return Promise.resolve( result );
 }
 
 
 // establish db connection and
 // execute code once established
 const cnx = DBINSTANCE.connect();
-cnx.then( () => genseason( REGIONS ) );
+cnx.then( run );
+
+
+async function run() {
+  const data = await genseason( REGIONS );
+  console.log( data );
+}
