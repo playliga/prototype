@@ -51,12 +51,13 @@ export default class CachedScraper {
   */
   public delayedScraper = ( url: string ): Promise<string> => (
     new Promise( ( resolve: Function, reject: Function ) => {
-      cloudscraper
-        .get( url )
-        .then( ( htmlstring: string ) => {
-          setTimeout( () => resolve( htmlstring ), this.scraperThrottleDelay );
-        })
-        .catch( ( err: Error ) => reject( err ) );
+      setTimeout( () => {
+        cloudscraper
+          .get( url )
+          .then( ( htmlstring: string ) => resolve( htmlstring ) )
+          .catch( ( err: Error ) => reject( err ) )
+        ;
+      }, this.scraperThrottleDelay );
     })
   )
 

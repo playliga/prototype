@@ -9,17 +9,18 @@ const ROOTPATH        = path.join( __dirname, '../' );
 const THISPATH        = __dirname;
 const DBPATH          = path.join( ROOTPATH, 'resources/databases' );
 const DBINSTANCE      = new Database( DBPATH );
-const SCRAPER_TIMEOUT = 4000;   // timeout for requests to not get banned
-const STARTSEASON     = 32;     // starting season
-const ENDSEASON       = 25;     // and then work backards
 const TIERS = [
   { name: 'Premier', minlen: 20, teams: [] },
   { name: 'Advanced', minlen: 20, teams: [] },
   { name: 'Main', minlen: 20, teams: [] },
 ];
+const LOWTIERS = [
+  { name: 'Intermediate', minlen: 60, teams: [] },
+  { name: 'Open', minlen: 100, teams: [] },
+];
 const REGIONS = [
-  { name: 'Europe', tiers: TIERS },
-  { name: 'North_America', tiers: TIERS }
+  { name: 'Europe', tiers: TIERS, lowtiers: LOWTIERS },
+  { name: 'North_America', tiers: TIERS, lowtiers: LOWTIERS }
 ];
 
 
@@ -34,7 +35,14 @@ class Tier {
 class Region {
   public name = ''
   public tiers: Tier[] = []
+  public lowtiers: Tier[] = []
 }
+
+
+// establish db connection and
+// execute code once established
+const cnx = DBINSTANCE.connect();
+cnx.then( run );
 
 
 /**
@@ -49,6 +57,11 @@ class Region {
  * by seasons. If the team count does not meet the
  * requirements another season is fetched.
  */
+
+// constants
+const STARTSEASON     = 32;     // starting season
+const ENDSEASON       = 25;     // and then work backards
+
 
 // init current season counter
 let currentseason = STARTSEASON;
@@ -114,13 +127,7 @@ async function gentier( tier: Tier, regionname: string ): Promise<Tier> {
   const existingteams = tier.teams.map( ( t: any ) => t.name );
   const newteams = data.filter( ( d: any ) => existingteams.indexOf( d.name ) < 0 );
   const teams = [ ...tier.teams, ...newteams ];
-
-  return new Promise( res => {
-    setTimeout(
-      () => res({ ...tier, teams }),
-      SCRAPER_TIMEOUT
-    );
-  });
+  return Promise.resolve({ ...tier, teams });
 }
 
 
@@ -135,7 +142,7 @@ async function genregion( region: Region ): Promise<Region> {
 
 
 async function genseason( regions: Region[] ): Promise<Region[]> {
-  const result = await Promise.all( regions.map( genregion ) );
+  let result = await Promise.all( regions.map( genregion ) );
   printresults( result );
 
   // keep track of tiers that still need players
@@ -145,20 +152,127 @@ async function genseason( regions: Region[] ): Promise<Region[]> {
   // try again with another season
   if( missing && currentseason > ENDSEASON ) {
     currentseason -= 1;
-    return genseason( result );
+    result = await genseason( result );
   }
 
   return Promise.resolve( result );
 }
 
 
-// establish db connection and
-// execute code once established
-const cnx = DBINSTANCE.connect();
-cnx.then( run );
+/**
+ * ESEA STATSPAGE SCRAPER
+ *
+ * @todo
+ */
+
+// constants
+const MAXPAGE   = 13;   // how many pages to try before giving up
+const PER_SQUAD = 5;    // how many players per team
+
+
+// init scraper
+const statscraper = new ScraperFactory(
+  path.join( THISPATH, 'cache' ),
+  'esea-csgo-statspage'
+);
+
+
+// utility functions
+function dedupe( arr: any[] ) {
+  return Array
+    .from( new Set( arr.map( ( item: any ) => item.id ) ) )
+    .map( id => arr.find( ( item: any ) => item.id === id ) )
+  ;
+}
+
+
+function sum( arr: any[], prop: string ) {
+  let total = 0;
+
+  for ( let i = 0; i < arr.length; i++ ) {
+    total += arr[i][prop];
+  }
+
+  return total;
+}
+
+
+// generator functions
+async function genESEAregion(
+  region: Region,
+  data: any[],
+  currentpage = 1
+): Promise<any> {
+  if( currentpage > MAXPAGE ) {
+    return Promise.resolve( data );
+  }
+
+  // load existing team+player data
+  const [ teamdata, playerdata ] = data;
+  const totalteams = sum( region.lowtiers, 'minlen' );
+  const totalplayers = totalteams * PER_SQUAD;
+
+  // get new player+team data
+  const args = { region_id: 1, page: currentpage };
+  const [ newteamdata, newplayerdata ] = await statscraper.generate( args ) as any[];
+
+  // merge and dedupe the results
+  const teams = dedupe([ ...teamdata, ...newteamdata ]);
+  const players = dedupe([ ...playerdata, ...newplayerdata ]);
+  let result = [ teams, players ];
+
+  // print the results
+  const out = ctable.getTable(
+    `${region.name} (Page: ${currentpage})`, [
+      {
+        type: 'teams',
+        count: `${teams.length} of ${totalteams}`,
+        status: teams.length >= totalteams ? '✅' : '❌'
+      },
+      {
+        type: 'players',
+        count: `${players.length} of ${totalplayers}`,
+        status: players.length >= totalplayers ? '✅' : '❌'
+      }
+    ]
+  );
+
+  console.log( out );
+
+  // do we have to look for more?
+  //
+  // check team length first
+  if( teams.length < totalteams ) {
+    result = await genESEAregion( region, result, currentpage + 1 );
+    return Promise.resolve( result );
+  }
+
+  // then check if we have enough players to fill the teams
+  if( players.length < totalplayers ) {
+    result = await genESEAregion( region, result, currentpage + 1 );
+    return Promise.resolve( result );
+  }
+
+  return Promise.resolve( result );
+}
+
+
+async function genESEAregions( regions: Region[] ) {
+  // generate the necessary teams per region.
+  // which is the sum of `tiers.teams`.
+  const allregiondata = await Promise.all(
+    regions.map( region => genESEAregion( region, [ [], [] ] ) )
+  );
+
+  // split all the region team data appropriately into each tier.
+  // @hint: use Array.split with offset
+  allregiondata.forEach( ( rdata: any[], idx ) => {
+    console.log( 'we have enough data...' );
+  });
+}
 
 
 async function run() {
-  const data = await genseason( REGIONS );
-  console.log( data );
+  // const data = await genseason( REGIONS );
+  const pagedata = await genESEAregions( REGIONS );
 }
