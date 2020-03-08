@@ -1,4 +1,5 @@
 import path from 'path';
+import dedent from 'dedent';
 import ctable from 'console.table';
 import Database from '../app/main/lib/database';
 import { ScraperFactory } from '../app/main/lib/scraper-factory';
@@ -273,6 +274,17 @@ async function genESEAregions( regions: Region[] ) {
 
 
 async function run() {
-  // const data = await genseason( REGIONS );
+  console.log( dedent`
+    =============================
+    Generating data for top tiers
+    =============================
+  `);
+  const data = await genseason( REGIONS );
+
+  console.log( dedent`
+    ===============================
+    Generating data for lower tiers
+    ===============================
+  `);
   const pagedata = await genESEAregions( REGIONS );
 }
