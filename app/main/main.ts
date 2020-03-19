@@ -17,8 +17,7 @@ function setupDB() {
   const dbinstance = new Database( dbpath );
   const datastorepaths = dbinstance.datastorepaths;
 
-  // if for whatever reason the dbpath folder does
-  // not exist create it
+  // if the dbpath does not exist; create it
   if( !fs.existsSync( dbpath ) ) {
     fs.mkdirSync( dbpath );
   }

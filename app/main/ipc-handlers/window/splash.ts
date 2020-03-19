@@ -9,7 +9,7 @@ import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib
 
 
 // @todo: the firstrun redirect logic.
-const FIRSTRUN = true;
+const FIRSTRUN = false;
 const REDIRECT_TARGET = FIRSTRUN ? 'firstrun' : 'main';
 
 
@@ -183,7 +183,7 @@ export default () => {
   // if in production use the real auto-updater
   // otherwise use the fake one.
   if( is.production() ) {
-    // @TODO — flip this on once auto-updating is enabled
+    // @note: flip this on once auto-updating is enabled
     autoUpdater.on( 'error', handleError );
     autoUpdater.on( 'checking-for-update', handleCheckingUpdate );
     autoUpdater.on( 'update-available', handleUpdateAvail );
@@ -192,7 +192,7 @@ export default () => {
     autoUpdater.on( 'update-downloaded', handleUpdateDownloaded );
     // autoUpdater.checkForUpdates();
 
-    // @TODO — flip this off once auto-updating is enabled
+    // @note: flip this off once auto-updating is enabled
     fakeAutoUpdater();
   } else {
     fakeAutoUpdater();
