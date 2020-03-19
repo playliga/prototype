@@ -104,7 +104,7 @@ class ESEA_CSGO {
 
     teamListElem.each( ( counter: number, el: CheerioElement ) => {
       const teamContainerElem = $( el ).children( 'td:nth-child(2)' );
-      const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' );
+      const teamURL = teamContainerElem.children( 'a:nth-child(2)' ).attr( 'href' ) || '';
 
       divisionObj.teams.push( new ESEA_CSGO_Team(
         this.BASE_URL + teamURL.replace( /\./g, '&period[' ),
@@ -164,7 +164,9 @@ class ESEA_CSGO {
       const countryElem = $( el ).children( 'a' ).children( 'img' );
       const nameElem = $( el ).children( 'a:nth-child(3)' );
 
+      // @ts-ignore
       const index = countryElem.attr( 'src' ).indexOf( '.gif' );
+      // @ts-ignore
       const countryCode = countryElem.attr( 'src' ).substring( index - 2, index );
 
       // Inherit first player's country code as the team's
