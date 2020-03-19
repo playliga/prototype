@@ -7,14 +7,19 @@ import NeDB from 'nedb';
  * class. Each property should be a singleton Datastore
  * instance.
 **/
-const _nedbinstances = {};
+const _nedbinstances: IterableObject = {};
+
+
+interface IterableObject {
+  [x: string]: any;
+}
 
 
 export class Datastore {
-  basepath;
-  name;
+  public basepath = '';
+  public name = '';
 
-  constructor( name, basepath = '' ) {
+  constructor( name: string, basepath = '' ) {
     this.name = name;
     this.basepath = basepath;
   }
@@ -38,7 +43,7 @@ export class Datastore {
    *
    * @return Promise
   **/
-  connect() {
+  public connect() {
     if( this.nedbinstance ) {
       return Promise.resolve( this.nedbinstance );
     }
@@ -49,7 +54,7 @@ export class Datastore {
     );
 
     return new Promise( ( resolve, reject ) => {
-      this.nedbinstance.loadDatabase( ( err ) => {
+      this.nedbinstance.loadDatabase( ( err: any ) => {
         if( err ) {
           reject( err );
         }
@@ -59,13 +64,13 @@ export class Datastore {
     });
   }
 
-  find( query = {}) {
+  public find( query = {}) {
     if( !this.nedbinstance ) {
       throw new Error( 'Datastore not instantiated!' );
     }
 
     return new Promise( ( resolve, reject ) => {
-      this.nedbinstance.find( query, ( err, res ) => {
+      this.nedbinstance.find( query, ( err: any, res: any ) => {
         if( err ) {
           reject( err );
         }
@@ -75,9 +80,9 @@ export class Datastore {
     });
   }
 
-  insert( doc ) {
+  public insert( doc: any ) {
     return new Promise( ( resolve, reject ) => {
-      this.nedbinstance.insert( doc, ( err, newDoc ) => {
+      this.nedbinstance.insert( doc, ( err: any, newDoc: any ) => {
         if( err ) {
           reject( err );
         }
@@ -90,10 +95,10 @@ export class Datastore {
 
 
 export default class Database {
-  dbpath;
-  datastores;
+  public dbpath = '';
+  public datastores: any = {};
 
-  constructor( dbpath ) {
+  constructor( dbpath: string ) {
     this.dbpath = dbpath;
     this.datastores = {
       seeds: new Datastore( 'seeds', this.dbpath ),
@@ -120,7 +125,7 @@ export default class Database {
    * Returns a promise once all databastores have
    * been loaded.
   **/
-  connect() {
+  public connect() {
     const promises = Object.keys( this.datastores )
       .map( ( dskey ) => this.datastores[ dskey ] )
       .map( ( ds ) => ds.connect() );

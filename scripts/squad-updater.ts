@@ -9,7 +9,8 @@ import { ScraperFactory } from '../app/main/lib/scraper-factory';
 const ROOTPATH        = path.join( __dirname, '../' );
 const THISPATH        = __dirname;
 const DBPATH          = path.join( ROOTPATH, 'resources/databases' );
-const DBINSTANCE      = new Database( DBPATH );
+
+
 const TIERS = [
   { name: 'Premier', minlen: 20, teams: [] },
   { name: 'Advanced', minlen: 20, teams: [] },
@@ -28,7 +29,7 @@ const REGIONS = [
 // module class definitions
 class Tier {
   public name = ''
-  public teams = []
+  public teams: any[] = []
   public minlen = 20
 }
 
@@ -42,7 +43,8 @@ class Region {
 
 // establish db connection and
 // execute code once established
-const cnx = DBINSTANCE.connect();
+const dbinstance = new Database( DBPATH );
+const cnx = dbinstance.connect();
 cnx.then( run );
 
 
@@ -198,6 +200,49 @@ function sum( arr: any[], prop: string ) {
 }
 
 
+function toregion( region: Region, rdata: any[][] ): Region {
+  // data: [ Team[], Player[] ]
+  //
+  // the data must transform into: Region.lowtiers
+  //
+  // 1. loop through teams
+  // 2. take PER_SQUAD from player array
+  // 3. take those teams and place into interm+open tiers
+  // 4. return Region object
+
+  // get the region and team+player data
+  const [ teams, players ] = rdata;
+
+  // load the divisions for the current region
+  const open = region.lowtiers[0];
+  const im = region.lowtiers[1];
+
+  // @todo
+  open.teams = teams
+    .slice( 0, open.minlen )
+    .map( ( team, idx ) => ({
+      ...team,
+      players: players.slice(
+        PER_SQUAD * idx,                  // start
+        ( PER_SQUAD * idx ) + PER_SQUAD   // end
+      )
+    }))
+  ;
+  im.teams = teams
+    .slice( open.minlen, im.minlen )
+    .map( ( team, idx ) => ({
+      ...team,
+      players: players.slice(
+        ( PER_SQUAD * idx ) + open.minlen,            // start
+        ( PER_SQUAD * idx ) + PER_SQUAD + open.minlen // end
+      )
+    }))
+  ;
+
+  return region;
+}
+
+
 // generator functions
 async function genESEAregion(
   region: Region,
@@ -261,15 +306,17 @@ async function genESEAregion(
 async function genESEAregions( regions: Region[] ) {
   // generate the necessary teams per region.
   // which is the sum of `tiers.teams`.
-  const allregiondata = await Promise.all(
+  const allteamsplayers = await Promise.all(
     regions.map( region => genESEAregion( region, [ [], [] ] ) )
   );
 
-  // split all the region team data appropriately into each tier.
-  // @hint: use Array.split with offset
-  allregiondata.forEach( ( rdata: any[], idx ) => {
-    console.log( 'we have enough data...' );
-  });
+  // now split up all the team+player
+  // evenly into the regions array
+  const newregions = allteamsplayers.map(
+    ( rdata, idx ) => toregion( regions[idx], rdata )
+  );
+
+  return Promise.resolve( newregions );
 }
 
 
@@ -279,12 +326,30 @@ async function run() {
     Generating data for top tiers
     =============================
   `);
-  const data = await genseason( REGIONS );
+  const regional_hightiers = await genseason( REGIONS );
 
   console.log( dedent`
     ===============================
     Generating data for lower tiers
     ===============================
   `);
-  const pagedata = await genESEAregions( REGIONS );
+  const regional_lowtiers = await genESEAregions( REGIONS );
+
+  // combine everything together
+  // @todo: enum for regions (0=??, 1=??)
+  const data = [
+    { ...REGIONS[0], tiers: regional_hightiers[0].tiers, lowtiers: regional_lowtiers[0].lowtiers },
+    { ...REGIONS[1], tiers: regional_hightiers[1].tiers, lowtiers: regional_lowtiers[1].lowtiers },
+  ];
+
+  // now save everything to db
+  const ds = dbinstance.datastores.teams;
+
+  ds.insert( data ).then( () => {
+    console.log( dedent`
+      =============================
+      Finished.
+      =============================
+    `);
+  });
 }

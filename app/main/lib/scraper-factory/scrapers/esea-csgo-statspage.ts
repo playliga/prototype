@@ -54,6 +54,11 @@ class ESEA_CSGO_Player {
     this.countrycode = extractCountryCode( countryurl ) || '';
     this.countryurl = countryurl;
   }
+
+  public isvalid() {
+    // check if id or name are empty.
+    return this.id.length > 0 && this.name.length > 0;
+  }
 }
 
 
@@ -74,6 +79,11 @@ class ESEA_CSGO_Team {
     this.name = teamname;
     this.url = teamurl;
     this.tag = teamtag;
+  }
+
+  public isvalid() {
+    // check if id or name are empty.
+    return this.id.length > 0 && this.name.length > 0;
   }
 }
 
@@ -133,8 +143,16 @@ export default class ESEA_CSGO_STATSPAGE {
     // add the new team+player data
     // to the existing output
     const [ teams, players ] = this.output;
-    teams.push( team );
-    players.push( player );
+
+    // only if the team was valid though
+    if( team.isvalid() ) {
+      teams.push( team );
+    }
+
+    // only if the player was valid though
+    if( player.isvalid() ) {
+      players.push( player );
+    }
   }
 
   public async generate( args: IterableObject ): Promise<any> {
