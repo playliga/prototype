@@ -10,7 +10,8 @@ interface Query {
 
 async function handleDBFetch( evt: IpcMainEvent, query: Query ) {
   const dsinstance = new Datastore( query.dsname );
-  evt.sender.send( '/database/find', await dsinstance.find( query.q || {}) );
+  const data = await dsinstance.find( query.q || {});
+  evt.sender.send( '/database/find', data );
 }
 
 

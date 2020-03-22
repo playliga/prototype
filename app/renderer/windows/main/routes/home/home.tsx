@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import { Layout, Menu, Icon, Card } from 'antd';
 
 
@@ -19,15 +20,24 @@ const SubMenu = Menu.SubMenu;
 
 
 class Home extends Component<{}, State> {
-  state = {
+  public state = {
     collapsed: false
   }
 
-  handleOnCollapse = ( collapsed: boolean ) => {
+  public componentDidMount() {
+    ipcRenderer.send( '/database/find', { dsname: 'teams' });
+    ipcRenderer.on( '/database/find', this.handleTeamsFetch );
+  }
+
+  private handleTeamsFetch = ( evt: object, teams: any[] ) => {
+    console.log( teams );
+  }
+
+  private handleOnCollapse = ( collapsed: boolean ) => {
     this.setState({ collapsed });
   }
 
-  renderSider = () => (
+  private renderSider = () => (
     <Sider
       collapsible
       collapsed={this.state.collapsed}
@@ -61,7 +71,7 @@ class Home extends Component<{}, State> {
     </Sider>
   )
 
-  renderCenterContent = () => (
+  private renderCenterContent = () => (
     <Layout>
       <Content className="content">
         <Card>
@@ -71,7 +81,7 @@ class Home extends Component<{}, State> {
     </Layout>
   )
 
-  render() {
+  public render() {
     return (
       <Layout id="home">
         {this.renderSider()}
