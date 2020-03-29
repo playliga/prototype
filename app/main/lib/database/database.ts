@@ -1,23 +1,25 @@
 import path from 'path';
 import NeDB from 'nedb';
+import { IterableObject } from 'main/types';
 
 
 /**
- * Persist this variable outside the scope of the database
- * class. Each property should be a singleton Datastore
- * instance.
-**/
-const _nedbinstances: IterableObject = {};
+ * Persist the NeDB instances within an iterable object
+ * where each item is a datastore singleton instance.
+ */
+const _nedbinstances: IterableObject<any> = {};
 
 
-interface IterableObject {
-  [x: string]: any;
-}
+/**
+ * Persist the database instance as a singleton object.
+ */
+let _dbinstance: Database;
+
 
 
 export class Datastore {
-  public basepath = '';
-  public name = '';
+  public basepath: string;
+  public name: string;
 
   constructor( name: string, basepath = '' ) {
     this.name = name;
@@ -64,6 +66,33 @@ export class Datastore {
     });
   }
 
+  /**
+   * Resyncs the database by running NeDB's `compactdatafile`
+   * function. It promisify's it by completing the async
+   * task once the `compaction.done` event is triggered.
+   *
+   * Under the hood NeDB uses an append-only format. Meaning
+   * that all updates and deletes actually result in lines
+   * added at the end of the datafile.
+   *
+   * https://github.com/louischatriot/nedb#persistence
+   *
+   * @return Promise
+   */
+  public resync() {
+    if( !this.nedbinstance ) {
+      throw new Error( 'Datastore not instantiated!' );
+    }
+
+    return new Promise( resolve => {
+      this.nedbinstance.persistence.compactDatafile();
+      this.nedbinstance.on(
+        'compaction.done',
+        () => resolve()
+      );
+    });
+  }
+
   public find( query = {}) {
     if( !this.nedbinstance ) {
       throw new Error( 'Datastore not instantiated!' );
@@ -91,26 +120,55 @@ export class Datastore {
       });
     });
   }
+
+  public update( q: any, doc: any ) {
+    return new Promise( ( resolve, reject ) => {
+      this.nedbinstance.update( q, doc, {}, ( err: any, numreplaced: number ) => {
+        if( err ) {
+          reject( err );
+        }
+
+        resolve( numreplaced );
+      });
+    });
+  }
 }
 
 
 export default class Database {
   public dbpath = '';
-  public datastores: any = {};
+  public datastores: IterableObject<Datastore> = {};
 
-  constructor( dbpath: string ) {
+  constructor( dbpath = '' ) {
+    if( _dbinstance ) {
+      return _dbinstance;
+    }
+
+    // if no instance is ready and path was not provided, bail
+    if( !dbpath && _dbinstance ) {
+      throw new Error(`
+        Database is not instantiated and path was not provided!
+      `);
+    }
+
     this.dbpath = dbpath;
     this.datastores = {
       seeds: new Datastore( 'seeds', this.dbpath ),
       continents: new Datastore( 'continents', this.dbpath ),
+      userdata: new Datastore( 'userdata', this.dbpath ),
+      teams: new Datastore( 'teams', this.dbpath ),
       players: new Datastore( 'players', this.dbpath ),
-      teams: new Datastore( 'teams', this.dbpath )
+      compdefs: new Datastore( 'compdefs', this.dbpath ),
+      competitions: new Datastore( 'competitions', this.dbpath )
     };
+
+    _dbinstance = this;
+    return _dbinstance;
   }
 
   /**
    * Getter for returning an array of all of the datastore
-   * paths. Mainly used by the app hen cloning the
+   * paths. Mainly used by the app when cloning the
    * database on a fresh install.
   **/
   get datastorepaths() {

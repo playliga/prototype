@@ -1,8 +1,9 @@
 import path from 'path';
 import dedent from 'dedent';
 import ctable from 'console.table';
-import Database from '../app/main/lib/database';
-import { ScraperFactory } from '../app/main/lib/scraper-factory';
+import { flatten } from 'lodash';
+import Database from 'main/lib/database';
+import { ScraperFactory } from 'main/lib/scraper-factory';
 
 
 // module variables
@@ -214,12 +215,12 @@ function toregion( region: Region, rdata: any[][] ): Region {
   const [ teams, players ] = rdata;
 
   // load the divisions for the current region
-  const open = region.lowtiers[0];
-  const im = region.lowtiers[1];
+  const im = region.lowtiers[0];
+  const open = region.lowtiers[1];
 
   // @todo
-  open.teams = teams
-    .slice( 0, open.minlen )
+  im.teams = teams
+    .slice( 0, im.minlen )
     .map( ( team, idx ) => ({
       ...team,
       players: players.slice(
@@ -228,13 +229,13 @@ function toregion( region: Region, rdata: any[][] ): Region {
       )
     }))
   ;
-  im.teams = teams
-    .slice( open.minlen, im.minlen )
+  open.teams = teams
+    .slice( im.minlen, im.minlen + open.minlen )
     .map( ( team, idx ) => ({
       ...team,
       players: players.slice(
-        ( PER_SQUAD * idx ) + open.minlen,            // start
-        ( PER_SQUAD * idx ) + PER_SQUAD + open.minlen // end
+        ( PER_SQUAD * idx ) + im.minlen,              // start
+        ( PER_SQUAD * idx ) + PER_SQUAD + im.minlen   // end
       )
     }))
   ;
@@ -320,6 +321,55 @@ async function genESEAregions( regions: Region[] ) {
 }
 
 
+/**
+ *
+ * Main scraper function
+ *
+ */
+
+// utility functions
+function normalizeregion( region: Region, idx: number ) {
+  const teams = [] as any[];
+
+  // hightiers (0 thru 2)
+  region.tiers.forEach( ( tier, tierid ) => {
+    tier.teams.forEach( teamobj => {
+      // delete the unused "id" props from both teams+players
+      delete teamobj.id;
+      teamobj.players.forEach( ( p: any ) => { delete p.id; });
+
+      // push the formatted team to the teams array
+      teams.push({
+        ...teamobj,
+        region: idx,
+        tier: tierid
+      });
+    });
+  });
+
+  // lowtiers (3 and 4)
+  const tieroffset = region.tiers.length;
+
+  region.lowtiers.forEach( ( tier, tierid ) => {
+    tier.teams.forEach( teamobj => {
+      // delete the unused "id" props from both teams+players
+      delete teamobj.id;
+      teamobj.players.forEach( ( p: any ) => { delete p.id; });
+
+      // push the formatted team to the teams array
+      teams.push({
+        ...teamobj,
+        region: idx,
+        tier: tieroffset + tierid
+      });
+    });
+  });
+
+  return teams;
+}
+
+
+// run it!
 async function run() {
   console.log( dedent`
     =============================
@@ -336,16 +386,45 @@ async function run() {
   const regional_lowtiers = await genESEAregions( REGIONS );
 
   // combine everything together
-  // @todo: enum for regions (0=??, 1=??)
   const data = [
     { ...REGIONS[0], tiers: regional_hightiers[0].tiers, lowtiers: regional_lowtiers[0].lowtiers },
     { ...REGIONS[1], tiers: regional_hightiers[1].tiers, lowtiers: regional_lowtiers[1].lowtiers },
   ];
 
-  // now save everything to db
-  const ds = dbinstance.datastores.teams;
+  // normalize the regional data into a flat array of teams
+  const teams = flatten( data.map( normalizeregion ) );
 
-  ds.insert( data ).then( () => {
+  // now save everything to db
+  const teamsds = dbinstance.datastores.teams;
+  const playersds = dbinstance.datastores.players;
+
+  // store all async tasks in an array to
+  // know when *everything* is done
+  const allp = teams.map( async team => {
+    // 1. save the team and get the generated _id
+    const newteam = await teamsds.insert( team ) as any;
+
+    // 2. save the team's roster and assign their teamid and tier
+    const players = team.players.map( ( p: any ) => ({ ...p, teamid: newteam._id, tier: newteam.tier }) );
+    const newplayers = await playersds.insert( players ) as any;
+
+    // 3. update the team with the array of playerids
+    const updatedteam = await teamsds.update(
+      { _id: newteam._id },
+      { $set: { players: newplayers.map( ( p: any ) => p._id ) } }
+    );
+
+    // 4. return the updated team
+    return Promise.resolve( updatedteam );
+  });
+
+  // once everything is done, the datastores must be resync'd.
+  // due to the way nedb updates existing records
+  Promise.all( allp ).then( async () => {
+    await teamsds.resync();
+    await playersds.resync();
+
+    // we're done here...
     console.log( dedent`
       =============================
       Finished.

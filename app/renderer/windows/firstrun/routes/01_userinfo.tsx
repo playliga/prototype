@@ -48,7 +48,15 @@ class One extends Component<Props, State> {
       icontype: 'robot',
       regex: /^[\w]+$/,
       regexErrorMsg: 'Only alphanumeric & underscores allowed.'
-    }
+    },
+    country: {
+      value: '',
+      validateStatus: '' as 'success',
+      errorMsg: null,
+      pristine: true,
+      placeholder: '',
+      icontype: ''
+    },
   }
 
   private handleInputChange = ( evt: React.ChangeEvent ) => {
@@ -61,12 +69,25 @@ class One extends Component<Props, State> {
     );
   }
 
+  private handleSelectChange = ( value: string ) => {
+    const country = this.state.country;
+    country.value = value;
+    country.pristine = false;
+    this.setState({ country });
+  }
+
   private handleSubmit = ( evt: FormEvent<HTMLFormElement> ) => {
     evt.preventDefault();
 
-    // massage the data and pass it back to
-    // the parent route
-    this.props.onSubmit({ foo: 'bar' }, 'two' );
+    // build the payload
+    const payload = {
+      name: `${this.state.fname.value} ${this.state.lname.value}`,
+      alias: this.state.alias.value,
+      country: this.state.country.value
+    };
+
+    // pass it back to the parent route
+    this.props.onSubmit( payload, 'two' );
   }
 
   public render() {
@@ -101,6 +122,7 @@ class One extends Component<Props, State> {
               showSearch
               placeholder="Select a Country"
               optionFilterProp="children"
+              onChange={this.handleSelectChange}
             >
               {/* Render continents and their countries as option groups */}
               {/* @TODO move this to a common lib to be re-used */}

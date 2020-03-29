@@ -4,7 +4,7 @@ import { promisify } from 'util';
 import minimist from 'minimist';
 import chalk from 'chalk';
 import glob from 'glob';
-import Database from '../app/main/lib/database/database';
+import Database from 'main/lib/database';
 
 
 // module-level variables and functions
@@ -30,7 +30,7 @@ function generateSeeder() {
 
   // create a file with the following format:
   // $unixtimestamp-$name.js
-  const filename = `${Date.now()}-${ARGS.name.toString()}.js`;
+  const filename = `${Date.now()}-${ARGS.name.toString()}.ts`;
 
   // create seeders directory if it
   // doesn't already exist
@@ -52,10 +52,10 @@ function generateSeeder() {
 /**
  * Coming soon...
 **/
-async function loadAllSeeds( dbinstance ) {
+async function loadAllSeeds( dbinstance: any ) {
   const { seeds } = dbinstance.datastores;
   const seederfilenames = await promisify( glob )(
-    '**/*.js',
+    '**/*.ts',
     { cwd: SEEDERSPATH }
   );
 
@@ -72,7 +72,7 @@ async function loadAllSeeds( dbinstance ) {
   // otherwise filter seeds by those that have not been
   // run. the allseeds array stores past executed seeds
   pendingseeds = seederfilenames.filter( ( filename ) => {
-    const found = allseeds.findIndex( ( seedobj ) => (
+    const found = allseeds.findIndex( ( seedobj: any ) => (
       seedobj.filename === filename
     ) );
 

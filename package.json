@@ -21,11 +21,11 @@
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=production node -r @babel/register ./webpack/compiler.js --mac",
-    "db:seed:generate": "node -r @babel/register ./scripts/database-cli.js generate $1",
-    "db:seed:all": "node -r @babel/register ./scripts/database-cli.js all $1",
+    "db:seed:generate": "ts-node -r tsconfig-paths/register ./scripts/database-cli.ts generate $1",
+    "db:seed:all": "ts-node -r tsconfig-paths/register ./scripts/database-cli.ts all $1",
     "start": "cross-env NODE_ENV=development node -r @babel/register ./webpack/compiler.js",
     "start:electron": "cross-env NODE_ENV=development electron ./main.bundle.js",
-    "squad-updater": "ts-node ./scripts/squad-updater.ts",
+    "squad-updater": "ts-node -r tsconfig-paths/register ./scripts/squad-updater.ts",
     "test": "cross-env NODE_ENV=test jest",
     "test:coverage": "npm test -- --coverage"
   },
@@ -104,6 +104,7 @@
     "style-loader": "1.1.3",
     "ts-jest": "24.1.0",
     "ts-node": "8.7.0",
+    "tsconfig-paths": "3.9.0",
     "typescript": "3.8.3",
     "url-loader": "2.2.0",
     "webpack": "4.42.0",

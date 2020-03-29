@@ -1,10 +1,10 @@
 export default class Seeder {
-  static up( docs: Object ) {
+  static up( docs: any ) {
     const data = Object.keys( continents ).map( continentFormatter );
     return docs.continents.insert( data );
   }
 
-  static down( db: Object ) {
-    // should return a promise
+  static down( db: any ) {
+    // @todo: should return a promise
   }
 }

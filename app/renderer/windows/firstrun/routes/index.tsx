@@ -39,7 +39,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
     // start the save process if we're done
     // collecting form data
     if( next === 'finish' ) {
-      ipcRenderer.send( '/windows/main/firstrun/save', formdata );
+      ipcRenderer.send( '/windows/firstrun/save', formdata );
     }
 
     this.props.history.push( `/firstrun/${next}` );

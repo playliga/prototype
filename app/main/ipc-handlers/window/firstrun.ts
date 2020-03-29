@@ -1,6 +1,11 @@
 import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
+
+import { IterableObject } from 'main/types';
+import Database from 'main/lib/database';
+import { Compdef, Team, Player } from 'main/lib/database/types';
+import { League } from 'main/lib/league';
 import WindowManager from 'main/lib/window-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 
@@ -23,6 +28,34 @@ const CONFIG = {
 };
 
 
+// world gen!
+async function genleagues() {
+  // get necessary data from datastores
+  const datastores = new Database().datastores;
+  const compdefs = await datastores.compdefs.find() as Compdef[];
+  const nateams = await datastores.teams.find({ region: 1 }) as Team[];
+
+  // generate esea league
+  const esea = compdefs.find( item => item.id === 'esea' );
+
+  if( esea ) {
+    const esealeague = new League( esea.name );
+
+    // add teams to the esea tiers
+    if( Array.isArray( esea.tiers ) ) {
+      esea.tiers.forEach( ( tier, tdx ) => {
+        const div = esealeague.addDivision( tier.name, tier.minlen, tier.confsize );
+        const teams = nateams.filter( t => t.tier === tdx );
+        div.addCompetitors( teams.slice( 0, tier.minlen ).map( t => t._id ) );
+      });
+    }
+
+    // save it
+    await datastores.competitions.insert( esealeague );
+  }
+}
+
+
 // ipc handlers
 function openWindowHandler() {
   const win = WindowManager.createWindow(
@@ -40,8 +73,43 @@ function openWindowHandler() {
 }
 
 
-function saveFirstRunHandler( evt: object, data: object ) {
-  console.log( data );
+async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
+  const datastores = new Database().datastores;
+  const [ userinfo, teaminfo ] = data;
+
+  // build team object
+  const team = {
+    region: 1,            // @todo
+    tier: 4,
+    name: teaminfo.name,
+    countrycode: 'us',    // @todo
+    players: [] as string[],
+  };
+
+  // build player object
+  const player = {
+    name: userinfo.name,
+    alias: userinfo.alias
+  };
+
+  // get the unique id from the db after saving the player.
+  // then update the team's roster with that player.
+  const newplayer = await datastores.players.insert( player ) as Player;
+  team.players.push( newplayer._id );
+
+  // save the team and then update the player with the teamid
+  const newteam = await datastores.teams.insert( team ) as Team;
+  await datastores.players.update({ _id: newplayer._id }, { ...newplayer, teamid: newteam._id });
+
+  // update the userdata db
+  await datastores.userdata.insert({
+    teamid: newteam._id,
+    playerid: newplayer._id
+  });
+
+  // resync the database file
+  await datastores.players.resync();
+  // genleagues();
 }
 
 

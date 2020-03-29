@@ -31,7 +31,15 @@ class Two extends Component<Props, State> {
       placeholder: 'Team Name',
       icontype: 'user',
       regex: /^[\w ]+$/
-    }
+    },
+    country: {
+      value: '',
+      validateStatus: '' as 'success',
+      errorMsg: null,
+      pristine: true,
+      placeholder: '',
+      icontype: ''
+    },
   }
 
   private handleInputChange = ( evt: React.ChangeEvent ) => {
@@ -44,12 +52,24 @@ class Two extends Component<Props, State> {
     );
   }
 
+  private handleSelectChange = ( value: string ) => {
+    const country = this.state.country;
+    country.value = value;
+    country.pristine = false;
+    this.setState({ country });
+  }
+
   private handleSubmit = ( evt: FormEvent<HTMLFormElement> ) => {
     evt.preventDefault();
 
-    // massage the data and pass it back to
-    // the parent route
-    this.props.onSubmit({ foo: 'bar' }, 'finish' );
+    // build the payload
+    const payload = {
+      name: this.state.name.value,
+      country: this.state.country.value
+    };
+
+    // pass it back to the parent route
+    this.props.onSubmit( payload, 'finish' );
   }
 
   public render() {
@@ -84,6 +104,7 @@ class Two extends Component<Props, State> {
               showSearch
               placeholder="Select a Country"
               optionFilterProp="children"
+              onChange={this.handleSelectChange}
             >
               {/* Render continents and their countries as option groups */}
               {this.props.continents.map( ( continent: Continent ) => (

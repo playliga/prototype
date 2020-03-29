@@ -39,7 +39,7 @@ class ESEA_CSGO_Player {
   // @properties
   public id = '';
   public url = '';
-  public name = '';
+  public alias = '';
   public countryurl = '';
   public countrycode = '';
 
@@ -50,14 +50,14 @@ class ESEA_CSGO_Player {
     const countryurl = root.find( 'img' ).attr( 'src' ) || '';
     this.id = extractPlayerId( playerurl ) || '';
     this.url = playerurl;
-    this.name = root.find( 'a' ).next().html() || '';
+    this.alias = root.find( 'a' ).next().html() || '';
     this.countrycode = extractCountryCode( countryurl ) || '';
     this.countryurl = countryurl;
   }
 
   public isvalid() {
     // check if id or name are empty.
-    return this.id.length > 0 && this.name.length > 0;
+    return this.id.length > 0 && this.alias.length > 0;
   }
 }
 

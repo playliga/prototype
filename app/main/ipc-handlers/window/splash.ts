@@ -9,7 +9,7 @@ import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib
 
 
 // @todo: the firstrun redirect logic.
-const FIRSTRUN = false;
+const FIRSTRUN = true;
 const REDIRECT_TARGET = FIRSTRUN ? 'firstrun' : 'main';
 
 
