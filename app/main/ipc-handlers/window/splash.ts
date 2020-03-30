@@ -3,14 +3,10 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import Database from 'main/lib/database';
 import WindowManager from 'main/lib/window-manager';
 import { Window } from 'main/lib/window-manager/types';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
-
-
-// @todo: the firstrun redirect logic.
-const FIRSTRUN = true;
-const REDIRECT_TARGET = FIRSTRUN ? 'firstrun' : 'main';
 
 
 // module-level variables and constants
@@ -36,6 +32,37 @@ const CONFIG = {
 let win: Window;
 
 
+/**
+ * First run logic
+ *
+ * Figure out if this the first time the user runs the app. This will
+ * help determine which window to redirect the user to.
+ */
+
+// @todo: the firstrun redirect logic.
+let redirect_target = 'firstrun';
+
+
+function checkuserdata() {
+  // load the database
+  // check the userdata for data
+  const datastores = new Database().datastores;
+
+  // @todo: a more thorough check
+  return new Promise( resolve => {
+    const res = datastores.userdata.find() as Promise<any[]>;
+    res.then( d => {
+      redirect_target = d.length > 0 ? 'main' : 'firstrun';
+      resolve();
+    });
+  });
+}
+
+
+/**
+ * Auto updater logic.
+ */
+
 // configure electron-updater logger
 autoUpdater.autoDownload = false;
 autoUpdater.logger = log;
@@ -49,14 +76,16 @@ function handleError( err: Error ) {
 
   // attempt to launch the main application anyways
   setTimeout( () => {
-    ipcMain.emit( `/windows/${REDIRECT_TARGET}/open` );
+    ipcMain.emit( `/windows/${redirect_target}/open` );
     win.handle.close();
   }, 2000 );
 }
 
+
 function handleCheckingUpdate() {
   // @TODO
 }
+
 
 function handleNoUpdateAvail() {
   win.handle.webContents.send( '/windows/splash/no-update-avail' );
@@ -64,10 +93,11 @@ function handleNoUpdateAvail() {
   // close the splash window after 2 seconds
   // and open the main application window
   setTimeout( () => {
-    ipcMain.emit( `/windows/${REDIRECT_TARGET}/open` );
+    ipcMain.emit( `/windows/${redirect_target}/open` );
     win.handle.close();
   }, 2000 );
 }
+
 
 function handleUpdateAvail() {
   if( is.production() ) {
@@ -77,9 +107,11 @@ function handleUpdateAvail() {
   win.handle.webContents.send( '/windows/splash/update-avail' );
 }
 
+
 function handleDownloadProgress( progressObj: object ) {
   win.handle.webContents.send( '/windows/splash/download-progress', progressObj );
 }
+
 
 function handleUpdateDownloaded() {
   win.handle.webContents.send( '/windows/splash/update-downloaded' );
@@ -95,10 +127,11 @@ function handleUpdateDownloaded() {
 
     // otherwise, manually close this window
     // and open the main application window
-    ipcMain.emit( `/windows/${REDIRECT_TARGET}/open` );
+    ipcMain.emit( `/windows/${redirect_target}/open` );
     win.handle.close();
   }, 2000 );
 }
+
 
 // fake auto-updater for development mode
 function fakeAutoUpdater() {
@@ -155,7 +188,11 @@ function fakeAutoUpdater() {
 }
 
 
-export default () => {
+/**
+ * Main functions
+ */
+
+function setupwindow() {
   // create the window
   win = WindowManager.createWindow( '/windows/splash', CONFIG.url, CONFIG.opts );
 
@@ -179,7 +216,10 @@ export default () => {
       Menu.setApplicationMenu( DefaultMenuTemplate );
     }
   }
+}
 
+
+function setupautoupdater() {
   // if in production use the real auto-updater
   // otherwise use the fake one.
   if( is.production() ) {
@@ -197,4 +237,12 @@ export default () => {
   } else {
     fakeAutoUpdater();
   }
+}
+
+
+export default () => {
+  checkuserdata().then( () => {
+    setupwindow();
+    setupautoupdater();
+  });
 };
