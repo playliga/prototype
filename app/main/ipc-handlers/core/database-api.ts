@@ -1,5 +1,5 @@
 import { ipcMain, IpcMainEvent } from 'electron';
-import { Datastore } from 'main/lib/database';
+import Database from 'main/database';
 
 
 interface Query {
@@ -9,8 +9,8 @@ interface Query {
 
 
 async function handleDBFetch( evt: IpcMainEvent, query: Query ) {
-  const dsinstance = new Datastore( query.dsname );
-  const data = await dsinstance.find( query.q || {});
+  const datastores = Database.datastores;
+  const data = await datastores[ query.dsname ].find( query.q || {});
   evt.sender.send( '/database/find', data );
 }
 

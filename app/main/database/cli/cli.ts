@@ -4,13 +4,15 @@ import { promisify } from 'util';
 import minimist from 'minimist';
 import chalk from 'chalk';
 import glob from 'glob';
-import Database from 'main/lib/database';
+
+import Database from 'main/database';
+import dbconfig from 'main/database/config.json';
 
 
 // module-level variables and functions
 const ARGS = minimist( process.argv.slice( 2 ) );
 const POSARGS = ARGS._ || [];
-const ROOTPATH = path.join( __dirname, '../' );
+const ROOTPATH = path.join( __dirname, '../../../../' );
 const DBPATH = path.join( ROOTPATH, 'resources/databases' );
 const SEEDERSPATH = path.join( ROOTPATH, 'resources/seeders' );
 
@@ -52,8 +54,8 @@ function generateSeeder() {
 /**
  * Coming soon...
 **/
-async function loadAllSeeds( dbinstance: any ) {
-  const { seeds } = dbinstance.datastores;
+async function loadAllSeeds() {
+  const { seeds } = Database.datastores;
   const seederfilenames = await promisify( glob )(
     '**/*.ts',
     { cwd: SEEDERSPATH }
@@ -85,7 +87,7 @@ async function loadAllSeeds( dbinstance: any ) {
       `${path.join( SEEDERSPATH, filename )}`
     ).default;
 
-    return seeder.up( dbinstance.datastores, Database ).then( () => (
+    return seeder.up( Database.datastores ).then( () => (
       // after the seeder completes we must add its
       // filename to our list of executed seeders
       seeds.insert({ filename })
@@ -103,19 +105,22 @@ async function loadAllSeeds( dbinstance: any ) {
  * Handles what command is going to be executed by parsing
  * the positional arguments passed into the script.
 **/
-if( POSARGS.length > 0 ) {
-  const dbinstance = new Database( DBPATH );
+export function run() {
+  if( POSARGS.length > 0 ) {
+    const dbcnx = Database.connect({
+      ...dbconfig,
+      basepath: DBPATH
+    });
 
-  switch( POSARGS[ 0 ] ) {
-    case 'generate':
-      generateSeeder();
-      break;
-    case 'all':
-      dbinstance.connect().then( () => {
-        loadAllSeeds( dbinstance );
-      });
-      break;
-    default:
-      // do nothing...
+    switch( POSARGS[ 0 ] ) {
+      case 'generate':
+        generateSeeder();
+        break;
+      case 'all':
+        dbcnx.then( () => loadAllSeeds() );
+        break;
+      default:
+        // do nothing...
+    }
   }
 }

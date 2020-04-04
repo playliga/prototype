@@ -3,7 +3,7 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
 import { IterableObject } from 'main/types';
-import Database from 'main/lib/database';
+import Database from 'main/database';
 import { Compdef, Team, Player } from 'main/lib/database/types';
 import { League } from 'main/lib/league';
 import WindowManager from 'main/lib/window-manager';
@@ -31,9 +31,9 @@ const CONFIG = {
 // world gen!
 async function genleagues() {
   // get necessary data from datastores
-  const datastores = new Database().datastores;
-  const compdefs = await datastores.compdefs.find() as Compdef[];
-  const nateams = await datastores.teams.find({ region: 1 }) as Team[];
+  const datastores = Database.datastores;
+  const compdefs = await datastores.compdefs.find() as unknown as Compdef[];
+  const nateams = await datastores.teams.find({ region: 1 }) as unknown as Team[];
 
   // generate esea league
   const esea = compdefs.find( item => item.id === 'esea' );
@@ -74,7 +74,7 @@ function openWindowHandler() {
 
 
 async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
-  const datastores = new Database().datastores;
+  const datastores = Database.datastores;
   const [ userinfo, teaminfo ] = data;
 
   // build team object
@@ -94,11 +94,11 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
 
   // get the unique id from the db after saving the player.
   // then update the team's roster with that player.
-  const newplayer = await datastores.players.insert( player ) as Player;
+  const newplayer = await datastores.players.insert( player ) as unknown as Player;
   team.players.push( newplayer._id );
 
   // save the team and then update the player with the teamid
-  const newteam = await datastores.teams.insert( team ) as Team;
+  const newteam = await datastores.teams.insert( team ) as unknown as Team;
   await datastores.players.update({ _id: newplayer._id }, { ...newplayer, teamid: newteam._id });
 
   // update the userdata db

@@ -1,0 +1,12 @@
+{
+  "basepath": "%userData%/databases",
+  "connections": [
+    "seeds",
+    "userdata",
+    "continents",
+    "compdefs",
+    "competitions",
+    "teams",
+    "players"
+  ]
+}

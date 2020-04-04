@@ -3,7 +3,7 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import Database from 'main/lib/database';
+import Database from 'main/database';
 import WindowManager from 'main/lib/window-manager';
 import { Window } from 'main/lib/window-manager/types';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
@@ -46,11 +46,11 @@ let redirect_target = 'firstrun';
 function checkuserdata() {
   // load the database
   // check the userdata for data
-  const datastores = new Database().datastores;
+  const datastores = Database.datastores;
 
   // @todo: a more thorough check
   return new Promise( resolve => {
-    const res = datastores.userdata.find() as Promise<any[]>;
+    const res = datastores.userdata.find();
     res.then( d => {
       redirect_target = d.length > 0 ? 'main' : 'firstrun';
       resolve();

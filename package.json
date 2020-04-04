@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=production node -r @babel/register ./webpack/compiler.js --mac",
-    "db:seed:generate": "ts-node -r tsconfig-paths/register ./scripts/database-cli.ts generate $1",
-    "db:seed:all": "ts-node -r tsconfig-paths/register ./scripts/database-cli.ts all $1",
+    "db:seed:generate": "ts-node -r tsconfig-paths/register ./app/main/database/cli generate $1",
+    "db:seed:all": "ts-node -r tsconfig-paths/register ./app/main/database/cli all $1",
     "start": "cross-env NODE_ENV=development node -r @babel/register ./webpack/compiler.js",
     "start:electron": "cross-env NODE_ENV=development electron ./main.bundle.js",
     "squad-updater": "ts-node -r tsconfig-paths/register ./scripts/squad-updater.ts",

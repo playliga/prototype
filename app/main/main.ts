@@ -3,7 +3,7 @@ import fs from 'fs';
 import { app } from 'electron';
 import { DatabaseAPI } from 'main/ipc-handlers/core';
 import { SplashWindow, MainWindow, FirstRunWindow } from 'main/ipc-handlers/window';
-import Database from 'main/lib/database';
+import Database from 'main/database';
 import WindowManager from 'main/lib/window-manager';
 
 
@@ -13,36 +13,30 @@ import WindowManager from 'main/lib/window-manager';
  * snapshot of the database.
 **/
 function setupDB() {
-  const dbpath = path.join( app.getPath( 'userData' ), 'databases' );
-  const dbinstance = new Database( dbpath );
-  const datastorepaths = dbinstance.datastorepaths;
-
-  // if the dbpath does not exist; create it
-  if( !fs.existsSync( dbpath ) ) {
-    fs.mkdirSync( dbpath );
-  }
+  const datastorepaths = Database.datastorepaths;
 
   // if any of the datastore paths do not exist in the appdata
   // directory then copy them over from the resources folder
   datastorepaths.forEach( ( dspath: string ) => {
     if( !fs.existsSync( dspath ) ) {
-      // copy from local resources
-      // into target db path
+      // copy from local resources into target db path
       const dsfilename = path.basename( dspath );
-      fs.copyFileSync(
-        path.join( __dirname, 'resources/databases', dsfilename ),
-        dspath
-      );
+      const localpath = path.join( __dirname, 'resources/databases', dsfilename );
+
+      // but only if it exists
+      if( fs.existsSync( localpath ) ) {
+        fs.copyFileSync( localpath, dspath );
+      }
     }
   });
-
-  // now we can finally connect to the db
-  return dbinstance.connect();
 }
 
 
 function handleOnReady() {
-  setupDB().then( () => {
+  Database.connect().then( () => {
+    // setup source-controlled snapshots
+    setupDB();
+
     // application handlers to be executed
     // before windows are shown.
     DatabaseAPI();

@@ -2,8 +2,9 @@ import path from 'path';
 import dedent from 'dedent';
 import ctable from 'console.table';
 import { flatten } from 'lodash';
-import Database from 'main/lib/database';
 import { ScraperFactory } from 'main/lib/scraper-factory';
+import Database from 'main/database';
+import dbconfig from 'main/database/config.json';
 
 
 // module variables
@@ -44,8 +45,7 @@ class Region {
 
 // establish db connection and
 // execute code once established
-const dbinstance = new Database( DBPATH );
-const cnx = dbinstance.connect();
+const cnx = Database.connect({ ...dbconfig, basepath: DBPATH });
 cnx.then( run );
 
 
@@ -395,8 +395,8 @@ async function run() {
   const teams = flatten( data.map( normalizeregion ) );
 
   // now save everything to db
-  const teamsds = dbinstance.datastores.teams;
-  const playersds = dbinstance.datastores.players;
+  const teamsds = Database.datastores.teams;
+  const playersds = Database.datastores.players;
 
   // store all async tasks in an array to
   // know when *everything* is done
