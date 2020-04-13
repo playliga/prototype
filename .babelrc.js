@@ -1,12 +1,16 @@
 module.exports = {
   "presets": [
-    "@babel/env",
+    ["@babel/env", {
+      "targets": {
+        "node": true
+      }
+    }],
     "@babel/typescript",
-    "@babel/react"
+    "@babel/react",
   ],
   "plugins": [
-      "@babel/proposal-class-properties",
-      "@babel/proposal-object-rest-spread",
-      "@babel/plugin-transform-runtime"
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-transform-runtime"
   ]
 };

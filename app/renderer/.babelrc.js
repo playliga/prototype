@@ -5,8 +5,8 @@ module.exports = {
     "@babel/react"
   ],
   "plugins": [
-    "@babel/proposal-class-properties",
-    "@babel/proposal-object-rest-spread",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-object-rest-spread",
     [
       "import",
       { "libraryName": "antd", "libraryDirectory": "es", "style": "css" }

@@ -3,9 +3,6 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
 import { IterableObject } from 'main/types';
-import Database from 'main/database';
-import { Compdef, Team, Player } from 'main/lib/database/types';
-import { League } from 'main/lib/league';
 import WindowManager from 'main/lib/window-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 
@@ -29,6 +26,8 @@ const CONFIG = {
 
 
 // world gen!
+
+/**********************************************************************************
 async function genleagues() {
   // get necessary data from datastores
   const datastores = Database.datastores;
@@ -54,6 +53,7 @@ async function genleagues() {
     await datastores.competitions.insert( esealeague );
   }
 }
+**********************************************************************************/
 
 
 // ipc handlers
@@ -74,7 +74,7 @@ function openWindowHandler() {
 
 
 async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
-  const datastores = Database.datastores;
+  // const datastores = Database.datastores;
   const [ userinfo, teaminfo ] = data;
 
   // build team object
@@ -94,6 +94,7 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
 
   // get the unique id from the db after saving the player.
   // then update the team's roster with that player.
+  /***************************************************************************************************
   const newplayer = await datastores.players.insert( player ) as unknown as Player;
   team.players.push( newplayer._id );
 
@@ -110,6 +111,7 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
   // resync the database file
   await datastores.players.resync();
   // genleagues();
+  ***************************************************************************************************/
 }
 
 

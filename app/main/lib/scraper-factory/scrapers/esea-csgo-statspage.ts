@@ -68,6 +68,7 @@ class ESEA_CSGO_Team {
   public url = '';
   public name = '';
   public tag = '';
+  public countrycode = '';
 
   public build( cheerioctx: CheerioStatic, elem: Cheerio ) {
     const $ = cheerioctx;
@@ -139,6 +140,9 @@ export default class ESEA_CSGO_STATSPAGE {
     const teamcol = root.children( 'td' ).first().next();
     const team = new ESEA_CSGO_Team();
     team.build( cheerioctx, teamcol );
+
+    // inherit this player's countrycode
+    team.countrycode = player.countrycode;
 
     // add the new team+player data
     // to the existing output

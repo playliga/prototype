@@ -76,6 +76,9 @@ class LIQUIPEDIA_CSGO_Team {
       player.build( cheerioctx, tr );
       this.players.push( player );
     });
+
+    // inherit the first player's countrycode
+    this.countrycode = this.players[0].countrycode;
   }
 }
 

@@ -52,8 +52,9 @@ module.exports = {
     "@typescript-eslint/class-name-casing": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/indent": ["error", 2],
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-var-requires": "off",
   },
   "globals": {
     "fetch": true

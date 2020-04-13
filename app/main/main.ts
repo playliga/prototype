@@ -1,42 +1,54 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
+import { Sequelize } from 'sequelize';
+import * as Models from 'main/database/models';
 import { DatabaseAPI } from 'main/ipc-handlers/core';
 import { SplashWindow, MainWindow, FirstRunWindow } from 'main/ipc-handlers/window';
-import Database from 'main/database';
 import WindowManager from 'main/lib/window-manager';
 
 
 /**
- * Needs to run before we can show any application windows. This
- * function ensures that the app always uses a source-controlled
- * snapshot of the database.
+ * Setup db paths.
+ */
+const DBNAME    = 'save0.sqlite';
+const DBPATH    = path.join( app.getPath( 'userData' ), 'databases', DBNAME );
+
+
+/**
+ * Needs to run before we can show any application windows.
 **/
 function setupDB() {
-  const datastorepaths = Database.datastorepaths;
+  // copy source-controlled db if not found
+  if( !fs.existsSync( DBPATH ) ) {
+    const localpath = path.join( __dirname, 'resources/databases', DBNAME );
 
-  // if any of the datastore paths do not exist in the appdata
-  // directory then copy them over from the resources folder
-  datastorepaths.forEach( ( dspath: string ) => {
-    if( !fs.existsSync( dspath ) ) {
-      // copy from local resources into target db path
-      const dsfilename = path.basename( dspath );
-      const localpath = path.join( __dirname, 'resources/databases', dsfilename );
-
-      // but only if it exists
-      if( fs.existsSync( localpath ) ) {
-        fs.copyFileSync( localpath, dspath );
-      }
+    if( fs.existsSync( localpath ) ) {
+      fs.copyFileSync( localpath, DBPATH );
     }
+  }
+
+  // establish the sequelize connection
+  const sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: DBPATH
   });
+
+  // initialize the models and their associations
+  Object
+    .values( Models )
+    .map( m => { m.init( sequelize ); return m; })
+    .filter( m => typeof m.associate === 'function' )
+    .forEach( m => m.associate( Models ) )
+  ;
+
+  return sequelize.authenticate();
 }
 
 
 function handleOnReady() {
-  Database.connect().then( () => {
-    // setup source-controlled snapshots
-    setupDB();
-
+  // setup source-controlled snapshots
+  setupDB().then( () => {
     // application handlers to be executed
     // before windows are shown.
     DatabaseAPI();

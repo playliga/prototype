@@ -3,9 +3,9 @@ cache/
 coverage/
 dist/
 node_modules/
+scripts/out.json
 
-.DS_Store
 *.log
 *.swp
-
+.DS_Store
 main.bundle.js

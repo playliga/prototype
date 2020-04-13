@@ -3,7 +3,7 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import Database from 'main/database';
+import { Profile } from 'main/database/models';
 import WindowManager from 'main/lib/window-manager';
 import { Window } from 'main/lib/window-manager/types';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
@@ -39,22 +39,18 @@ let win: Window;
  * help determine which window to redirect the user to.
  */
 
-// @todo: the firstrun redirect logic.
 let redirect_target = 'firstrun';
 
 
 function checkuserdata() {
-  // load the database
-  // check the userdata for data
-  const datastores = Database.datastores;
-
-  // @todo: a more thorough check
   return new Promise( resolve => {
-    const res = datastores.userdata.find();
-    res.then( d => {
-      redirect_target = d.length > 0 ? 'main' : 'firstrun';
-      resolve();
-    });
+    Profile
+      .count()
+      .then( count => {
+        redirect_target = count > 0 ? 'main' : 'firstrun';
+        resolve();
+      })
+    ;
   });
 }
 

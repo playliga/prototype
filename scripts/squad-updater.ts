@@ -1,16 +1,23 @@
 import path from 'path';
+import fs from 'fs';
+import minimist from 'minimist';
 import dedent from 'dedent';
 import ctable from 'console.table';
 import { flatten } from 'lodash';
 import { ScraperFactory } from 'main/lib/scraper-factory';
-import Database from 'main/database';
-import dbconfig from 'main/database/config.json';
 
 
 // module variables
-const ROOTPATH        = path.join( __dirname, '../' );
-const THISPATH        = __dirname;
-const DBPATH          = path.join( ROOTPATH, 'resources/databases' );
+const THISPATH      = __dirname;
+const DEFAULT_OUT   = 'out.json';
+
+
+// configure command line args
+const args = minimist( process.argv.slice( 2 ), {
+  string: [ 'o' ],
+  alias: { o: 'out' },
+  default: { o: path.join( THISPATH, DEFAULT_OUT )}
+});
 
 
 const TIERS = [
@@ -41,12 +48,6 @@ class Region {
   public tiers: Tier[] = []
   public lowtiers: Tier[] = []
 }
-
-
-// establish db connection and
-// execute code once established
-const cnx = Database.connect({ ...dbconfig, basepath: DBPATH });
-cnx.then( run );
 
 
 /**
@@ -394,37 +395,8 @@ async function run() {
   // normalize the regional data into a flat array of teams
   const teams = flatten( data.map( normalizeregion ) );
 
-  // now save everything to db
-  const teamsds = Database.datastores.teams;
-  const playersds = Database.datastores.players;
-
-  // store all async tasks in an array to
-  // know when *everything* is done
-  const allp = teams.map( async team => {
-    // 1. save the team and get the generated _id
-    const newteam = await teamsds.insert( team ) as any;
-
-    // 2. save the team's roster and assign their teamid and tier
-    const players = team.players.map( ( p: any ) => ({ ...p, teamid: newteam._id, tier: newteam.tier }) );
-    const newplayers = await playersds.insert( players ) as any;
-
-    // 3. update the team with the array of playerids
-    const updatedteam = await teamsds.update(
-      { _id: newteam._id },
-      { $set: { players: newplayers.map( ( p: any ) => p._id ) } }
-    );
-
-    // 4. return the updated team
-    return Promise.resolve( updatedteam );
-  });
-
-  // once everything is done, the datastores must be resync'd.
-  // due to the way nedb updates existing records
-  Promise.all( allp ).then( async () => {
-    await teamsds.resync();
-    await playersds.resync();
-
-    // we're done here...
+  // now save everything to output file
+  fs.writeFile( args.o, JSON.stringify( teams ), 'utf8', () => {
     console.log( dedent`
       =============================
       Finished.
@@ -432,3 +404,6 @@ async function run() {
     `);
   });
 }
+
+
+run();

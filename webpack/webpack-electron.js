@@ -4,6 +4,7 @@
 */
 import path from 'path';
 import webpack from 'webpack';
+import webpackexternals from 'webpack-node-externals';
 import webpackConfigShared from './webpack-shared.js';
 import webpackConfigResolve from './webpack-resolve.js';
 
@@ -30,6 +31,9 @@ export default {
   },
   plugins: [
     // @TODO
+  ],
+  externals: [
+    webpackexternals()
   ],
 
   // Set target to Electron specific node.js env
