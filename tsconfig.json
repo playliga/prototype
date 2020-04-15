@@ -11,7 +11,8 @@
     "noEmit": true,
     "paths": {
       "main*": [ "app/main*" ],
-      "renderer*": [ "app/renderer*" ]
+      "renderer*": [ "app/renderer*" ],
+      "shared*": [ "app/shared*" ]
     },
     "resolveJsonModule": true,
     "strict": true,

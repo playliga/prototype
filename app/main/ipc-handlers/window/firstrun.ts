@@ -2,7 +2,7 @@ import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
-import { IterableObject } from 'main/types';
+import { IterableObject } from 'shared/types';
 import WindowManager from 'main/lib/window-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 

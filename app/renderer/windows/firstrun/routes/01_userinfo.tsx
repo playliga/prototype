@@ -1,6 +1,5 @@
 import React, { Component, FormEvent } from 'react';
 import { Form, Button, Input, Select, Icon } from 'antd';
-import { Continent, Country } from 'main/lib/database/types';
 import { validateForm, handleInputChange, Field, FormContext } from '../common';
 
 
@@ -14,7 +13,7 @@ interface State {
 
 
 interface Props {
-  continents: Continent[];
+  continents: any[];
   onSubmit: Function;
 }
 
@@ -126,9 +125,9 @@ class One extends Component<Props, State> {
             >
               {/* Render continents and their countries as option groups */}
               {/* @TODO move this to a common lib to be re-used */}
-              {this.props.continents.map( ( continent: Continent ) => (
+              {this.props.continents.map( ( continent: any ) => (
                 <OptGroup key={continent.code} label={continent.name}>
-                  {continent.countries.map( ( country: Country ) => (
+                  {continent.Countries.map( ( country: any ) => (
                     <Option key={country.name} value={country.name}>
                       {country.emoji}
                       {country.name}

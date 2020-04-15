@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
-import { Continent } from 'main/lib/database/types';
+
+import IpcService from 'renderer/lib/ipc-service';
 import { FormContext } from '../common';
 import One from './01_userinfo';
 import Two from './02_teaminfo';
@@ -10,7 +11,7 @@ import Finish from './03_finish';
 
 
 interface State {
-  continents: Continent[];
+  continents: any[];
   formdata: Array<unknown>;
 }
 
@@ -23,13 +24,15 @@ export default class Routes extends Component<RouteComponentProps, State> {
     formdata: []
   }
 
-  public componentDidMount() {
-    ipcRenderer.send( '/database/find', { dsname: 'continents' });
-    ipcRenderer.on( '/database/find', this.handleContinentsFetch );
-  }
-
-  private handleContinentsFetch = ( evt: object, continents: Continent[] ) => {
-    this.setState({ continents });
+  public async componentDidMount() {
+    const data = await IpcService.send( '/database/', {
+      params: {
+        model: 'Continent',
+        method: 'findAll',
+        args: { include: [ 'Countries' ]}
+      }
+    });
+    this.setState({ continents: data });
   }
 
   private handleSubmit = ( data: never, next = '' ) => {

@@ -13,6 +13,7 @@ module.exports = {
   alias: {
     main: path.resolve( __dirname, '../app/main' ),
     renderer: path.resolve( __dirname, '../app/renderer' ),
+    shared: path.resolve( __dirname, '../app/shared' ),
   },
   modules: [
     path.resolve( __dirname, '../node_modules' )
