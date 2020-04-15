@@ -3,8 +3,8 @@ import fs from 'fs';
 import { app } from 'electron';
 import { Sequelize } from 'sequelize';
 import * as Models from 'main/database/models';
-import { DatabaseAPI } from 'main/ipc-handlers/core';
-import { SplashWindow, MainWindow, FirstRunWindow } from 'main/ipc-handlers/window';
+import IpcApi from 'main/lib/ipc-api';
+import { SplashWindow, MainWindow, FirstRunWindow } from 'main/windows';
 import WindowManager from 'main/lib/window-manager';
 
 
@@ -49,9 +49,8 @@ function setupDB() {
 function handleOnReady() {
   // setup source-controlled snapshots
   setupDB().then( () => {
-    // application handlers to be executed
-    // before windows are shown.
-    DatabaseAPI();
+    // ipc-handler/api
+    IpcApi();
 
     // window handlers
     SplashWindow();
