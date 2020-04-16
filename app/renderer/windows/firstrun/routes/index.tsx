@@ -29,7 +29,10 @@ export default class Routes extends Component<RouteComponentProps, State> {
       params: {
         model: 'Continent',
         method: 'findAll',
-        args: { include: [ 'Countries' ]}
+        args: {
+          include: [ 'Countries' ],
+          where: { id: [ 4, 5 ] }
+        }
       }
     });
     this.setState({ continents: data });

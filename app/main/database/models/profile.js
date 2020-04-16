@@ -1,4 +1,4 @@
-import Sequelize, { Model } from 'sequelize';
+import { Model } from 'sequelize';
 
 
 class Profile extends Model {

@@ -1,5 +1,6 @@
 import React, { Component, FormEvent } from 'react';
 import { Form, Button, Input, Select, Icon } from 'antd';
+import { getEmojiFlag } from 'countries-list';
 import { validateForm, handleInputChange, Field, FormContext } from '../common';
 
 
@@ -110,7 +111,7 @@ class Two extends Component<Props, State> {
                 <OptGroup key={continent.code} label={continent.name}>
                   {continent.Countries.map( ( country: any ) => (
                     <Option key={country.name} value={country.name}>
-                      {country.emoji}
+                      {getEmojiFlag(country.code)}
                       {country.name}
                     </Option>
                   ) )}
