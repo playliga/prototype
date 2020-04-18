@@ -226,10 +226,10 @@ function setupautoupdater() {
     autoUpdater.on( 'update-not-available', handleNoUpdateAvail );
     autoUpdater.on( 'download-progress', handleDownloadProgress );
     autoUpdater.on( 'update-downloaded', handleUpdateDownloaded );
-    // autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdates();
 
     // @note: flip this off once auto-updating is enabled
-    fakeAutoUpdater();
+    // fakeAutoUpdater();
   } else {
     fakeAutoUpdater();
   }
