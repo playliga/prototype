@@ -1,6 +1,6 @@
 import path from 'path';
 import webpack from 'webpack';
-import CleanWebpackPlugin from 'clean-webpack-plugin';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import webpackConfigShared from './webpack-shared.js';
 import webpackConfigResolve from './webpack-resolve.js';
@@ -43,8 +43,8 @@ function genplugins() {
 
   if( IS_PROD ) {
     output.push(
-      new CleanWebpackPlugin([ 'dist' ], {
-        root: ROOT
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: [path.join(ROOT, 'dist')]
       })
     );
   } else {
