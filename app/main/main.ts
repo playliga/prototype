@@ -1,7 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
+import log from 'electron-log';
 import { Sequelize } from 'sequelize';
+
 import * as Models from 'main/database/models';
 import IpcApi from 'main/lib/ipc-api';
 import { SplashWindow, MainWindow, FirstRunWindow } from 'main/windows';
@@ -31,13 +33,14 @@ function setupDB() {
   // establish the sequelize connection
   const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: DBPATH
+    storage: DBPATH,
+    logging: log.verbose.bind( log )
   });
 
   // initialize the models and their associations
   Object
     .values( Models )
-    .map( m => { m.init( sequelize ); return m; })
+    .map( m => { m.autoinit( sequelize ); return m; })
     .filter( m => typeof m.associate === 'function' )
     .forEach( m => m.associate( Models ) )
   ;
@@ -48,15 +51,20 @@ function setupDB() {
 
 function handleOnReady() {
   // setup source-controlled snapshots
-  setupDB().then( () => {
-    // ipc-handler/api
-    IpcApi();
+  setupDB()
+    .then( () => {
+      // ipc-handler/api
+      IpcApi();
 
-    // window handlers
-    SplashWindow();
-    FirstRunWindow();
-    MainWindow();
-  });
+      // window handlers
+      SplashWindow();
+      FirstRunWindow();
+      MainWindow();
+    })
+    .catch( err => {
+      log.error([ err ]);
+    })
+  ;
 }
 
 

@@ -2,11 +2,11 @@ import Sequelize, { Model } from 'sequelize';
 
 
 class Player extends Model {
-  static init( sequelize ) {
+  static autoinit( sequelize ) {
     return super.init({
       alias: { type: Sequelize.STRING, unique: true },
       tier: Sequelize.INTEGER,
-    }, { sequelize });
+    }, { sequelize, modelName: 'Player' });
   }
 
   static associate( models ) {

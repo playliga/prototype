@@ -50,6 +50,9 @@ function checkuserdata() {
         redirect_target = count > 0 ? 'main' : 'firstrun';
         resolve();
       })
+      .catch( err => {
+        log.error([ err ]);
+      })
     ;
   });
 }

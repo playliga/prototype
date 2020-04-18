@@ -1,4 +1,4 @@
-import { Model } from 'sequelize';
+import { Model, Sequelize } from 'sequelize';
 import { BelongsToSetAssociationMixin } from 'sequelize/types';
 
 
@@ -10,10 +10,16 @@ import { BelongsToSetAssociationMixin } from 'sequelize/types';
 declare module 'main/database/models' {
 
 
-  export class Country extends Model {}
+  class BaseModel extends Model {
+    public static autoinit( sequelize: Sequelize ): void;
+    public static associate( models: any ): void;
+  }
 
 
-  export class Team extends Model {
+  export class Country extends BaseModel {}
+
+
+  export class Team extends BaseModel {
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
 
@@ -21,7 +27,7 @@ declare module 'main/database/models' {
   }
 
 
-  export class Player extends Model {
+  export class Player extends BaseModel {
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
 
@@ -30,7 +36,7 @@ declare module 'main/database/models' {
   }
 
 
-  export class Profile extends Model {
+  export class Profile extends BaseModel {
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
 

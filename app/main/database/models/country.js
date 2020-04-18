@@ -2,11 +2,11 @@ import Sequelize, { Model } from 'sequelize';
 
 
 class Country extends Model {
-  static init( sequelize ) {
+  static autoinit( sequelize ) {
     return super.init({
       code: { type: Sequelize.STRING, unique: true },
       name: { type: Sequelize.STRING, unique: true },
-    }, { sequelize });
+    }, { sequelize, modelName: 'Country' });
   }
 
   static associate( models ) {

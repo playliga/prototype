@@ -2,10 +2,10 @@ import { Model } from 'sequelize';
 
 
 class Profile extends Model {
-  static init( sequelize ) {
+  static autoinit( sequelize ) {
     return super.init({
       // @todo
-    }, { sequelize });
+    }, { sequelize, modelName: 'Profile' });
   }
 
   static associate( models ) {
