@@ -5,6 +5,7 @@ import is from 'electron-is';
 import { IterableObject } from 'shared/types';
 import WindowManager from 'main/lib/window-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
+import { Team, Player, Country, Profile } from 'main/database/models';
 
 
 // module-level variables and constants
@@ -74,44 +75,38 @@ function openWindowHandler() {
 
 
 async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
-  // const datastores = Database.datastores;
   const [ userinfo, teaminfo ] = data;
 
+  // get the countryids
+  const teamcountry = await Country.findOne({ where: { name: teaminfo.country }});
+  const playercountry = await Country.findOne({ where: { name: userinfo.country }});
+
   // build team object
-  const team = {
-    region: 1,            // @todo
-    tier: 4,
+  let team = Team.build({
     name: teaminfo.name,
-    countrycode: 'us',    // @todo
-    players: [] as string[],
-  };
+    tier: 4,
+  });
+  team = await team.save();
+  if( teamcountry ) {
+    await team.setCountry( teamcountry );
+  }
 
   // build player object
-  const player = {
-    name: userinfo.name,
-    alias: userinfo.alias
-  };
-
-  // get the unique id from the db after saving the player.
-  // then update the team's roster with that player.
-  /***************************************************************************************************
-  const newplayer = await datastores.players.insert( player ) as unknown as Player;
-  team.players.push( newplayer._id );
-
-  // save the team and then update the player with the teamid
-  const newteam = await datastores.teams.insert( team ) as unknown as Team;
-  await datastores.players.update({ _id: newplayer._id }, { ...newplayer, teamid: newteam._id });
-
-  // update the userdata db
-  await datastores.userdata.insert({
-    teamid: newteam._id,
-    playerid: newplayer._id
+  let player = Player.build({
+    alias: userinfo.alias,
+    tier: 4,
   });
+  player = await player.save();
+  await player.setTeam( team );
+  if( playercountry ) {
+    await player.setCountry( playercountry );
+  }
 
-  // resync the database file
-  await datastores.players.resync();
-  // genleagues();
-  ***************************************************************************************************/
+  // create the new user profile
+  let profile = Profile.build();
+  profile = await profile.save();
+  await profile.setTeam( team );
+  await profile.setPlayer( player );
 }
 
 
