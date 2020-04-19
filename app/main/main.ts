@@ -14,7 +14,7 @@ import WindowManager from 'main/lib/window-manager';
  * Setup db paths.
  */
 const DBNAME    = 'save0.sqlite';
-const DBPATH    = path.join( app.getPath( 'userData' ), 'databases', DBNAME );
+const DBPATH    = path.join( app.getPath( 'userData' ), 'databases' );
 
 
 /**
@@ -22,18 +22,22 @@ const DBPATH    = path.join( app.getPath( 'userData' ), 'databases', DBNAME );
 **/
 function setupDB() {
   // copy source-controlled db if not found
-  if( !fs.existsSync( DBPATH ) ) {
+  const targetpath = path.join( DBPATH, DBNAME );
+
+  if( !fs.existsSync( targetpath ) ) {
     const localpath = path.join( __dirname, 'resources/databases', DBNAME );
 
+    fs.mkdirSync( DBPATH );
+
     if( fs.existsSync( localpath ) ) {
-      fs.copyFileSync( localpath, DBPATH );
+      fs.copyFileSync( localpath, targetpath );
     }
   }
 
   // establish the sequelize connection
   const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: DBPATH,
+    storage: targetpath,
     logging: log.verbose.bind( log )
   });
 
