@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize';
+import Country from './country';
 
 
 class Team extends Model {
@@ -15,6 +16,15 @@ class Team extends Model {
     this.hasMany( models.Player );
     this.hasOne( models.Profile );
     this.belongsTo( models.Country );
+  }
+
+  static findByRegionId( id ) {
+    return Team.findAll({
+      include: [{
+        model: Country,
+        where: { continentId: id }
+      }]
+    });
   }
 }
 

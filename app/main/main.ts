@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
 import log from 'electron-log';
+import is from 'electron-is';
 import { Sequelize } from 'sequelize';
 
 import * as Models from 'main/database/models';
@@ -21,24 +22,34 @@ const DBPATH    = path.join( app.getPath( 'userData' ), 'databases' );
  * Needs to run before we can show any application windows.
 **/
 function setupDB() {
-  // copy source-controlled db if not found
   const targetpath = path.join( DBPATH, DBNAME );
 
+  // copy source-controlled db if not found
   if( !fs.existsSync( targetpath ) ) {
     const localpath = path.join( __dirname, 'resources/databases', DBNAME );
 
-    fs.mkdirSync( DBPATH );
+    // create parent folder if not found
+    if( !fs.existsSync( DBPATH ) ) {
+      fs.mkdirSync( DBPATH );
+    }
 
+    // copy over the local copy
     if( fs.existsSync( localpath ) ) {
       fs.copyFileSync( localpath, targetpath );
     }
   }
 
-  // establish the sequelize connection
+  // configure sequelize logging
+  const loggingfunc = is.production()
+    ? log.debug.bind( log )
+    : ( msg: string ) => log.debug( msg )
+  ;
+
+  // configure the sequelize cnx
   const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: targetpath,
-    logging: log.verbose.bind( log )
+    logging: loggingfunc
   });
 
   // initialize the models and their associations

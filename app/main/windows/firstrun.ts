@@ -3,9 +3,11 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
 import { IterableObject } from 'shared/types';
+import { Window } from 'main/lib/window-manager/types';
 import WindowManager from 'main/lib/window-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
-import { Team, Player, Country, Profile } from 'main/database/models';
+import { League } from 'main/lib/league';
+import { Team, Player, Country, Profile, Continent, Compdef, Competition } from 'main/database/models';
 
 
 // module-level variables and constants
@@ -26,55 +28,68 @@ const CONFIG = {
 };
 
 
-// world gen!
+let win: Window;
 
-/**********************************************************************************
+
+/**
+ * World gen functions
+ */
+
 async function genleagues() {
-  // get necessary data from datastores
-  const datastores = Database.datastores;
-  const compdefs = await datastores.compdefs.find() as unknown as Compdef[];
-  const nateams = await datastores.teams.find({ region: 1 }) as unknown as Team[];
+  // get regions and their teams
+  const [ eu, na ] = await Continent.findAll({
+    where: { id: [ 4, 5 ] }
+  });
+  const euteams = await Team.findByRegionId( eu.id );
+  const nateams = await Team.findByRegionId( na.id );
 
-  // generate esea league
-  const esea = compdefs.find( item => item.id === 'esea' );
+  // get the esea compdef
+  const eseacompdef = await Compdef.findOne({ where: { name: 'ESEA' }});
 
-  if( esea ) {
-    const esealeague = new League( esea.name );
+  if( !eseacompdef ) {
+    return;
+  }
+
+  // build the esea league per region
+  const data = [
+    { region: eu, teams: euteams },
+    { region: na, teams: nateams },
+  ];
+
+  return Promise.all( data.map( async item => {
+
+    // build the esea league object
+    const { region, teams } = item;
+    const esealeague = new League( eseacompdef.name );
 
     // add teams to the esea tiers
-    if( Array.isArray( esea.tiers ) ) {
-      esea.tiers.forEach( ( tier, tdx ) => {
-        const div = esealeague.addDivision( tier.name, tier.minlen, tier.confsize );
-        const teams = nateams.filter( t => t.tier === tdx );
-        div.addCompetitors( teams.slice( 0, tier.minlen ).map( t => t._id ) );
-      });
-    }
+    eseacompdef.tiers.forEach( ( tier, tdx ) => {
+      const div = esealeague.addDivision( tier.name, tier.minlen, tier.confsize );
+      const tierteams = teams.filter( t => t.tier === tdx );
+      div.addCompetitors( tierteams.slice( 0, tier.minlen ).map( t => t.id.toString() ) );
+    });
 
-    // save it
-    await datastores.competitions.insert( esealeague );
-  }
-}
-**********************************************************************************/
+    // save the league as a competition
+    const comp = Competition.build({ data: esealeague });
+    await comp.save();
 
+    // save its associations
+    return Promise.all([
+      comp.setCompdef( eseacompdef ),
+      comp.setContinents([ region ]),
+    ]);
 
-// ipc handlers
-function openWindowHandler() {
-  const win = WindowManager.createWindow(
-    '/windows/firstrun',
-    CONFIG.url,
-    CONFIG.opts
-  );
-  win.handle.setMenu( DefaultMenuTemplate );
-
-  // the `setMenu` function above doesn't work on
-  // osx so we'll have to accomodate for that
-  if( is.osx() ) {
-    Menu.setApplicationMenu( DefaultMenuTemplate );
-  }
+  }) );
 }
 
+
+/**
+ * IPC Handlers
+ */
 
 async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
+  // @todo: this logic should be moved
+  // @todo: to its own function
   const [ userinfo, teaminfo ] = data;
 
   // get the countryids
@@ -107,6 +122,30 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
   profile = await profile.save();
   await profile.setTeam( team );
   await profile.setPlayer( player );
+
+  // world gen
+  genleagues().then( () => {
+    setTimeout( () => {
+      ipcMain.emit( '/windows/main/open' );
+      win.handle.close();
+    }, 2000 );
+  });
+}
+
+
+function openWindowHandler() {
+  win = WindowManager.createWindow(
+    '/windows/firstrun',
+    CONFIG.url,
+    CONFIG.opts
+  );
+  win.handle.setMenu( DefaultMenuTemplate );
+
+  // the `setMenu` function above doesn't work on
+  // osx so we'll have to accomodate for that
+  if( is.osx() ) {
+    Menu.setApplicationMenu( DefaultMenuTemplate );
+  }
 }
 
 

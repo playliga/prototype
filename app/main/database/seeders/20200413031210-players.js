@@ -1,4 +1,4 @@
-const teams = require( '../fixtures/202004120524-squads' );
+const teams = require( '../fixtures/20200425002016-squads' );
 
 
 module.exports = {
