@@ -35,7 +35,43 @@ let win: Window;
  * World gen functions
  */
 
-async function genleagues() {
+async function saveplayer( data: IterableObject<any>[] ) {
+  const [ userinfo, teaminfo ] = data;
+
+  // get the countryids
+  const teamcountry = await Country.findOne({ where: { name: teaminfo.country }});
+  const playercountry = await Country.findOne({ where: { name: userinfo.country }});
+
+  // build team object
+  let team = Team.build({
+    name: teaminfo.name,
+    tier: 4,
+  });
+  team = await team.save();
+
+  // build player object
+  let player = Player.build({
+    alias: userinfo.alias,
+    tier: 4,
+  });
+  player = await player.save();
+
+  // create the new user profile
+  let profile = Profile.build();
+  profile = await profile.save();
+
+  // save associations and return as a single promise
+  return Promise.all([
+    team.setCountry( teamcountry as Country ),
+    player.setTeam( team ),
+    player.setCountry( playercountry as Country ),
+    profile.setTeam( team ),
+    profile.setPlayer( player )
+  ]);
+}
+
+
+async function gencomps() {
   // get regions and their teams
   const [ eu, na ] = await Continent.findAll({
     where: { id: [ 4, 5 ] }
@@ -83,53 +119,29 @@ async function genleagues() {
 }
 
 
+function openmainwindow() {
+  // wait a few seconds before opening the main window
+  setTimeout( () => {
+    ipcMain.emit( '/windows/main/open' );
+    win.handle.close();
+  }, 2000 );
+}
+
+
 /**
  * IPC Handlers
  */
 
 async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
-  // @todo: this logic should be moved
-  // @todo: to its own function
-  const [ userinfo, teaminfo ] = data;
+  // save the player information
+  saveplayer( data )
 
-  // get the countryids
-  const teamcountry = await Country.findOne({ where: { name: teaminfo.country }});
-  const playercountry = await Country.findOne({ where: { name: userinfo.country }});
+    // once that is done, generate the competitions
+    .then( gencomps )
 
-  // build team object
-  let team = Team.build({
-    name: teaminfo.name,
-    tier: 4,
-  });
-  team = await team.save();
-  if( teamcountry ) {
-    await team.setCountry( teamcountry );
-  }
-
-  // build player object
-  let player = Player.build({
-    alias: userinfo.alias,
-    tier: 4,
-  });
-  player = await player.save();
-  await player.setTeam( team );
-  if( playercountry ) {
-    await player.setCountry( playercountry );
-  }
-
-  // create the new user profile
-  let profile = Profile.build();
-  profile = await profile.save();
-  await profile.setTeam( team );
-  await profile.setPlayer( player );
-
-  // world gen
-  genleagues().then( () => {
-    setTimeout( () => {
-      ipcMain.emit( '/windows/main/open' );
-      win.handle.close();
-    }, 2000 );
-  });
+    // finished!
+    .then( openmainwindow )
+  ;
 }
 
 
