@@ -3,7 +3,7 @@ import Sequelize, { Model } from 'sequelize';
 
 class Player extends Model {
   static autoinit( sequelize ) {
-    return super.init({
+    return this.init({
       alias: { type: Sequelize.STRING, unique: true },
       tier: Sequelize.INTEGER,
     }, { sequelize, modelName: 'Player' });

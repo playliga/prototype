@@ -6,7 +6,7 @@ class Competition extends Model {
   static autoinit( sequelize ) {
     ipcMain.on( '/database/competition/start', this.ipcstart );
 
-    return super.init({
+    return this.init({
       data: {
         allowNull: false,
         type: Sequelize.JSON,

@@ -43,22 +43,19 @@ async function saveplayer( data: IterableObject<any>[] ) {
   const playercountry = await Country.findOne({ where: { name: userinfo.country }});
 
   // build team object
-  let team = Team.build({
+  const team = await Team.create({
     name: teaminfo.name,
     tier: 4,
   });
-  team = await team.save();
 
   // build player object
-  let player = Player.build({
+  const player = await Player.create({
     alias: userinfo.alias,
     tier: 4,
   });
-  player = await player.save();
 
   // create the new user profile
-  let profile = Profile.build();
-  profile = await profile.save();
+  const profile = await Profile.create();
 
   // save associations and return as a single promise
   return Promise.all([

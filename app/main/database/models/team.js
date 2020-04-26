@@ -4,7 +4,7 @@ import Country from './country';
 
 class Team extends Model {
   static autoinit( sequelize ) {
-    return super.init({
+    return this.init({
       name: { type: Sequelize.STRING, unique: true },
       tag: { type: Sequelize.STRING, defaultValue: '' },
       tier: Sequelize.INTEGER,

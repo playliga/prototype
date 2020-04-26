@@ -3,7 +3,7 @@ import Sequelize, { Model } from 'sequelize';
 
 class Compdef extends Model {
   static autoinit( sequelize ) {
-    return super.init({
+    return this.init({
       name: { type: Sequelize.STRING, unique: true },
       season: Sequelize.INTEGER,
       tiers: Sequelize.JSON

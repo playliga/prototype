@@ -3,7 +3,7 @@ import Sequelize, { Model } from 'sequelize';
 
 class Country extends Model {
   static autoinit( sequelize ) {
-    return super.init({
+    return this.init({
       code: { type: Sequelize.STRING, unique: true },
       name: { type: Sequelize.STRING, unique: true },
     }, { sequelize, modelName: 'Country' });
