@@ -1,5 +1,4 @@
-import { Model, Sequelize } from 'sequelize';
-import { BelongsToSetAssociationMixin, BelongsToManySetAssociationsMixin } from 'sequelize/types';
+import Sequelize, { Model } from 'sequelize';
 
 
 /**
@@ -13,7 +12,7 @@ declare module 'main/database/models' {
   class BaseModel extends Model {
     public readonly id: number;
 
-    public static autoinit( sequelize: Sequelize ): void;
+    public static autoinit( sequelize: Sequelize.Sequelize ): void;
     public static associate( models: any ): void;
   }
 
@@ -33,8 +32,8 @@ declare module 'main/database/models' {
 
   export class Competition extends BaseModel {
     public readonly data: any;
-    public setCompdef: BelongsToSetAssociationMixin<Compdef, number>;
-    public setContinents: BelongsToManySetAssociationsMixin<Continent, number>;
+    public setCompdef: Sequelize.BelongsToSetAssociationMixin<Compdef, number>;
+    public setContinents: Sequelize.BelongsToManySetAssociationsMixin<Continent, number>;
   }
 
 
@@ -45,7 +44,7 @@ declare module 'main/database/models' {
     public readonly updatedAt: Date;
 
     public static findByRegionId( id: number ): Promise<Team[]>;
-    public setCountry: BelongsToSetAssociationMixin<Country, number>;
+    public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
   }
 
 
@@ -53,8 +52,8 @@ declare module 'main/database/models' {
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
 
-    public setTeam: BelongsToSetAssociationMixin<Team, number>;
-    public setCountry: BelongsToSetAssociationMixin<Country, number>;
+    public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
+    public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
   }
 
 
@@ -62,8 +61,8 @@ declare module 'main/database/models' {
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
 
-    public setTeam: BelongsToSetAssociationMixin<Team, number>;
-    public setPlayer: BelongsToSetAssociationMixin<Player, number>;
+    public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
+    public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
   }
 
 
