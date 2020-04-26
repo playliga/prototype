@@ -7,8 +7,8 @@ import DefaultMenuTemplate from 'main/lib/default-menu';
 
 // module-level variables and constants
 const PORT = process.env.PORT || 3000;
-const WIDTH = 800;
-const HEIGHT = 600;
+const WIDTH = 1024;
+const HEIGHT = 768;
 const CONFIG = {
   url: is.production()
     ? `file://${path.join( __dirname, 'dist/renderer/windows/main/index.html' )}`

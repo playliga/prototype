@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { ipcRenderer } from 'electron';
 import { Layout, Menu, Icon, Card } from 'antd';
+import IpcService from 'renderer/lib/ipc-service';
 
 
 const imgdata = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
@@ -24,13 +24,22 @@ class Home extends Component<{}, State> {
     collapsed: false
   }
 
-  public componentDidMount() {
-    ipcRenderer.send( '/database/find', { dsname: 'teams' });
-    ipcRenderer.on( '/database/find', this.handleTeamsFetch );
-  }
+  public async componentDidMount() {
+    const [ comp ] = await IpcService.send( '/database/', {
+      params: {
+        model: 'Competition',
+        method: 'findAll',
+      }
+    });
 
-  private handleTeamsFetch = ( evt: object, teams: any[] ) => {
-    console.log( teams );
+    // @todo: this fails because it's just a plain object.
+    // @todo: needs to be converted to a league type.
+    //
+    // this logic should be kept in the renderer process
+    // the competition model should explose helper
+    // methods that help manage the league.
+    const { data } = comp;
+    data.start();
   }
 
   private handleOnCollapse = ( collapsed: boolean ) => {
