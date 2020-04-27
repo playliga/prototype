@@ -5,6 +5,12 @@
   min-height: 100vh;
   color: black;
 
+  img {
+    width: 100%;
+    height: auto;
+    max-height: 100px;
+  }
+
   .content {
     padding: 20px;
   }
@@ -12,10 +18,37 @@
   .logocontainer {
     margin: 20px 0;
   }
+}
 
-  img {
-    width: 100%;
-    height: auto;
-    max-height: 100px;
+
+#home .groupscontainer {
+  border: 1px solid gray;
+  padding: 0px 20px;
+
+  & + .groupscontainer {
+    border-left-width: 0;
+  }
+
+  div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  p {
+    padding: 0px 5px;
+    text-align: center;
+  }
+}
+
+
+#home .divisioncontainer {
+  overflow-x: scroll;
+
+  & + .divisioncontainer {
+    margin-top: 20px;
+  }
+
+  h2 + div {
+    display: flex;
   }
 }

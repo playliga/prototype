@@ -1,11 +1,9 @@
 import Sequelize, { Model } from 'sequelize';
-import { ipcMain } from 'electron';
+import { League } from 'main/lib/league';
 
 
 class Competition extends Model {
   static autoinit( sequelize ) {
-    ipcMain.on( '/database/competition/start', this.ipcstart );
-
     return this.init({
       data: {
         allowNull: false,
@@ -23,13 +21,14 @@ class Competition extends Model {
    * ipc handlers
    */
 
-  // starts the competition
-  static async ipcstart( evt, request ) {
-    const { id } = request.params;
-    const comp = await Competition.findByPk( id );
+  static async startLeague( args ) {
+    // restore league object and start it
+    const comp = await Competition.findByPk( args.id );
+    const league = League.restore( comp.data );
+    league.start();
 
-    // @todo: load a league instance from the data json
-    const leagueobj = comp.data;
+    // replace the old data with the new league object
+    return comp.update({ data: league });
   }
 }
 

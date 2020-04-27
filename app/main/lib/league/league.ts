@@ -2,20 +2,34 @@
 import { find, chunk } from 'lodash';
 import cuid from 'cuid';
 import GroupStage from 'groupstage';
+import { IterableObject } from 'shared/types';
 import Division from './division';
 import Competitor from './competitor';
 
 
 class League {
-  name: string
-  divisions: Array<Division> = []
-  postSeasonDivisions: Array<Division> = []
+  public name: string;
+  public divisions: Array<Division> = [];
+  public postSeasonDivisions: Array<Division> = [];
+
+  // useful when dynamically restoring the class
+  [k: string]: any;
 
   constructor( name: string ) {
     this.name = name;
   }
 
-  addDivision = ( name: string, size = 128, conferenceSize = 8 ): Division => {
+  public static restore( args: IterableObject<any> ) {
+    const ins = new League( args.name );
+    Object
+      .keys( args )
+      .forEach( k => ins[k] = args[k] )
+    ;
+    ins.divisions = args.divisions.map( ( d: any ) => Division.restore( d ) );
+    return ins;
+  }
+
+  public addDivision = ( name: string, size = 128, conferenceSize = 8 ): Division => {
     // TODO — first check that division does not already exist in array
     const div = new Division( name, size, conferenceSize );
     this.divisions.push( div );
@@ -23,12 +37,12 @@ class League {
     return div;
   }
 
-  getDivision = ( name: string ) => {
+  public getDivision = ( name: string ) => {
     const div = find( this.divisions, item => item.name === name );
     return div;
   }
 
-  isGroupStageDone = (): boolean => {
+  public isGroupStageDone = (): boolean => {
     // loop through each division and ensure all are done
     // bail on first false instance
     let done = true;
@@ -46,7 +60,7 @@ class League {
     return done;
   }
 
-  isDone = (): boolean => {
+  public isDone = (): boolean => {
     // loop through each division and ensure all are done
     // bail on first false instance
     let done = true;
@@ -64,7 +78,7 @@ class League {
     return done;
   }
 
-  start = (): void => {
+  public start = (): void => {
     this.divisions.forEach( ( div: Division ) => {
       // keep a copy of the groupstage object and store into memory
       // groupstage lib makes each competitor face *all* others in same group.
@@ -78,7 +92,7 @@ class League {
     });
   }
 
-  startPostSeason = (): boolean => {
+  public startPostSeason = (): boolean => {
     let allDone = true;
 
     // start post-season for each individual division
@@ -104,7 +118,7 @@ class League {
     return allDone;
   }
 
-  endPostSeason = (): boolean => {
+  public endPostSeason = (): boolean => {
     let allDone = true;
 
     // end post-season for each division
@@ -123,7 +137,7 @@ class League {
     return allDone;
   }
 
-  end = (): void => {
+  public end = (): void => {
     // OPEN(256, 32, 8) = 38 move up
     // INTERMEDIATE(128, 16, 8) = 38 move down, 19 move up
     // MAIN(64, 8, 8) = 19 move down, 10 move up

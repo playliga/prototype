@@ -1,21 +1,25 @@
 import { findIndex, chunk, sortBy } from 'lodash';
 import cuid from 'cuid';
 import Duel from 'duel';
+import { IterableObject } from 'shared/types';
 import Competitor from './competitor';
 import { Conference, PromotionConference, Result } from './types';
 
 
 class Division {
-  name: string
-  size: number
-  competitors: Array<Competitor> = []
-  promotionPercent = 0.15
-  conferenceSize: number
-  conferences: Array<Conference> = []
-  conferenceWinners: Array<Competitor> = []
-  promotionConferences: Array<PromotionConference> = []
-  promotionWinners: Array<Competitor> = []
-  relegationBottomfeeders: Array<Competitor> = []
+  public name: string;
+  public size: number;
+  public competitors: Array<Competitor> = [];
+  public promotionPercent = 0.15;
+  public conferenceSize: number;
+  public conferences: Array<Conference> = [];
+  public conferenceWinners: Array<Competitor> = [];
+  public promotionConferences: Array<PromotionConference> = [];
+  public promotionWinners: Array<Competitor> = [];
+  public relegationBottomfeeders: Array<Competitor> = [];
+
+  // useful when dynamically restoring the class
+  [k: string]: any;
 
   constructor( name: string, size = 256, conferenceSize = 8 ) {
     this.name = name;
@@ -23,22 +27,31 @@ class Division {
     this.conferenceSize = conferenceSize;
   }
 
-  addCompetitor = ( name: string ): void => {
+  public static restore( args: IterableObject<any> ) {
+    const ins = new Division( args.name );
+    Object
+      .keys( args )
+      .forEach( k => ins[k] = args[k] )
+    ;
+    return ins;
+  }
+
+  public addCompetitor = ( name: string ): void => {
     // TODO check if competitor already exists?
     const comp = new Competitor( name );
     this.competitors.push( comp );
   }
 
-  addCompetitors = ( competitorsStrArr: Array<string> ): void => {
+  public addCompetitors = ( competitorsStrArr: Array<string> ): void => {
     const competitors = competitorsStrArr.map( name => new Competitor( name ) );
     this.competitors = [ ...this.competitors, ...competitors ];
   }
 
-  setConferences = ( conferences: Array<Conference> ): void => {
+  public setConferences = ( conferences: Array<Conference> ): void => {
     this.conferences = conferences;
   }
 
-  getCompetitorGroupObj = ( name: string ): object | null => {
+  public getCompetitorGroupObj = ( name: string ): object | null => {
     const { conferences } = this;
     let result = null;
 
@@ -59,12 +72,12 @@ class Division {
     return result;
   }
 
-  getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
+  public getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
     const { competitors } = this.conferences[ confNum ];
     return competitors[ seedNum - 1 ]; // seeds are 1-based; array is 0-based...
   }
 
-  isGroupStageDone = (): boolean => {
+  public isGroupStageDone = (): boolean => {
     // loop through each conference and ensure all are done
     // bail on first false instance
     let done = true;
@@ -83,7 +96,7 @@ class Division {
     return done;
   }
 
-  isDone = (): boolean => {
+  public isDone = (): boolean => {
     // bail early if group stage is not done
     if( !this.isGroupStageDone() ) {
       return false;
@@ -108,7 +121,7 @@ class Division {
     return done;
   }
 
-  startPostSeason = ( neighborPromotionNum = 0 ): boolean => {
+  public startPostSeason = ( neighborPromotionNum = 0 ): boolean => {
     // abort if pending matches
     if( !this.isGroupStageDone() ) {
       return false;
@@ -204,7 +217,7 @@ class Division {
     return true;
   }
 
-  endPostSeason = (): boolean => {
+  public endPostSeason = (): boolean => {
     // bail early if group stage or playoffs are not done
     if( !this.isGroupStageDone() || !this.isDone() ) {
       return false;
