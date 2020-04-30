@@ -17,7 +17,10 @@ declare module 'main/database/models' {
   }
 
 
-  export class Continent extends BaseModel {}
+  export class Continent extends BaseModel {
+    public readonly code: string;
+    public readonly name: string;
+  }
 
 
   export class Country extends BaseModel {}
@@ -27,6 +30,7 @@ declare module 'main/database/models' {
     public readonly name: string;
     public readonly season: number;
     public readonly tiers: any[];
+    public readonly Continents?: Continent[];
   }
 
 

@@ -42,6 +42,10 @@
       "eu"
     ],
     "season":12,
-    "tiers":0
+    "tiers":[{
+      "name":"Professional",
+      "minlen":20,
+      "confsize":20
+    }]
   }
 ]

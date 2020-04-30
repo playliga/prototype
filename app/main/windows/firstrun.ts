@@ -32,6 +32,19 @@ let win: Window;
 
 
 /**
+ * Utility functions
+ */
+
+function openMainWindow() {
+  // wait a few seconds before opening the main window
+  setTimeout( () => {
+    ipcMain.emit( '/windows/main/open' );
+    win.handle.close();
+  }, 2000 );
+}
+
+
+/**
  * World gen functions
  */
 
@@ -68,60 +81,47 @@ async function saveplayer( data: IterableObject<any>[] ) {
 }
 
 
-async function gencomps() {
-  // get regions and their teams
-  const [ eu, na ] = await Continent.findAll({
-    where: { id: [ 4, 5 ] }
+async function genSingleComp( compdef: Compdef ) {
+  // get the regions
+  const regionids = compdef.Continents?.map( c => c.id ) || [];
+  const regions = await Continent.findAll({
+    where: { id: regionids }
   });
-  const euteams = await Team.findByRegionId( eu.id );
-  const nateams = await Team.findByRegionId( na.id );
 
-  // get the esea compdef
-  const eseacompdef = await Compdef.findOne({ where: { name: 'ESEA' }});
-
-  if( !eseacompdef ) {
-    return;
+  // bail if no regions
+  if( !regions ) {
+    return Promise.resolve();
   }
 
-  // build the esea league per region
-  const data = [
-    { region: eu, teams: euteams },
-    { region: na, teams: nateams },
-  ];
+  return Promise.all( regions.map( async region => {
+    const teams = await Team.findByRegionId( region.id );
+    const leagueobj = new League( compdef.name );
 
-  return Promise.all( data.map( async item => {
-
-    // build the esea league object
-    const { region, teams } = item;
-    const esealeague = new League( eseacompdef.name );
-
-    // add teams to the esea tiers
-    eseacompdef.tiers.forEach( ( tier, tdx ) => {
-      const div = esealeague.addDivision( tier.name, tier.minlen, tier.confsize );
+    // add teams to the competition tiers
+    compdef.tiers.forEach( ( tier, tdx ) => {
+      const div = leagueobj.addDivision( tier.name, tier.minlen, tier.confsize );
       const tierteams = teams.filter( t => t.tier === tdx );
       div.addCompetitors( tierteams.slice( 0, tier.minlen ).map( t => t.id.toString() ) );
     });
 
-    // save the league as a competition
-    const comp = Competition.build({ data: esealeague });
+    // build the competition
+    const comp = Competition.build({ data: leagueobj });
     await comp.save();
 
     // save its associations
     return Promise.all([
-      comp.setCompdef( eseacompdef ),
+      comp.setCompdef( compdef ),
       comp.setContinents([ region ]),
     ]);
-
-  }) );
+  }));
 }
 
 
-function openmainwindow() {
-  // wait a few seconds before opening the main window
-  setTimeout( () => {
-    ipcMain.emit( '/windows/main/open' );
-    win.handle.close();
-  }, 2000 );
+async function genAllComps() {
+  const compdefs = await Compdef.findAll({
+    include: [ 'Continents' ],
+  });
+  return compdefs.map( genSingleComp );
 }
 
 
@@ -134,10 +134,10 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
   saveplayer( data )
 
     // once that is done, generate the competitions
-    .then( gencomps )
+    .then( genAllComps )
 
     // finished!
-    .then( openmainwindow )
+    .then( openMainWindow )
   ;
 }
 
