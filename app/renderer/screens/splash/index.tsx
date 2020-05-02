@@ -21,6 +21,7 @@ const render = ( Component: React.ReactType<unknown> ) => {
 const Wrapper = () => (
   <Fragment>
     <Particles
+      // @ts-ignore
       params={particleConfig}
       className="particles"
     />

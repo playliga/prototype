@@ -15,11 +15,11 @@ const ENTRIES = [ 'splash', 'firstrun', 'main' ];
 const outputs = {
   PROD: {
     filename: '[name]/[name].js',
-    path: path.join( ROOT, 'dist/renderer/windows' )
+    path: path.join( ROOT, 'dist/renderer/screens' )
   },
   DEV: {
     filename: '[name].js',
-    publicPath: `http://localhost:${PORT}/windows/`
+    publicPath: `http://localhost:${PORT}/screens/`
   }
 };
 
@@ -31,7 +31,7 @@ function devEntries() {
     output[item] = [
       'react-hot-loader/patch',
       `webpack-hot-middleware/client?reload=true&path=http://localhost:${PORT}/__webpack_hmr`,
-      path.join( ROOT, `app/renderer/windows/${item}/index` )
+      path.join( ROOT, `app/renderer/screens/${item}/index` )
     ];
   });
 
@@ -68,7 +68,7 @@ function prodEntries() {
   const output = {};
 
   ENTRIES.forEach( ( item ) => {
-    output[item] = path.join( ROOT, `app/renderer/windows/${item}/index` );
+    output[item] = path.join( ROOT, `app/renderer/screens/${item}/index` );
   });
 
   return output;

@@ -3,7 +3,7 @@ import { IpcRequest } from 'shared/types';
 import * as Models from 'main/database/models';
 
 
-export interface IpcRequestParams {
+interface IpcRequestParams {
   model: string;
   method: string;
   args?: any;

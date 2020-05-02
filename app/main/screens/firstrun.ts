@@ -3,8 +3,8 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
 import { IterableObject } from 'shared/types';
-import { Window } from 'main/lib/window-manager/types';
-import WindowManager from 'main/lib/window-manager';
+import { Screen } from 'main/lib/screen-manager/types';
+import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 import { League } from 'main/lib/league';
 import { Team, Player, Country, Profile, Continent, Compdef, Competition } from 'main/database/models';
@@ -16,8 +16,8 @@ const WIDTH = 800;
 const HEIGHT = 600;
 const CONFIG = {
   url: is.production()
-    ? `file://${path.join( __dirname, 'dist/renderer/windows/firstrun/index.html' )}`
-    : `http://localhost:${PORT}/windows/firstrun/index.html`,
+    ? `file://${path.join( __dirname, 'dist/renderer/screens/firstrun/index.html' )}`
+    : `http://localhost:${PORT}/screens/firstrun/index.html`,
   opts: {
     backgroundColor: '#f5f5f5', // "whitesmoke"
     width: WIDTH,
@@ -28,7 +28,7 @@ const CONFIG = {
 };
 
 
-let win: Window;
+let screen: Screen;
 
 
 /**
@@ -38,8 +38,8 @@ let win: Window;
 function openMainWindow() {
   // wait a few seconds before opening the main window
   setTimeout( () => {
-    ipcMain.emit( '/windows/main/open' );
-    win.handle.close();
+    ipcMain.emit( '/screens/main/open' );
+    screen.handle.close();
   }, 2000 );
 }
 
@@ -143,12 +143,12 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
 
 
 function openWindowHandler() {
-  win = WindowManager.createWindow(
-    '/windows/firstrun',
+  screen = ScreenManager.createScreen(
+    '/screens/firstrun',
     CONFIG.url,
     CONFIG.opts
   );
-  win.handle.setMenu( DefaultMenuTemplate );
+  screen.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on
   // osx so we'll have to accomodate for that
@@ -160,6 +160,6 @@ function openWindowHandler() {
 
 export default () => {
   // ipc listeners
-  ipcMain.on( '/windows/firstrun/open', openWindowHandler );
-  ipcMain.on( '/windows/firstrun/save', saveFirstRunHandler );
+  ipcMain.on( '/screens/firstrun/open', openWindowHandler );
+  ipcMain.on( '/screens/firstrun/save', saveFirstRunHandler );
 };

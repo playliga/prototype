@@ -1,7 +1,7 @@
 import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
-import WindowManager from 'main/lib/window-manager';
+import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 
 
@@ -11,8 +11,8 @@ const WIDTH = 1024;
 const HEIGHT = 768;
 const CONFIG = {
   url: is.production()
-    ? `file://${path.join( __dirname, 'dist/renderer/windows/main/index.html' )}`
-    : `http://localhost:${PORT}/windows/main/index.html`,
+    ? `file://${path.join( __dirname, 'dist/renderer/screens/main/index.html' )}`
+    : `http://localhost:${PORT}/screens/main/index.html`,
   opts: {
     backgroundColor: '#f5f5f5', // "whitesmoke"
     width: WIDTH,
@@ -25,8 +25,8 @@ const CONFIG = {
 
 // ipc handlers
 async function openWindowHandler() {
-  const win = WindowManager.createWindow( '/windows/main', CONFIG.url, CONFIG.opts );
-  win.handle.setMenu( DefaultMenuTemplate );
+  const screen = ScreenManager.createScreen( '/screens/main', CONFIG.url, CONFIG.opts );
+  screen.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on
   // osx so we'll have to accomodate for that
@@ -38,5 +38,5 @@ async function openWindowHandler() {
 
 export default () => {
   // ipc listeners
-  ipcMain.on( '/windows/main/open', openWindowHandler );
+  ipcMain.on( '/screens/main/open', openWindowHandler );
 };

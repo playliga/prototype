@@ -66,13 +66,7 @@ class Home extends Component<{}, State> {
   }
 
   public async componentDidMount() {
-    const comp = await IpcService.send( '/database/', {
-      params: {
-        model: 'Competition',
-        method: 'startLeague',
-        args: { id: 1 }
-      }
-    });
+    const comp = await IpcService.send( '/database/competition/start', { params: { id: 1 } });
     this.setState({ comp });
   }
 

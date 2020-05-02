@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import minimist from 'minimist';
-import { Windows, Window } from './types';
+import { IterableObject } from 'shared/types';
+import { Screen } from './types';
 
 
 /**
@@ -9,26 +10,26 @@ import { Windows, Window } from './types';
  * These variables are stored at the module level so they can be
  * re-used as a singleton of sorts
  */
-const windows: Windows = {};
+const screens: IterableObject<Screen> = {};
 
 
 /**
  * Class definition
  */
-export default class WindowManager {
-  static getWindows(): Windows {
-    return windows;
+export default class ScreenManager {
+  static getScreens(): IterableObject<Screen> {
+    return screens;
   }
 
-  static getWindowById( id: string ): Window {
-    return windows[ id ];
+  static getScreenById( id: string ): Screen {
+    return screens[ id ];
   }
 
-  static createWindow( id: string, url: string, options: object, urlOptions: object = {}): Window {
-    // if the specified provided window id already
-    // exists with an active handle then return that instead
-    if( windows[ id ] && windows[ id ].handle ) {
-      return windows[ id ];
+  static createScreen( id: string, url: string, options: object, urlOptions: object = {}): Screen {
+    // if the provided screen id already exists with
+    // an active handle then return that instead
+    if( screens[ id ] && screens[ id ].handle ) {
+      return screens[ id ];
     }
 
     // configure command line args
@@ -36,7 +37,7 @@ export default class WindowManager {
       boolean: [ 'dev-console' ]
     });
 
-    // configure default window options which
+    // configure default screen options which
     // can be overriden by incoming options
     const defaultoptions = {
       fullscreenable: false,
@@ -52,27 +53,27 @@ export default class WindowManager {
     // Create the browser window.
     // https://github.com/electron/electron/blob/master/docs/api/browser-window.md
     // https://github.com/electron/electron/blob/master/docs/api/frameless-window.md
-    const window: Window = {
+    const screen: Screen = {
       id,
       handle: new BrowserWindow({ ...defaultoptions, ...options })
     };
 
-    window.handle.loadURL( url, urlOptions );
+    screen.handle.loadURL( url, urlOptions );
 
     // open dev tools if provided via cli args
     if( args[ 'dev-console' ] ) {
-      window.handle.webContents.openDevTools();
+      screen.handle.webContents.openDevTools();
     }
 
-    // Emitted when the window is closed.
-    window.handle.on( 'closed', () => {
-      // Dereference the window object, usually you would store windows
+    // Emitted when the screen is closed.
+    screen.handle.on( 'closed', () => {
+      // Dereference the screen object, usually you would store screens
       // in an array if your app supports multi windows, this is the time
       // when you should delete the corresponding element.
-      delete window.handle;
+      delete screen.handle;
     });
 
-    windows[ id ] = window;
-    return window;
+    screens[ id ] = screen;
+    return screen;
   }
 }

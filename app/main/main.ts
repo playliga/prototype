@@ -6,21 +6,18 @@ import is from 'electron-is';
 import { Sequelize } from 'sequelize';
 
 import * as Models from 'main/database/models';
-import IpcApi from 'main/lib/ipc-api';
-import { SplashWindow, MainWindow, FirstRunWindow } from 'main/windows';
-import WindowManager from 'main/lib/window-manager';
+import * as IPCApis from 'main/api';
+import { SplashScreen, MainScreen, FirstRunScreen } from 'main/screens';
+import ScreenManager from 'main/lib/screen-manager';
 
 
 /**
- * Setup db paths.
+ * Set-up the application database
  */
 const DBNAME    = 'save0.sqlite';
 const DBPATH    = path.join( app.getPath( 'userData' ), 'databases' );
 
 
-/**
- * Needs to run before we can show any application windows.
-**/
 function setupDB() {
   const targetpath = path.join( DBPATH, DBNAME );
 
@@ -64,17 +61,28 @@ function setupDB() {
 }
 
 
+/**
+ * Set up the application IPC listeners
+ */
+function setupIPCListeners() {
+  Object
+    .values( IPCApis )
+    .forEach( ipc => ipc() )
+  ;
+}
+
+
 function handleOnReady() {
   // setup source-controlled snapshots
   setupDB()
     .then( () => {
       // ipc-handler/api
-      IpcApi();
+      setupIPCListeners();
 
-      // window handlers
-      SplashWindow();
-      FirstRunWindow();
-      MainWindow();
+      // screen handlers
+      SplashScreen();
+      FirstRunScreen();
+      MainScreen();
     })
     .catch( err => {
       log.error([ err ]);
@@ -93,10 +101,10 @@ function handleAllClosed() {
 
 
 function handleOnActivate() {
-  const windows = WindowManager.getWindows();
+  const screens = ScreenManager.getScreens();
 
-  if( Object.keys( windows ).length === 0 ) {
-    SplashWindow();
+  if( Object.keys( screens ).length === 0 ) {
+    SplashScreen();
   }
 }
 

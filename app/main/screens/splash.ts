@@ -4,8 +4,8 @@ import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { Profile } from 'main/database/models';
-import WindowManager from 'main/lib/window-manager';
-import { Window } from 'main/lib/window-manager/types';
+import ScreenManager from 'main/lib/screen-manager';
+import { Screen } from 'main/lib/screen-manager/types';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
 
 
@@ -15,8 +15,8 @@ const WIDTH = 300;
 const HEIGHT = 400;
 const CONFIG = {
   url: is.production()
-    ? `file://${path.join( __dirname, 'dist/renderer/windows/splash/index.html' )}`
-    : `http://localhost:${PORT}/windows/splash/index.html`,
+    ? `file://${path.join( __dirname, 'dist/renderer/screens/splash/index.html' )}`
+    : `http://localhost:${PORT}/screens/splash/index.html`,
   opts: {
     backgroundColor: '#000000',
     width: WIDTH,
@@ -29,7 +29,7 @@ const CONFIG = {
   }
 };
 
-let win: Window;
+let screen: Screen;
 
 
 /**
@@ -71,12 +71,12 @@ autoUpdater.logger.transports.file.level = 'debug';
 
 // auto updater event handlers
 function handleError( err: Error ) {
-  win.handle.webContents.send( '/windows/splash/error', err );
+  screen.handle.webContents.send( '/screens/splash/error', err );
 
   // attempt to launch the main application anyways
   setTimeout( () => {
-    ipcMain.emit( `/windows/${redirect_target}/open` );
-    win.handle.close();
+    ipcMain.emit( `/screens/${redirect_target}/open` );
+    screen.handle.close();
   }, 2000 );
 }
 
@@ -87,13 +87,13 @@ function handleCheckingUpdate() {
 
 
 function handleNoUpdateAvail() {
-  win.handle.webContents.send( '/windows/splash/no-update-avail' );
+  screen.handle.webContents.send( '/screens/splash/no-update-avail' );
 
   // close the splash window after 2 seconds
   // and open the main application window
   setTimeout( () => {
-    ipcMain.emit( `/windows/${redirect_target}/open` );
-    win.handle.close();
+    ipcMain.emit( `/screens/${redirect_target}/open` );
+    screen.handle.close();
   }, 2000 );
 }
 
@@ -103,17 +103,17 @@ function handleUpdateAvail() {
     autoUpdater.downloadUpdate();
   }
 
-  win.handle.webContents.send( '/windows/splash/update-avail' );
+  screen.handle.webContents.send( '/screens/splash/update-avail' );
 }
 
 
 function handleDownloadProgress( progressObj: object ) {
-  win.handle.webContents.send( '/windows/splash/download-progress', progressObj );
+  screen.handle.webContents.send( '/screens/splash/download-progress', progressObj );
 }
 
 
 function handleUpdateDownloaded() {
-  win.handle.webContents.send( '/windows/splash/update-downloaded' );
+  screen.handle.webContents.send( '/screens/splash/update-downloaded' );
 
   // wait two seconds so that the GUI gets a chance
   // to show a `done` message
@@ -126,8 +126,8 @@ function handleUpdateDownloaded() {
 
     // otherwise, manually close this window
     // and open the main application window
-    ipcMain.emit( `/windows/${redirect_target}/open` );
-    win.handle.close();
+    ipcMain.emit( `/screens/${redirect_target}/open` );
+    screen.handle.close();
   }, 2000 );
 }
 
@@ -191,13 +191,13 @@ function fakeAutoUpdater() {
  * Main functions
  */
 
-function setupwindow() {
+function setupscreen() {
   // create the window
-  win = WindowManager.createWindow( '/windows/splash', CONFIG.url, CONFIG.opts );
+  screen = ScreenManager.createScreen( '/screens/splash', CONFIG.url, CONFIG.opts );
 
   // disable the menu only in prod
   if( is.production() ) {
-    win.handle.setMenu( null );
+    screen.handle.setMenu( null );
   }
 
   // on osx it's enforced to show the Application Menu item
@@ -241,7 +241,7 @@ function setupautoupdater() {
 
 export default () => {
   checkuserdata().then( () => {
-    setupwindow();
+    setupscreen();
     setupautoupdater();
   });
 };
