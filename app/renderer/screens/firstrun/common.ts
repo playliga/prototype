@@ -1,5 +1,5 @@
-import { isEmpty } from 'validator';
 import React from 'react';
+import { isEmpty } from 'validator';
 
 
 export const FormContext = React.createContext({});
@@ -11,7 +11,7 @@ export interface Field {
   errorMsg: string | null;
   pristine: boolean;
   placeholder?: string;
-  icontype?: string;
+  icon?: any;
   regex?: RegExp;
   regexErrorMsg?: string;
 }

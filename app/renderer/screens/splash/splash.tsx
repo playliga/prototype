@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import { Icon } from 'antd';
+import { SyncOutlined, CheckOutlined } from '@ant-design/icons';
 
 
 interface State {
@@ -79,10 +79,10 @@ class Splash extends Component<{}, State> {
         <p>{this.state.status}</p>
         <div className="progress-container">
           {this.state.downloading && (
-            <Icon spin type="sync" />
+            <SyncOutlined spin />
           )}
           {this.state.status === this.statuses.DONE && (
-            <Icon type="check" />
+            <CheckOutlined />
           )}
         </div>
       </section>

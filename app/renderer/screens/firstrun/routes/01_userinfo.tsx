@@ -1,16 +1,12 @@
-import React, { Component, FormEvent } from 'react';
-import { Form, Button, Input, Select, Icon } from 'antd';
-import { getEmojiFlag } from 'countries-list';
+import React, { Component } from 'react';
+import { Form, Button, Input } from 'antd';
+import { UserOutlined, RobotOutlined } from '@ant-design/icons';
+import { IterableObject } from 'shared/types';
 import { validateForm, handleInputChange, Field, FormContext } from '../common';
+import { CountrySelector } from '../components';
 
 
 const FormItem = Form.Item;
-const { Option, OptGroup } = Select;
-
-
-interface State {
-  [x: string]: Field;
-}
 
 
 interface Props {
@@ -19,17 +15,17 @@ interface Props {
 }
 
 
-class One extends Component<Props, State> {
+class One extends Component<Props, IterableObject<Field>> {
   private plaintxtfields = [ 'fname', 'lname', 'alias' ]
 
-  public state: State = {
+  public state: IterableObject<Field> = {
     fname: {
       value: '',
       validateStatus: 'success' as 'success',
       errorMsg: null,
       pristine: true,
       placeholder: 'First Name',
-      icontype: 'user'
+      icon: <UserOutlined />
     },
     lname: {
       value: '',
@@ -37,7 +33,7 @@ class One extends Component<Props, State> {
       errorMsg: null,
       pristine: true,
       placeholder: 'Last Name',
-      icontype: 'user'
+      icon: <UserOutlined />
     },
     alias: {
       value: '',
@@ -45,7 +41,7 @@ class One extends Component<Props, State> {
       errorMsg: null,
       pristine: true,
       placeholder: 'Alias',
-      icontype: 'robot',
+      icon: <RobotOutlined />,
       regex: /^[\w]+$/,
       regexErrorMsg: 'Only alphanumeric & underscores allowed.'
     },
@@ -55,7 +51,7 @@ class One extends Component<Props, State> {
       errorMsg: null,
       pristine: true,
       placeholder: '',
-      icontype: ''
+      icon: null
     },
   }
 
@@ -76,9 +72,7 @@ class One extends Component<Props, State> {
     this.setState({ country });
   }
 
-  private handleSubmit = ( evt: FormEvent<HTMLFormElement> ) => {
-    evt.preventDefault();
-
+  private handleSubmit = () => {
     // build the payload
     const payload = {
       name: `${this.state.fname.value} ${this.state.lname.value}`,
@@ -93,9 +87,9 @@ class One extends Component<Props, State> {
   public render() {
     return (
       <section className="content">
-        <h1>{'Welcome!'}</h1>
+        <h1>{'Player Information'}</h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onFinish={this.handleSubmit}>
           {this.plaintxtfields.map( ( id: string, idx: number ) => {
             const field = this.state[ id ];
 
@@ -111,34 +105,20 @@ class One extends Component<Props, State> {
                   id={id}
                   placeholder={field.placeholder}
                   value={field.value || undefined}
-                  addonBefore={<Icon type={field.icontype} />}
+                  addonBefore={field.icon}
                   onChange={this.handleInputChange}
                 />
               </FormItem>
             );
           })}
           <FormItem>
-            <Select
-              showSearch
-              placeholder="Select a Country"
-              optionFilterProp="children"
+            <CountrySelector
               onChange={this.handleSelectChange}
-            >
-              {/* Render continents and their countries as option groups */}
-              {/* @TODO move this to a common lib to be re-used */}
-              {this.props.continents.map( ( continent: any ) => (
-                <OptGroup key={continent.code} label={continent.name}>
-                  {continent.Countries.map( ( country: any ) => (
-                    <Option key={country.name} value={country.name}>
-                      {getEmojiFlag(country.code)}
-                      {country.name}
-                    </Option>
-                  ) )}
-                </OptGroup>
-              ) )}
-            </Select>
+              continents={this.props.continents}
+            />
           </FormItem>
           <Button
+            block
             type="primary"
             htmlType="submit"
             disabled={validateForm( this.state )}

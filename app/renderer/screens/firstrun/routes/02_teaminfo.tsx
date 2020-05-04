@@ -1,16 +1,12 @@
-import React, { Component, FormEvent } from 'react';
-import { Form, Button, Input, Select, Icon } from 'antd';
-import { getEmojiFlag } from 'countries-list';
+import React, { Component } from 'react';
+import { Form, Button, Input } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { IterableObject } from 'shared/types';
 import { validateForm, handleInputChange, Field, FormContext } from '../common';
+import { CountrySelector } from '../components';
 
 
 const FormItem = Form.Item;
-const { Option, OptGroup } = Select;
-
-
-interface State {
-  [x: string]: Field;
-}
 
 
 interface Props {
@@ -19,17 +15,17 @@ interface Props {
 }
 
 
-class Two extends Component<Props, State> {
+class Two extends Component<Props, IterableObject<Field>> {
   private plaintxtfields = [ 'name' ]
 
-  public state: State = {
+  public state: IterableObject<Field> = {
     name: {
       value: '',
       validateStatus: 'success' as 'success',
       errorMsg: null,
       pristine: true,
       placeholder: 'Team Name',
-      icontype: 'user',
+      icon: <UserOutlined />,
       regex: /^[\w ]+$/
     },
     country: {
@@ -38,7 +34,7 @@ class Two extends Component<Props, State> {
       errorMsg: null,
       pristine: true,
       placeholder: '',
-      icontype: ''
+      icon: null
     },
   }
 
@@ -59,9 +55,7 @@ class Two extends Component<Props, State> {
     this.setState({ country });
   }
 
-  private handleSubmit = ( evt: FormEvent<HTMLFormElement> ) => {
-    evt.preventDefault();
-
+  private handleSubmit = () => {
     // build the payload
     const payload = {
       name: this.state.name.value,
@@ -75,9 +69,9 @@ class Two extends Component<Props, State> {
   public render() {
     return (
       <section className="content">
-        <h1>{'Team Info!'}</h1>
+        <h1>{'Team Information'}</h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onFinish={this.handleSubmit}>
           {this.plaintxtfields.map( ( id: string ) => {
             const field = this.state[ id ];
 
@@ -93,33 +87,20 @@ class Two extends Component<Props, State> {
                   id={id}
                   placeholder={field.placeholder}
                   value={field.value || undefined}
-                  addonBefore={<Icon type={field.icontype} />}
+                  addonBefore={field.icon}
                   onChange={this.handleInputChange}
                 />
               </FormItem>
             );
           })}
           <FormItem>
-            <Select
-              showSearch
-              placeholder="Select a Country"
-              optionFilterProp="children"
+            <CountrySelector
               onChange={this.handleSelectChange}
-            >
-              {/* Render continents and their countries as option groups */}
-              {this.props.continents.map( ( continent: any ) => (
-                <OptGroup key={continent.code} label={continent.name}>
-                  {continent.Countries.map( ( country: any ) => (
-                    <Option key={country.name} value={country.name}>
-                      {getEmojiFlag(country.code)}
-                      {country.name}
-                    </Option>
-                  ) )}
-                </OptGroup>
-              ) )}
-            </Select>
+              continents={this.props.continents}
+            />
           </FormItem>
           <Button
+            block
             type="primary"
             htmlType="submit"
             disabled={validateForm( this.state )}

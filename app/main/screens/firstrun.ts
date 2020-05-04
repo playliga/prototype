@@ -13,7 +13,7 @@ import { Team, Player, Country, Profile, Continent, Compdef, Competition } from 
 // module-level variables and constants
 const PORT = process.env.PORT || 3000;
 const WIDTH = 800;
-const HEIGHT = 600;
+const HEIGHT = 650;
 const CONFIG = {
   url: is.production()
     ? `file://${path.join( __dirname, 'dist/renderer/screens/firstrun/index.html' )}`
@@ -23,7 +23,11 @@ const CONFIG = {
     width: WIDTH,
     height: HEIGHT,
     minWidth: WIDTH,
-    minHeight: HEIGHT
+    minHeight: HEIGHT,
+    maximizable: false,
+    resizable: false,
+    movable: false,
+    minimizable: false,
   }
 };
 

@@ -2,25 +2,57 @@
 
 
 #firstrun {
-  width: 35%;
-  height: 100%;
-  margin: 0 auto;
-  padding-top: 50px;
-  text-align: center;
+  width: 100%;
+  padding-top: 20px;
 
   img {
-    width: 50%;
-    margin-bottom: 20px;
+    display: block;
+    width: 20%;
+    margin: 0 auto;
   }
+}
+
+
+#steps {
+  width: 50%;
+  margin: 20px auto;
+
+  .ant-steps-item-title {
+    font-variant: small-caps;
+    font-weight: 100;
+  }
+
+  .ant-steps-item-active .ant-steps-item-title {
+    font-weight: 300;
+  }
+}
+
+
+#routes {
+  width: 35%;
+  margin: 0 auto;
+  text-align: center;
 
   h1 {
     font-variant: small-caps;
     font-weight: 100;
   }
 
+  button {
+    margin-top: 24px;
+  }
+
   .content {
     position: absolute;
     width: 35%; // same as parent's
+  }
+
+  .ant-form-item {
+    margin-bottom: 10px;
+  }
+
+  .ant-select {
+    text-align: left;
   }
 
   /**

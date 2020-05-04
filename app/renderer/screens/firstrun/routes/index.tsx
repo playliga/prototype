@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { Steps } from 'antd';
+import { UserOutlined, TeamOutlined, FileDoneOutlined } from '@ant-design/icons';
 
 import IpcService from 'renderer/lib/ipc-service';
 import { FormContext } from '../common';
@@ -18,6 +20,12 @@ interface State {
 
 export default class Routes extends Component<RouteComponentProps, State> {
   private imgdata = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
+
+  private routes = [
+    { path: '/', component: One, title: 'Player', icon: <UserOutlined /> },
+    { path: '/firstrun/two', component: Two, title: 'Team', icon: <TeamOutlined /> },
+    { path: '/firstrun/finish', component: Finish, title: 'Finish', icon: <FileDoneOutlined /> },
+  ];
 
   public state = {
     continents: [],
@@ -52,30 +60,59 @@ export default class Routes extends Component<RouteComponentProps, State> {
     this.setState({ formdata });
   }
 
-  private renderRoutes = () => (
-    <FormContext.Provider
-      value={{
-        continents: this.state.continents,
-        onSubmit: this.handleSubmit
-      }}
-    >
-      <Route exact path="/" component={One} />
-      <Route exact path="/firstrun/two" component={Two} />
-      <Route exact path="/firstrun/finish" component={Finish} />
-    </FormContext.Provider>
-  )
+  private renderRoutes = () => {
+    return (
+      <FormContext.Provider
+        value={{
+          continents: this.state.continents,
+          onSubmit: this.handleSubmit
+        }}
+      >
+        {this.routes.map( r => (
+          <Route
+            exact
+            key={r.path}
+            path={r.path}
+            component={r.component}
+          />
+        ))}
+      </FormContext.Provider>
+    );
+  }
 
   public render() {
+    const { props, routes } = this;
+    const active = routes.findIndex( r => r.path === props.location.pathname );
+
     return (
       <div id="firstrun">
         <img src={this.imgdata} alt="La Liga" />
-        <TransitionGroup>
-          <CSSTransition key={this.props.location.key} classNames="fade" timeout={300}>
-            <Switch location={this.props.location}>
-              {this.renderRoutes()}
-            </Switch>
-          </CSSTransition>
-        </TransitionGroup>
+
+        <section id="steps">
+          <Steps
+            current={active}
+            labelPlacement="vertical"
+            size="small"
+          >
+            {routes.map( r => (
+              <Steps.Step
+                key={r.path}
+                title={r.title}
+                icon={r.icon}
+              />
+            ))}
+          </Steps>
+        </section>
+
+        <section id="routes">
+          <TransitionGroup>
+            <CSSTransition key={props.location.key} classNames="fade" timeout={300}>
+              <Switch location={props.location}>
+                {this.renderRoutes()}
+              </Switch>
+            </CSSTransition>
+          </TransitionGroup>
+        </section>
       </div>
     );
   }

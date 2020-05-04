@@ -3,6 +3,7 @@
 
 body {
   background-color: black !important;
+  overflow: hidden;
 }
 
 
@@ -26,8 +27,7 @@ section#splash {
   background-image: url( './home_alt.png' );
   background-size: cover;
   background-position: center;
-  overflow: hidden;
-  height: 100%;
+  height: 100vh;
   padding: 0px 20px;
   color: white;
 

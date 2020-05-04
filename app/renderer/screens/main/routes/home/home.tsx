@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Layout, Menu, Icon, Card } from 'antd';
 import GroupStage from 'groupstage';
+import { Layout, Menu, Card } from 'antd';
+import { HomeOutlined, UserOutlined, PieChartOutlined } from '@ant-design/icons';
 import IpcService from 'renderer/lib/ipc-service';
 
 
@@ -86,18 +87,18 @@ class Home extends Component<{}, State> {
         </section>
         <Menu theme="dark" defaultSelectedKeys={[ '1' ]} mode="inline">
           <Menu.Item key="1">
-            <Icon type="home" />
+            <HomeOutlined />
             <span>Home</span>
           </Menu.Item>
           <Menu.Item key="2">
-            <Icon type="user" />
+            <UserOutlined />
             <span>Squad</span>
           </Menu.Item>
           <SubMenu
             key="sub1"
             title={(
               <span>
-                <Icon type="pie-chart" />
+                <PieChartOutlined />
                 <span>Transfer Market</span>
               </span>
             )}
