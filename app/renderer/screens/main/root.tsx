@@ -1,12 +1,12 @@
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route } from 'react-router-dom';
 import Routes from 'renderer/screens/main/routes';
 
 
-const Main = () => (
+const Root = () => (
   <MemoryRouter>
-    <Routes />
+    <Route path="/" component={Routes} />
   </MemoryRouter>
 );
 
-export default Main;
+export default Root;

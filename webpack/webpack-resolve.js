@@ -14,6 +14,9 @@ module.exports = {
     main: path.resolve( __dirname, '../app/main' ),
     renderer: path.resolve( __dirname, '../app/renderer' ),
     shared: path.resolve( __dirname, '../app/shared' ),
+
+    // fix for react-hooks with react-hot-loader
+    'react-dom': '@hot-loader/react-dom',
   },
   modules: [
     path.resolve( __dirname, '../node_modules' )

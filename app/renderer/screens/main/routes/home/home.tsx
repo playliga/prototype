@@ -1,144 +1,53 @@
 import React, { Component } from 'react';
-import GroupStage from 'groupstage';
-import { Layout, Menu, Card } from 'antd';
-import { HomeOutlined, UserOutlined, PieChartOutlined } from '@ant-design/icons';
-import IpcService from 'renderer/lib/ipc-service';
+import { List, Avatar } from 'antd';
+import { random } from 'lodash';
 
 
-const imgdata = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
-
-
-interface State {
-  collapsed: boolean;
-  comp: any;
-}
-
-
-const { Content, Sider } = Layout;
-const SubMenu = Menu.SubMenu;
-
-
-function Conference( props: any ) {
-  const { groupObj, competitors } = props;
-  const groupstage = GroupStage.restore( groupObj.numPlayers, groupObj.groupSize, groupObj.state );
-  const standings = groupstage.results();
-
+function InboxPreviewItem( props: any ) {
   return (
-    <div className="groupscontainer">
-      <div>
-        <p>{'Pos.'}</p>
-        <p>{'Name'}</p>
-        <p>{'Win'}</p>
-        <p>{'Draw'}</p>
-        <p>{'Loss'}</p>
-        <p>{'Pts'}</p>
-      </div>
-      {standings.map( ( s: any, idx: any ) => (
-        <div key={idx}>
-          <p>{s.gpos}</p>
-          <p>{competitors[ s.seed - 1 ].name}</p>
-          <p>{s.wins}</p>
-          <p>{s.draw}</p>
-          <p>{s.losses}</p>
-          <p>{s.pts}</p>
-        </div>
-      ))}
-    </div>
+    <List.Item onClick={() => props.onClick()}>
+      <List.Item.Meta
+        avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+        description="Just introducing myself. I'm your assistance manager and really think..."
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>{'Hello'}</span>
+            <span>{'May 2020'}</span>
+          </div>
+        }
+      />
+    </List.Item>
   );
 }
 
 
-function Division( props: any ) {
+function InboxPreview( props: any ) {
+  const data = Array( 5 )
+    .fill( null )
+    .map( () => ({ key: random( 0, 100 ) }))
+  ;
+
   return (
-    <section className="divisioncontainer">
-      <h2>Division name: {props.name}</h2>
-      <div>
-        {props.conferences.map( ( c: any ) => <Conference key={c.id} {...c} /> )}
-      </div>
-    </section>
+    <List
+      header="Inbox"
+      dataSource={data}
+      renderItem={() => <InboxPreviewItem onClick={props.onClick} />}
+    />
   );
 }
 
 
-class Home extends Component<{}, State> {
-  public state = {
-    collapsed: false,
-    comp: null,
-  }
-
-  public async componentDidMount() {
-    const comp = await IpcService.send( '/database/competition/start', { params: { id: 1 } });
-    this.setState({ comp });
-  }
-
-  private handleOnCollapse = ( collapsed: boolean ) => {
-    this.setState({ collapsed });
-  }
-
-  private renderSider = () => {
-    return (
-      <Sider
-        collapsible
-        collapsed={this.state.collapsed}
-        onCollapse={this.handleOnCollapse}
-      >
-        <section className="logocontainer">
-          <img src={imgdata} alt="La Liga" />
-        </section>
-        <Menu theme="dark" defaultSelectedKeys={[ '1' ]} mode="inline">
-          <Menu.Item key="1">
-            <HomeOutlined />
-            <span>Home</span>
-          </Menu.Item>
-          <Menu.Item key="2">
-            <UserOutlined />
-            <span>Squad</span>
-          </Menu.Item>
-          <SubMenu
-            key="sub1"
-            title={(
-              <span>
-                <PieChartOutlined />
-                <span>Transfer Market</span>
-              </span>
-            )}
-          >
-            <Menu.Item key="3">Buy Players</Menu.Item>
-            <Menu.Item key="4">Search Players</Menu.Item>
-          </SubMenu>
-        </Menu>
-      </Sider>
-    );
-  }
-
-  private renderCenterContent = () => {
-    const { comp } = this.state;
-
-    if( !comp ) {
-      return null;
-    }
-
-    return (
-      <Layout>
-        <Content className="content">
-          <Card>
-            {comp.data.divisions.map( ( d: any ) => (
-              <Division key={d.name} {...d} />
-            ))}
-          </Card>
-        </Content>
-      </Layout>
-    );
-  }
-
+class Home extends Component<any> {
   public render() {
     return (
-      <Layout id="home">
-        {this.renderSider()}
-        {this.renderCenterContent()}
-      </Layout>
+      <div id="home" className="content">
+        <InboxPreview
+          onClick={() => this.props.history.push( '/inbox' )}
+        />
+      </div>
     );
   }
 }
+
 
 export default Home;
