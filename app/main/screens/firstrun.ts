@@ -1,13 +1,14 @@
 import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
+import { random } from 'lodash';
 
 import { IterableObject } from 'shared/types';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 import { League } from 'main/lib/league';
-import { Team, Player, Country, Profile, Continent, Compdef, Competition } from 'main/database/models';
+import { Team, Player, Country, Profile, Continent, Compdef, Competition, Persona } from 'main/database/models';
 
 
 // module-level variables and constants
@@ -42,6 +43,7 @@ let screen: Screen;
 function openMainWindow() {
   // wait a few seconds before opening the main window
   setTimeout( () => {
+    ipcMain.emit( '/screens/main/intro-email' );
     ipcMain.emit( '/screens/main/open' );
     screen.handle.close();
   }, 2000 );
@@ -81,6 +83,32 @@ async function saveplayer( data: IterableObject<any>[] ) {
     player.setCountry( playercountry as Country ),
     profile.setTeam( team ),
     profile.setPlayer( player )
+  ]);
+}
+
+
+async function assignManagers() {
+  // get the user's team
+  const profile = await Profile.findOne({ include: [{ all: true }] });
+  const team = profile?.Team;
+
+  // get all personas and group them by type/name
+  const personas = await Persona.findAll({
+    where: { teamId: null },
+    include: [ 'PersonaType' ]
+  });
+
+  const managers = personas.filter( p => p.PersonaType?.name === 'Manager' );
+  const asstmanagers = personas.filter( p => p.PersonaType?.name === 'Assistant Manager' );
+
+  // pick a random manager+asst manager combo
+  const randmanager = managers[ random( 0, managers.length - 1 ) ];
+  const randasstmanager = asstmanagers[ random( 0, asstmanagers.length - 1 ) ];
+
+  // set associations and send back as a promise
+  return Promise.all([
+    randmanager.setTeam( team ),
+    randasstmanager.setTeam( team ),
   ]);
 }
 
@@ -134,10 +162,14 @@ async function genAllComps() {
  */
 
 async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
-  // save the player information
-  saveplayer( data )
+  Promise.resolve( data )
+    // save the player information
+    .then( saveplayer )
 
-    // once that is done, generate the competitions
+    // assign a manager+astmanager to the new team
+    .then( assignManagers )
+
+    // generate the competitions
     .then( genAllComps )
 
     // finished!

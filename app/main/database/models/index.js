@@ -5,3 +5,6 @@ export { default as Country } from './country';
 export { default as Player } from './player';
 export { default as Team } from './team';
 export { default as Profile } from './profile';
+export { default as Persona } from './persona';
+export { default as PersonaType } from './personatype';
+export { default as Email } from './email';

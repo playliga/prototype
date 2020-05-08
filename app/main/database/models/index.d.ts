@@ -11,6 +11,8 @@ declare module 'main/database/models' {
 
   class BaseModel extends Model {
     public readonly id: number;
+    public readonly createdAt: Date;
+    public readonly updatedAt: Date;
 
     public static autoinit( sequelize: Sequelize.Sequelize ): void;
     public static associate( models: any ): void;
@@ -44,28 +46,49 @@ declare module 'main/database/models' {
   export class Team extends BaseModel {
     public readonly name: string;
     public readonly tier: number;
-    public readonly createdAt: Date;
-    public readonly updatedAt: Date;
 
     public static findByRegionId( id: number ): Promise<Team[]>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
+    public getPersonas: Sequelize.HasManyGetAssociationsMixin<Persona>;
   }
 
 
   export class Player extends BaseModel {
-    public readonly createdAt: Date;
-    public readonly updatedAt: Date;
-
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
   }
 
 
   export class Profile extends BaseModel {
-    public readonly createdAt: Date;
-    public readonly updatedAt: Date;
+    public readonly Team?: Team;
+    public readonly Player?: Player;
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
+    public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
+  }
+
+
+  export class PersonaType extends BaseModel {
+    public readonly name: string;
+  }
+
+
+  export class Persona extends BaseModel {
+    public readonly fname: string;
+    public readonly lname: string;
+    public readonly Team?: Team;
+    public readonly PersonaType?: PersonaType;
+
+    public setPersonaType: Sequelize.BelongsToSetAssociationMixin<PersonaType, number>;
+    public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
+  }
+
+
+  export class Email extends BaseModel {
+    public readonly subject: string;
+    public readonly contents: string;
+
+    public setPersona: Sequelize.BelongsToSetAssociationMixin<Persona, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
   }
 

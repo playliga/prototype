@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { RouteComponentProps } from 'react-router-dom';
 import { List, Avatar } from 'antd';
-import { random } from 'lodash';
 
 
 function InboxPreviewItem( props: any ) {
@@ -8,10 +9,10 @@ function InboxPreviewItem( props: any ) {
     <List.Item onClick={() => props.onClick()}>
       <List.Item.Meta
         avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-        description="Just introducing myself. I'm your assistance manager and really think..."
+        description={props.contents}
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>{'Hello'}</span>
+            <span>{props.subject}</span>
             <span>{'May 2020'}</span>
           </div>
         }
@@ -22,26 +23,41 @@ function InboxPreviewItem( props: any ) {
 
 
 function InboxPreview( props: any ) {
-  const data = Array( 5 )
-    .fill( null )
-    .map( () => ({ key: random( 0, 100 ) }))
-  ;
-
   return (
     <List
       header="Inbox"
-      dataSource={data}
+      dataSource={props.data}
       renderItem={() => <InboxPreviewItem onClick={props.onClick} />}
     />
   );
 }
 
 
-class Home extends Component<any> {
+interface State {
+  emails: any[];
+}
+
+
+class Home extends Component<RouteComponentProps, State> {
+  public state = {
+    emails: [] as any[],
+  }
+
+  public componentDidMount() {
+    ipcRenderer.on( '/screens/main/email/new', this.handleNewEmail );
+  }
+
+  private handleNewEmail = ( evt: IpcRendererEvent, data: any ) => {
+    const { emails } = this.state;
+    emails.push( JSON.parse( data ) );
+    this.setState({ emails });
+  }
+
   public render() {
     return (
       <div id="home" className="content">
         <InboxPreview
+          data={this.state.emails}
           onClick={() => this.props.history.push( '/inbox' )}
         />
       </div>

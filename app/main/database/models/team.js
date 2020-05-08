@@ -14,6 +14,7 @@ class Team extends Model {
 
   static associate( models ) {
     this.hasMany( models.Player );
+    this.hasMany( models.Persona );
     this.hasOne( models.Profile );
     this.belongsTo( models.Country );
   }
