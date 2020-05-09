@@ -1,14 +1,13 @@
 import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
-import { random } from 'lodash';
 
 import { IterableObject } from 'shared/types';
+import * as Models from 'main/database/models';
+import * as Worldgen from 'main/lib/worldgen';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
-import { League } from 'main/lib/league';
-import { Team, Player, Country, Profile, Continent, Compdef, Competition, Persona } from 'main/database/models';
 
 
 // module-level variables and constants
@@ -58,102 +57,32 @@ async function saveplayer( data: IterableObject<any>[] ) {
   const [ userinfo, teaminfo ] = data;
 
   // get the countryids
-  const teamcountry = await Country.findOne({ where: { name: teaminfo.country }});
-  const playercountry = await Country.findOne({ where: { name: userinfo.country }});
+  const teamcountry = await Models.Country.findOne({ where: { name: teaminfo.country }});
+  const playercountry = await Models.Country.findOne({ where: { name: userinfo.country }});
 
   // build team object
-  const team = await Team.create({
+  const team = await Models.Team.create({
     name: teaminfo.name,
     tier: 4,
   });
 
   // build player object
-  const player = await Player.create({
+  const player = await Models.Player.create({
     alias: userinfo.alias,
     tier: 4,
   });
 
   // create the new user profile
-  const profile = await Profile.create();
+  const profile = await Models.Profile.create();
 
   // save associations and return as a single promise
   return Promise.all([
-    team.setCountry( teamcountry as Country ),
+    team.setCountry( teamcountry as Models.Country ),
     player.setTeam( team ),
-    player.setCountry( playercountry as Country ),
+    player.setCountry( playercountry as Models.Country ),
     profile.setTeam( team ),
     profile.setPlayer( player )
   ]);
-}
-
-
-async function assignManagers() {
-  // get the user's team
-  const profile = await Profile.findOne({ include: [{ all: true }] });
-  const team = profile?.Team;
-
-  // get all personas and group them by type/name
-  const personas = await Persona.findAll({
-    where: { teamId: null },
-    include: [ 'PersonaType' ]
-  });
-
-  const managers = personas.filter( p => p.PersonaType?.name === 'Manager' );
-  const asstmanagers = personas.filter( p => p.PersonaType?.name === 'Assistant Manager' );
-
-  // pick a random manager+asst manager combo
-  const randmanager = managers[ random( 0, managers.length - 1 ) ];
-  const randasstmanager = asstmanagers[ random( 0, asstmanagers.length - 1 ) ];
-
-  // set associations and send back as a promise
-  return Promise.all([
-    randmanager.setTeam( team ),
-    randasstmanager.setTeam( team ),
-  ]);
-}
-
-
-async function genSingleComp( compdef: Compdef ) {
-  // get the regions
-  const regionids = compdef.Continents?.map( c => c.id ) || [];
-  const regions = await Continent.findAll({
-    where: { id: regionids }
-  });
-
-  // bail if no regions
-  if( !regions ) {
-    return Promise.resolve();
-  }
-
-  return Promise.all( regions.map( async region => {
-    const teams = await Team.findByRegionId( region.id );
-    const leagueobj = new League( compdef.name );
-
-    // add teams to the competition tiers
-    compdef.tiers.forEach( ( tier, tdx ) => {
-      const div = leagueobj.addDivision( tier.name, tier.minlen, tier.confsize );
-      const tierteams = teams.filter( t => t.tier === tdx );
-      div.addCompetitors( tierteams.slice( 0, tier.minlen ).map( t => t.id.toString() ) );
-    });
-
-    // build the competition
-    const comp = Competition.build({ data: leagueobj });
-    await comp.save();
-
-    // save its associations
-    return Promise.all([
-      comp.setCompdef( compdef ),
-      comp.setContinents([ region ]),
-    ]);
-  }));
-}
-
-
-async function genAllComps() {
-  const compdefs = await Compdef.findAll({
-    include: [ 'Continents' ],
-  });
-  return compdefs.map( genSingleComp );
 }
 
 
@@ -167,10 +96,10 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     .then( saveplayer )
 
     // assign a manager+astmanager to the new team
-    .then( assignManagers )
+    .then( Worldgen.assignManagers )
 
     // generate the competitions
-    .then( genAllComps )
+    .then( Worldgen.genAllComps )
 
     // finished!
     .then( openMainWindow )

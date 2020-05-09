@@ -17,4 +17,5 @@ class Persona extends Model {
   }
 }
 
+
 export default Persona;

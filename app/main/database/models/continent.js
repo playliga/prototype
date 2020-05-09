@@ -15,4 +15,5 @@ class Continent extends Model {
   }
 }
 
+
 export default Continent;

@@ -13,4 +13,5 @@ class PersonaType extends Model {
   }
 }
 
+
 export default PersonaType;

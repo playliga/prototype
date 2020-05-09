@@ -88,6 +88,12 @@ declare module 'main/database/models' {
     public readonly subject: string;
     public readonly contents: string;
 
+    public static send( payload: {
+      from: Persona;
+      to: Player;
+      subject: string;
+      contents: string;
+    }): Promise<number>;
     public setPersona: Sequelize.BelongsToSetAssociationMixin<Persona, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
   }

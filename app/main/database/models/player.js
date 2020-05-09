@@ -17,4 +17,5 @@ class Player extends Model {
   }
 }
 
+
 export default Player;

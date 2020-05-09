@@ -72,7 +72,7 @@ class Two extends Component<Props, IterableObject<Field>> {
         <h1>{'Team Information'}</h1>
 
         <Form onFinish={this.handleSubmit}>
-          {this.plaintxtfields.map( ( id: string ) => {
+          {this.plaintxtfields.map( ( id: string, idx: number ) => {
             const field = this.state[ id ];
 
             return (
@@ -83,7 +83,7 @@ class Two extends Component<Props, IterableObject<Field>> {
                 help={field.errorMsg || ''}
               >
                 <Input
-                  autoFocus
+                  autoFocus={idx === 0}
                   id={id}
                   placeholder={field.placeholder}
                   value={field.value || undefined}
