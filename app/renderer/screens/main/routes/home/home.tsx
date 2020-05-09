@@ -27,7 +27,7 @@ function InboxPreview( props: any ) {
     <List
       header="Inbox"
       dataSource={props.data}
-      renderItem={() => <InboxPreviewItem onClick={props.onClick} />}
+      renderItem={data => <InboxPreviewItem {...data} onClick={props.onClick} />}
     />
   );
 }
@@ -44,7 +44,7 @@ class Home extends Component<RouteComponentProps, State> {
   }
 
   public componentDidMount() {
-    ipcRenderer.on( '/screens/main/email/new', this.handleNewEmail );
+    ipcRenderer.on( '/worldgen/email/new', this.handleNewEmail );
   }
 
   private handleNewEmail = ( evt: IpcRendererEvent, data: any ) => {

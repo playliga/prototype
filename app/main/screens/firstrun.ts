@@ -43,7 +43,7 @@ let screen: Screen;
 function openMainWindow() {
   // wait a few seconds before opening the main window
   setTimeout( () => {
-    ipcMain.emit( '/screens/main/intro-email' );
+    ipcMain.emit( '/worldgen/email/intro' );
     ipcMain.emit( '/screens/main/open' );
     screen.handle.close();
   }, 2000 );
