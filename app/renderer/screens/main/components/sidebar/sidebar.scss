@@ -1,0 +1,21 @@
+.sidebar {
+  img {
+    width: 100%;
+    height: auto;
+    max-height: 100px;
+  }
+
+  a {
+    display: block;
+    color: inherit;
+  }
+
+  span.anticon + span {
+    display: inline-block;
+    width: calc(100% - 10px);     // anticon has 10px right padding
+  }
+
+  .logocontainer {
+    margin: 20px 0;
+  }
+}

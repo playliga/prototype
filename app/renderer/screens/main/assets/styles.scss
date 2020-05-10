@@ -11,14 +11,14 @@
 }
 
 
-#main-navigation {
-  img {
-    width: 100%;
-    height: auto;
-    max-height: 100px;
+#inbox {
+  display: flex;
+
+  section.preview {
+    width: 35%;
   }
 
-  .logocontainer {
-    margin: 20px 0;
+  section.email {
+    width: 65%;
   }
 }

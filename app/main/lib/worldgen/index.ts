@@ -90,7 +90,7 @@ const INTROEMAIL_DELAY = 5000;
 const INTROEMAIL_TARGET_SCREEN = '/screens/main';
 
 
-export async function sendIntroEmail() {
+async function delayedIntroEmail() {
   // get team and player from the saved profile
   const profile = await Models.Profile.findOne({ include: [{ all: true }] });
   const team = profile?.Team;
@@ -113,22 +113,25 @@ export async function sendIntroEmail() {
     from: persona,
     to: player,
     subject: 'Hey!',
-    contents: 'Just introducing myself. I\'m your assistance manager and really think...'
+    content: 'Just introducing myself. I\'m your assistance manager and really think...'
   });
 
   const email = await Models.Email.findByPk( emailid, {
     include: [{ all: true }]
   });
 
-  setTimeout( () => {
-    ScreenManager
-      .getScreenById( INTROEMAIL_TARGET_SCREEN )
-      .handle
-      .webContents
-      .send(
-        '/worldgen/email/new',
-        JSON.stringify( email )
-      )
-    ;
-  }, INTROEMAIL_DELAY );
+  ScreenManager
+    .getScreenById( INTROEMAIL_TARGET_SCREEN )
+    .handle
+    .webContents
+    .send(
+      '/worldgen/email/new',
+      JSON.stringify( email )
+    )
+  ;
+}
+
+
+export function sendIntroEmail() {
+  setTimeout( delayedIntroEmail, INTROEMAIL_DELAY );
 }

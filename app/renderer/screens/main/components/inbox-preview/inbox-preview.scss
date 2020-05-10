@@ -1,0 +1,12 @@
+.inbox-preview {
+  cursor: pointer;
+
+  .active {
+    background-color: scale-color($color: white, $lightness: -10%)
+  }
+
+  .inbox-preview-title {
+    display: flex;
+    justify-content: space-between;
+  }
+}

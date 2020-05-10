@@ -1,36 +1,8 @@
 import React, { Component } from 'react';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { RouteComponentProps } from 'react-router-dom';
-import { List, Avatar } from 'antd';
-
-
-function InboxPreviewItem( props: any ) {
-  return (
-    <List.Item onClick={() => props.onClick()}>
-      <List.Item.Meta
-        avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-        description={props.contents}
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>{props.subject}</span>
-            <span>{'May 2020'}</span>
-          </div>
-        }
-      />
-    </List.Item>
-  );
-}
-
-
-function InboxPreview( props: any ) {
-  return (
-    <List
-      header="Inbox"
-      dataSource={props.data}
-      renderItem={data => <InboxPreviewItem {...data} onClick={props.onClick} />}
-    />
-  );
-}
+import IpcService from 'renderer/lib/ipc-service';
+import { InboxPreview } from '../../components/inbox-preview';
 
 
 interface State {
@@ -43,8 +15,21 @@ class Home extends Component<RouteComponentProps, State> {
     emails: [] as any[],
   }
 
-  public componentDidMount() {
+  public async componentDidMount() {
     ipcRenderer.on( '/worldgen/email/new', this.handleNewEmail );
+
+    // get latest emails
+    const data = await IpcService.send( '/database/', {
+      params: {
+        model: 'Email',
+        method: 'findAll',
+        args: {
+          include: [{ all: true }],
+          limit: 5
+        }
+      }
+    });
+    this.setState({ emails: data });
   }
 
   private handleNewEmail = ( evt: IpcRendererEvent, data: any ) => {
@@ -58,7 +43,7 @@ class Home extends Component<RouteComponentProps, State> {
       <div id="home" className="content">
         <InboxPreview
           data={this.state.emails}
-          onClick={() => this.props.history.push( '/inbox' )}
+          onClick={id => this.props.history.push( `/inbox/${id}` )}
         />
       </div>
     );

@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       subject: Sequelize.STRING,
-      contents: Sequelize.STRING,
+      content: Sequelize.STRING,
 
       // timestamps
       createdAt: {

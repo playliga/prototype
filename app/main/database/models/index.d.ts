@@ -86,13 +86,13 @@ declare module 'main/database/models' {
 
   export class Email extends BaseModel {
     public readonly subject: string;
-    public readonly contents: string;
+    public readonly content: string;
 
     public static send( payload: {
       from: Persona;
       to: Player;
       subject: string;
-      contents: string;
+      content: string;
     }): Promise<number>;
     public setPersona: Sequelize.BelongsToSetAssociationMixin<Persona, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
