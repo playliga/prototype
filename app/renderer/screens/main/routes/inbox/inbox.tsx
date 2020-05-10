@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import IpcService from 'renderer/lib/ipc-service';
-import { InboxPreview } from '../../components/inbox-preview';
+import { InboxPreview } from 'renderer/screens/main/components/inbox-preview';
+import { InboxFull } from 'renderer/screens/main/components/inbox-full';
 
 
 interface State {
@@ -55,16 +56,24 @@ class Inbox extends Component<RouteComponentProps<RouteParams>, State> {
   }
 
   public render() {
+
+    if( this.state.emails.length <= 0 ) {
+      return null;
+    }
+
+    const email = this.state.emails.find( e => e.id === this.state.selected );
+
     return (
       <div id="inbox" className="content">
         <section className="preview">
           <InboxPreview
             selected={this.state.selected}
             data={this.state.emails}
+            onClick={id => this.setState({ selected: id })}
           />
         </section>
         <section className="email">
-          <p>E-mail content here</p>
+          <InboxFull data={email} />
         </section>
       </div>
     );

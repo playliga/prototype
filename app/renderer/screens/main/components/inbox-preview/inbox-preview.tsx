@@ -1,5 +1,7 @@
 import React from 'react';
+import dedent from 'dedent';
 import { List, Avatar, Typography } from 'antd';
+import ReactMarkdown from 'react-markdown';
 import './inbox-preview.scss';
 
 
@@ -32,8 +34,8 @@ function InboxPreviewTitle( props: Data ) {
         </Typography.Text>
       </section>
       <section>
-        <Typography.Text code type="secondary">
-          {'May 2020'}
+        <Typography.Text type="secondary" style={{ fontVariant: 'small-caps' }}>
+          {'09/27'}
         </Typography.Text>
       </section>
     </div>
@@ -42,9 +44,11 @@ function InboxPreviewTitle( props: Data ) {
 
 
 function InboxPreviewBody( props: any ) {
+  const dedented = dedent( props.content );
+
   return (
-    <div>
-      {props.content}
+    <div className="inbox-preview-body">
+      <ReactMarkdown source={dedented} />
     </div>
   );
 }

@@ -8,5 +8,11 @@
   .inbox-preview-title {
     display: flex;
     justify-content: space-between;
+    font-weight: 200;
+  }
+
+  .inbox-preview-body {
+    max-height: 60px;
+    overflow: hidden;
   }
 }

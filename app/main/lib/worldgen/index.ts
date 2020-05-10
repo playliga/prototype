@@ -113,7 +113,13 @@ async function delayedIntroEmail() {
     from: persona,
     to: player,
     subject: 'Hey!',
-    content: 'Just introducing myself. I\'m your assistance manager and really think...'
+    content: `
+      Hi, ${player.alias}.
+
+      My name is ${persona.fname} and I am your assistant manager. I just wanted to say hello and inform you that we should start looking for your starting squad.
+
+      Without a squad we won't be able to compete in any competitions.
+    `
   });
 
   const email = await Models.Email.findByPk( emailid, {
