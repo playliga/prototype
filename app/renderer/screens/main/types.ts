@@ -5,4 +5,5 @@ export interface RouteConfig {
   component: any;
   icon?: any;
   subroutes?: RouteConfig[];
+  notifications?: number;
 }

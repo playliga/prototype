@@ -6,6 +6,7 @@ class Email extends Model {
     return this.init({
       subject: Sequelize.STRING,
       content: Sequelize.STRING,
+      read: { type: Sequelize.BOOLEAN, defaultValue: false },
     }, { sequelize, modelName: 'Email' });
   }
 

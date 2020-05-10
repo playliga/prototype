@@ -10,6 +10,7 @@ module.exports = {
       },
       subject: Sequelize.STRING,
       content: Sequelize.STRING,
+      read: { type: Sequelize.BOOLEAN, defaultValue: false },
 
       // timestamps
       createdAt: {

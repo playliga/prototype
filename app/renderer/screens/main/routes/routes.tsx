@@ -4,6 +4,7 @@ import { Layout } from 'antd';
 import { HomeOutlined, UserOutlined, PieChartOutlined, InboxOutlined, TrophyOutlined } from '@ant-design/icons';
 import { RouteConfig } from 'renderer/screens/main/types';
 import Sidebar from 'renderer/screens/main/components/sidebar';
+import IpcService from 'renderer/lib/ipc-service';
 import Home from './home';
 import Inbox from './inbox';
 
@@ -29,21 +30,41 @@ const routes: RouteConfig[] = [
 
 interface State {
   collapsed: boolean;
+  unread: number;
 }
 
 
 class Routes extends Component<RouteComponentProps, State> {
   public state = {
     collapsed: false,
+    unread: 0
   }
 
   private logourl = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
+
+  public async componentDidMount() {
+    const data = await IpcService.send( '/database/', {
+      params: {
+        model: 'Email',
+        method: 'count',
+        args: {
+          where: { read: false }
+        }
+      }
+    });
+
+    this.setState({ unread: parseInt( data ) });
+  }
 
   private handleOnCollapse = ( collapsed: boolean ) => {
     this.setState({ collapsed });
   }
 
   public render() {
+    // add any notifications
+    const emailidx = routes.findIndex( r => r.key === '/inbox' );
+    routes[emailidx].notifications = this.state.unread;
+
     return (
       <Layout id="main">
         {/* RENDER THE SIDEBAR */}

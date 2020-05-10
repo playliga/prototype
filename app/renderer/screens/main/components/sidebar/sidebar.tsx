@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Menu, Layout } from 'antd';
+import { Menu, Layout, Badge } from 'antd';
 import { RouteConfig } from 'renderer/screens/main/types';
 import './sidebar.scss';
 
@@ -60,6 +60,10 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
             >
               <Link to={r.key}>
                 {r.title}
+                {(r.notifications && r.notifications > 0 )
+                  ? <Badge count={r.notifications}/>
+                  : null
+                }
               </Link>
             </Menu.Item>
           );

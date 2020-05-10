@@ -1,6 +1,6 @@
 import React from 'react';
 import dedent from 'dedent';
-import { List, Avatar, Typography } from 'antd';
+import { List, Avatar, Typography, Badge } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import './inbox-preview.scss';
 
@@ -10,6 +10,7 @@ interface Data {
   id: number;
   subject: string;
   content: string;
+  read: boolean;
   Persona: any;
 }
 
@@ -27,6 +28,9 @@ function InboxPreviewTitle( props: Data ) {
       <section>
         <Typography.Text strong>
           {props.subject}
+          {!props.read && (
+            <Badge dot />
+          )}
         </Typography.Text>
         <br />
         <Typography.Text type="secondary">
