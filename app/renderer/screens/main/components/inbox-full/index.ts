@@ -1,1 +1,2 @@
-export { default as InboxFull } from './inbox-full';
+import InboxFull from './inbox-full';
+export default InboxFull;

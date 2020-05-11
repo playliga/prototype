@@ -10,6 +10,15 @@ interface IpcRequestParams {
 }
 
 
+interface UpdateParams {
+  model: string;
+  args: {
+    id: number;
+    data: any;
+  };
+}
+
+
 async function handler( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
   // bail if no params or response channel provided
   if( !request.params || !request.responsechannel ) {
@@ -29,6 +38,25 @@ async function handler( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams>
 }
 
 
+async function updatehandler( evt: IpcMainEvent, request: IpcRequest<UpdateParams> ) {
+  // bail if no params or response channel provided
+  if( !request.params || !request.responsechannel ) {
+    return;
+  }
+
+  // bail if model or method are not defined
+  const { model, args } = request.params;
+
+  // load the model and update it
+  const damodel = (Models as any)[ model ];
+  const instance = await damodel.findByPk( args.id );
+  const res = await instance.update( args.data );
+
+  evt.sender.send( request.responsechannel, JSON.stringify( res ) );
+}
+
+
 export default () => {
   ipcMain.on( '/database/', handler );
+  ipcMain.on( '/database/update', updatehandler );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import dedent from 'dedent';
+import { truncate } from 'lodash';
 import { List, Avatar, Typography, Badge } from 'antd';
-import ReactMarkdown from 'react-markdown';
 import './inbox-preview.scss';
 
 
@@ -49,10 +49,11 @@ function InboxPreviewTitle( props: Data ) {
 
 function InboxPreviewBody( props: any ) {
   const dedented = dedent( props.content );
+  const truncated = truncate( dedented, { length: 70 });
 
   return (
     <div className="inbox-preview-body">
-      <ReactMarkdown source={dedented} />
+      {truncated}
     </div>
   );
 }

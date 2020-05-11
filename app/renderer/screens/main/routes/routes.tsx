@@ -4,7 +4,9 @@ import { Layout } from 'antd';
 import { HomeOutlined, UserOutlined, PieChartOutlined, InboxOutlined, TrophyOutlined } from '@ant-design/icons';
 import { RouteConfig } from 'renderer/screens/main/types';
 import Sidebar from 'renderer/screens/main/components/sidebar';
-import IpcService from 'renderer/lib/ipc-service';
+import Connector from 'renderer/screens/main/components/connector';
+import * as emailActions from 'renderer/screens/main/redux/emails/actions';
+import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
 import Home from './home';
 import Inbox from './inbox';
 
@@ -28,32 +30,28 @@ const routes: RouteConfig[] = [
  * The routes component.
  */
 
-interface State {
-  collapsed: boolean;
-  unread: number;
+
+interface Props extends RouteComponentProps {
+  dispatch: Function;
+  emails: EmailTypes.EmailState;
 }
 
 
-class Routes extends Component<RouteComponentProps, State> {
+interface State {
+  collapsed: boolean;
+}
+
+
+class Routes extends Component<Props, State> {
   public state = {
     collapsed: false,
-    unread: 0
   }
 
   private logourl = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
 
   public async componentDidMount() {
-    const data = await IpcService.send( '/database/', {
-      params: {
-        model: 'Email',
-        method: 'count',
-        args: {
-          where: { read: false }
-        }
-      }
-    });
-
-    this.setState({ unread: parseInt( data ) });
+    this.props.dispatch( emailActions.register() );
+    this.props.dispatch( emailActions.findAll() );
   }
 
   private handleOnCollapse = ( collapsed: boolean ) => {
@@ -62,8 +60,12 @@ class Routes extends Component<RouteComponentProps, State> {
 
   public render() {
     // add any notifications
-    const emailidx = routes.findIndex( r => r.key === '/inbox' );
-    routes[emailidx].notifications = this.state.unread;
+    const { emails } = this.props;
+
+    if( emails && emails.data && emails.data.length > 0 ) {
+      const emailidx = routes.findIndex( r => r.key === '/inbox' );
+      routes[emailidx].notifications = emails.data.filter( e => e.read === false ).length;
+    }
 
     return (
       <Layout id="main">
@@ -102,4 +104,5 @@ class Routes extends Component<RouteComponentProps, State> {
 }
 
 
-export default Routes;
+const connector = Connector.connect( Routes );
+export default connector;

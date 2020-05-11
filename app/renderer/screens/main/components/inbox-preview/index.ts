@@ -1,1 +1,2 @@
-export { default as InboxPreview } from './inbox-preview';
+import InboxPreview from './inbox-preview';
+export default InboxPreview;

@@ -61,7 +61,7 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
               <Link to={r.key}>
                 {r.title}
                 {(r.notifications && r.notifications > 0 )
-                  ? <Badge count={r.notifications}/>
+                  ? !props.collapsed && <Badge count={r.notifications}/>
                   : null
                 }
               </Link>
