@@ -1,5 +1,5 @@
 export interface RouteConfig {
-  key: string;
+  id: string;
   path: string;
   title: string;
   component: any;

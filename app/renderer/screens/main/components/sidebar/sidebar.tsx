@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { Menu, Layout, Badge } from 'antd';
 import { RouteConfig } from 'renderer/screens/main/types';
 import './sidebar.scss';
@@ -15,6 +15,11 @@ interface Props {
   collapsed: boolean;
   logourl: string;
   config: RouteConfig[];
+}
+
+
+function navigateTo( historyobj: any, target: string ) {
+  historyobj.push( target );
 }
 
 
@@ -35,18 +40,21 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
         selectedKeys={[ props?.match?.path || '' ]}
       >
         {props.config.map( r => {
+          const hasbadge = r.notifications && r.notifications > 0;
+
           if( r.subroutes ) {
             return (
               <Menu.SubMenu
                 key={r.path}
-                icon={React.createElement( r.icon )}
                 title={r.title}
+                icon={React.createElement( r.icon )}
               >
                 {r.subroutes.map( sr => (
-                  <Menu.Item key={sr.path}>
-                    <Link to={sr.key}>
-                      {sr.title}
-                    </Link>
+                  <Menu.Item
+                    key={sr.path}
+                    onClick={() => navigateTo( props.history, sr.id )}
+                  >
+                    {sr.title}
                   </Menu.Item>
                 ))}
               </Menu.SubMenu>
@@ -56,15 +64,23 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
           return (
             <Menu.Item
               key={r.path}
-              icon={React.createElement( r.icon )}
+              title={r.title}
+              onClick={() => navigateTo( props.history, r.id )}
+              icon={
+                <>
+                  {React.createElement( r.icon )}
+                  {props.collapsed && hasbadge
+                    ? <Badge dot />
+                    : null
+                  }
+                </>
+              }
             >
-              <Link to={r.key}>
-                {r.title}
-                {(r.notifications && r.notifications > 0 )
-                  ? !props.collapsed && <Badge count={r.notifications}/>
-                  : null
-                }
-              </Link>
+              {r.title}
+              {hasbadge
+                ? !props.collapsed && <Badge count={r.notifications} />
+                : null
+              }
             </Menu.Item>
           );
         })}

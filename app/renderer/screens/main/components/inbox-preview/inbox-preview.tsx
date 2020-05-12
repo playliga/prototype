@@ -49,7 +49,7 @@ function InboxPreviewTitle( props: Data ) {
 
 function InboxPreviewBody( props: any ) {
   const dedented = dedent( props.content );
-  const truncated = truncate( dedented, { length: 70 });
+  const truncated = truncate( dedented, { length: 60 });
 
   return (
     <div className="inbox-preview-body">

@@ -5,16 +5,6 @@
     max-height: 100px;
   }
 
-  a {
-    display: block;
-    color: inherit;
-  }
-
-  span.anticon + span {
-    display: inline-block;
-    width: calc(100% - 10px);     // anticon has 10px right padding
-  }
-
   .logocontainer {
     margin: 20px 0;
   }
@@ -23,4 +13,18 @@
     margin-left: 5px;
     box-shadow: none;
   }
+
+  // ~~~~~
+  // start workaround for antd allowing menu icons with icons
+  // ~~~~~
+  .anticon + .ant-badge {
+    opacity: 1 !important;
+  }
+
+  .ant-badge + span {
+    opacity: 0;
+  }
+  // ~~~~~
+  // end workaround
+  // ~~~~~
 }

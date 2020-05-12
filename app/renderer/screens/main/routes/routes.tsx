@@ -5,24 +5,25 @@ import { HomeOutlined, UserOutlined, PieChartOutlined, InboxOutlined, TrophyOutl
 import { RouteConfig } from 'renderer/screens/main/types';
 import Sidebar from 'renderer/screens/main/components/sidebar';
 import Connector from 'renderer/screens/main/components/connector';
-import * as emailActions from 'renderer/screens/main/redux/emails/actions';
 import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
+import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
+import * as emailActions from 'renderer/screens/main/redux/emails/actions';
 import Home from './home';
 import Inbox from './inbox';
 
 
 const routes: RouteConfig[] = [
-  { key: '/', path: '/', component: Home, title: 'Home', icon: HomeOutlined },
-  { key: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined },
-  { key: '/squad', path: '/squad', component: Home, title: 'Squad', icon: UserOutlined },
+  { id: '/', path: '/', component: Home, title: 'Home', icon: HomeOutlined },
+  { id: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined },
+  { id: '/squad', path: '/squad', component: Home, title: 'Squad', icon: UserOutlined },
   {
-    key: '/transfers', path: '/transfers', component: Home, title: 'Transfers', icon: PieChartOutlined,
+    id: '/transfers', path: '/transfers', component: Home, title: 'Transfers', icon: PieChartOutlined,
     subroutes: [
-      { key: '/transfers/buy', path: '/transfers/buy', component: Home, title: 'Buy Players' },
-      { key: '/transfers/search', path: '/transfers/search', component: Home, title: 'Search Players' },
+      { id: '/transfers/buy', path: '/transfers/buy', component: Home, title: 'Buy Players' },
+      { id: '/transfers/search', path: '/transfers/search', component: Home, title: 'Search Players' },
     ]
   },
-  { key: '/competitions', path: '/competitions', component: Home, title: 'Competitions', icon: TrophyOutlined },
+  { id: '/competitions', path: '/competitions', component: Home, title: 'Competitions', icon: TrophyOutlined },
 ];
 
 
@@ -30,10 +31,10 @@ const routes: RouteConfig[] = [
  * The routes component.
  */
 
-
 interface Props extends RouteComponentProps {
   dispatch: Function;
   emails: EmailTypes.EmailState;
+  unread: number;
 }
 
 
@@ -50,6 +51,7 @@ class Routes extends Component<Props, State> {
   private logourl = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
 
   public async componentDidMount() {
+    // sign up for ipc events
     this.props.dispatch( emailActions.register() );
     this.props.dispatch( emailActions.findAll() );
   }
@@ -59,13 +61,9 @@ class Routes extends Component<Props, State> {
   }
 
   public render() {
-    // add any notifications
-    const { emails } = this.props;
-
-    if( emails && emails.data && emails.data.length > 0 ) {
-      const emailidx = routes.findIndex( r => r.key === '/inbox' );
-      routes[emailidx].notifications = emails.data.filter( e => e.read === false ).length;
-    }
+    // add unread e-mail notifications
+    const emailidx = routes.findIndex( r => r.id === '/inbox' );
+    routes[emailidx].notifications = this.props.unread;
 
     return (
       <Layout id="main">
@@ -104,5 +102,10 @@ class Routes extends Component<Props, State> {
 }
 
 
-const connector = Connector.connect( Routes );
+const connector = Connector.connect(
+  Routes,
+  { unread: emailSelectors.getUnread }
+);
+
+
 export default connector;
