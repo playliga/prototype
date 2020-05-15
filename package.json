@@ -21,10 +21,11 @@
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=production node -r @babel/register ./webpack/compiler.js",
+    "gen:squad-updater": "ts-node -r tsconfig-paths/register ./scripts/squad-updater.ts",
+    "gen:free-agents": "ts-node -r tsconfig-paths/register ./scripts/free-agents.ts",
     "postinstall": "electron-builder install-app-deps",
     "start": "cross-env NODE_ENV=development node -r @babel/register ./webpack/compiler.js",
     "start:electron": "cross-env NODE_ENV=development electron ./main.bundle.js",
-    "squad-updater": "ts-node -r tsconfig-paths/register ./scripts/squad-updater.ts",
     "test": "cross-env NODE_ENV=test jest",
     "test:coverage": "npm test -- --coverage"
   },
