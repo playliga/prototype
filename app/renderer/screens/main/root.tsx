@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import Routes from 'renderer/screens/main/routes';
 import configureRedux from 'renderer/screens/main/redux';
@@ -16,6 +16,7 @@ const Root = () => (
   <MemoryRouter>
     <Provider store={configureRedux()}>
       <Route path="/" component={Routes} />
+      <Redirect exact from="/" to="/home" />
     </Provider>
   </MemoryRouter>
 );

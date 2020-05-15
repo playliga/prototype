@@ -12,6 +12,7 @@ import './sidebar.scss';
 
 interface Props {
   onCollapse: ( collapsed: boolean ) => void;
+  parentPath?: string;
   collapsed: boolean;
   logourl: string;
   config: RouteConfig[];
@@ -24,6 +25,9 @@ function navigateTo( historyobj: any, target: string ) {
 
 
 export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
+  const path = props.match?.path;
+  const parentpath = props.parentPath;
+
   return (
     <Layout.Sider
       collapsible
@@ -37,7 +41,8 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
       <Menu
         theme="dark"
         mode="inline"
-        selectedKeys={[ props?.match?.path || '' ]}
+        selectedKeys={[ path || '' ]}
+        defaultOpenKeys={[ parentpath || '' ]}
       >
         {props.config.map( r => {
           const hasbadge = r.notifications && r.notifications > 0;

@@ -10,16 +10,17 @@ import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
 import Home from './home';
 import Inbox from './inbox';
+import * as Transfers from './transfers';
 
 
 const routes: RouteConfig[] = [
-  { id: '/', path: '/', component: Home, title: 'Home', icon: HomeOutlined },
+  { id: '/home', path: '/home', component: Home, title: 'Home', icon: HomeOutlined },
   { id: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined },
   { id: '/squad', path: '/squad', component: Home, title: 'Squad', icon: UserOutlined },
   {
-    id: '/transfers', path: '/transfers', component: Home, title: 'Transfers', icon: PieChartOutlined,
+    id: '/transfers', path: '/transfers', title: 'Transfers', icon: PieChartOutlined,
     subroutes: [
-      { id: '/transfers/buy', path: '/transfers/buy', component: Home, title: 'Buy Players' },
+      { id: '/transfers/buy', path: '/transfers/buy', component: Transfers.Buy, title: 'Buy Players' },
       { id: '/transfers/search', path: '/transfers/search', component: Home, title: 'Search Players' },
     ]
   },
@@ -70,18 +71,38 @@ class Routes extends Component<Props, State> {
         {/* RENDER THE SIDEBAR */}
         {routes.map( r => (
           <Route
-            exact
             key={r.path}
             path={r.path}
-            render={props => (
-              <Sidebar
-                {...props}
-                config={routes}
-                logourl={this.logourl}
-                collapsed={this.state.collapsed}
-                onCollapse={this.handleOnCollapse}
-              />
-            )}
+            render={props => {
+              if( r.subroutes ) {
+                return r.subroutes.map( sr => (
+                  <Route
+                    key={sr.path}
+                    path={sr.path}
+                    render={srprops => (
+                      <Sidebar
+                        {...srprops}
+                        parentPath={props.match.path}
+                        config={routes}
+                        logourl={this.logourl}
+                        collapsed={this.state.collapsed}
+                        onCollapse={this.handleOnCollapse}
+                      />
+                    )}
+                  />
+                ));
+              }
+
+              return (
+                <Sidebar
+                  {...props}
+                  config={routes}
+                  logourl={this.logourl}
+                  collapsed={this.state.collapsed}
+                  onCollapse={this.handleOnCollapse}
+                />
+              );
+            }}
           />
         ))}
 
@@ -89,10 +110,21 @@ class Routes extends Component<Props, State> {
         <Layout.Content>
           {routes.map( r => (
             <Route
-              exact
               key={r.path}
               path={r.path}
-              component={r.component}
+              render={props => {
+                if( r.subroutes ) {
+                  return r.subroutes.map( sr => (
+                    <Route
+                      key={sr.path}
+                      path={sr.path}
+                      component={sr.component}
+                    />
+                  ));
+                }
+
+                return React.createElement( r.component, props );
+              }}
             />
           ))}
         </Layout.Content>
