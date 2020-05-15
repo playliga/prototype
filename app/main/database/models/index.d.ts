@@ -25,7 +25,11 @@ declare module 'main/database/models' {
   }
 
 
-  export class Country extends BaseModel {}
+  export class Country extends BaseModel {
+    public readonly code: string;
+    public readonly name: string;
+    public readonly Continent?: Continent;
+  }
 
 
   export class Compdef extends BaseModel {
@@ -46,6 +50,7 @@ declare module 'main/database/models' {
   export class Team extends BaseModel {
     public readonly name: string;
     public readonly tier: number;
+    public readonly Country?: Country;
 
     public static findByRegionId( id: number ): Promise<Team[]>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
@@ -81,6 +86,7 @@ declare module 'main/database/models' {
     public readonly lname: string;
     public readonly Team?: Team;
     public readonly PersonaType?: PersonaType;
+    public readonly Country?: Country;
 
     public setPersonaType: Sequelize.BelongsToSetAssociationMixin<PersonaType, number>;
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;

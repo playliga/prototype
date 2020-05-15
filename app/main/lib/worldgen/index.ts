@@ -9,16 +9,51 @@ import ScreenManager from 'main/lib/screen-manager';
  */
 
 export async function assignManagers() {
-  // get the user's team
-  const profile = await Models.Profile.findOne({ include: [{ all: true }] });
-  const team = profile?.Team;
-
-  // get all personas and group them by type/name
-  const personas = await Models.Persona.findAll({
-    where: { teamId: null },
-    include: [ 'PersonaType' ]
+  // load profile and specific associations
+  const profile = await Models.Profile.findOne({
+    include: [{
+      model: Models.Team,
+      include: [{
+        model: Models.Country,
+        include: [ 'Continent' ]
+      }]
+    }]
   });
 
+  if( !profile ) {
+    return Promise.reject();
+  }
+
+  // load the user's team
+  const team = profile.Team;
+
+  if( !team ) {
+    return Promise.reject();
+  }
+
+  // get all personas
+  let personas = await Models.Persona.findAll({
+    where: { teamId: null },
+    include: [
+      'PersonaType',
+      {
+        model: Models.Country,
+        include: [ 'Continent' ]
+      }
+    ]
+  });
+
+  // filter personas by user team's region
+  personas = personas.filter( p => p.Country?.Continent?.id === team.Country?.Continent?.id );
+
+  // try to filter by country too
+  const countrymen = personas.filter( p => p.Country?.code === team.Country?.code );
+
+  if( countrymen.length > 0 ) {
+    personas = countrymen;
+  }
+
+  // group personas by type
   const managers = personas.filter( p => p.PersonaType?.name === 'Manager' );
   const asstmanagers = personas.filter( p => p.PersonaType?.name === 'Assistant Manager' );
 

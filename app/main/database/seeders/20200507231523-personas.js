@@ -1,29 +1,61 @@
 const faker = require( 'faker' );
-const { flatten, random } = require( 'lodash');
+const { flatten } = require( 'lodash');
 
 
 /**
  * Supported faker lib locale
  *
  * See: https://github.com/Marak/faker.js#localization
+ * Also: https://github.com/Marak/faker.js/tree/master/lib/locales
  */
 
-const fakerlocale = [
-  'az',
-  'cz',
-  'de',
-  'es',
-  'fr',
-  'ge',
-  'it',
-  'nl',
-  'pl',
-  'ru',
-  'sk',
-  'sv',
-  'tr',
-  'vi',
+const localemap = [
+  { id: 'az', region: 'eu', },
+  { id: 'cz', region: 'eu', },
+  { id: 'de', region: 'eu', },
+  { id: 'en', region: 'na', altname: 'us' },
+  { id: 'en_AU', region: 'oc', altname: 'au' },
+  { id: 'en_CA', region: 'an', altname: 'aq' },       // workaround for antartica
+  { id: 'en_IND', region: 'as', altname: 'in' },
+  { id: 'en_IE', region: 'af', altname: 'za' },       // issues with `en_ZA` (South Africa)
+  { id: 'en_GB', region: 'eu', altname: 'gb' },
+  { id: 'es', region: 'eu', },
+  { id: 'es_MX', region: 'sa', altname: 'mx' },
+  { id: 'fr', region: 'eu', },
+  { id: 'ge', region: 'eu', },
+  { id: 'it', region: 'eu', },
+  { id: 'ja', region: 'as', altname: 'jp' },
+  { id: 'ko', region: 'as', altname: 'kr' },
+  { id: 'nl', region: 'eu', },
+  { id: 'pl', region: 'eu', },
+  { id: 'pt_BR', region: 'sa', altname: 'br' },
+  { id: 'ru', region: 'eu', },
+  { id: 'sk', region: 'eu', },
+  { id: 'sv', region: 'eu', altname: 'se' },
+  { id: 'tr', region: 'eu', },
+  { id: 'uk', region: 'eu', altname: 'ua' },
+  { id: 'vi', region: 'as', altname: 'vn' },
 ];
+
+
+function mapLocale( item, team ) {
+  const { countryCode, continentCode } = team;
+
+  // is there a direct match?
+  let found = item.id === countryCode.toLowerCase();
+
+  // what about altname? e.g.: uk -> gb
+  if( !found && item.altname ) {
+    found = item.altname === countryCode.toLowerCase();
+  }
+
+  // can we match the region?
+  if( !found ) {
+    found = item.region === continentCode.toLowerCase();
+  }
+
+  return found;
+}
 
 
 function genPersona( typeId, teamId, countryId ) {
@@ -39,13 +71,14 @@ function genPersona( typeId, teamId, countryId ) {
 }
 
 
-function genTeamData( team, personatypes ) {
-  // parse the locale from the country code,
-  // default to `en` if nothing is found
-  const locale = fakerlocale.find( i => i === team.countryCode.toLowerCase() );
+function assignPersonas( team, personatypes ) {
+  // try to map the closest possible faker
+  // locale to the team's location
+  const locale = localemap.find( i => mapLocale( i, team ) );
 
+  // if nothing — default to en
   if( locale ) {
-    faker.locale = locale;
+    faker.locale = locale.id;
   } else {
     faker.locale = 'en';
   }
@@ -61,22 +94,20 @@ function genTeamData( team, personatypes ) {
 }
 
 
-function genPlayerData( personatypes, countries ) {
-  // get a random locale
-  const randidx = random( 0, fakerlocale.length - 1 );
-  const locale = fakerlocale[ randidx ];
-  faker.locale = locale;
+function getRandomPersonas( locale, personatypes, continents, countries ) {
+  faker.locale = locale.id;
 
-  // get the countryId
-  const { id } = countries.find( c => c.code.toLowerCase() === locale );
+  // get the countryid for the provided locale
+  // if altname is specified, use that instead
+  const { id } = countries.find( c => c.code.toLowerCase() === ( locale.altname || locale.id ) );
 
   // get the persona types we need
   const manager = personatypes.find( p => p.name === 'Manager' );
   const astmanager = personatypes.find( p => p.name === 'Assistant Manager' );
 
   return [
-    genPersona( manager.id, null, id ),
-    genPersona( astmanager.id, null, id )
+    ...Array( 5 ).fill( null ).map( () => genPersona( manager.id, null, id ) ),
+    ...Array( 5 ).fill( null ).map( () => genPersona( astmanager.id, null, id ) )
   ];
 }
 
@@ -86,6 +117,11 @@ module.exports = {
     // get all persona types
     const [ personatypes ] = await queryInterface.sequelize.query(`
       SELECT * FROM PersonaTypes;
+    `);
+
+    // get all continents
+    const [ continents ] = await queryInterface.sequelize.query(`
+      SELECT * FROM Continents;
     `);
 
     // get all countries
@@ -109,14 +145,16 @@ module.exports = {
     `);
 
     // generate the team's persona data
-    const teamdata = teams.map( t => genTeamData( t, personatypes ) );
+    const teamdata = teams.map( t => assignPersonas( t, personatypes ) );
 
-    // generate 10 random personas to be randomly
-    // assigned to the player after they register
-    const playerdata = Array( 10 )
-      .fill( null )
-      .map( () => genPlayerData( personatypes, countries ) )
-    ;
+    // generate free-agent personas per region
+    // to later assign to the user's team
+    const playerdata = localemap.map( locale => getRandomPersonas(
+      locale,
+      personatypes,
+      continents,
+      countries
+    ) );
 
     // save to the db
     return queryInterface.bulkInsert( 'Personas', [
