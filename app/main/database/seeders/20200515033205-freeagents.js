@@ -1,4 +1,4 @@
-const players = require( '../fixtures/20200514232935-freeagents.json' );
+const players = require( '../fixtures/20200516133922-freeagents.json' );
 
 
 module.exports = {
@@ -21,6 +21,7 @@ module.exports = {
       output.push({
         alias: player.alias,
         tier: player.tier,
+        transferListed: true,
         teamId: null,
         countryId: countryid,
         createdAt: new Date(),

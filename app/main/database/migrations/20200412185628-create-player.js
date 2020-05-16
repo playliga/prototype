@@ -12,6 +12,10 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
+      transferListed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       tier: Sequelize.INTEGER,
 
       // timestamps

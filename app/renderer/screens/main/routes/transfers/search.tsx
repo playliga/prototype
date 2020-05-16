@@ -11,7 +11,7 @@ interface State {
 }
 
 
-class Buy extends React.Component<RouteComponentProps, State> {
+class Search extends React.Component<RouteComponentProps, State> {
   public state = {
     data: []
   }
@@ -26,7 +26,6 @@ class Buy extends React.Component<RouteComponentProps, State> {
         model: 'Player',
         method: 'findAll',
         args: {
-          where: { transferListed: true },
           include: [ 'Team', 'Country' ]
         }
       }
@@ -49,4 +48,4 @@ class Buy extends React.Component<RouteComponentProps, State> {
 }
 
 
-export default Buy;
+export default Search;

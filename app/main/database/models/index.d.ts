@@ -61,6 +61,7 @@ declare module 'main/database/models' {
   export class Player extends BaseModel {
     public readonly alias: string;
     public readonly tier: number;
+    public readonly transferListed: boolean;
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;

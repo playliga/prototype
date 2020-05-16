@@ -21,7 +21,7 @@ const routes: RouteConfig[] = [
     id: '/transfers', path: '/transfers', title: 'Transfers', icon: PieChartOutlined,
     subroutes: [
       { id: '/transfers/buy', path: '/transfers/buy', component: Transfers.Buy, title: 'Buy Players' },
-      { id: '/transfers/search', path: '/transfers/search', component: Home, title: 'Search Players' },
+      { id: '/transfers/search', path: '/transfers/search', component: Transfers.Search, title: 'Search Players' },
     ]
   },
   { id: '/competitions', path: '/competitions', component: Home, title: 'Competitions', icon: TrophyOutlined },

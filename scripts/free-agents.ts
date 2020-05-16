@@ -123,7 +123,6 @@ async function genESEAregions( regions: Region[] ): Promise<Region[]> {
 
 // utility functions
 function normalizeregion( region: Region ) {
-  // hightiers (0 thru 2)
   return region.players.map( p => {
     // delete the unused "id" prop
     delete p.id;
@@ -131,7 +130,7 @@ function normalizeregion( region: Region ) {
     // push the formatted team to the teams array
     return {
       ...p,
-      tier: 0,
+      tier: 4,
       region_id: region.id
     };
   });
