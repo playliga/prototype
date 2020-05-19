@@ -101,6 +101,9 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     // generate the competitions
     .then( Worldgen.genAllComps )
 
+    // generate wages
+    .then( Worldgen.calculateWages )
+
     // finished!
     .then( openMainWindow )
   ;

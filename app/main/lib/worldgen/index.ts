@@ -1,4 +1,5 @@
 import { random } from 'lodash';
+import { Op } from 'sequelize';
 import * as Models from 'main/database/models';
 import { League } from 'main/lib/league';
 import ScreenManager from 'main/lib/screen-manager';
@@ -114,6 +115,32 @@ export async function genAllComps() {
     include: [ 'Continents' ],
   });
   return compdefs.map( genSingleComp );
+}
+
+
+/**
+ * Generate wages based off of league positions
+ *
+ * Tier 0
+ * ------
+ * - Top 5      : $15-20k/month
+ * - Mid-table  : $10-15k/month
+ * - Bottom     : $5k-10k/month
+ *
+ * Tier 1
+ * ------
+ * - Top 5      : $1k-5k/month
+ */
+export async function calculateWages() {
+  const players = await Models.Player.findAll({
+    where: {
+      tier: {
+        [Op.lte]: 1
+      }
+    }
+  });
+  console.log( players.length );
+  return Promise.resolve();
 }
 
 

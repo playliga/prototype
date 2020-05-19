@@ -8,15 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      alias: {
-        type: Sequelize.STRING,
-        unique: true
-      },
-      transferListed: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-      },
+      alias: { type: Sequelize.STRING, unique: true },
       tier: Sequelize.INTEGER,
+      value: { type: Sequelize.INTEGER, defaultValue: 0 },
+      transferListed: { type: Sequelize.BOOLEAN, defaultValue: false },
+      transferValue: { type: Sequelize.INTEGER, defaultValue: 0 },
 
       // timestamps
       createdAt: {
