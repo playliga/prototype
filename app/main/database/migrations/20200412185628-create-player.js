@@ -10,9 +10,9 @@ module.exports = {
       },
       alias: { type: Sequelize.STRING, unique: true },
       tier: Sequelize.INTEGER,
-      value: { type: Sequelize.INTEGER, defaultValue: 0 },
       transferListed: { type: Sequelize.BOOLEAN, defaultValue: false },
       transferValue: { type: Sequelize.INTEGER, defaultValue: 0 },
+      monthlyWages: { type: Sequelize.INTEGER, defaultValue: 0 },
 
       // timestamps
       createdAt: {

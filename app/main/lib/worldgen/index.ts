@@ -1,8 +1,9 @@
-import { random } from 'lodash';
 import { Op } from 'sequelize';
+import { random } from 'lodash';
 import * as Models from 'main/database/models';
 import { League } from 'main/lib/league';
 import ScreenManager from 'main/lib/screen-manager';
+import PlayerWages from 'main/config/playerwages';
 
 
 /**
@@ -119,28 +120,70 @@ export async function genAllComps() {
 
 
 /**
- * Generate wages based off of league positions
+ * Generate wages based off of tiers. Each
+ * tier is then split into three sections:
  *
- * Tier 0
- * ------
- * - Top 5      : $15-20k/month
- * - Mid-table  : $10-15k/month
- * - Bottom     : $5k-10k/month
+ * - Top, Mid, Bot
  *
- * Tier 1
- * ------
- * - Top 5      : $1k-5k/month
+ * Sections vary in size depending
+ * on the percentage they take up.
  */
+
+function calculateWage( player: Models.Player, high: number, low: number, modifier: number ) {
+  const basewage = random( high, low );
+  const transfervalue = basewage * modifier;
+  player.monthlyWages = basewage;
+  player.transferValue = transfervalue;
+}
+
+
+function calculateTierWages( players: Models.Player[], tid: number ) {
+  const wages = PlayerWages[ `TIER_${tid}` ];
+  const promises = [];
+
+  if( 'TOP_PERCENT' in wages ) {
+    const percent = parseFloat( wages.TOP_PERCENT ) / 100;
+    const numplayers = Math.floor( players.length * percent );
+    const top = players.splice( 0, numplayers );
+    top.forEach( p => calculateWage( p, wages.TOP_WAGE_LOW, wages.TOP_WAGE_HIGH, wages.TOP_MODIFIER ) );
+    promises.push( Promise.all( top.map( p => p.save() ) ) );
+  }
+
+  if( 'MID_PERCENT' in wages ) {
+    const percent = parseFloat( wages.MID_PERCENT ) / 100;
+    const numplayers = Math.floor( players.length * percent );
+    const mid = players.splice( 0, numplayers );
+    mid.forEach( p => calculateWage( p, wages.MID_WAGE_LOW, wages.MID_WAGE_HIGH, wages.MID_MODIFIER ) );
+    promises.push ( Promise.all( mid.map( p => p.save() ) ) );
+  }
+
+  if( 'BOT_PERCENT' in wages ) {
+    const percent = parseFloat( wages.BOT_PERCENT ) / 100;
+    const numplayers = Math.floor( players.length * percent );
+    // @todo: fix for bot_percent leaving out some players
+    const bot = players.splice( 0, numplayers === players.length ? numplayers : players.length );
+    bot.forEach( p => calculateWage( p, wages.BOT_WAGE_LOW, wages.BOT_WAGE_HIGH, wages.BOT_MODIFIER ) );
+    promises.push( Promise.all( bot.map( p => p.save() ) ) );
+  }
+
+  return Promise.all( promises );
+}
+
+
 export async function calculateWages() {
-  const players = await Models.Player.findAll({
+  // get the top 2 tiers
+  const allplayers = await Models.Player.findAll({
     where: {
-      tier: {
-        [Op.lte]: 1
-      }
+      tier: { [Op.lte]: 1 }
     }
   });
-  console.log( players.length );
-  return Promise.resolve();
+
+  // group them into tiers
+  const tier0 = allplayers.filter( p => p.tier === 0 );
+  const tier1 = allplayers.filter( p => p.tier === 1 );
+
+  // calculate wages per tier
+  return Promise.all( [ tier0, tier1 ].map( calculateTierWages ) );
 }
 
 
