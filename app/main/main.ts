@@ -7,7 +7,7 @@ import { Sequelize } from 'sequelize';
 
 import * as Models from 'main/database/models';
 import * as IPCApis from 'main/api';
-import { SplashScreen, MainScreen, FirstRunScreen } from 'main/screens';
+import * as Screens from 'main/screens';
 import ScreenManager from 'main/lib/screen-manager';
 
 
@@ -80,9 +80,10 @@ function handleOnReady() {
       setupIPCListeners();
 
       // screen handlers
-      SplashScreen();
-      FirstRunScreen();
-      MainScreen();
+      Screens.SplashScreen();
+      Screens.FirstRunScreen();
+      Screens.MainScreen();
+      Screens.OfferScreen();
     })
     .catch( err => {
       log.error([ err ]);
@@ -104,7 +105,7 @@ function handleOnActivate() {
   const screens = ScreenManager.getScreens();
 
   if( Object.keys( screens ).length === 0 ) {
-    SplashScreen();
+    Screens.SplashScreen();
   }
 }
 

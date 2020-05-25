@@ -1,0 +1,46 @@
+@import '~renderer/assets/shared';
+
+
+#offer-root {
+  margin: 20px;
+}
+
+
+#offer-root.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+
+#offer-root header#top {
+  display: flex;
+
+  h1, h2 {
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 1em;
+  }
+
+  .avatar {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  .general-info {
+    flex-grow: 2;
+  }
+
+  .asking-price {
+    display: flex;
+    align-items: center;
+  }
+
+  div.ant-input-number {
+    width: 100% !important;
+  }
+}

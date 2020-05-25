@@ -68,7 +68,12 @@ class LIQUIPEDIA_CSGO_Team {
     this.url = infoelem.attr( 'href' ) || '';
     this.logourl = logoelem.attr( 'src' ) || '';
     this.id = extractId( this.url ) || '';
-    this.name = infoelem.html() || '';
+    this.name = infoelem.attr( 'title' ) || '';
+
+    // trim (page does not exist) or
+    // (American team) labels from team names
+    this.name = this.name.replace( /\(page does not exist\)/, '' );
+    this.name = this.name.replace( /\(American team\)/, '' );
 
     // get players
     squadelem.each( ( idx, tr ) => {

@@ -1,7 +1,8 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+import { ipcRenderer } from 'electron';
 import IpcService from 'renderer/lib/ipc-service';
-import PlayerTable from '../../components/player-table';
+import PlayerTable from 'renderer/screens/main/components/player-table';
 
 
 interface State {
@@ -27,12 +28,17 @@ class Search extends React.Component<RouteComponentProps, State> {
     this.setState({ data });
   }
 
+  private handleRowClick = ( record: any ) => {
+    ipcRenderer.send( '/screens/offer/open', record );
+  }
+
   public render() {
     return (
       <div className="content">
         <PlayerTable
           loading={this.state.data.length <= 0}
           dataSource={this.state.data}
+          onRowClick={this.handleRowClick}
         />
       </div>
     );

@@ -3,18 +3,8 @@ import { getEmojiFlag } from 'countries-list';
 import { Table, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
-
-
-const WEEKS_PER_MONTH = 4.34524;
-
-
-function formatCurrency( value: number ) {
-  const num = new Intl.NumberFormat(
-    'en-US',
-    { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }
-  );
-  return num.format( value );
-}
+import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
+import './player-table.scss';
 
 
 function TeamColumn( props: any ) {
@@ -38,11 +28,16 @@ function TeamColumn( props: any ) {
 export default function PlayerTable( props: any ) {
   return (
     <Table
+      className="player-table"
       rowKey={props.rowKey || 'id'}
       size={props.size || 'middle'}
       loading={props.loading}
       dataSource={props.dataSource}
       pagination={{ position: [ 'topRight' ] }}
+      onRow={( record, idx ) => ({
+        idx,
+        onClick: () => props.onRowClick( record ),
+      })}
     >
       <Table.Column
         ellipsis
@@ -79,7 +74,7 @@ export default function PlayerTable( props: any ) {
         align="center"
         width={100}
         defaultSortOrder={'descend'}
-        render={w => `${formatCurrency( Math.floor( w / WEEKS_PER_MONTH ) )}/wk`}
+        render={w => `${formatCurrency( getWeeklyWages( w ) )}/wk`}
         sorter={( a: any, b: any ) => a.monthlyWages - b.monthlyWages}
       />
       <Table.Column

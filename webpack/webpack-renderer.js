@@ -9,7 +9,7 @@ import webpackConfigResolve from './webpack-resolve.js';
 const IS_PROD = process.env.NODE_ENV === 'production';
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join( __dirname, '../' );
-const ENTRIES = [ 'splash', 'firstrun', 'main' ];
+const ENTRIES = [ 'splash', 'firstrun', 'main', 'offer' ];
 
 
 const outputs = {
