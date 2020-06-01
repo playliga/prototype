@@ -1,4 +1,5 @@
-const teams = require( '../fixtures/20200525111808-squads' );
+const protiers = require( '../fixtures/20200525220100-protiers' );
+const lowtiers = require( '../fixtures/20200525202850-lowtiers' );
 
 
 module.exports = {
@@ -13,6 +14,11 @@ module.exports = {
 
     // this will store out player array
     const output = [];
+
+    const teams = [
+      ...protiers,
+      ...lowtiers
+    ];
 
     // parse each team's roster
     teams.forEach( team => {

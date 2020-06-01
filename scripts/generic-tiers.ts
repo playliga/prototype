@@ -21,7 +21,6 @@ const args = minimist( process.argv.slice( 2 ), {
 
 
 const TIERS = [
-  { name: 'Premier', minlen: 20, teams: [] },
   { name: 'Advanced', minlen: 20, teams: [] },
   { name: 'Main', minlen: 20, teams: [] },
 ];
@@ -54,8 +53,7 @@ class Region {
 /**
  * LIQUIPEDIA SCRAPER
  *
- * Generates data for the top three divisions:
- * - Premier
+ * Generates data for the top two ESEA divisions:
  * - Advanced
  * - Main
  *
@@ -363,7 +361,10 @@ async function genESEAregions( regions: Region[] ): Promise<Region[]> {
 function normalizeregion( region: Region ) {
   const teams = [] as any[];
 
-  // hightiers (0 thru 2)
+  // offset the top tiers since `tier: 0` is reserved for pro tier
+  const pro_offset = 1;
+
+  // hightiers (1 thru 2)
   region.tiers.forEach( ( tier, tierid ) => {
     tier.teams.forEach( teamobj => {
       // delete the unused "id" props from both teams+players
@@ -373,14 +374,14 @@ function normalizeregion( region: Region ) {
       // push the formatted team to the teams array
       teams.push({
         ...teamobj,
-        tier: tierid,
+        tier: tierid + pro_offset,
         region_id: region.id
       });
     });
   });
 
   // lowtiers (3 and 4)
-  const tieroffset = region.tiers.length;
+  const tieroffset = region.tiers.length + pro_offset;
 
   region.lowtiers.forEach( ( tier, tierid ) => {
     tier.teams.forEach( teamobj => {

@@ -1,4 +1,5 @@
-const teams = require( '../fixtures/20200525111808-squads' );
+const protiers = require( '../fixtures/20200525220100-protiers' );
+const lowtiers = require( '../fixtures/20200525202850-lowtiers' );
 
 
 const regionsmap = {
@@ -13,6 +14,11 @@ module.exports = {
       SELECT id, code, continentId FROM Countries;
     `);
 
+    const teams = [
+      ...protiers,
+      ...lowtiers
+    ];
+
     const output = teams.map( team => {
       // get the country
       let country = countryrows.find( c => c.code.toLowerCase() === team.countrycode.toLowerCase() );
@@ -23,7 +29,7 @@ module.exports = {
 
       // if country is not within the team's specified region
       // default to one that's within that region
-      if( !country || country.continentId !== teamregion ) {
+      if( country.continentId !== teamregion && !country ) {
         // get a country from this region
         country = countryrows.find( c => c.continentId === teamregion );
       }

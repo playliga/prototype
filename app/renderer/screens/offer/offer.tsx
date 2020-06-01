@@ -23,7 +23,7 @@ function Offer() {
   const [ wage, setWage ] = React.useState( 0 );
 
   // grab the player data
-  React.useLayoutEffect( () => {
+  React.useEffect( () => {
     IpcService
       .send( '/screens/offer/getdata', {} )
       .then( playerdata => {
