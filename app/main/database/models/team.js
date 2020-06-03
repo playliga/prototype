@@ -1,5 +1,7 @@
 import Sequelize, { Model } from 'sequelize';
-import Country from './country';
+
+
+let _models = null;
 
 
 class Team extends Model {
@@ -13,16 +15,19 @@ class Team extends Model {
   }
 
   static associate( models ) {
-    this.hasMany( models.Player );
-    this.hasMany( models.Persona );
-    this.hasOne( models.Profile );
-    this.belongsTo( models.Country );
+    if( !_models ) {
+      _models = models;
+    }
+    this.hasMany( _models.Player );
+    this.hasMany( _models.Persona );
+    this.hasOne( _models.Profile );
+    this.belongsTo( _models.Country );
   }
 
   static findByRegionId( id ) {
     return Team.findAll({
       include: [{
-        model: Country,
+        model: _models.Country,
         where: { continentId: id }
       }]
     });

@@ -7,3 +7,11 @@ export interface IpcRequest<T> {
   responsechannel?: string;
   params?: T;
 }
+
+
+export interface OfferRequest {
+  teamid?: number;
+  playerid: number;
+  wages: number;
+  fee?: number;
+}

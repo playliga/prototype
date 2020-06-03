@@ -1,17 +1,23 @@
 import path from 'path';
 import { ipcMain, Menu, IpcMainEvent } from 'electron';
 import is from 'electron-is';
-import { IpcRequest } from 'shared/types';
+import { IpcRequest, OfferRequest } from 'shared/types';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
+import * as WorldGen from 'main/lib/worldgen';
 
 
-// module-level variables and constants
+/**
+ * Module level variables, constants, and types
+ */
+
+// variables
 let screen: Screen;
 let data: any;
 
 
+// constants
 const SCREEN_ID = 'offer';
 const PORT = process.env.PORT || 3000;
 const WIDTH = 600;
@@ -69,6 +75,24 @@ function getDataHandler( evt: IpcMainEvent, request: IpcRequest<any> ) {
 }
 
 
+function sendOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferRequest> ) {
+  const { responsechannel, params } = request;
+  const sendresponse = () => evt.sender.send( responsechannel || '', null );
+
+  // bail if no params found
+  if( !params ) {
+    sendresponse();
+    return;
+  }
+
+  // let world gen handle the transfer offer
+  WorldGen
+    .handleTransferOfferFromUser( params )
+    .then( () => sendresponse() )
+  ;
+}
+
+
 function closeWindowHandler() {
   screen.handle.close();
 }
@@ -78,5 +102,6 @@ export default () => {
   // ipc listeners
   ipcMain.on( `/screens/${SCREEN_ID}/open`, openWindowHandler );
   ipcMain.on( `/screens/${SCREEN_ID}/getdata`, getDataHandler );
+  ipcMain.on( `/screens/${SCREEN_ID}/send`, sendOfferHandler );
   ipcMain.on( `/screens/${SCREEN_ID}/close`, closeWindowHandler );
 };

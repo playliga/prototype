@@ -76,6 +76,7 @@ declare module 'main/database/models' {
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
+    public static getActiveProfile(): Promise<Profile>;
   }
 
 
@@ -93,6 +94,7 @@ declare module 'main/database/models' {
 
     public setPersonaType: Sequelize.BelongsToSetAssociationMixin<PersonaType, number>;
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
+    public static getManagerByTeamId( id: number, type?: string ): Promise<Persona>;
   }
 
 
@@ -108,6 +110,13 @@ declare module 'main/database/models' {
     }): Promise<number>;
     public setPersona: Sequelize.BelongsToSetAssociationMixin<Persona, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
+  }
+
+
+  export class ActionQueue extends BaseModel {
+    public type: string;
+    public action_date: Date;
+    public payload: any;
   }
 
 

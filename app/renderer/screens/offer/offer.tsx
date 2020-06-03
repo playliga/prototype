@@ -3,12 +3,20 @@ import { ipcRenderer } from 'electron';
 import { Typography, Statistic, Avatar, Descriptions, Tabs, InputNumber, Form, Empty, Button, Spin } from 'antd';
 import { getEmojiFlag } from 'countries-list';
 import { UserOutlined } from '@ant-design/icons';
+import { OfferRequest } from 'shared/types';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
 import IpcService from 'renderer/lib/ipc-service';
 
 
-function handleFinish( fee: number, wage: number ) {
-  ipcRenderer.send( '/screens/offer/close' );
+function handleFinish( fee: number, wages: number, playerdata: any ) {
+  const teamid = playerdata.Team?.id;
+  const playerid = playerdata.id;
+  const params: OfferRequest = { playerid, teamid, wages, fee };
+
+  IpcService
+    .send( '/screens/offer/send', { params })
+    .then( () => ipcRenderer.send( '/screens/offer/close' ) )
+  ;
 }
 
 
@@ -20,7 +28,7 @@ function handleOnCancel() {
 function Offer() {
   const [ data, setData ] = React.useState( null as any );
   const [ fee, setFee ] = React.useState( 0 );
-  const [ wage, setWage ] = React.useState( 0 );
+  const [ wages, setWages ] = React.useState( 0 );
 
   // grab the player data
   React.useEffect( () => {
@@ -29,7 +37,7 @@ function Offer() {
       .then( playerdata => {
         setData( playerdata );
         setFee( playerdata.transferValue );
-        setWage( getWeeklyWages( playerdata.monthlyWages ) );
+        setWages( getWeeklyWages( playerdata.monthlyWages ) );
       });
   }, []);
 
@@ -100,7 +108,7 @@ function Offer() {
       >
         {/* CURRENT OFFER */}
         <Tabs.TabPane tab="Current Offer" key="1">
-          <Form onFinish={() => handleFinish( fee, wage )}>
+          <Form onFinish={() => handleFinish( fee, wages, data )}>
             <Form.Item label="Transfer Fee">
               <InputNumber
                 value={fee}
@@ -113,12 +121,12 @@ function Offer() {
             </Form.Item>
             <Form.Item label="Player Wage">
               <InputNumber
-                value={wage}
+                value={wages}
                 step={500}
                 style={{ width: '100%' }}
                 formatter={val => formatCurrency( val as number )}
                 parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
-                onChange={val => setWage( val as number )}
+                onChange={val => setWages( val as number )}
               />
             </Form.Item>
             <Form.Item wrapperCol={{ offset: 16, span: 8 }}>
