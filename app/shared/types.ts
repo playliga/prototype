@@ -10,7 +10,6 @@ export interface IpcRequest<T> {
 
 
 export interface OfferRequest {
-  teamid?: number;
   playerid: number;
   wages: number;
   fee?: number;

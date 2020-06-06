@@ -1,151 +1,17 @@
 import { Op } from 'sequelize';
 import { random } from 'lodash';
-import { OfferRequest } from 'shared/types';
-import ActionQueueTypes from 'main/config/actionqueuetypes';
-import * as Models from 'main/database/models';
 import { League } from 'main/lib/league';
 import ScreenManager from 'main/lib/screen-manager';
-import PlayerWages from 'main/config/playerwages';
+import PlayerWages from 'main/constants/playerwages';
+import * as Models from 'main/database/models';
+import * as Offer from './offer';
 
 
 /**
  * Parse transfer offer sent from the user
  */
 
-export async function rejectTransferOffer(
-  profile: Models.Profile,
-  target: Models.Player,
-  offerdetails: OfferRequest,
-  reason: string
-): Promise<any> {
-  /**
-   * This function will:
-   * - format the rejection e-mail and save it in the action queue
-   * - save the transfer offer item.
-   *
-   * A transfer offer item is:
-   *
-   * owner          - who initiated the offer (team_id)
-   * teamid         - the team who owns the player (can be null)
-   * playerid       - the target
-   * fee            - transfer fee
-   * wages          - player wages
-   * status         - accepted/rejected
-   * reject_reason  - why it was rejected
-   */
-
-  // bail if the profile was not provided properly
-  if( !profile || !profile.Player || !profile.Team ) {
-    return Promise.reject();
-  }
-
-  // if the rejection was done by the team,
-  // their manager sends the email
-  if( offerdetails.teamid ) {
-    const persona = await Models.Persona.getManagerByTeamId( offerdetails.teamid );
-
-    if( !persona ) {
-      return Promise.reject();
-    }
-
-    return Promise.all([
-      Models.ActionQueue.create({
-        type: ActionQueueTypes.SEND_EMAIL,
-        action_date: new Date(),
-        payload: {
-          from: persona.id,
-          to: profile.Player.id,
-          subject: `re: Transfer offer for ${target.alias}`,
-          content: `
-            Hi, ${profile.Player.alias}.
-
-            ${reason}
-          `
-        }
-      }),
-      Models.ActionQueue.create({
-        type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
-        action_date: new Date(),
-        payload: offerdetails
-      })
-    ]);
-  }
-
-  // the email for player rejections will be
-  // sent by the user's assistant manager
-  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
-
-  if( !persona ) {
-    return Promise.reject();
-  }
-
-  return Promise.all([
-    Models.ActionQueue.create({
-      type: ActionQueueTypes.SEND_EMAIL,
-      action_date: new Date(),
-      payload: {
-        from: persona.id,
-        to: profile.Player.id,
-        subject: `re: Transfer offer for ${target.alias}`,
-        content: `
-          Hi, ${profile.Player.alias}.
-
-          ${reason}
-        `
-      }
-    }),
-    Models.ActionQueue.create({
-      type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
-      action_date: new Date(),
-      payload: offerdetails
-    })
-  ]);
-}
-
-
-export async function handleTransferOfferFromUser( params: OfferRequest ) {
-  // load user profile
-  const profile = await Models.Profile.getActiveProfile();
-
-  if( !profile || !profile.Player || !profile.Team ) {
-    return Promise.reject();
-  }
-
-  // load targeted player
-  const player = await Models.Player.findByPk( params.playerid );
-
-  if( !player ) {
-    return Promise.reject();
-  }
-
-  // first, the team will decide if they
-  // want to accept the transfer offer
-
-  // is the player transfer listed?
-  if( params.teamid && params.fee && !player.transferListed ) {
-    return rejectTransferOffer( profile, player, params, '' );
-  }
-
-  // does it match asking price?
-  if( params.teamid && params.fee && params.fee < player.transferValue ) {
-    return rejectTransferOffer( profile, player, params, '' );
-  }
-
-  // the team is good with the offer. now
-  // it's up to the player to decide
-
-  // does it match their current wages?
-  if( params.wages <= player.monthlyWages ) {
-    return rejectTransferOffer( profile, player, params, '' );
-  }
-
-  // does it match their tier?
-  if( player.tier > profile.Player.tier ) {
-    return rejectTransferOffer( profile, player, params, '' );
-  }
-
-  return Promise.resolve();
-}
+export { Offer };
 
 
 /**

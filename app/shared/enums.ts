@@ -1,4 +1,4 @@
-export default {
+export const ActionQueueTypes = {
   SEND_EMAIL: 'SEND_EMAIL',
   TRANSFER_OFFER_RESPONSE: 'TRANSFER_OFFER_RESPONSE',
 };

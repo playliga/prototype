@@ -9,9 +9,8 @@ import IpcService from 'renderer/lib/ipc-service';
 
 
 function handleFinish( fee: number, wages: number, playerdata: any ) {
-  const teamid = playerdata.Team?.id;
   const playerid = playerdata.id;
-  const params: OfferRequest = { playerid, teamid, wages, fee };
+  const params: OfferRequest = { playerid, wages, fee };
 
   IpcService
     .send( '/screens/offer/send', { params })

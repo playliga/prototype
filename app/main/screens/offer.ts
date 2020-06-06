@@ -85,9 +85,10 @@ function sendOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferRequest> 
     return;
   }
 
-  // let world gen handle the transfer offer
+  // let world gen handle the offer
   WorldGen
-    .handleTransferOfferFromUser( params )
+    .Offer
+    .parse( params )
     .then( () => sendresponse() )
   ;
 }
