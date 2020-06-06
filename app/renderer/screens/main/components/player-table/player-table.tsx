@@ -3,6 +3,7 @@ import { getEmojiFlag } from 'countries-list';
 import { Table, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
+import { Tiers } from 'shared/enums';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
 import './player-table.scss';
 
@@ -18,7 +19,7 @@ function TeamColumn( props: any ) {
         {props.name}
       </Typography.Text>
       <Typography.Text type="secondary">
-        Tier {props.tier}
+        {Tiers[ props.tier ]}
       </Typography.Text>
     </div>
   );
@@ -55,9 +56,9 @@ export default function PlayerTable( props: any ) {
         title="Team"
         dataIndex="Team"
         filters={[
-          ...[ 0, 1, 2, 3, 4 ].map( i => ({
-            text: `Tier ${i}`,
-            value: i,
+          ...Object.keys( Tiers ).map( i => ({
+            text: `${Tiers[ i ]}`,
+            value: parseInt( i ),
           })),
           {
             text: 'Free Agent',
