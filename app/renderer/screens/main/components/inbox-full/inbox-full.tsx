@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import dedent from 'dedent';
 import { Card, Avatar, Typography } from 'antd';
 import ReactMarkdown from 'react-markdown';
@@ -10,6 +11,7 @@ interface Data {
   id: number;
   subject: string;
   content: string;
+  sentAt: Date;
   Persona: any;
 }
 
@@ -29,7 +31,7 @@ function InboxFullTitle( props: Data ) {
       </section>
       <section>
         <Typography.Text type="secondary" style={{ fontVariant: 'small-caps' }}>
-          {'may 14 2020'}
+          {moment( props.sentAt ).format( 'MMM DD YYYY' )}
         </Typography.Text>
       </section>
     </div>

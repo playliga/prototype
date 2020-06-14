@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       type: Sequelize.STRING,
-      action_date: Sequelize.DATE,
+      actionDate: Sequelize.DATEONLY,
       payload: Sequelize.JSON,
 
       // timestamps

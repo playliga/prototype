@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import dedent from 'dedent';
 import { List, Avatar, Typography, Badge } from 'antd';
 import './inbox-preview.scss';
@@ -10,6 +11,7 @@ interface Data {
   subject: string;
   content: string;
   read: boolean;
+  sentAt: Date;
   Persona: any;
 }
 
@@ -38,7 +40,7 @@ function InboxPreviewTitle( props: Data ) {
       </section>
       <section>
         <Typography.Text type="secondary" style={{ fontVariant: 'small-caps' }}>
-          {'09/27'}
+          {moment( props.sentAt ).format( 'MM/DD' )}
         </Typography.Text>
       </section>
     </div>

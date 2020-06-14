@@ -5,6 +5,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Steps } from 'antd';
 import { UserOutlined, TeamOutlined, FileDoneOutlined } from '@ant-design/icons';
 
+import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
 import { FormContext } from '../common';
 import One from './01_userinfo';
@@ -33,7 +34,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
   }
 
   public async componentDidMount() {
-    const data = await IpcService.send( '/database/', {
+    const data = await IpcService.send( IPCRouting.Database.GENERIC, {
       params: {
         model: 'Continent',
         method: 'findAll',
@@ -53,7 +54,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
     // start the save process if we're done
     // collecting form data
     if( next === 'finish' ) {
-      ipcRenderer.send( '/screens/firstrun/save', formdata );
+      ipcRenderer.send( IPCRouting.FirstRun.SAVE, formdata );
     }
 
     this.props.history.push( `/firstrun/${next}` );

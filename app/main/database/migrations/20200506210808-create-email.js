@@ -11,6 +11,7 @@ module.exports = {
       subject: Sequelize.STRING,
       content: Sequelize.STRING,
       read: { type: Sequelize.BOOLEAN, defaultValue: false },
+      sentAt: Sequelize.DATEONLY,
 
       // timestamps
       createdAt: {

@@ -1,10 +1,95 @@
 import { Op } from 'sequelize';
 import { random } from 'lodash';
+import moment from 'moment';
+import * as Sqrl from 'squirrelly';
+
+import { ActionQueueTypes } from 'shared/enums';
+import * as IPCRouting from 'shared/ipc-routing';
 import { League } from 'main/lib/league';
 import ScreenManager from 'main/lib/screen-manager';
+import Application from 'main/constants/application';
 import PlayerWages from 'main/constants/playerwages';
+import EmailDialogue from 'main/constants/emaildialogue';
 import * as Models from 'main/database/models';
 import * as Offer from './offer';
+
+
+/**
+ * Generic utility functions
+ */
+
+async function sendEmailAndEmit( payload: any ) {
+  const email = await Models.Email.send( payload );
+
+  ScreenManager
+    .getScreenById( IPCRouting.Main._ID )
+    .handle
+    .webContents
+    .send(
+      IPCRouting.Worldgen.EMAIL_NEW,
+      JSON.stringify( email )
+    )
+  ;
+
+  return Promise.resolve();
+}
+
+
+/**
+ * Calendar loop
+ *
+ * query action queue items for today's date
+ * and execute those action items.
+ *
+ * bail out if:
+ * - any e-mails are sent
+ * - we reach MAX_ITERATIONS
+ */
+
+async function handleQueueItem( item: Models.ActionQueue ) {
+  switch( item.type ) {
+    case ActionQueueTypes.SEND_EMAIL:
+      return sendEmailAndEmit( item.payload );
+  }
+}
+
+
+export async function calendarLoop() {
+  // load profile
+  const profile = await Models.Profile.getActiveProfile();
+
+  if( !profile ) {
+    return Promise.reject();
+  }
+
+  // iterate thru the calendar
+  for( let i = 0; i < Application.CALENDAR_LOOP_MAX_ITERATIONS; i++ ) {
+    // load today's action items
+    const queue = await Models.ActionQueue.findAll({
+      where: { actionDate: profile.currentDate }
+    });
+
+    if( queue && queue.length > 0 ) {
+      await Promise.all( queue.map( handleQueueItem ) );
+    }
+
+    // update today's date
+    profile.currentDate = moment( profile.currentDate )
+      .add( 1, 'day' )
+      .toDate()
+    ;
+    await profile.save();
+
+    // bail out of loop if an e-mail was sent
+    const hasemail = queue.findIndex( q => q.type === ActionQueueTypes.SEND_EMAIL );
+
+    if( hasemail >= 0 ) {
+      break;
+    }
+  }
+
+  return Promise.resolve();
+}
 
 
 /**
@@ -191,11 +276,7 @@ export async function calculateWages() {
  * Intro e-mail sent by assistant manager.
  */
 
-const INTROEMAIL_DELAY = 5000;
-const INTROEMAIL_TARGET_SCREEN = '/screens/main';
-
-
-async function delayedIntroEmail() {
+export async function sendIntroEmail() {
   // get team and player from the saved profile
   const profile = await Models.Profile.findOne({ include: [{ all: true }] });
   const team = profile?.Team;
@@ -214,35 +295,11 @@ async function delayedIntroEmail() {
     return;
   }
 
-  const emailid = await Models.Email.send({
+  await sendEmailAndEmit({
     from: persona,
     to: player,
     subject: 'Hey!',
-    content: `
-      Hi, ${player.alias}.
-
-      My name is ${persona.fname} and I am your assistant manager. I just wanted to say hello and inform you that we should start looking for your starting squad.
-
-      Without a squad we won't be able to compete in any competitions.
-    `
+    content: Sqrl.render( EmailDialogue.INTRO, { player, persona }),
+    sentAt: profile?.currentDate || new Date()
   });
-
-  const email = await Models.Email.findByPk( emailid, {
-    include: [{ all: true }]
-  });
-
-  ScreenManager
-    .getScreenById( INTROEMAIL_TARGET_SCREEN )
-    .handle
-    .webContents
-    .send(
-      '/worldgen/email/new',
-      JSON.stringify( email )
-    )
-  ;
-}
-
-
-export function sendIntroEmail() {
-  setTimeout( delayedIntroEmail, INTROEMAIL_DELAY );
 }

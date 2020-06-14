@@ -1,5 +1,6 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
+import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
 
@@ -57,6 +58,6 @@ async function updatehandler( evt: IpcMainEvent, request: IpcRequest<UpdateParam
 
 
 export default () => {
-  ipcMain.on( '/database/', handler );
-  ipcMain.on( '/database/update', updatehandler );
+  ipcMain.on( IPCRouting.Database.GENERIC, handler );
+  ipcMain.on( IPCRouting.Database.UPDATE, updatehandler );
 };

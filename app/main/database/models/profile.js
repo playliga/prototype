@@ -1,4 +1,4 @@
-import { Model } from 'sequelize';
+import Sequelize, { Model } from 'sequelize';
 
 
 let _models = null;
@@ -7,7 +7,11 @@ let _models = null;
 class Profile extends Model {
   static autoinit( sequelize ) {
     return this.init({
-      // @todo
+      currentDate: {
+        allowNull: true,
+        defaultValue: Sequelize.NOW,
+        type: Sequelize.DATEONLY
+      }
     }, { sequelize, modelName: 'Profile' });
   }
 

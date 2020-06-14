@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import * as IPCRouting from 'shared/ipc-routing';
 import * as EmailTypes from './types';
 
 
@@ -27,7 +28,7 @@ export function addEmail( payload: EmailTypes.Email ): EmailTypes.EmailActionTyp
 
 export function register() {
   return ( dispatch: Function ) => {
-    ipcRenderer.on( '/worldgen/email/new', ( evt, email ) => {
+    ipcRenderer.on( IPCRouting.Worldgen.EMAIL_NEW, ( evt, email ) => {
       dispatch( addEmail( JSON.parse( email ) ) );
     });
   };

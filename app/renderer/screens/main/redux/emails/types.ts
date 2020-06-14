@@ -10,6 +10,7 @@ export interface Email {
   subject: string;
   content: string;
   read: boolean;
+  sentAt: Date;
   Persona: any;
 }
 

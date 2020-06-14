@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { SyncOutlined, CheckOutlined } from '@ant-design/icons';
+import * as IPCRouting from 'shared/ipc-routing';
 
 
 interface State {
@@ -24,12 +25,12 @@ class Splash extends Component<{}, State> {
   }
 
   componentDidMount() {
-    ipcRenderer.on( '/screens/splash/error', this.handleError );
-    ipcRenderer.on( '/screens/splash/checking-update', this.handleCheckingUpdate );
-    ipcRenderer.on( '/screens/splash/no-update-avail', this.handleNoUpdateAvail );
-    ipcRenderer.on( '/screens/splash/update-avail', this.handleUpdateAvail );
-    ipcRenderer.on( '/screens/splash/download-progress', this.handleDownloadProgress );
-    ipcRenderer.on( '/screens/splash/update-downloaded', this.handleUpdateDownloaded );
+    ipcRenderer.on( IPCRouting.Splash.ERROR, this.handleError );
+    ipcRenderer.on( IPCRouting.Splash.CHECKING, this.handleCheckingUpdate );
+    ipcRenderer.on( IPCRouting.Splash.NO_UPDATE_AVAIL, this.handleNoUpdateAvail );
+    ipcRenderer.on( IPCRouting.Splash.UPDATE_AVAIL, this.handleUpdateAvail );
+    ipcRenderer.on( IPCRouting.Splash.DOWNLOADING, this.handleDownloadProgress );
+    ipcRenderer.on( IPCRouting.Splash.DOWNLOADED, this.handleUpdateDownloaded );
   }
 
   handleError = () => {

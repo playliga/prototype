@@ -1,16 +1,18 @@
 import { put, takeEvery } from 'redux-saga/effects';
+import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
 import * as EmailTypes from './types';
 import * as emailActions from './actions';
 
 
 function* findAll() {
-  const payload = yield IpcService.send( '/database/', {
+  const payload = yield IpcService.send( IPCRouting.Database.GENERIC, {
     params: {
       model: 'Email',
       method: 'findAll',
       args: {
         include: [{ all: true }],
+        order: [[ 'sentAt', 'DESC' ]]
       }
     }
   });
@@ -28,7 +30,7 @@ function* update( action: EmailTypes.EmailActionTypes ) {
     return;
   }
 
-  yield IpcService.send( '/database/update', {
+  yield IpcService.send( IPCRouting.Database.UPDATE, {
     params: {
       model: 'Email',
       args: {

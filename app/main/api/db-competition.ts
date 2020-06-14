@@ -1,5 +1,6 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
+import * as IPCRouting from 'shared/ipc-routing';
 import { Competition } from 'main/database/models';
 import { League } from 'main/lib/league';
 
@@ -34,5 +35,5 @@ async function start( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> )
 
 
 export default () => {
-  ipcMain.on( '/database/competition/start', start );
+  ipcMain.on( IPCRouting.Database.COMPETITION_START, start );
 };

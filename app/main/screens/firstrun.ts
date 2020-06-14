@@ -3,6 +3,7 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
 import { IterableObject } from 'shared/types';
+import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as Worldgen from 'main/lib/worldgen';
 import { Screen } from 'main/lib/screen-manager/types';
@@ -42,8 +43,8 @@ let screen: Screen;
 function openMainWindow() {
   // wait a few seconds before opening the main window
   setTimeout( () => {
-    ipcMain.emit( '/worldgen/email/intro' );
-    ipcMain.emit( '/screens/main/open' );
+    ipcMain.emit( IPCRouting.Worldgen.EMAIL_INTRO );
+    ipcMain.emit( IPCRouting.Main.OPEN );
     screen.handle.close();
   }, 2000 );
 }
@@ -112,7 +113,7 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
 
 function openWindowHandler() {
   screen = ScreenManager.createScreen(
-    '/screens/firstrun',
+    IPCRouting.FirstRun._ID,
     CONFIG.url,
     CONFIG.opts
   );
@@ -128,6 +129,6 @@ function openWindowHandler() {
 
 export default () => {
   // ipc listeners
-  ipcMain.on( '/screens/firstrun/open', openWindowHandler );
-  ipcMain.on( '/screens/firstrun/save', saveFirstRunHandler );
+  ipcMain.on( IPCRouting.FirstRun.OPEN, openWindowHandler );
+  ipcMain.on( IPCRouting.FirstRun.SAVE, saveFirstRunHandler );
 };

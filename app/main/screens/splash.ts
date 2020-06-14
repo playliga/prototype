@@ -3,6 +3,7 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import * as IPCRouting from 'shared/ipc-routing';
 import { Profile } from 'main/database/models';
 import ScreenManager from 'main/lib/screen-manager';
 import { Screen } from 'main/lib/screen-manager/types';
@@ -39,7 +40,7 @@ let screen: Screen;
  * help determine which window to redirect the user to.
  */
 
-let redirect_target = 'firstrun';
+let redirect_target = IPCRouting.FirstRun.OPEN;
 
 
 function checkuserdata() {
@@ -47,7 +48,10 @@ function checkuserdata() {
     Profile
       .count()
       .then( count => {
-        redirect_target = count > 0 ? 'main' : 'firstrun';
+        redirect_target = count > 0
+          ? IPCRouting.Main.OPEN
+          : IPCRouting.FirstRun.OPEN
+        ;
         resolve();
       })
       .catch( err => {
@@ -71,11 +75,11 @@ autoUpdater.logger.transports.file.level = 'debug';
 
 // auto updater event handlers
 function handleError( err: Error ) {
-  screen.handle.webContents.send( '/screens/splash/error', err );
+  screen.handle.webContents.send( IPCRouting.Splash.ERROR, err );
 
   // attempt to launch the main application anyways
   setTimeout( () => {
-    ipcMain.emit( `/screens/${redirect_target}/open` );
+    ipcMain.emit( redirect_target );
     screen.handle.close();
   }, 2000 );
 }
@@ -87,12 +91,12 @@ function handleCheckingUpdate() {
 
 
 function handleNoUpdateAvail() {
-  screen.handle.webContents.send( '/screens/splash/no-update-avail' );
+  screen.handle.webContents.send( IPCRouting.Splash.NO_UPDATE_AVAIL );
 
   // close the splash window after 2 seconds
   // and open the main application window
   setTimeout( () => {
-    ipcMain.emit( `/screens/${redirect_target}/open` );
+    ipcMain.emit( redirect_target );
     screen.handle.close();
   }, 2000 );
 }
@@ -103,17 +107,17 @@ function handleUpdateAvail() {
     autoUpdater.downloadUpdate();
   }
 
-  screen.handle.webContents.send( '/screens/splash/update-avail' );
+  screen.handle.webContents.send( IPCRouting.Splash.UPDATE_AVAIL );
 }
 
 
 function handleDownloadProgress( progressObj: object ) {
-  screen.handle.webContents.send( '/screens/splash/download-progress', progressObj );
+  screen.handle.webContents.send( IPCRouting.Splash.DOWNLOADING, progressObj );
 }
 
 
 function handleUpdateDownloaded() {
-  screen.handle.webContents.send( '/screens/splash/update-downloaded' );
+  screen.handle.webContents.send( IPCRouting.Splash.DOWNLOADED );
 
   // wait two seconds so that the GUI gets a chance
   // to show a `done` message
@@ -126,7 +130,7 @@ function handleUpdateDownloaded() {
 
     // otherwise, manually close this window
     // and open the main application window
-    ipcMain.emit( `/screens/${redirect_target}/open` );
+    ipcMain.emit( redirect_target );
     screen.handle.close();
   }, 2000 );
 }
@@ -193,7 +197,7 @@ function fakeAutoUpdater() {
 
 function setupscreen() {
   // create the window
-  screen = ScreenManager.createScreen( '/screens/splash', CONFIG.url, CONFIG.opts );
+  screen = ScreenManager.createScreen( IPCRouting.Splash._ID, CONFIG.url, CONFIG.opts );
 
   // disable the menu only in prod
   if( is.production() ) {

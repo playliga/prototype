@@ -1,24 +1,33 @@
 import Sequelize, { Model } from 'sequelize';
 
 
+let _models = null;
+
+
 class Email extends Model {
   static autoinit( sequelize ) {
     return this.init({
       subject: Sequelize.STRING,
       content: Sequelize.STRING,
       read: { type: Sequelize.BOOLEAN, defaultValue: false },
+      sentAt: Sequelize.DATEONLY,
     }, { sequelize, modelName: 'Email' });
   }
 
   static associate( models ) {
-    this.belongsTo( models.Persona );
-    this.belongsTo( models.Player );
+    if( !_models ) {
+      _models = models;
+    }
+
+    this.belongsTo( _models.Persona );
+    this.belongsTo( _models.Player );
   }
 
   static async send( payload ) {
     const email = await Email.create({
       subject: payload.subject,
-      content: payload.content
+      content: payload.content,
+      sentAt: payload.sentAt
     });
 
     await Promise.all([
@@ -26,7 +35,9 @@ class Email extends Model {
       email.setPlayer( payload.to ),
     ]);
 
-    return Promise.resolve( email.id );
+    return Email.findByPk( email.id, {
+      include: [{ all: true }]
+    });
   }
 }
 

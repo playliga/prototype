@@ -2,6 +2,7 @@ import path from 'path';
 import { ipcMain, Menu, IpcMainEvent } from 'electron';
 import is from 'electron-is';
 import { IpcRequest, OfferRequest } from 'shared/types';
+import * as IPCRouting from 'shared/ipc-routing';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
@@ -50,7 +51,7 @@ async function openWindowHandler( evt: IpcMainEvent, requestdata: any ) {
   data = requestdata;
 
   // our parent is the main screen
-  const MainScreen = ScreenManager.getScreenById( '/screens/main' );
+  const MainScreen = ScreenManager.getScreenById( IPCRouting.Main._ID );
 
   // attach parent to the default opts
   const opts = {
@@ -59,7 +60,7 @@ async function openWindowHandler( evt: IpcMainEvent, requestdata: any ) {
     modal: true
   };
 
-  screen = ScreenManager.createScreen( `/screens/${SCREEN_ID}`, CONFIG.url, opts );
+  screen = ScreenManager.createScreen( IPCRouting.Offer._ID, CONFIG.url, opts );
   screen.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on
@@ -101,8 +102,8 @@ function closeWindowHandler() {
 
 export default () => {
   // ipc listeners
-  ipcMain.on( `/screens/${SCREEN_ID}/open`, openWindowHandler );
-  ipcMain.on( `/screens/${SCREEN_ID}/getdata`, getDataHandler );
-  ipcMain.on( `/screens/${SCREEN_ID}/send`, sendOfferHandler );
-  ipcMain.on( `/screens/${SCREEN_ID}/close`, closeWindowHandler );
+  ipcMain.on( IPCRouting.Offer.OPEN, openWindowHandler );
+  ipcMain.on( IPCRouting.Offer.GET_DATA, getDataHandler );
+  ipcMain.on( IPCRouting.Offer.SEND, sendOfferHandler );
+  ipcMain.on( IPCRouting.Offer.CLOSE, closeWindowHandler );
 };

@@ -72,6 +72,7 @@ declare module 'main/database/models' {
 
 
   export class Profile extends BaseModel {
+    public currentDate: Date;
     public readonly Team?: Team;
     public readonly Player?: Player;
 
@@ -100,14 +101,16 @@ declare module 'main/database/models' {
 
 
   export class Email extends BaseModel {
-    public readonly subject: string;
-    public readonly content: string;
+    public subject: string;
+    public content: string;
+    public sentAt: Date;
 
     public static send( payload: {
       from: Persona;
       to: Player;
       subject: string;
       content: string;
+      sentAt: Date;
     }): Promise<number>;
     public setPersona: Sequelize.BelongsToSetAssociationMixin<Persona, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
@@ -116,7 +119,7 @@ declare module 'main/database/models' {
 
   export class ActionQueue extends BaseModel {
     public type: string;
-    public action_date: Date;
+    public actionDate: Date;
     public payload: any;
   }
 

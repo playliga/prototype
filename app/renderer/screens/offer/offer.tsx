@@ -4,6 +4,7 @@ import { Typography, Statistic, Avatar, Descriptions, Tabs, InputNumber, Form, E
 import { getEmojiFlag } from 'countries-list';
 import { UserOutlined } from '@ant-design/icons';
 import { OfferRequest } from 'shared/types';
+import * as IPCRouting from 'shared/ipc-routing';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
 import IpcService from 'renderer/lib/ipc-service';
 
@@ -13,14 +14,14 @@ function handleFinish( fee: number, wages: number, playerdata: any ) {
   const params: OfferRequest = { playerid, wages, fee };
 
   IpcService
-    .send( '/screens/offer/send', { params })
-    .then( () => ipcRenderer.send( '/screens/offer/close' ) )
+    .send( IPCRouting.Offer.SEND, { params })
+    .then( () => ipcRenderer.send( IPCRouting.Offer.CLOSE ) )
   ;
 }
 
 
 function handleOnCancel() {
-  ipcRenderer.send( '/screens/offer/close' );
+  ipcRenderer.send( IPCRouting.Offer.CLOSE );
 }
 
 
@@ -32,7 +33,7 @@ function Offer() {
   // grab the player data
   React.useEffect( () => {
     IpcService
-      .send( '/screens/offer/getdata', {} )
+      .send( IPCRouting.Offer.GET_DATA, {} )
       .then( playerdata => {
         setData( playerdata );
         setFee( playerdata.transferValue );

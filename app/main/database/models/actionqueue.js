@@ -5,7 +5,7 @@ class ActionQueue extends Model {
   static autoinit( sequelize ) {
     return this.init({
       type: Sequelize.STRING,
-      action_date: Sequelize.DATE,
+      actionDate: Sequelize.DATEONLY,
       payload: Sequelize.JSON,
     }, { sequelize, modelName: 'ActionQueue' });
   }

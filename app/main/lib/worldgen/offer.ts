@@ -1,5 +1,10 @@
+import moment from 'moment';
+import { random } from 'lodash';
+import * as Sqrl from 'squirrelly';
 import { OfferRequest } from 'shared/types';
 import { ActionQueueTypes } from 'shared/enums';
+import Application from 'main/constants/application';
+import EmailDialogue from 'main/constants/emaildialogue';
 import * as Models from 'main/database/models';
 
 
@@ -26,24 +31,30 @@ async function teamRejectOffer( offerdetails: OfferRequest, reason: string ) {
     return Promise.reject();
   }
 
+  // figure out when the team will send their response
+  const daysoffset = random(
+    Application.TEAM_OFFER_RESPONSE_MINDAYS,
+    Application.TEAM_OFFER_RESPONSE_MAXDAYS
+  );
+
+  const targetdate = moment( _profile.currentDate ).add( daysoffset, 'days' );
+
+  // add it to the queue
   return Promise.all([
     Models.ActionQueue.create({
       type: ActionQueueTypes.SEND_EMAIL,
-      action_date: new Date(),
+      actionDate: targetdate,
       payload: {
         from: persona.id,
         to: _profile.Player.id,
         subject: `re: Transfer offer for ${_target.alias}`,
-        content: `
-          Hi, ${_profile.Player.alias}.
-
-          ${reason}
-        `
+        content: Sqrl.render( reason, { player: _profile.Player }),
+        sentAt: targetdate,
       }
     }),
     Models.ActionQueue.create({
       type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
-      action_date: new Date(),
+      actionDate: targetdate,
       payload: offerdetails
     })
   ]);
@@ -66,21 +77,17 @@ async function playerRejectOffer( offerdetails: OfferRequest, reason: string ) {
   return Promise.all([
     Models.ActionQueue.create({
       type: ActionQueueTypes.SEND_EMAIL,
-      action_date: new Date(),
+      actionDate: new Date(),
       payload: {
         from: persona.id,
         to: _profile.Player.id,
         subject: `re: Transfer offer for ${_target.alias}`,
-        content: `
-          Hi, ${_profile.Player.alias}.
-
-          ${reason}
-        `
+        content: Sqrl.render( reason, { player: _profile.Player })
       }
     }),
     Models.ActionQueue.create({
       type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
-      action_date: new Date(),
+      actionDate: new Date(),
       payload: offerdetails
     })
   ]);
@@ -108,12 +115,12 @@ export async function parse( offerdetails: OfferRequest ) {
 
   // is the player transfer listed?
   if( _target.Team && offerdetails.fee && !_target.transferListed ) {
-    return teamRejectOffer( offerdetails, '' );
+    return teamRejectOffer( offerdetails, EmailDialogue.TEAM_REJECT_REASON_NOTFORSALE );
   }
 
   // does it match asking price?
   if( _target.Team && offerdetails.fee && offerdetails.fee < _target.transferValue ) {
-    return teamRejectOffer( offerdetails, '' );
+    return teamRejectOffer( offerdetails, EmailDialogue.TEAM_REJECT_REASON_FEE );
   }
 
   // -----------------------------------

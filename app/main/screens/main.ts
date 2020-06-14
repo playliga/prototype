@@ -1,6 +1,7 @@
 import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
+import * as IPCRouting from 'shared/ipc-routing';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 
@@ -28,7 +29,7 @@ const CONFIG = {
  */
 
 async function openWindowHandler() {
-  const screen = ScreenManager.createScreen( '/screens/main', CONFIG.url, CONFIG.opts );
+  const screen = ScreenManager.createScreen( IPCRouting.Main._ID, CONFIG.url, CONFIG.opts );
   screen.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on
@@ -41,5 +42,5 @@ async function openWindowHandler() {
 
 export default () => {
   // ipc listeners
-  ipcMain.on( '/screens/main/open', openWindowHandler );
+  ipcMain.on( IPCRouting.Main.OPEN, openWindowHandler );
 };

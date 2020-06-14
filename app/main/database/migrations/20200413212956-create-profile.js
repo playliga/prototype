@@ -8,6 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      currentDate: {
+        allowNull: true,
+        default: Date.now(),
+        type: Sequelize.DATEONLY
+      },
 
       // timestamps
       createdAt: {

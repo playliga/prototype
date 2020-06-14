@@ -28,8 +28,8 @@ export default function emailReducer(
         ...state,
         loading: false,
         data: [
+          action.payload,
           ...state.data,
-          action.payload
         ]
       };
     case EmailTypes.UPDATE:
