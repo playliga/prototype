@@ -124,4 +124,16 @@ declare module 'main/database/models' {
   }
 
 
+  export class TransferOffer extends BaseModel {
+    public status: string;
+    public fee: number;
+    public wages: number;
+    public msg: string;
+
+    public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
+    public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;
+    public static getPlayerOffers( id: number ): Promise<TransferOffer[]>;
+  }
+
+
 }

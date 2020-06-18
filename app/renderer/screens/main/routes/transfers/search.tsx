@@ -22,7 +22,7 @@ class Search extends React.Component<RouteComponentProps, State> {
         model: 'Player',
         method: 'findAll',
         args: {
-          include: [ 'Team', 'Country' ]
+          include: [{ all: true }]
         }
       }
     });
@@ -30,7 +30,7 @@ class Search extends React.Component<RouteComponentProps, State> {
   }
 
   private handleRowClick = ( record: any ) => {
-    ipcRenderer.send( IPCRouting.Offer.OPEN, record );
+    ipcRenderer.send( IPCRouting.Offer.OPEN, record.id );
   }
 
   public render() {

@@ -50,6 +50,11 @@ async function handleQueueItem( item: Models.ActionQueue ) {
   switch( item.type ) {
     case ActionQueueTypes.SEND_EMAIL:
       return sendEmailAndEmit( item.payload );
+    case ActionQueueTypes.TRANSFER_OFFER_RESPONSE:
+      return Models.TransferOffer.update(
+        { status: item.payload.status, msg: item.payload.msg },
+        { where: { id: item.payload.id } }
+      );
   }
 }
 

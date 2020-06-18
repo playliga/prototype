@@ -1,6 +1,12 @@
 @import '~renderer/assets/shared';
 
 
+// overwrite the shared css' root container
+#root {
+  overflow: hidden;
+}
+
+
 #offer-root {
   margin: 20px;
 }
@@ -42,5 +48,15 @@
 
   div.ant-input-number {
     width: 100% !important;
+  }
+}
+
+
+#offer-root .button-container {
+  display: flex;
+  justify-content: flex-end;
+
+  button + button {
+    margin-left: 10px;
   }
 }

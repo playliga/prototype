@@ -2,7 +2,7 @@ import moment from 'moment';
 import { random } from 'lodash';
 import * as Sqrl from 'squirrelly';
 import { OfferRequest } from 'shared/types';
-import { ActionQueueTypes } from 'shared/enums';
+import { ActionQueueTypes, OfferStatus } from 'shared/enums';
 import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
 import * as Models from 'main/database/models';
@@ -39,6 +39,17 @@ async function teamRejectOffer( offerdetails: OfferRequest, reason: string ) {
 
   const targetdate = moment( _profile.currentDate ).add( daysoffset, 'days' );
 
+  // record their response
+  const transferoffer = await Models.TransferOffer.create({
+    status: OfferStatus.PENDING,
+    fee: offerdetails.fee,
+    wages: offerdetails.wages,
+    msg: reason,
+  });
+
+  await transferoffer.setTeam( _profile.Team );
+  await transferoffer.setPlayer( _target );
+
   // add it to the queue
   return Promise.all([
     Models.ActionQueue.create({
@@ -55,7 +66,11 @@ async function teamRejectOffer( offerdetails: OfferRequest, reason: string ) {
     Models.ActionQueue.create({
       type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
       actionDate: targetdate,
-      payload: offerdetails
+      payload: {
+        id: transferoffer.id,
+        status: OfferStatus.REJECTED,
+        msg: reason
+      }
     })
   ]);
 }
@@ -85,11 +100,6 @@ async function playerRejectOffer( offerdetails: OfferRequest, reason: string ) {
         content: Sqrl.render( reason, { player: _profile.Player })
       }
     }),
-    Models.ActionQueue.create({
-      type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
-      actionDate: new Date(),
-      payload: offerdetails
-    })
   ]);
 }
 

@@ -14,3 +14,10 @@ export const Tiers: IterableObject<string> = {
   3: 'Intermediate',
   4: 'Open'
 };
+
+
+export const OfferStatus = {
+  ACCEPTED: 'accepted',
+  PENDING: 'pending',
+  REJECTED: 'rejected',
+};

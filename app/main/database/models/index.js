@@ -9,3 +9,4 @@ export { default as Persona } from './persona';
 export { default as PersonaType } from './personatype';
 export { default as Email } from './email';
 export { default as ActionQueue } from './actionqueue';
+export { default as TransferOffer } from './transferoffer';

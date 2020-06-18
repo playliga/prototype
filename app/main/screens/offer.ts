@@ -3,6 +3,8 @@ import { ipcMain, Menu, IpcMainEvent } from 'electron';
 import is from 'electron-is';
 import { IpcRequest, OfferRequest } from 'shared/types';
 import * as IPCRouting from 'shared/ipc-routing';
+import { TransferOffer } from 'main/database/models';
+import { Player } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
@@ -14,19 +16,18 @@ import * as WorldGen from 'main/lib/worldgen';
  */
 
 // variables
-let screen: Screen;
-let data: any;
+let _screen: Screen;
+let _playerid: number;
 
 
 // constants
-const SCREEN_ID = 'offer';
 const PORT = process.env.PORT || 3000;
-const WIDTH = 600;
-const HEIGHT = 480;
+const WIDTH = 550;
+const HEIGHT = 550;
 const CONFIG = {
   url: is.production()
-    ? `file://${path.join( __dirname, `dist/renderer/screens/${SCREEN_ID}/index.html` )}`
-    : `http://localhost:${PORT}/screens/${SCREEN_ID}/index.html`,
+    ? `file://${path.join( __dirname, 'dist/renderer/screens/offer/index.html' )}`
+    : `http://localhost:${PORT}/screens/offer/index.html`,
   opts: {
     backgroundColor: '#f5f5f5', // "whitesmoke"
     width: WIDTH,
@@ -45,10 +46,10 @@ const CONFIG = {
  * Screen IPC handlers
  */
 
-async function openWindowHandler( evt: IpcMainEvent, requestdata: any ) {
+async function openWindowHandler( evt: IpcMainEvent, playerid: number ) {
   // this will be used later in order to
   // pass the data back to the modal
-  data = requestdata;
+  _playerid = playerid;
 
   // our parent is the main screen
   const MainScreen = ScreenManager.getScreenById( IPCRouting.Main._ID );
@@ -60,8 +61,8 @@ async function openWindowHandler( evt: IpcMainEvent, requestdata: any ) {
     modal: true
   };
 
-  screen = ScreenManager.createScreen( IPCRouting.Offer._ID, CONFIG.url, opts );
-  screen.handle.setMenu( DefaultMenuTemplate );
+  _screen = ScreenManager.createScreen( IPCRouting.Offer._ID, CONFIG.url, opts );
+  _screen.handle.setMenu( DefaultMenuTemplate );
 
   // the `setMenu` function above doesn't work on
   // osx so we'll have to accomodate for that
@@ -71,8 +72,24 @@ async function openWindowHandler( evt: IpcMainEvent, requestdata: any ) {
 }
 
 
-function getDataHandler( evt: IpcMainEvent, request: IpcRequest<any> ) {
-  evt.sender.send( request?.responsechannel || '', JSON.stringify( data ) );
+async function getDataHandler( evt: IpcMainEvent, request: IpcRequest<any> ) {
+  // bail if no response channel
+  if( !request.responsechannel || !_playerid ) {
+    return;
+  }
+
+  // get player and their offer data
+  const pdata = await Player.findByPk( _playerid, {
+    include: [{ all: true }]
+  });
+
+  const odata = await TransferOffer.getPlayerOffers( _playerid );
+
+  // send the data back to the renderer
+  evt.sender.send(
+    request.responsechannel,
+    JSON.stringify({ pdata, odata })
+  );
 }
 
 
@@ -96,7 +113,7 @@ function sendOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferRequest> 
 
 
 function closeWindowHandler() {
-  screen.handle.close();
+  _screen.handle.close();
 }
 
 
