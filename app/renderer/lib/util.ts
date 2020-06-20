@@ -10,8 +10,15 @@ export function formatCurrency( value: number ) {
 }
 
 
-export function getWeeklyWages( wage: number ) {
+export function getWeeklyWages( wages: number ) {
   return Math.floor(
-    wage / WEEKS_PER_MONTH
+    wages / WEEKS_PER_MONTH
+  );
+}
+
+
+export function getMonthlyWages( wages: number ) {
+  return Math.floor(
+    wages * WEEKS_PER_MONTH
   );
 }

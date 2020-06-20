@@ -55,6 +55,14 @@ async function handleQueueItem( item: Models.ActionQueue ) {
         { status: item.payload.status, msg: item.payload.msg },
         { where: { id: item.payload.id } }
       );
+    case ActionQueueTypes.TRANSFER_MOVE:
+      return Models.Player
+        .findByPk( item.payload.targetid )
+        .then( player => Promise.all([
+          player?.update({ monthlyWages: item.payload.wages, transferValue: item.payload.fee, transferListed: false, tier: item.payload.tier }) || Promise.reject(),
+          player?.setTeam( item.payload.teamid ) || Promise.reject()
+        ]))
+      ;
   }
 }
 

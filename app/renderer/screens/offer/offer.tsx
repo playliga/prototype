@@ -20,7 +20,7 @@ import {
 import { OfferRequest } from 'shared/types';
 import { OfferStatus } from 'shared/enums';
 import * as IPCRouting from 'shared/ipc-routing';
-import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
+import { formatCurrency, getWeeklyWages, getMonthlyWages } from 'renderer/lib/util';
 import IpcService from 'renderer/lib/ipc-service';
 
 
@@ -28,8 +28,9 @@ import IpcService from 'renderer/lib/ipc-service';
  * Utility functions
  */
 
-function handleFinish( fee: number, wages: number, playerdata: any ) {
+function handleFinish( fee: number, weeklywages: number, playerdata: any ) {
   const playerid = playerdata.id;
+  const wages = getMonthlyWages( weeklywages );
   const params: OfferRequest = { playerid, wages, fee };
 
   IpcService
@@ -54,6 +55,16 @@ function hasPendingOffers( items: any[] ) {
 }
 
 
+function teamAcceptedOffer( items: any[] ) {
+  if( !items ) {
+    return false;
+  }
+
+  const idx = items.findIndex( i => i.status === OfferStatus.ACCEPTED );
+  return idx >= 0;
+}
+
+
 /**
  * React functional components
  */
@@ -62,6 +73,9 @@ function OfferStatusTag( props: any ) {
   let color;
 
   switch( props.status ) {
+    case OfferStatus.ACCEPTED:
+      color = 'green';
+      break;
     case OfferStatus.REJECTED:
       color = 'red';
       break;
@@ -88,6 +102,7 @@ function Offer() {
   // set up bools
   const freeagent = playerdata && !playerdata.Team;
   const haspending = hasPendingOffers( offerdata );
+  const teamaccepted = teamAcceptedOffer( offerdata );
 
   // grab the player data
   React.useEffect( () => {
@@ -158,7 +173,7 @@ function Offer() {
           {formatCurrency( playerdata.transferValue )}
         </Descriptions.Item>
         <Descriptions.Item label="Transfer Status">
-          {playerdata.transferList ? 'Listed' : 'Not Listed'}
+          {playerdata.transferList || freeagent ? 'Listed' : 'Not Listed'}
         </Descriptions.Item>
       </Descriptions>
 
@@ -175,17 +190,19 @@ function Offer() {
             layout="vertical"
             onFinish={() => handleFinish( fee, wages, playerdata )}
           >
-            <Form.Item label="Transfer Fee">
-              <InputNumber
-                disabled={haspending}
-                value={fee}
-                step={500}
-                style={{ width: '100%' }}
-                formatter={val => formatCurrency( val as number )}
-                parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
-                onChange={val => setFee( val as number )}
-              />
-            </Form.Item>
+            {!freeagent && !teamaccepted && (
+              <Form.Item label="Transfer Fee">
+                <InputNumber
+                  disabled={haspending}
+                  value={fee}
+                  step={500}
+                  style={{ width: '100%' }}
+                  formatter={val => formatCurrency( val as number )}
+                  parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
+                  onChange={val => setFee( val as number )}
+                />
+              </Form.Item>
+            )}
             <Form.Item label="Player Wage">
               <InputNumber
                 disabled={haspending}

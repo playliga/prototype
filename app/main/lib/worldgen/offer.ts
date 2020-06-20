@@ -14,11 +14,11 @@ let _target: Models.Player | null;
 
 
 /**
- * Handle offer rejections from
+ * Handle offer responses from
  * team and/or the target
  */
 
-async function teamRejectOffer( offerdetails: OfferRequest, reason: string ) {
+async function teamRespondOffer( offerdetails: OfferRequest, response: string, reason: string ) {
   // bail if no data found
   if( !_profile.Player || !_target || !_target.Team ) {
     return Promise.reject();
@@ -51,7 +51,7 @@ async function teamRejectOffer( offerdetails: OfferRequest, reason: string ) {
   await transferoffer.setPlayer( _target );
 
   // add it to the queue
-  return Promise.all([
+  await Promise.all([
     Models.ActionQueue.create({
       type: ActionQueueTypes.SEND_EMAIL,
       actionDate: targetdate,
@@ -68,15 +68,22 @@ async function teamRejectOffer( offerdetails: OfferRequest, reason: string ) {
       actionDate: targetdate,
       payload: {
         id: transferoffer.id,
-        status: OfferStatus.REJECTED,
+        status: response,
         msg: reason
       }
     })
   ]);
+
+  return Promise.resolve( daysoffset );
 }
 
 
-async function playerRejectOffer( offerdetails: OfferRequest, reason: string ) {
+async function playerRespondOffer(
+  offerdetails: OfferRequest,
+  status: string,
+  msg: string,
+  teamresponseoffset = 0
+) {
   // bail if no data found
   if( !_profile.Player || !_profile.Team || !_target ) {
     return Promise.reject();
@@ -89,18 +96,51 @@ async function playerRejectOffer( offerdetails: OfferRequest, reason: string ) {
     return Promise.reject();
   }
 
-  return Promise.all([
+  // figure out when to send the player's response which
+  // can be affected if this player had a team
+  const daysoffset = teamresponseoffset + random(
+    Application.PLAYER_OFFER_RESPONSE_MINDAYS,
+    Application.PLAYER_OFFER_RESPONSE_MAXDAYS
+  );
+
+  const targetdate = moment( _profile.currentDate ).add( daysoffset, 'days' );
+
+  // record their response
+  const transferoffer = await Models.TransferOffer.create({
+    status: OfferStatus.PENDING,
+    fee: offerdetails.fee,
+    wages: offerdetails.wages,
+    msg,
+  });
+
+  await transferoffer.setTeam( _profile.Team );
+  await transferoffer.setPlayer( _target );
+
+  // add it to the queue
+  await Promise.all([
     Models.ActionQueue.create({
       type: ActionQueueTypes.SEND_EMAIL,
-      actionDate: new Date(),
+      actionDate: targetdate,
       payload: {
         from: persona.id,
         to: _profile.Player.id,
         subject: `re: Transfer offer for ${_target.alias}`,
-        content: Sqrl.render( reason, { player: _profile.Player })
+        content: Sqrl.render( msg, { player: _profile.Player }),
+        sentAt: targetdate,
       }
     }),
+    Models.ActionQueue.create({
+      type: ActionQueueTypes.TRANSFER_OFFER_RESPONSE,
+      actionDate: targetdate,
+      payload: {
+        id: transferoffer.id,
+        status,
+        msg
+      }
+    })
   ]);
+
+  return Promise.resolve( daysoffset );
 }
 
 
@@ -114,23 +154,41 @@ export async function parse( offerdetails: OfferRequest ) {
   _profile = await Models.Profile.getActiveProfile();
   _target = await Models.Player.findByPk( offerdetails.playerid, { include: [ 'Team' ] });
 
-  if( !_target || !_profile.Player ) {
+  if( !_target || !_profile.Player || !_profile.Team ) {
     return Promise.reject();
   }
+
+  // team's response will offset the player's decision time
+  let teamresponseoffset = 0;
+
+  // check if team already accepted
+  const teamaccepted = await Models.TransferOffer.count({
+    where: {
+      playerId: _target.id,
+      status: OfferStatus.ACCEPTED
+    }
+  }) > 0;
 
   // -----------------------------------
   // first, the team will decide if they
   // want to accept the transfer offer
   // -----------------------------------
 
-  // is the player transfer listed?
-  if( _target.Team && offerdetails.fee && !_target.transferListed ) {
-    return teamRejectOffer( offerdetails, EmailDialogue.TEAM_REJECT_REASON_NOTFORSALE );
-  }
+  if( !teamaccepted && _target.Team ) {
 
-  // does it match asking price?
-  if( _target.Team && offerdetails.fee && offerdetails.fee < _target.transferValue ) {
-    return teamRejectOffer( offerdetails, EmailDialogue.TEAM_REJECT_REASON_FEE );
+    // is the player transfer listed?
+    if( offerdetails.fee && !_target.transferListed ) {
+      return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_NOTFORSALE );
+    }
+
+    // does it match asking price?
+    if( offerdetails.fee && offerdetails.fee < _target.transferValue ) {
+      return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_FEE );
+    }
+
+    // offer accepted — offset the player's response time
+    // with however long the team took to respond
+    teamresponseoffset = await teamRespondOffer( offerdetails, OfferStatus.ACCEPTED, EmailDialogue.TEAM_ACCEPT );
   }
 
   // -----------------------------------
@@ -139,14 +197,27 @@ export async function parse( offerdetails: OfferRequest ) {
   // -----------------------------------
 
   // does it match their current wages?
-  if( offerdetails.wages <= _target.monthlyWages ) {
-    return playerRejectOffer( offerdetails, '' );
+  if( _target.monthlyWages > 0 && offerdetails.wages <= _target.monthlyWages ) {
+    return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_WAGES, teamresponseoffset );
   }
 
   // does it match their tier?
   if( _target.tier > _profile.Player.tier ) {
-    return playerRejectOffer( offerdetails, '' );
+    return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_TIER, teamresponseoffset );
   }
 
-  return Promise.resolve();
+  // offer accepted — move the player to the user's team
+  const responseoffset = await playerRespondOffer( offerdetails, OfferStatus.ACCEPTED, EmailDialogue.PLAYER_ACCEPT, teamresponseoffset );
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.TRANSFER_MOVE,
+    actionDate: moment( _profile.currentDate ).add( responseoffset, 'days' ),
+    payload: {
+      teamid: _profile.Team.id,
+      targetid: _target.id,
+      wages: offerdetails.wages,
+      fee: offerdetails.fee,
+      tier: _profile.Team.tier,
+    }
+  });
 }
