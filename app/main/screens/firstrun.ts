@@ -2,10 +2,11 @@ import path from 'path';
 import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 
-import { IterableObject } from 'shared/types';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as Worldgen from 'main/lib/worldgen';
+
+import { IterableObject } from 'shared/types';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';

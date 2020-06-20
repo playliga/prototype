@@ -17,9 +17,9 @@ import {
   Tag
 } from 'antd';
 
+import * as IPCRouting from 'shared/ipc-routing';
 import { OfferRequest } from 'shared/types';
 import { OfferStatus } from 'shared/enums';
-import * as IPCRouting from 'shared/ipc-routing';
 import { formatCurrency, getWeeklyWages, getMonthlyWages } from 'renderer/lib/util';
 import IpcService from 'renderer/lib/ipc-service';
 

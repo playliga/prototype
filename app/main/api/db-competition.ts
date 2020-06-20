@@ -1,8 +1,8 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import * as IPCRouting from 'shared/ipc-routing';
 import { Competition } from 'main/database/models';
 import { League } from 'main/lib/league';
+import * as IPCRouting from 'shared/ipc-routing';
 
 
 interface IpcRequestParams {

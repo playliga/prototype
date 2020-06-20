@@ -1,16 +1,25 @@
 import React, { Component } from 'react';
 import { Route, RouteComponentProps } from 'react-router-dom';
 import { Layout } from 'antd';
-import { HomeOutlined, UserOutlined, PieChartOutlined, InboxOutlined, TrophyOutlined } from '@ant-design/icons';
-import { RouteConfig } from 'renderer/screens/main/types';
-import Sidebar from 'renderer/screens/main/components/sidebar';
-import Connector from 'renderer/screens/main/components/connector';
+import {
+  HomeOutlined,
+  UserOutlined,
+  PieChartOutlined,
+  InboxOutlined,
+  TrophyOutlined
+} from '@ant-design/icons';
+
 import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
 import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
+import * as profileActions from 'renderer/screens/main/redux/profile/actions';
+import * as Transfers from './transfers';
+
+import { RouteConfig } from 'renderer/screens/main/types';
+import Sidebar from 'renderer/screens/main/components/sidebar';
+import Connector from 'renderer/screens/main/components/connector';
 import Home from './home';
 import Inbox from './inbox';
-import * as Transfers from './transfers';
 
 
 const routes: RouteConfig[] = [
@@ -53,7 +62,11 @@ class Routes extends Component<Props, State> {
   public async componentDidMount() {
     // sign up for ipc events
     this.props.dispatch( emailActions.register() );
+    this.props.dispatch( profileActions.register() );
+
+    // get initial data
     this.props.dispatch( emailActions.findAll() );
+    this.props.dispatch( profileActions.find() );
   }
 
   private handleOnCollapse = ( collapsed: boolean ) => {

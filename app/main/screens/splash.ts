@@ -3,6 +3,7 @@ import { ipcMain, Menu } from 'electron';
 import is from 'electron-is';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+
 import * as IPCRouting from 'shared/ipc-routing';
 import { Profile } from 'main/database/models';
 import ScreenManager from 'main/lib/screen-manager';

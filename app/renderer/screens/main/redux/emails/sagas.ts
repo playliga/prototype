@@ -1,6 +1,6 @@
 import { put, takeEvery } from 'redux-saga/effects';
-import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
+import * as IPCRouting from 'shared/ipc-routing';
 import * as EmailTypes from './types';
 import * as emailActions from './actions';
 

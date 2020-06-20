@@ -13,6 +13,10 @@
 
 #home {
   display: flex;
+
+  & > * {
+    flex-basis: 50%;
+  }
 }
 
 

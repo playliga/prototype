@@ -33,7 +33,7 @@ export const Offer = {
 
 
 export const Worldgen = {
-  CALENDAR_NEXT: '/worldgen/calendar/next',
+  CALENDAR_LOOP: '/worldgen/calendar/loop',
   EMAIL_INTRO: '/worldgen/email/intro',
   EMAIL_NEW: '/worldgen/email/new',
 };
@@ -42,5 +42,6 @@ export const Worldgen = {
 export const Database = {
   COMPETITION_START: '/database/competition/start',
   GENERIC: '/database/',
+  PROFILE_GET: '/database/profile/get',
   UPDATE: '/database/update',
 };

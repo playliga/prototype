@@ -1,14 +1,16 @@
 import path from 'path';
 import { ipcMain, Menu, IpcMainEvent } from 'electron';
 import is from 'electron-is';
-import { IpcRequest, OfferRequest } from 'shared/types';
+
 import * as IPCRouting from 'shared/ipc-routing';
+import * as WorldGen from 'main/lib/worldgen';
+
+import { IpcRequest, OfferRequest } from 'shared/types';
 import { TransferOffer } from 'main/database/models';
 import { Player } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
-import * as WorldGen from 'main/lib/worldgen';
 
 
 /**

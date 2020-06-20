@@ -1,7 +1,7 @@
 import { ipcMain, IpcMainEvent } from 'electron';
+import { IpcRequest } from 'shared/types';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Worldgen from 'main/lib/worldgen';
-import { IpcRequest } from 'shared/types';
 
 
 async function handler( evt: IpcMainEvent, request: IpcRequest<null> ) {
@@ -12,10 +12,10 @@ async function handler( evt: IpcMainEvent, request: IpcRequest<null> ) {
 
   // begin the calendar loop
   await Worldgen.calendarLoop();
-  evt.sender.send( request.responsechannel, '' );
+  evt.sender.send( request.responsechannel, null );
 }
 
 
 export default () => {
-  ipcMain.on( IPCRouting.Worldgen.CALENDAR_NEXT, handler );
+  ipcMain.on( IPCRouting.Worldgen.CALENDAR_LOOP, handler );
 };

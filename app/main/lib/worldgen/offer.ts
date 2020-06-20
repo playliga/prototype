@@ -1,11 +1,11 @@
 import moment from 'moment';
 import { random } from 'lodash';
 import * as Sqrl from 'squirrelly';
+import * as Models from 'main/database/models';
 import { OfferRequest } from 'shared/types';
 import { ActionQueueTypes, OfferStatus } from 'shared/enums';
 import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
-import * as Models from 'main/database/models';
 
 
 // module-level private vars

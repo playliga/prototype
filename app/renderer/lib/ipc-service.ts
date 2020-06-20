@@ -16,7 +16,7 @@ export default class IpcService {
     return new Promise( resolve => {
       ipcRenderer.once(
         request.responsechannel as string,
-        ( evt, response ) => resolve( JSON.parse( response ) )
+        ( evt, response ) => resolve( response ? JSON.parse( response ) : null )
       );
     });
   }

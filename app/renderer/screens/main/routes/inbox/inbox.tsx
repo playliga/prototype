@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+
 import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
+
 import InboxPreview from 'renderer/screens/main/components/inbox-preview';
 import InboxFull from 'renderer/screens/main/components/inbox-full';
 import Connector from 'renderer/screens/main/components/connector';

@@ -1,17 +1,18 @@
 import { Op } from 'sequelize';
 import { random } from 'lodash';
 import moment from 'moment';
+
 import * as Sqrl from 'squirrelly';
+import * as IPCRouting from 'shared/ipc-routing';
+import * as Models from 'main/database/models';
+import * as Offer from './offer';
 
 import { ActionQueueTypes } from 'shared/enums';
-import * as IPCRouting from 'shared/ipc-routing';
 import { League } from 'main/lib/league';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
 import PlayerWages from 'main/constants/playerwages';
 import EmailDialogue from 'main/constants/emaildialogue';
-import * as Models from 'main/database/models';
-import * as Offer from './offer';
 
 
 /**
@@ -92,6 +93,17 @@ export async function calendarLoop() {
       .toDate()
     ;
     await profile.save();
+
+    // send the updated profile to the renderer
+    ScreenManager
+      .getScreenById( IPCRouting.Main._ID )
+      .handle
+      .webContents
+      .send(
+        IPCRouting.Database.PROFILE_GET,
+        JSON.stringify( profile )
+      )
+    ;
 
     // bail out of loop if an e-mail was sent
     const hasemail = queue.findIndex( q => q.type === ActionQueueTypes.SEND_EMAIL );
