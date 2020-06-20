@@ -14,6 +14,7 @@ import ScreenManager from 'main/lib/screen-manager';
 /**
  * Set-up the application database
  */
+
 const DBNAME    = 'save0.sqlite';
 const DBPATH    = path.join( app.getPath( 'userData' ), 'databases' );
 
@@ -84,6 +85,11 @@ function handleOnReady() {
       Screens.FirstRunScreen();
       Screens.MainScreen();
       Screens.OfferScreen();
+
+      // @note: this fixes the sequelize/bluebird warning about unhandled promises
+      //
+      // https://github.com/sequelize/sequelize/issues/4883#issuecomment-198131826
+      return null;
     })
     .catch( err => {
       log.error([ err ]);
