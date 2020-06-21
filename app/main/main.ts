@@ -12,6 +12,16 @@ import ScreenManager from 'main/lib/screen-manager';
 
 
 /**
+ * disable insecure warnings in dev since we
+ * use HMR and it only supports http
+ */
+
+if( is.dev() ) {
+  process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
+}
+
+
+/**
  * Set-up the application database
  */
 

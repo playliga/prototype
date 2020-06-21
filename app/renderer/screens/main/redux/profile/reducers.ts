@@ -1,13 +1,9 @@
-import moment from 'moment';
 import * as ProfileTypes from './types';
 
 
 const initialState: ProfileTypes.ProfileState = {
   loading: false,
-  data: {
-    id: 0,
-    currentDate: moment()
-  },
+  data: null
 };
 
 

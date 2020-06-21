@@ -4,7 +4,7 @@ export const FIND_FINISH = 'profile.find.finish';
 
 export interface Profile {
   id: number;
-  currentDate: moment.Moment;
+  currentDate: string;
 }
 
 
@@ -27,5 +27,5 @@ export type ProfileActionTypes =
 
 export interface ProfileState {
   loading: boolean;
-  data: Profile;
+  data: Profile | null;
 }

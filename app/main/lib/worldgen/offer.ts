@@ -202,7 +202,11 @@ export async function parse( offerdetails: OfferRequest ) {
   }
 
   // does it match their tier?
-  if( _target.tier > _profile.Player.tier ) {
+  //
+  // @note: lower tiers have higher numbers. e.g.:
+  // @note: Open      — 4
+  // @note: Advanced  — 1
+  if( _target.tier < _profile.Player.tier ) {
     return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_TIER, teamresponseoffset );
   }
 

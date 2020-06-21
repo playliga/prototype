@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+import moment from 'moment';
 import { Button, Typography } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
@@ -26,12 +27,23 @@ class Home extends Component<Props> {
     );
   }
 
+  private formatDate = ( str: string | undefined ) => {
+    if( !str ) {
+      return null;
+    }
+
+    return moment( str ).format( 'MMM DD, YYYY' );
+  }
+
   public render() {
+    const { profile } = this.props;
+    const formatteddate = this.formatDate( profile.data?.currentDate );
+
     return (
       <div id="home" className="content">
         <section>
           <Typography.Title>
-            {this.props.profile.data.currentDate.toString()}
+            {formatteddate?.toString() || 'Loading...'}
           </Typography.Title>
           <Button
             block
