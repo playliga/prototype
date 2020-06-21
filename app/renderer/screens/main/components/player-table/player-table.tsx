@@ -34,7 +34,7 @@ export default function PlayerTable( props: any ) {
       size={props.size || 'middle'}
       loading={props.loading}
       dataSource={props.dataSource}
-      pagination={{ position: [ 'topRight' ] }}
+      pagination={{ position: [ 'topLeft' ] }}
       onRow={( record, idx ) => ({
         idx,
         onClick: () => props.onRowClick( record ),
