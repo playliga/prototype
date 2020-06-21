@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { ipcRenderer } from 'electron';
 import { getEmojiFlag } from 'countries-list';
 import { UserOutlined } from '@ant-design/icons';
@@ -28,8 +29,8 @@ import IpcService from 'renderer/lib/ipc-service';
  * Utility functions
  */
 
-function handleFinish( fee: number, weeklywages: number, playerdata: any ) {
-  const playerid = playerdata.id;
+function handleFinish( fee: number, weeklywages: number, player: any ) {
+  const playerid = player.id;
   const wages = getMonthlyWages( weeklywages );
   const params: OfferRequest = { playerid, wages, fee };
 
@@ -65,6 +66,14 @@ function teamAcceptedOffer( items: any[] ) {
 }
 
 
+function isEligibleForNegotiations( currentDate: Date, eligibleDate: Date ) {
+  if( !currentDate || !eligibleDate ) {
+    return false;
+  }
+
+  return moment( currentDate ).isSameOrAfter( eligibleDate );
+}
+
 /**
  * React functional components
  */
@@ -94,29 +103,32 @@ function OfferStatusTag( props: any ) {
 
 
 function Offer() {
-  const [ playerdata, setPlayerData ] = React.useState( null as any );
-  const [ offerdata, setOfferData ] = React.useState( null as any );
+  const [ player, setPlayer ] = React.useState( null as any );
+  const [ offer, setOffer ] = React.useState( null as any );
+  const [ profile, setProfile ] = React.useState( null as any );
   const [ fee, setFee ] = React.useState( 0 );
   const [ wages, setWages ] = React.useState( 0 );
 
   // set up bools
-  const freeagent = playerdata && !playerdata.Team;
-  const haspending = hasPendingOffers( offerdata );
-  const teamaccepted = teamAcceptedOffer( offerdata );
+  const freeagent = player && !player.Team;
+  const haspending = hasPendingOffers( offer );
+  const teamaccepted = teamAcceptedOffer( offer );
+  const iseligible = isEligibleForNegotiations( profile?.currentDate, player?.eligibleDate );
 
   // grab the player data
   React.useEffect( () => {
     IpcService
       .send( IPCRouting.Offer.GET_DATA, {} )
-      .then( ({ pdata, odata }) => {
-        setOfferData( odata );
-        setFee( pdata.transferValue );
-        setWages( getWeeklyWages( pdata.monthlyWages ) );
-        setPlayerData( pdata );
+      .then( ({ playerdata, profiledata, offerdata }) => {
+        setFee( playerdata.transferValue );
+        setWages( getWeeklyWages( playerdata.monthlyWages ) );
+        setOffer( offerdata );
+        setProfile( profiledata );
+        setPlayer( playerdata );
       });
   }, []);
 
-  if( !playerdata ) {
+  if( !player ) {
     return (
       <div id="offer-root" className="loading-container">
         <Spin size="large" />
@@ -137,15 +149,15 @@ function Offer() {
         </section>
         <section className="general-info">
           <Typography.Title>
-            {playerdata.alias}
+            {player.alias}
           </Typography.Title>
           <Typography.Title level={2}>
-            {freeagent ? 'Free Agent' : playerdata.Team.name }
+            {freeagent ? 'Free Agent' : player.Team.name }
           </Typography.Title>
           <Typography.Text>
-            {getEmojiFlag( playerdata.Country.code )}
+            {getEmojiFlag( player.Country.code )}
             <Typography.Text type="secondary">
-              {playerdata.Country.name}
+              {player.Country.name}
             </Typography.Text>
           </Typography.Text>
         </section>
@@ -153,7 +165,7 @@ function Offer() {
           <Statistic
             title="Asking Price"
             prefix="$"
-            value={playerdata.transferValue}
+            value={player.transferValue}
           />
         </section>
       </header>
@@ -167,13 +179,13 @@ function Offer() {
         style={{ marginTop: 20 }}
       >
         <Descriptions.Item label="Wage">
-          {formatCurrency( getWeeklyWages( playerdata.monthlyWages ) )}{'/wk'}
+          {formatCurrency( getWeeklyWages( player.monthlyWages ) )}{'/wk'}
         </Descriptions.Item>
         <Descriptions.Item label="Transfer Value">
-          {formatCurrency( playerdata.transferValue )}
+          {formatCurrency( player.transferValue )}
         </Descriptions.Item>
         <Descriptions.Item label="Transfer Status">
-          {playerdata.transferList || freeagent ? 'Listed' : 'Not Listed'}
+          {player.transferList || freeagent ? 'Listed' : 'Not Listed'}
         </Descriptions.Item>
       </Descriptions>
 
@@ -188,9 +200,15 @@ function Offer() {
         <Tabs.TabPane tab="Make Offer" key="make">
           <Form
             layout="vertical"
-            onFinish={() => handleFinish( fee, wages, playerdata )}
+            onFinish={() => handleFinish( fee, wages, player )}
           >
-            {!freeagent && !teamaccepted && (
+            {!iseligible && (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No player actions available."
+              />
+            )}
+            {iseligible && !freeagent && !teamaccepted && (
               <Form.Item label="Transfer Fee">
                 <InputNumber
                   disabled={haspending}
@@ -203,21 +221,23 @@ function Offer() {
                 />
               </Form.Item>
             )}
-            <Form.Item label="Player Wage">
-              <InputNumber
-                disabled={haspending}
-                value={wages}
-                step={500}
-                style={{ width: '100%' }}
-                formatter={val => formatCurrency( val as number )}
-                parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
-                onChange={val => setWages( val as number )}
-              />
-            </Form.Item>
+            {iseligible && (
+              <Form.Item label="Player Wage">
+                <InputNumber
+                  disabled={haspending}
+                  value={wages}
+                  step={500}
+                  style={{ width: '100%' }}
+                  formatter={val => formatCurrency( val as number )}
+                  parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
+                  onChange={val => setWages( val as number )}
+                />
+              </Form.Item>
+            )}
             <Form.Item>
               <div className="button-container">
                 <Button
-                  disabled={haspending}
+                  disabled={haspending || !iseligible}
                   type="primary"
                   size="middle"
                   htmlType="submit"
@@ -241,15 +261,15 @@ function Offer() {
 
         {/* PAST OFFERS */}
         <Tabs.TabPane tab="Past Offers" key="past">
-          {!offerdata || offerdata.length <= 0 && (
+          {!offer || offer.length <= 0 && (
             <Empty description="No past offers" />
           )}
 
-          {offerdata && offerdata.length > 0 && (
+          {offer && offer.length > 0 && (
             <Table
               rowKey="id"
               size="small"
-              dataSource={offerdata}
+              dataSource={offer}
               pagination={{ pageSize: 3, hideOnSinglePage: true }}
             >
               <Table.Column

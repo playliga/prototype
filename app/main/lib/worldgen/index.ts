@@ -60,8 +60,14 @@ async function handleQueueItem( item: Models.ActionQueue ) {
       return Models.Player
         .findByPk( item.payload.targetid )
         .then( player => Promise.all([
-          player?.update({ monthlyWages: item.payload.wages, transferValue: item.payload.fee, transferListed: false, tier: item.payload.tier }) || Promise.reject(),
-          player?.setTeam( item.payload.teamid ) || Promise.reject()
+          player?.update({
+            monthlyWages: item.payload.wages,
+            transferValue: item.payload.fee,
+            transferListed: false,
+            tier: item.payload.tier,
+            eligibleDate: item.payload.eligible,
+          }),
+          player?.setTeam( item.payload.teamid )
         ]))
       ;
   }

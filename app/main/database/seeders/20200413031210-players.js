@@ -1,3 +1,4 @@
+const moment = require( 'moment' );
 const protiers = require( '../fixtures/20200525220100-protiers' );
 const lowtiers = require( '../fixtures/20200525202850-lowtiers' );
 
@@ -37,7 +38,8 @@ module.exports = {
           teamId: teamid,
           countryId: countryid,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          eligibleDate: moment( new Date() ).format( 'YYYY-MM-DD' ),
         });
       });
     });

@@ -212,16 +212,22 @@ export async function parse( offerdetails: OfferRequest ) {
 
   // offer accepted — move the player to the user's team
   const responseoffset = await playerRespondOffer( offerdetails, OfferStatus.ACCEPTED, EmailDialogue.PLAYER_ACCEPT, teamresponseoffset );
+  const actiondate = moment( _profile.currentDate ).add( responseoffset, 'days' );
+
+  // add the transfer buffer time — this is the time one must
+  // wait before negotiating wages with the player again
+  const eligibledate = moment( actiondate ).add( Application.PLAYER_ELIGIBLE_BUFFER_DAYS, 'days' );
 
   return Models.ActionQueue.create({
     type: ActionQueueTypes.TRANSFER_MOVE,
-    actionDate: moment( _profile.currentDate ).add( responseoffset, 'days' ),
+    actionDate: actiondate,
     payload: {
       teamid: _profile.Team.id,
       targetid: _target.id,
       wages: offerdetails.wages,
       fee: offerdetails.fee,
       tier: _profile.Team.tier,
+      eligible: eligibledate,
     }
   });
 }

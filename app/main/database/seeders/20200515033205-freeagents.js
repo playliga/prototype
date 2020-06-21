@@ -1,3 +1,4 @@
+const moment = require( 'moment' );
 const players = require( '../fixtures/20200516133922-freeagents.json' );
 
 
@@ -25,7 +26,8 @@ module.exports = {
         teamId: null,
         countryId: countryid,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        eligibleDate: moment( new Date() ).format( 'YYYY-MM-DD' )
       });
     });
 

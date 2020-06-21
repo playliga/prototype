@@ -2,17 +2,13 @@ module.exports = {
   up: ( queryInterface, Sequelize ) => {
     return queryInterface.createTable( 'Players', {
       // main fields
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
+      id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
       alias: { type: Sequelize.STRING, unique: true },
-      tier: Sequelize.INTEGER,
       transferListed: { type: Sequelize.BOOLEAN, defaultValue: false },
       transferValue: { type: Sequelize.INTEGER, defaultValue: 0 },
       monthlyWages: { type: Sequelize.INTEGER, defaultValue: 0 },
+      eligibleDate: { type: Sequelize.DATEONLY, allowNull: true, defaultValue: Sequelize.NOW },
+      tier: Sequelize.INTEGER,
 
       // timestamps
       createdAt: {

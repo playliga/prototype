@@ -1,12 +1,12 @@
 import path from 'path';
-import { ipcMain, Menu, IpcMainEvent } from 'electron';
 import is from 'electron-is';
+import { ipcMain, Menu, IpcMainEvent } from 'electron';
 
 import * as IPCRouting from 'shared/ipc-routing';
 import * as WorldGen from 'main/lib/worldgen';
 
 import { IpcRequest, OfferRequest } from 'shared/types';
-import { TransferOffer } from 'main/database/models';
+import { TransferOffer, Profile } from 'main/database/models';
 import { Player } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
@@ -80,17 +80,17 @@ async function getDataHandler( evt: IpcMainEvent, request: IpcRequest<any> ) {
     return;
   }
 
-  // get player and their offer data
-  const pdata = await Player.findByPk( _playerid, {
+  // get relevant data
+  const offerdata = await TransferOffer.getPlayerOffers( _playerid );
+  const profiledata = await Profile.getActiveProfile();
+  const playerdata = await Player.findByPk( _playerid, {
     include: [{ all: true }]
   });
-
-  const odata = await TransferOffer.getPlayerOffers( _playerid );
 
   // send the data back to the renderer
   evt.sender.send(
     request.responsechannel,
-    JSON.stringify({ pdata, odata })
+    JSON.stringify({ playerdata, profiledata, offerdata })
   );
 }
 
