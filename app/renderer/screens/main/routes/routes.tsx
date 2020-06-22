@@ -119,7 +119,10 @@ class Routes extends Component<Props, State> {
         ))}
 
         {/* RENDER THE MAIN CONTENT */}
-        <Layout.Content>
+        <Layout.Content
+          id="route-container"
+          className={this.state.collapsed ? 'collapsed' : ''}
+        >
           {routes.map( r => (
             <Route
               key={r.path}

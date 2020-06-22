@@ -1,6 +1,10 @@
 @import '~renderer/assets/shared';
 
 
+/**
+* TOP-LEVEL/ROOT STYLES
+*/
+
 #main {
   min-height: 100vh;
   color: black;
@@ -10,6 +14,20 @@
   }
 }
 
+
+#route-container {
+  margin-left: 200px;
+  transition: margin-left 200ms ease;
+
+  &.collapsed {
+    margin-left: 80px;
+  }
+}
+
+
+/**
+* INDIVIDUAL ROUTE STYLES
+*/
 
 #home {
   display: flex;
