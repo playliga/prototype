@@ -53,11 +53,20 @@ function setupDB() {
     : ( msg: string ) => log.debug( msg )
   ;
 
+  // configure the connection pool
+  const poolconfig = is.production()
+    ? {
+      max: 10,
+      min: 0,
+    } : undefined
+  ;
+
   // configure the sequelize cnx
   const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: targetpath,
-    logging: loggingfunc
+    logging: loggingfunc,
+    pool: poolconfig
   });
 
   // initialize the models and their associations
