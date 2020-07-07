@@ -30,7 +30,7 @@ log.transports.console.level = 'info';
 log.transports.console.format = msg => `${MSGPREFIX} ${msg.data}`;
 log.transports.file.level = 'debug';
 log.transports.file.maxSize = 5 * 1024 * 1024; // 5MB
-log.transports.file.file = path.join( __dirname, '/compiler.log' );
+log.transports.file.resolvePath = () => path.join( __dirname, '/compiler.log' );
 
 
 function handleErrors( err, stats ) {
