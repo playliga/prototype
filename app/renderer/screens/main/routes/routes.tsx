@@ -20,12 +20,13 @@ import Sidebar from 'renderer/screens/main/components/sidebar';
 import Connector from 'renderer/screens/main/components/connector';
 import Home from './home';
 import Inbox from './inbox';
+import Squad from './squad';
 
 
 const routes: RouteConfig[] = [
   { id: '/home', path: '/home', component: Home, title: 'Home', icon: HomeOutlined },
   { id: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined },
-  { id: '/squad', path: '/squad', component: Home, title: 'Squad', icon: UserOutlined },
+  { id: '/squad', path: '/squad', component: Squad, title: 'Squad', icon: UserOutlined },
   {
     id: '/transfers', path: '/transfers', title: 'Transfers', icon: PieChartOutlined,
     subroutes: [

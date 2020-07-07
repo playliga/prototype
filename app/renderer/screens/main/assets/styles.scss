@@ -50,3 +50,27 @@
     width: 65%;
   }
 }
+
+
+#squad {
+  .tags {
+    min-height: 25px;
+    margin-top: 10px;
+  }
+
+  .flag-divider {
+    margin: 10px 0;
+  }
+
+  .flag-text {
+    text-transform: uppercase;
+    font-variant: small-caps;
+    font-weight: 100;
+    font-size: .8em;
+  }
+
+  section.stats {
+    display: flex;
+    justify-content: space-between;
+  }
+}

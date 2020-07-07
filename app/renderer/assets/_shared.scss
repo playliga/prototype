@@ -35,3 +35,11 @@ body {
   // Smoother startup
   animation: fadein 0.5s;
 }
+
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}

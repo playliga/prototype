@@ -40,6 +40,7 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
           eligibleDate: moment( new Date() ).format( 'YYYY-MM-DD' ),
+          starter: false,
         });
       });
     });

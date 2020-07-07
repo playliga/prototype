@@ -10,6 +10,7 @@ class Player extends Model {
       monthlyWages: { type: Sequelize.INTEGER, defaultValue: 0 },
       eligibleDate: { type: Sequelize.DATEONLY, allowNull: true, defaultValue: Sequelize.NOW },
       tier: Sequelize.INTEGER,
+      starter: Sequelize.BOOLEAN,
     }, { sequelize, modelName: 'Player' });
   }
 

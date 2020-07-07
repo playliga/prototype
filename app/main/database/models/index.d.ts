@@ -65,6 +65,7 @@ declare module 'main/database/models' {
     public transferValue: number;
     public monthlyWages: number;
     public eligibleDate: Date;
+    public starter: boolean;
     public readonly Team?: Team;
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;

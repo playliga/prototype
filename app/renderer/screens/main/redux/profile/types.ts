@@ -5,6 +5,8 @@ export const FIND_FINISH = 'profile.find.finish';
 export interface Profile {
   id: number;
   currentDate: string;
+  Player: any;
+  Team: any;
 }
 
 

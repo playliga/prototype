@@ -4,14 +4,17 @@ import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
 import emailsReducers from './emails/reducers';
 import profileReducers from './profile/reducers';
+import squadReducers from './squad/reducers';
 import emailsSagas from './emails/sagas';
 import profileSagas from './profile/sagas';
+import squadSagas from './squad/sagas';
 
 
 // application reducers
 const reducers = combineReducers({
   emails: emailsReducers,
   profile: profileReducers,
+  squad: squadReducers,
 });
 
 
@@ -19,7 +22,8 @@ const reducers = combineReducers({
 function* sagas() {
   yield all([
     emailsSagas(),
-    profileSagas()
+    profileSagas(),
+    squadSagas(),
   ]);
 }
 
