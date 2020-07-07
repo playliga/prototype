@@ -13,7 +13,7 @@ export default function emailReducer(
 ): SquadTypes.SquadState {
   switch( action.type ) {
     case SquadTypes.FIND:
-    case SquadTypes.TOGGLESTARTER:
+    case SquadTypes.UPDATE:
       return {
         ...state,
         loading: true
@@ -24,7 +24,7 @@ export default function emailReducer(
         loading: false,
         data: action.payload
       };
-    case SquadTypes.TOGGLESTARTER_FINISH:
+    case SquadTypes.UPDATE_FINISH:
       return {
         ...state,
         loading: false,

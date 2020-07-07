@@ -1,7 +1,7 @@
 export const FIND = 'squad.find';
 export const FIND_FINISH = 'squad.find.finish';
-export const TOGGLESTARTER = 'squad.togglestarter';
-export const TOGGLESTARTER_FINISH = 'squad.togglestarter.finish';
+export const UPDATE = 'squad.update';
+export const UPDATE_FINISH = 'squad.update.finish';
 
 
 export interface Squad {
@@ -21,14 +21,14 @@ interface FindSquadFinishAction {
 }
 
 
-interface ToggleStarterAction {
-  type: typeof TOGGLESTARTER;
+interface UpdateAction {
+  type: typeof UPDATE;
   payload: any;             // @todo: is a player
 }
 
 
-interface ToggleStarterFinishAction {
-  type: typeof TOGGLESTARTER_FINISH;
+interface UpdateFinishAction {
+  type: typeof UPDATE_FINISH;
   payload: any;             // @todo: is a player
 }
 
@@ -36,8 +36,8 @@ interface ToggleStarterFinishAction {
 export type SquadActionTypes =
   | FindSquadAction
   | FindSquadFinishAction
-  | ToggleStarterAction
-  | ToggleStarterFinishAction
+  | UpdateAction
+  | UpdateFinishAction
 ;
 
 

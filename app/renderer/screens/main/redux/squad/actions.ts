@@ -17,17 +17,17 @@ export function findFinish( payload: SquadTypes.Squad ): SquadTypes.SquadActionT
 }
 
 
-export function toggleStarter( payload: any ) {
+export function update( payload: any ) {
   return {
-    type: SquadTypes.TOGGLESTARTER,
+    type: SquadTypes.UPDATE,
     payload
   };
 }
 
 
-export function toggleStarterFinish( payload: any ): SquadTypes.SquadActionTypes {
+export function updateFinish( payload: any ): SquadTypes.SquadActionTypes {
   return {
-    type: SquadTypes.TOGGLESTARTER_FINISH,
+    type: SquadTypes.UPDATE_FINISH,
     payload
   };
 }

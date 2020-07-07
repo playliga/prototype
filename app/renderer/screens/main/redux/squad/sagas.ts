@@ -26,19 +26,19 @@ function* find( action: SquadTypes.SquadActionTypes ) {
 }
 
 
-function* toggleStarter( action: SquadTypes.SquadActionTypes ) {
+function* update( action: SquadTypes.SquadActionTypes ) {
   const payload = yield IpcService.send( IPCRouting.Database.UPDATE, {
     params: {
       model: 'Player',
       args: {
         id: action.payload.id,
-        data: { starter: !action.payload.starter }
+        data: action.payload
       }
     }
   });
 
   yield put(
-    squadActions.toggleStarterFinish( payload )
+    squadActions.updateFinish( payload )
   );
 }
 
@@ -50,7 +50,7 @@ export default function* watch() {
   );
 
   yield takeEvery(
-    SquadTypes.TOGGLESTARTER,
-    toggleStarter
+    SquadTypes.UPDATE,
+    update
   );
 }

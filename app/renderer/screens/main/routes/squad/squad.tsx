@@ -1,8 +1,25 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { getEmojiFlag } from 'countries-list';
-import { StarFilled, FolderOpenFilled, StarOutlined, CrownOutlined } from '@ant-design/icons';
-import { Card, Row, Col, Typography, Spin, Statistic, Space, Tag, Divider } from 'antd';
+import {
+  StarFilled,
+  FolderOpenFilled,
+  StarOutlined,
+  CrownOutlined,
+  ShoppingOutlined,
+  ShoppingFilled
+} from '@ant-design/icons';
+import {
+  Card,
+  Row,
+  Col,
+  Typography,
+  Spin,
+  Statistic,
+  Space,
+  Tag,
+  Divider
+} from 'antd';
 
 import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
 import * as SquadTypes from 'renderer/screens/main/redux/squad/types';
@@ -27,7 +44,7 @@ const GRID_COL_WIDTH = 8;
  * Renders an individual player card.
  */
 
-function StarterIcon({ starter, onClick }: any) {
+function StarterIcon({ starter, onClick }: any ) {
   if( starter ) {
     return (
       <Typography.Text type="warning">
@@ -42,6 +59,21 @@ function StarterIcon({ starter, onClick }: any) {
 }
 
 
+function TransferIcon({ transferListed, onClick }: any ) {
+  if( transferListed ) {
+    return (
+      <Typography.Text type="danger">
+        <ShoppingFilled onClick={onClick} type="danger" />
+      </Typography.Text>
+    );
+  }
+
+  return (
+    <ShoppingOutlined onClick={onClick} />
+  );
+}
+
+
 function PlayerCard( props: any ) {
   const { player, me } = props;
 
@@ -50,7 +82,8 @@ function PlayerCard( props: any ) {
       hoverable
       actions={[
         <StarterIcon key="starter" starter={player.starter} onClick={() => props.onSetStarter( player )} />,
-        <FolderOpenFilled key="details" onClick={() => props.onClickDetails( player )}/>
+        <TransferIcon key="transfer" transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />,
+        <FolderOpenFilled key="details" onClick={() => props.onClickDetails( player )} />
       ]}
     >
 
@@ -97,6 +130,14 @@ function PlayerCard( props: any ) {
             </Space>
           </Tag>
         )}
+        {player.transferListed && (
+          <Tag color="red">
+            <Space>
+              <ShoppingFilled />
+              {'Transfer Listed'}
+            </Space>
+          </Tag>
+        )}
       </section>
 
     </Card>
@@ -136,7 +177,8 @@ function Squad( props: Props ) {
             <PlayerCard
               player={p}
               me={profile.data.Player}
-              onSetStarter={( p: any ) => props.dispatch( SquadActions.toggleStarter( p ) )}
+              onSetStarter={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, starter: !p.starter }) )}
+              onTransferList={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, transferListed: !p.transferListed }) )}
               onClickDetails={() => props.history.push( `/squad/${p.id}` )}
             />
           </Col>
