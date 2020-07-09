@@ -77,15 +77,19 @@ function TransferIcon({ transferListed, onClick }: any ) {
 function PlayerCard( props: any ) {
   const { player, me } = props;
 
+  let cardactions = [
+    <StarterIcon key="starter" starter={player.starter} onClick={() => props.onSetStarter( player )} />,
+    <TransferIcon key="transfer" transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />,
+    <FolderOpenFilled key="details" onClick={() => props.onClickDetails( player )} />,
+  ];
+
+  // only need the details action if it's the user
+  if( me ) {
+    cardactions = [ cardactions[ cardactions.length - 1 ] ];
+  }
+
   return (
-    <Card
-      hoverable
-      actions={[
-        <StarterIcon key="starter" starter={player.starter} onClick={() => props.onSetStarter( player )} />,
-        <TransferIcon key="transfer" transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />,
-        <FolderOpenFilled key="details" onClick={() => props.onClickDetails( player )} />
-      ]}
-    >
+    <Card hoverable actions={cardactions}>
 
       {/* PLAYER COUNTRY + ALIAS */}
       <Typography.Title level={3}>
@@ -114,7 +118,7 @@ function PlayerCard( props: any ) {
 
       {/* TAGS CONTAINER */}
       <section className="tags">
-        {me.id === player.id && (
+        {me && (
           <Tag color="geekblue">
             <Space>
               <CrownOutlined />
@@ -130,7 +134,7 @@ function PlayerCard( props: any ) {
             </Space>
           </Tag>
         )}
-        {player.transferListed && (
+        {!me && player.transferListed && (
           <Tag color="red">
             <Space>
               <ShoppingFilled />
@@ -176,7 +180,7 @@ function Squad( props: Props ) {
           <Col key={p.id} span={GRID_COL_WIDTH}>
             <PlayerCard
               player={p}
-              me={profile.data.Player}
+              me={profile.data.Player.id === p.id}
               onSetStarter={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, starter: !p.starter }) )}
               onTransferList={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, transferListed: !p.transferListed }) )}
               onClickDetails={() => props.history.push( `/squad/${p.id}` )}
