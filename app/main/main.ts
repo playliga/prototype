@@ -56,7 +56,7 @@ function setupDB() {
   // configure the connection pool
   const poolconfig = is.production()
     ? {
-      max: 10,
+      max: 50,
       min: 0,
     } : undefined
   ;
