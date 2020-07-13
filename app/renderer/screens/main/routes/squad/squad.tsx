@@ -1,5 +1,6 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
+import { ipcRenderer } from 'electron';
 import { getEmojiFlag } from 'countries-list';
 import {
   StarFilled,
@@ -21,6 +22,7 @@ import {
   Divider
 } from 'antd';
 
+import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
 import * as SquadTypes from 'renderer/screens/main/redux/squad/types';
 import * as SquadActions from 'renderer/screens/main/redux/squad/actions';
@@ -183,7 +185,7 @@ function Squad( props: Props ) {
               me={profile.data.Player.id === p.id}
               onSetStarter={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, starter: !p.starter }) )}
               onTransferList={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, transferListed: !p.transferListed }) )}
-              onClickDetails={() => props.history.push( `/squad/${p.id}` )}
+              onClickDetails={(p: any ) => ipcRenderer.send( IPCRouting.Offer.OPEN, p.id )}
             />
           </Col>
         )}

@@ -19,11 +19,6 @@ let _target: Models.Player | null;
  */
 
 async function teamRespondOffer( offerdetails: OfferRequest, response: string, reason: string ) {
-  // bail if no data found
-  if( !_profile.Player || !_target || !_target.Team ) {
-    return Promise.reject();
-  }
-
   // load the team's manager
   const persona = await Models.Persona.getManagerByTeamId( _target.Team.id );
 
@@ -84,11 +79,6 @@ async function playerRespondOffer(
   msg: string,
   teamresponseoffset = 0
 ) {
-  // bail if no data found
-  if( !_profile.Player || !_profile.Team || !_target ) {
-    return Promise.reject();
-  }
-
   // load the team's manager
   const persona = await Models.Persona.getManagerByTeamId( _profile.Team.id, 'Assistant Manager' );
 
@@ -113,7 +103,7 @@ async function playerRespondOffer(
     msg,
   });
 
-  await transferoffer.setTeam( _profile.Team );
+  await transferoffer.setTeam( offerdetails.teamdata?.id || _profile.Team );
   await transferoffer.setPlayer( _target );
 
   // add it to the queue
@@ -125,7 +115,7 @@ async function playerRespondOffer(
         from: persona.id,
         to: _profile.Player.id,
         subject: `re: Transfer offer for ${_target.alias}`,
-        content: Sqrl.render( msg, { player: _profile.Player }),
+        content: Sqrl.render( msg, { player: _profile.Player, team: offerdetails.teamdata }),
         sentAt: targetdate,
       }
     }),
@@ -154,10 +144,6 @@ export async function parse( offerdetails: OfferRequest ) {
   _profile = await Models.Profile.getActiveProfile();
   _target = await Models.Player.findByPk( offerdetails.playerid, { include: [ 'Team' ] });
 
-  if( !_target || !_profile.Player || !_profile.Team ) {
-    return Promise.reject();
-  }
-
   // team's response will offset the player's decision time
   let teamresponseoffset = 0;
 
@@ -175,7 +161,6 @@ export async function parse( offerdetails: OfferRequest ) {
   // -----------------------------------
 
   if( !teamaccepted && _target.Team ) {
-
     // is the player transfer listed?
     if( offerdetails.fee && !_target.transferListed ) {
       return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_NOTFORSALE );
@@ -206,11 +191,11 @@ export async function parse( offerdetails: OfferRequest ) {
   // @note: lower tiers have higher numbers. e.g.:
   // @note: Open      — 4
   // @note: Advanced  — 1
-  if( _target.tier < _profile.Player.tier ) {
+  if( _target.tier < ( offerdetails.teamdata?.tier || _profile.Team.tier ) ) {
     return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_TIER, teamresponseoffset );
   }
 
-  // offer accepted — move the player to the user's team
+  // offer accepted — move the player to the target team
   const responseoffset = await playerRespondOffer( offerdetails, OfferStatus.ACCEPTED, EmailDialogue.PLAYER_ACCEPT, teamresponseoffset );
   const actiondate = moment( _profile.currentDate ).add( responseoffset, 'days' );
 
@@ -222,11 +207,11 @@ export async function parse( offerdetails: OfferRequest ) {
     type: ActionQueueTypes.TRANSFER_MOVE,
     actionDate: actiondate,
     payload: {
-      teamid: _profile.Team.id,
+      teamid: offerdetails.teamdata?.id || _profile.Team.id,
       targetid: _target.id,
       wages: offerdetails.wages,
       fee: offerdetails.fee,
-      tier: _profile.Team.tier,
+      tier: offerdetails.teamdata?.tier || _profile.Team.tier,
       eligible: eligibledate,
     }
   });

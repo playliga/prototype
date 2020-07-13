@@ -26,8 +26,9 @@ export const Main = {
 export const Offer = {
   _ID: '/screens/offer',
   CLOSE: '/screens/offer/close',
-  GET_DATA: '/screens/offer/getdata',
+  GET_DATA: '/screens/offer/get_data',
   OPEN: '/screens/offer/open',
+  REVIEW: '/screens/offer/review',
   SEND: '/screens/offer/send',
 };
 

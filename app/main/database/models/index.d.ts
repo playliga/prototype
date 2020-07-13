@@ -131,6 +131,8 @@ declare module 'main/database/models' {
     public fee: number;
     public wages: number;
     public msg: string;
+    public readonly Team?: Team;
+    public readonly Player?: Player;
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
     public setPlayer: Sequelize.BelongsToSetAssociationMixin<Player, number>;

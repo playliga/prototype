@@ -4,13 +4,13 @@ import { ipcMain, Menu, IpcMainEvent } from 'electron';
 
 import * as IPCRouting from 'shared/ipc-routing';
 import * as WorldGen from 'main/lib/worldgen';
-
-import { IpcRequest, OfferRequest } from 'shared/types';
+import { IpcRequest, OfferRequest, OfferReview } from 'shared/types';
 import { TransferOffer, Profile } from 'main/database/models';
 import { Player } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
+import { OfferStatus } from 'shared/enums';
 
 
 /**
@@ -114,6 +114,40 @@ function sendOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferRequest> 
 }
 
 
+async function reviewOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferReview> ) {
+  const { responsechannel, params } = request;
+  const sendresponse = () => evt.sender.send( responsechannel || '', null );
+
+  // bail if no params found
+  if( !params ) {
+    sendresponse();
+    return;
+  }
+
+  // update the offer
+  const offerdata = await TransferOffer.findByPk( params.offerid, { include: [{ all: true }]} );
+  offerdata.status = params.status;
+  await offerdata.save();
+
+  // if rejected, bail now
+  if( offerdata.status === OfferStatus.REJECTED ) {
+    return sendresponse();
+  }
+
+  // otherwise, let the player decide now
+  WorldGen
+    .Offer
+    .parse({
+      teamdata: offerdata.Team,
+      playerid: offerdata.Player.id,
+      fee: offerdata.fee,
+      wages: offerdata.wages,
+    })
+    .then( () => sendresponse() )
+  ;
+}
+
+
 function closeWindowHandler() {
   _screen.handle.close();
 }
@@ -121,8 +155,9 @@ function closeWindowHandler() {
 
 export default () => {
   // ipc listeners
-  ipcMain.on( IPCRouting.Offer.OPEN, openWindowHandler );
-  ipcMain.on( IPCRouting.Offer.GET_DATA, getDataHandler );
-  ipcMain.on( IPCRouting.Offer.SEND, sendOfferHandler );
   ipcMain.on( IPCRouting.Offer.CLOSE, closeWindowHandler );
+  ipcMain.on( IPCRouting.Offer.GET_DATA, getDataHandler );
+  ipcMain.on( IPCRouting.Offer.OPEN, openWindowHandler );
+  ipcMain.on( IPCRouting.Offer.SEND, sendOfferHandler );
+  ipcMain.on( IPCRouting.Offer.REVIEW, reviewOfferHandler );
 };

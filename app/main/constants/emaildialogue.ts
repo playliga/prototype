@@ -17,16 +17,24 @@ The player has accepted the offer. Let's use him in our squad!
 const PLAYER_REJECT_REASON_TIER = `
 Hi, {{it.player.alias}},
 
+{{@if(it.team)}}
+Talks between the player and {{it.team.name}} have broken down because their tier is too low.
+{{#else}}
 The player has rejected your offer because they say our team's skill level is too low.
+{{/if}}
 `;
 
 
 const PLAYER_REJECT_REASON_WAGES = `
 Hi, {{it.player.alias}},
 
+{{@if(it.team)}}
+Talks between the player and {{it.team.name}} have broken down because they could not reach an agreement on wages.
+{{#else}}
 The player has rejected your offer because they say the wages offered are too low.
 
 We might have to spend a little more for this offer.
+{{/if}}
 `;
 
 

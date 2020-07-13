@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import { ipcRenderer } from 'electron';
 import { getEmojiFlag } from 'countries-list';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import {
   Typography,
   Statistic,
@@ -15,11 +15,12 @@ import {
   Button,
   Spin,
   Table,
-  Tag
+  Tag,
+  Space
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
-import { OfferRequest } from 'shared/types';
+import { OfferRequest, OfferReview } from 'shared/types';
 import { OfferStatus } from 'shared/enums';
 import { formatCurrency, getWeeklyWages, getMonthlyWages } from 'renderer/lib/util';
 import IpcService from 'renderer/lib/ipc-service';
@@ -29,7 +30,7 @@ import IpcService from 'renderer/lib/ipc-service';
  * Utility functions
  */
 
-function handleFinish( fee: number, weeklywages: number, player: any ) {
+function handleSendFinish( fee: number, weeklywages: number, player: any ) {
   const playerid = player.id;
   const wages = getMonthlyWages( weeklywages );
   const params: OfferRequest = { playerid, wages, fee };
@@ -41,18 +42,23 @@ function handleFinish( fee: number, weeklywages: number, player: any ) {
 }
 
 
-function handleOnCancel() {
+function handleReviewFinish( offerdata: any, status: string ) {
+  const params: OfferReview = { offerid: offerdata.id, status };
+  IpcService.send( IPCRouting.Offer.REVIEW, { params });
+}
+
+
+function handleCancel() {
   ipcRenderer.send( IPCRouting.Offer.CLOSE );
 }
 
 
-function hasPendingOffers( items: any[] ) {
+function getPendingOffers( items: any[] ) {
   if( !items ) {
-    return false;
+    return [];
   }
 
-  const idx = items.findIndex( i => i.status === OfferStatus.PENDING );
-  return idx >= 0;
+  return items.filter( i => i.status === OfferStatus.PENDING );
 }
 
 
@@ -73,6 +79,7 @@ function isEligibleForNegotiations( currentDate: Date, eligibleDate: Date ) {
 
   return moment( currentDate ).isSameOrAfter( eligibleDate );
 }
+
 
 /**
  * React functional components
@@ -102,18 +109,208 @@ function OfferStatusTag( props: any ) {
 }
 
 
+function BuyTabs( props: any ) {
+  const [ fee, setFee ] = React.useState( props.initialFee );
+  const [ wages, setWages ] = React.useState( props.initialWages );
+
+  // set up bools
+  const freeagent = props.player && !props.player.Team;
+  const haspending = getPendingOffers( props.offers ).length > 0;
+  const teamaccepted = teamAcceptedOffer( props.offers );
+  const iseligible = isEligibleForNegotiations( props.profile?.currentDate, props.player?.eligibleDate );
+
+  return (
+    <Tabs
+      defaultActiveKey="make"
+      type="card"
+      size="small"
+    >
+      {/* RENDER BUY FORM */}
+      <Tabs.TabPane tab="Make Offer" key="make">
+        <Form layout="vertical" onFinish={() => props.onFinish( fee, wages, props.player )}>
+          {!iseligible && (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No player actions available."
+            />
+          )}
+          {iseligible && !freeagent && !teamaccepted && (
+            <Form.Item label="Transfer Fee">
+              <InputNumber
+                disabled={haspending}
+                value={fee}
+                step={500}
+                style={{ width: '100%' }}
+                formatter={val => formatCurrency( val as number )}
+                parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
+                onChange={val => setFee( val )}
+              />
+            </Form.Item>
+          )}
+          {iseligible && (
+            <Form.Item label="Player Wage">
+              <InputNumber
+                disabled={haspending}
+                value={wages}
+                step={500}
+                style={{ width: '100%' }}
+                formatter={val => formatCurrency( val as number )}
+                parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
+                onChange={val => setWages( val )}
+              />
+            </Form.Item>
+          )}
+          <Form.Item>
+            <div className="button-container">
+              <Button
+                disabled={haspending || !iseligible}
+                type="primary"
+                size="middle"
+                htmlType="submit"
+                style={{ marginBottom: 10 }}
+              >
+                {haspending
+                  ? 'Pending Offer'
+                  : 'Send offer'
+                }
+              </Button>
+              <Button size="middle" onClick={props.onCancel}>
+                {'Cancel'}
+              </Button>
+            </div>
+          </Form.Item>
+        </Form>
+      </Tabs.TabPane>
+
+      {/* VIEW PAST OFFERS */}
+      <Tabs.TabPane tab="Past Offers" key="past">
+        {!props.offers || props.offers.length <= 0 && (
+          <Empty description="No past offers" />
+        )}
+
+        {props.offers && props.offers.length > 0 && (
+          <Table
+            rowKey="id"
+            size="small"
+            dataSource={props.offers}
+            pagination={{ pageSize: 3, hideOnSinglePage: true }}
+          >
+            <Table.Column
+              title="Fee"
+              dataIndex="fee"
+              render={f => formatCurrency( f )}
+            />
+            <Table.Column
+              title="Wage"
+              dataIndex="wages"
+              render={w => formatCurrency( w )}
+            />
+            <Table.Column
+              title="Status"
+              dataIndex="status"
+              render={s => <OfferStatusTag status={s} />}
+            />
+          </Table>
+        )}
+      </Tabs.TabPane>
+    </Tabs>
+  );
+}
+
+
+function ReviewActions( props: any ) {
+  return (
+    <Space>
+      <Button
+        type="primary"
+        shape="circle"
+        size="small"
+        icon={<CheckOutlined />}
+        onClick={props.onAccept}
+      />
+      <Button
+        danger
+        shape="circle"
+        size="small"
+        icon={<CloseOutlined />}
+        onClick={props.onReject}
+      />
+    </Space>
+  );
+}
+
+
+function ReviewTabs( props: any ) {
+  // set up bools
+  const pending = getPendingOffers( props.offers );
+
+  return (
+    <Tabs
+      defaultActiveKey="review"
+      type="card"
+      size="small"
+    >
+      <Tabs.TabPane tab="Review Offers" key="review">
+        <Form>
+          {pending.length <= 0 && (
+            <Form.Item>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No offers to review."
+              />
+            </Form.Item>
+          )}
+
+          {pending.length > 0 && (
+            <Form.Item>
+              <Table
+                rowKey="id"
+                size="small"
+                dataSource={pending}
+                pagination={{ pageSize: 3, hideOnSinglePage: true }}
+              >
+                <Table.Column
+                  title="From"
+                  dataIndex="Team"
+                  render={t => t.name}
+                />
+                <Table.Column
+                  title="Fee"
+                  dataIndex="fee"
+                  render={f => formatCurrency( f )}
+                />
+                <Table.Column
+                  title="Actions"
+                  key="actions"
+                  render={item => (
+                    <ReviewActions
+                      onAccept={() => props.onFinish( item, OfferStatus.ACCEPTED )}
+                      onReject={() => props.onFinish( item, OfferStatus.REJECTED )}
+                    />
+                  )}
+                />
+              </Table>
+            </Form.Item>
+          )}
+        </Form>
+
+        <div className="button-container">
+          <Button size="middle" onClick={props.onCancel}>
+            {'Cancel'}
+          </Button>
+        </div>
+      </Tabs.TabPane>
+    </Tabs>
+  );
+}
+
+
 function Offer() {
   const [ player, setPlayer ] = React.useState( null as any );
-  const [ offer, setOffer ] = React.useState( null as any );
+  const [ offers, setOffers ] = React.useState( null as any );
   const [ profile, setProfile ] = React.useState( null as any );
   const [ fee, setFee ] = React.useState( 0 );
   const [ wages, setWages ] = React.useState( 0 );
-
-  // set up bools
-  const freeagent = player && !player.Team;
-  const haspending = hasPendingOffers( offer );
-  const teamaccepted = teamAcceptedOffer( offer );
-  const iseligible = isEligibleForNegotiations( profile?.currentDate, player?.eligibleDate );
 
   // grab the player data
   React.useEffect( () => {
@@ -122,19 +319,23 @@ function Offer() {
       .then( ({ playerdata, profiledata, offerdata }) => {
         setFee( playerdata.transferValue );
         setWages( getWeeklyWages( playerdata.monthlyWages ) );
-        setOffer( offerdata );
+        setOffers( offerdata );
         setProfile( profiledata );
         setPlayer( playerdata );
       });
   }, []);
 
-  if( !player ) {
+  if( !player || !profile ) {
     return (
       <div id="offer-root" className="loading-container">
         <Spin size="large" />
       </div>
     );
   }
+
+  // set up bools
+  const freeagent = !player.Team;
+  const ismine = !freeagent && profile.Team.id === player.Team.id;
 
   return (
     <div id="offer-root">
@@ -176,7 +377,7 @@ function Offer() {
         layout="vertical"
         size="small"
         column={3}
-        style={{ marginTop: 20 }}
+        style={{ marginTop: 20, marginBottom: 20 }}
       >
         <Descriptions.Item label="Wage">
           {formatCurrency( getWeeklyWages( player.monthlyWages ) )}{'/wk'}
@@ -189,108 +390,25 @@ function Offer() {
         </Descriptions.Item>
       </Descriptions>
 
-      {/* OFFER STATUS */}
-      <Tabs
-        defaultActiveKey="make"
-        type="card"
-        size="small"
-        style={{ marginTop: 20 }}
-      >
-        {/* CURRENT OFFER */}
-        <Tabs.TabPane tab="Make Offer" key="make">
-          <Form
-            layout="vertical"
-            onFinish={() => handleFinish( fee, wages, player )}
-          >
-            {!iseligible && (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="No player actions available."
-              />
-            )}
-            {iseligible && !freeagent && !teamaccepted && (
-              <Form.Item label="Transfer Fee">
-                <InputNumber
-                  disabled={haspending}
-                  value={fee}
-                  step={500}
-                  style={{ width: '100%' }}
-                  formatter={val => formatCurrency( val as number )}
-                  parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
-                  onChange={val => setFee( val as number )}
-                />
-              </Form.Item>
-            )}
-            {iseligible && (
-              <Form.Item label="Player Wage">
-                <InputNumber
-                  disabled={haspending}
-                  value={wages}
-                  step={500}
-                  style={{ width: '100%' }}
-                  formatter={val => formatCurrency( val as number )}
-                  parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
-                  onChange={val => setWages( val as number )}
-                />
-              </Form.Item>
-            )}
-            <Form.Item>
-              <div className="button-container">
-                <Button
-                  disabled={haspending || !iseligible}
-                  type="primary"
-                  size="middle"
-                  htmlType="submit"
-                  style={{ marginBottom: 10 }}
-                >
-                  {haspending
-                    ? 'Pending Offer'
-                    : 'Send offer'
-                  }
-                </Button>
-                <Button
-                  size="middle"
-                  onClick={handleOnCancel}
-                >
-                  {'Cancel'}
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
-        </Tabs.TabPane>
+      {/* NOT MY PLAYER; I CAN BUY */}
+      {!ismine && (
+        <BuyTabs
+          {...{ player, profile, offers }}
+          initialFee={fee}
+          initialWages={wages}
+          onCancel={handleCancel}
+          onFinish={handleSendFinish}
+        />
+      )}
 
-        {/* PAST OFFERS */}
-        <Tabs.TabPane tab="Past Offers" key="past">
-          {!offer || offer.length <= 0 && (
-            <Empty description="No past offers" />
-          )}
-
-          {offer && offer.length > 0 && (
-            <Table
-              rowKey="id"
-              size="small"
-              dataSource={offer}
-              pagination={{ pageSize: 3, hideOnSinglePage: true }}
-            >
-              <Table.Column
-                title="Fee"
-                dataIndex="fee"
-                render={f => formatCurrency( f )}
-              />
-              <Table.Column
-                title="Wage"
-                dataIndex="wages"
-                render={w => formatCurrency( w )}
-              />
-              <Table.Column
-                title="Status"
-                dataIndex="status"
-                render={s => <OfferStatusTag status={s} />}
-              />
-            </Table>
-          )}
-        </Tabs.TabPane>
-      </Tabs>
+      {/* MY PLAYER; REVIEW OFFERS */}
+      {ismine && (
+        <ReviewTabs
+          {...{ player, profile, offers }}
+          onCancel={handleCancel}
+          onFinish={handleReviewFinish}
+        />
+      )}
     </div>
   );
 }
