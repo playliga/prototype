@@ -19,7 +19,8 @@ import {
   Statistic,
   Space,
   Tag,
-  Divider
+  Divider,
+  Tooltip
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
@@ -46,32 +47,32 @@ const GRID_COL_WIDTH = 8;
  * Renders an individual player card.
  */
 
-function StarterIcon({ starter, onClick }: any ) {
+function StarterIcon({ starter, onClick, ...tooltipProps }: any ) {
   if( starter ) {
     return (
-      <Typography.Text type="warning">
+      <Typography.Text type="warning" {...tooltipProps}>
         <StarFilled onClick={onClick} type="warning" />
       </Typography.Text>
     );
   }
 
   return (
-    <StarOutlined onClick={onClick} />
+    <StarOutlined onClick={onClick} {...tooltipProps} />
   );
 }
 
 
-function TransferIcon({ transferListed, onClick }: any ) {
+function TransferIcon({ transferListed, onClick, ...tooltipProps }: any ) {
   if( transferListed ) {
     return (
-      <Typography.Text type="danger">
+      <Typography.Text type="danger" {...tooltipProps}>
         <ShoppingFilled onClick={onClick} type="danger" />
       </Typography.Text>
     );
   }
 
   return (
-    <ShoppingOutlined onClick={onClick} />
+    <ShoppingOutlined onClick={onClick} {...tooltipProps} />
   );
 }
 
@@ -80,9 +81,15 @@ function PlayerCard( props: any ) {
   const { player, me } = props;
 
   let cardactions = [
-    <StarterIcon key="starter" starter={player.starter} onClick={() => props.onSetStarter( player )} />,
-    <TransferIcon key="transfer" transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />,
-    <FolderOpenFilled key="details" onClick={() => props.onClickDetails( player )} />,
+    <Tooltip title="Set as starter" key="starter">
+      <StarterIcon starter={player.starter} onClick={() => props.onSetStarter( player )} />
+    </Tooltip>,
+    <Tooltip title="Transfer list" key="transfer">
+      <TransferIcon transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />
+    </Tooltip>,
+    <Tooltip title="View offers" key="offers">
+      <FolderOpenFilled onClick={() => props.onClickDetails( player )} />
+    </Tooltip>,
   ];
 
   // only need the details action if it's the user
