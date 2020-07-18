@@ -21,6 +21,7 @@ import Connector from 'renderer/screens/main/components/connector';
 import Home from './home';
 import Inbox from './inbox';
 import Squad from './squad';
+import Competitions from './competitions';
 
 
 const routes: RouteConfig[] = [
@@ -33,7 +34,7 @@ const routes: RouteConfig[] = [
       { id: '/transfers/search', path: '/transfers/search', component: Transfers.Search, title: 'Search Players' },
     ]
   },
-  { id: '/competitions', path: '/competitions', component: Home, title: 'Competitions', icon: TrophyOutlined },
+  { id: '/competitions', path: '/competitions', component: Competitions, title: 'Competitions', icon: TrophyOutlined },
 ];
 
 

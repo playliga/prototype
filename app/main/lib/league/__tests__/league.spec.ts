@@ -78,7 +78,7 @@ describe( 'league', () => {
       const divObj = leagueObj.addDivision( div.name, div.size, div.confSize );
 
       for( let i = 0; i < div.size; i++ ) {
-        divObj.addCompetitor( adjectiveAnimal.generateName() );
+        divObj.addCompetitor( i, adjectiveAnimal.generateName() );
       }
     });
   });

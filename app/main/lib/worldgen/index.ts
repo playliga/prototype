@@ -211,7 +211,11 @@ async function genSingleComp( compdef: Models.Compdef ) {
     compdef.tiers.forEach( ( tier, tdx ) => {
       const div = leagueobj.addDivision( tier.name, tier.minlen, tier.confsize );
       const tierteams = teams.filter( t => t.tier === tdx );
-      div.addCompetitors( tierteams.slice( 0, tier.minlen ).map( t => t.id.toString() ) );
+      const competitors = tierteams
+        .slice( 0, tier.minlen )
+        .map( t => ({ id: t.id, name: t.name }) )
+      ;
+      div.addCompetitors( competitors );
     });
 
     // build the competition

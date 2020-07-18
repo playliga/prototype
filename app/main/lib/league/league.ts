@@ -150,13 +150,13 @@ class League {
 
       // pull in the promoted competitors from the previous division
       if( prevDivision ) {
-        postSeasonDivision.addCompetitors( prevDivision.conferenceWinners.map( ( item: Competitor ) => item.name ) );
-        postSeasonDivision.addCompetitors( prevDivision.promotionWinners.map( ( item: Competitor ) => item.name ) );
+        postSeasonDivision.addCompetitors( prevDivision.conferenceWinners );
+        postSeasonDivision.addCompetitors( prevDivision.promotionWinners );
       }
 
       // pull in the relegated competitors from the next division
       if( nextDivision ) {
-        postSeasonDivision.addCompetitors( nextDivision.relegationBottomfeeders.map( ( item: Competitor ) => item.name ) );
+        postSeasonDivision.addCompetitors( nextDivision.relegationBottomfeeders );
       }
 
       // pull in the current division's mid table
@@ -170,16 +170,16 @@ class League {
         return directPromoted === undefined
           && playoffPromoted === undefined
           && bottomFeederFound === undefined;
-      }).map( ( comp: Competitor ) => comp.name ) );
+      }));
 
       // for the bottom division relegation positions have no where to go. so include them too
       if( !prevDivision ) {
-        postSeasonDivision.addCompetitors( currentDivision.relegationBottomfeeders.map( ( item: Competitor ) => item.name ) );
+        postSeasonDivision.addCompetitors( currentDivision.relegationBottomfeeders );
       }
 
       // for the top division the winner has no where to go. so include him too
       if( !nextDivision ) {
-        postSeasonDivision.addCompetitors( currentDivision.conferenceWinners.map( ( item: Competitor ) => item.name ) );
+        postSeasonDivision.addCompetitors( currentDivision.conferenceWinners );
       }
 
       // finally, reassign to the league object's post-season division array

@@ -76,7 +76,7 @@ describe( 'division', () => {
 
     // add competitors
     for( let i = 0; i < SIZE; i++ ) {
-      divObj.addCompetitor( adjectiveAnimal.generateName() );
+      divObj.addCompetitor( i, adjectiveAnimal.generateName() );
     }
 
     // create conferences
@@ -92,26 +92,26 @@ describe( 'division', () => {
   it( 'adds a competitor', () => {
     const COMP_NAME = 'compLexity Gaming';
     const div = new Division( 'Invite', 64 );
-    div.addCompetitor( COMP_NAME );
+    div.addCompetitor( 1337, COMP_NAME );
 
-    expect( div.competitors ).toEqual( [
-      { name: COMP_NAME }
-    ] );
+    expect( div.competitors ).toEqual(
+      [{ id: 1337, name: COMP_NAME }]
+    );
   });
 
   it( 'adds an array of competitors', () => {
     const COMP_NAME = 'Rival';
     const COMP_ARRAY = [
-      { name: 'compLexity Gaming' },
-      { name: 'Team 3D' },
-      { name: 'Evil Geniuses' }
+      { id: 1, name: 'compLexity Gaming' },
+      { id: 2, name: 'Team 3D' },
+      { id: 3, name: 'Evil Geniuses' }
     ];
     const div = new Division( 'Invite', 64 );
-    div.addCompetitor( COMP_NAME );
-    div.addCompetitors( COMP_ARRAY.map( item => item.name ) );
+    div.addCompetitor( 1337, COMP_NAME );
+    div.addCompetitors( COMP_ARRAY );
 
     expect( div.competitors ).toEqual( [
-      { name: COMP_NAME },
+      { id: 1337, name: COMP_NAME },
       ...COMP_ARRAY
     ] );
   });
@@ -138,7 +138,7 @@ describe( 'division', () => {
     const NAME = 'dahang';
     const CONF_NUM = random( divObj.conferences.length - 1 );
     const SEED_NUM = random( CONF_SIZE );
-    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = new Competitor( NAME );
+    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = new Competitor( 1337, NAME );
 
     expect( divObj.getCompetitorGroupObj( NAME ) ).not.toBeNull();
   });
@@ -153,7 +153,7 @@ describe( 'division', () => {
 
     // override one of the randomly generated competitors with our own
     const NAME = 'cooller';
-    const competitorObj = new Competitor( NAME );
+    const competitorObj = new Competitor( 1337, NAME );
     divObj.conferences[ CONF_NUM ].competitors[ INDEX ] = competitorObj;
 
     // pad the index number to emulate the seed numbers which are 1-based
@@ -229,7 +229,7 @@ describe( 'division', () => {
 
     // add competitors
     for( let i = 0; i < PREM_SIZE; i++ ) {
-      premierDivision.addCompetitor( adjectiveAnimal.generateName() );
+      premierDivision.addCompetitor( i, adjectiveAnimal.generateName() );
     }
 
     // create conferences
@@ -268,7 +268,7 @@ describe( 'division', () => {
 
     // add competitors
     for( let i = 0; i < INV_SIZE; i++ ) {
-      inviteDivision.addCompetitor( adjectiveAnimal.generateName() );
+      inviteDivision.addCompetitor( i, adjectiveAnimal.generateName() );
     }
 
     // create conferences

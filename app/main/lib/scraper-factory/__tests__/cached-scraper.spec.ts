@@ -81,6 +81,7 @@ describe( 'cached scraper', () => {
     cachedScraper.setThrottleDelay( 100 );
 
     // mock what cloudscraper is getting from the "internet"
+    // @ts-ignore
     mocked( cloudscraper.get ).mockImplementationOnce( ( url, callback: RequestCallback | undefined ) => {
       // @ts-ignore
       return callback( null, null, 'my other file content' );

@@ -34,6 +34,20 @@ async function start( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> )
 }
 
 
+async function all( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
+  if( !request.responsechannel ) {
+    return;
+  }
+
+  const res = [] as any[];
+  const comps = await Competition.findAll({ include: [{ all: true }] });
+
+  comps.forEach( c => res.push({ ...c.toJSON(), data: League.restore( c.data ) }));
+  evt.sender.send( request.responsechannel, JSON.stringify( res ) );
+}
+
+
 export default () => {
+  ipcMain.on( IPCRouting.Database.COMPETITION_ALL, all );
   ipcMain.on( IPCRouting.Database.COMPETITION_START, start );
 };

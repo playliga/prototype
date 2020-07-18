@@ -36,14 +36,14 @@ class Division {
     return ins;
   }
 
-  public addCompetitor = ( name: string ): void => {
+  public addCompetitor = ( id: number, name: string ): void => {
     // TODO check if competitor already exists?
-    const comp = new Competitor( name );
+    const comp = new Competitor( id, name );
     this.competitors.push( comp );
   }
 
-  public addCompetitors = ( competitorsStrArr: Array<string> ): void => {
-    const competitors = competitorsStrArr.map( name => new Competitor( name ) );
+  public addCompetitors = ( competitorsStrArr: Array<{id: number; name: string}> ): void => {
+    const competitors = competitorsStrArr.map( i => new Competitor( i.id, i.name ) );
     this.competitors = [ ...this.competitors, ...competitors ];
   }
 

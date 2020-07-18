@@ -3,7 +3,7 @@ import { IpcRequest } from 'shared/types';
 
 
 export default class IpcService {
-  public static send( channel: string, request: IpcRequest<any> ): Promise<any> {
+  public static send( channel: string, request: IpcRequest<any> = {} ): Promise<any> {
     // if there's no response channel let's auto-generate it
     if( !request.responsechannel ) {
       request.responsechannel = `${channel}/response_${new Date().getTime()}`;
