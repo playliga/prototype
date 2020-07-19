@@ -22,6 +22,7 @@ class Team extends Model {
     this.hasMany( _models.Persona );
     this.hasOne( _models.Profile );
     this.belongsTo( _models.Country );
+    this.belongsToMany( _models.Competition, { through: 'CompetitionTeams' });
   }
 
   static findByRegionId( id ) {

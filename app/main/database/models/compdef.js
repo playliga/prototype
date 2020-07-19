@@ -6,6 +6,7 @@ class Compdef extends Model {
     return this.init({
       name: { type: Sequelize.STRING, unique: true },
       season: Sequelize.INTEGER,
+      isOpen: Sequelize.BOOLEAN,
       tiers: Sequelize.JSON
     }, { sequelize, modelName: 'Compdef' });
   }

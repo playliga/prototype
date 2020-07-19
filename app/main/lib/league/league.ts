@@ -9,6 +9,7 @@ import Competitor from './competitor';
 
 class League {
   public name: string;
+  public started = false;
   public divisions: Array<Division> = [];
   public postSeasonDivisions: Array<Division> = [];
 
@@ -90,6 +91,8 @@ class League {
       }) );
       div.setConferences( conferences );
     });
+
+    this.started = true;
   }
 
   public startPostSeason = (): boolean => {

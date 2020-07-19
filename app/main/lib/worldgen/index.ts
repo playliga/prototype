@@ -226,6 +226,7 @@ async function genSingleComp( compdef: Models.Compdef ) {
     return Promise.all([
       comp.setCompdef( compdef ),
       comp.setContinents([ region ]),
+      comp.setTeams( teams )
     ]);
   }));
 }

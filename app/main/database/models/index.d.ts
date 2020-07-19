@@ -33,28 +33,36 @@ declare module 'main/database/models' {
 
 
   export class Compdef extends BaseModel {
-    public readonly name: string;
-    public readonly season: number;
-    public readonly tiers: any[];
+    public name: string;
+    public season: number;
+    public tiers: any[];
+    public isOpen: boolean;
     public readonly Continents?: Continent[];
   }
 
 
   export class Competition extends BaseModel {
-    public readonly data: any;
+    public data: any;
+    public Teams?: Team[];
+
     public setCompdef: Sequelize.BelongsToSetAssociationMixin<Compdef, number>;
     public setContinents: Sequelize.BelongsToManySetAssociationsMixin<Continent, number>;
+    public setTeams: Sequelize.BelongsToManySetAssociationsMixin<Team, number>;
+    public addTeam: Sequelize.BelongsToManyAddAssociationMixin<Team, number>;
   }
 
 
   export class Team extends BaseModel {
-    public readonly name: string;
-    public readonly tier: number;
-    public readonly Country?: Country;
+    public name: string;
+    public tier: number;
+    public Country?: Country;
+    public Competitions?: Competition[];
 
     public static findByRegionId( id: number ): Promise<Team[]>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
     public getPersonas: Sequelize.HasManyGetAssociationsMixin<Persona>;
+    public setCompetitions: Sequelize.BelongsToManySetAssociationsMixin<Competition, number>;
+    public addCompetition: Sequelize.BelongsToManyAddAssociationMixin<Competition, number>;
   }
 
 

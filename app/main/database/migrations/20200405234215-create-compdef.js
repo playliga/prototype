@@ -17,6 +17,9 @@ module.exports = {
       tiers: {
         type: Sequelize.JSON
       },
+      isOpen: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

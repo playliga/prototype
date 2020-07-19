@@ -35,10 +35,14 @@ class Profile extends Model {
         },
         {
           model: _models.Team,
-          include: [{
-            model: _models.Country,
-            include: [ _models.Continent ]
-          }]
+          include: [
+            _models.Competition,
+            _models.Player,
+            {
+              model: _models.Country,
+              include: [ _models.Continent ]
+            }
+          ]
         }
       ]
     });

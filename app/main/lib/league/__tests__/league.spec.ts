@@ -93,6 +93,11 @@ describe( 'league', () => {
     expect( leagueObj.getDivision( RAND_DIV_NAME ) ).toEqual( divObj );
   });
 
+  it( 'start flag is toggled after starting the league', () => {
+    leagueObj.start();
+    expect( leagueObj.started ).toBeTruthy();
+  });
+
   it( 'checks that all division\'s group stage matches are done', () => {
     // start the league
     leagueObj.start();

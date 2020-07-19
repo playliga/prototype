@@ -2,11 +2,12 @@
   {
     "id":"esea",
     "name":"ESEA",
+    "isopen": true,
+    "season":32,
     "regions":[
       "eu",
       "na"
     ],
-    "season":32,
     "tiers":[
       {
         "name":"Premier",
@@ -38,10 +39,11 @@
   {
     "id":"eslpro",
     "name":"ESL Pro",
+    "isopen": false,
+    "season":12,
     "regions":[
       "eu"
     ],
-    "season":12,
     "tiers":[{
       "name":"Professional",
       "minlen":20,

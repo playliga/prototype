@@ -1,12 +1,18 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { Competition } from 'main/database/models';
+import { Competition, Team, Profile } from 'main/database/models';
 import { League } from 'main/lib/league';
 import * as IPCRouting from 'shared/ipc-routing';
 
 
 interface IpcRequestParams {
   id: number;
+}
+
+
+interface JoinParams extends IpcRequestParams {
+  teamid?: number;
+  divid?: number;
 }
 
 
@@ -47,7 +53,41 @@ async function all( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
 }
 
 
+async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
+  const compobj = await Competition.findByPk( request.params.id );
+  const leagueobj = League.restore( compobj.data );
+
+  let teamid = request.params.teamid;
+  let divid = request.params.divid;
+
+  // fetch the team
+  //
+  // default to user profile if no id was provided
+  if( !teamid ) {
+    teamid = (await Profile.getActiveProfile()).Team?.id;
+  }
+
+  const teamobj = await Team.findByPk( teamid );
+
+  // if no division was specified, default to the lowest one
+  if( !divid ) {
+    divid = leagueobj.divisions.length - 1;
+  }
+
+  // save changes to db
+  leagueobj.divisions[ divid ].addCompetitor( teamobj.id, teamobj.name );
+  compobj.data = leagueobj;
+
+  await compobj.save();
+  await compobj.addTeam( teamid );
+
+  // return an updated profile from the db
+  evt.sender.send( request.responsechannel, JSON.stringify( await Profile.getActiveProfile() ) );
+}
+
+
 export default () => {
   ipcMain.on( IPCRouting.Database.COMPETITION_ALL, all );
+  ipcMain.on( IPCRouting.Database.COMPETITION_JOIN, join );
   ipcMain.on( IPCRouting.Database.COMPETITION_START, start );
 };
