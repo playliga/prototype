@@ -76,7 +76,7 @@ function Competition( props: any ) {
       {/* LEAGUE NOT STARTED */}
       {/* SHOW TOP-DIVISION STANDINGS + JOIN BUTTON (IF APPLICABLE) */}
       {!props.data.started && (
-        <Space direction="vertical">
+        <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
           <Standings
             disablePagination
