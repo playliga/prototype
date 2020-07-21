@@ -20,6 +20,9 @@ module.exports = {
       isOpen: {
         type: Sequelize.BOOLEAN
       },
+      startOffset: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

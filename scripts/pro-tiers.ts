@@ -21,7 +21,7 @@ const args = minimist( process.argv.slice( 2 ), {
 
 
 const TIERS = [
-  { name: 'Pro', minlen: 20, teams: [] },
+  { name: 'Pro', minlen: 25, teams: [] as any[] },
 ];
 const REGIONS = [
   { id: 1, name: 'Americas', tiers: TIERS },
@@ -32,6 +32,10 @@ const REGIONS = [
 // module variables
 const na_altregions = [
   { season: 8, altname: 'North_America' },
+  { season: 7, altname: 'North_America' },
+  { season: 6, altname: 'North_America' },
+  { season: 5, altname: 'North_America' },
+  { season: 4, altname: 'North_America' },
 ];
 
 
@@ -62,7 +66,7 @@ class Region {
 
 // constants
 const STARTSEASON     = 10;     // starting season
-const ENDSEASON       = 7;      // and then work backards
+const ENDSEASON       = 4;      // and then work backwards
 
 
 // init current season counter
@@ -134,14 +138,21 @@ async function gentier( tier: Tier, region: Region ): Promise<Tier> {
     regionname = na_altregions[ altidx ].altname;
   }
 
-
   // get the team data
   const url = `ESL/Pro_League/Season_${currentseason}/${regionname}`;
   const data = await lqscraper.generate( url ) as never[];
 
-  // dedupe logic
+  // combine existing + new teams
   const existingteams = tier.teams.map( ( t: any ) => t.name );
-  const newteams = data.filter( ( t: any ) => existingteams.indexOf( t.name ) < 0 );
+  let newteams = data.filter( ( t: any ) => existingteams.indexOf( t.name ) < 0 );
+
+  // filter out renegades (an australian team)
+  // from the NA results
+  if( region.name === 'Americas' ) {
+    newteams = newteams.filter( ( t: any ) => t.name !== 'Renegades' );
+  }
+
+  // combine everything back together
   const teams = [ ...tier.teams, ...newteams ];
   return Promise.resolve({ ...tier, teams });
 }

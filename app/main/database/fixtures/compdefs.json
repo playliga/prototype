@@ -4,6 +4,7 @@
     "name":"ESEA",
     "isopen": true,
     "season":32,
+    "startoffset": 60,
     "regions":[
       "eu",
       "na"
@@ -41,6 +42,7 @@
     "name":"ESL Pro",
     "isopen": false,
     "season":12,
+    "startoffset": 60,
     "regions":[
       "eu"
     ],

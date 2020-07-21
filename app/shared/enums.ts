@@ -3,6 +3,7 @@ import { IterableObject } from './types';
 
 export const ActionQueueTypes = {
   SEND_EMAIL: 'SEND_EMAIL',
+  START_COMP: 'START_COMP',
   TRANSFER_MOVE: 'TRANSFER_MOVE',
   TRANSFER_OFFER_RESPONSE: 'TRANSFER_OFFER_RESPONSE',
 };

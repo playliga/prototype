@@ -9,6 +9,7 @@ module.exports = {
       season: d.season,
       tiers: JSON.stringify( d.tiers ),
       isOpen: d.isopen,
+      startOffset: d.startoffset,
       createdAt: new Date(),
       updatedAt: new Date()
     }));

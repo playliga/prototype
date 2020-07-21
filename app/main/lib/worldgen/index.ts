@@ -70,6 +70,12 @@ async function handleQueueItem( item: Models.ActionQueue ) {
           player?.setTeam( item.payload.teamid )
         ]))
       ;
+    case ActionQueueTypes.START_COMP:
+      return Models.Competition
+        .findByPk( item.payload )
+        .then( comp => Promise.resolve({ comp, league: League.restore( comp.data ) }) )
+        .then( ({ comp, league }) => comp.update({ data: league }) )
+      ;
   }
 }
 
@@ -192,19 +198,29 @@ export async function assignManagers() {
  */
 
 async function genSingleComp( compdef: Models.Compdef ) {
-  // get the regions
+  // get south america just in case it's needed later
+  const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
+
+  // now get the regions specified by the competition
   const regionids = compdef.Continents?.map( c => c.id ) || [];
   const regions = await Models.Continent.findAll({
     where: { id: regionids }
   });
 
   // bail if no regions
-  if( !regions ) {
+  if( !regions || !sa ) {
     return Promise.resolve();
   }
 
   return Promise.all( regions.map( async region => {
-    const teams = await Models.Team.findByRegionId( region.id );
+    // north america also includes south america
+    const regionids = [ region.id ];
+
+    if( region.code === 'NA' ) {
+      regionids.push( sa.id );
+    }
+
+    const teams = await Models.Team.findByRegionIds( regionids );
     const leagueobj = new League( compdef.name );
 
     // add teams to the competition tiers
@@ -221,6 +237,13 @@ async function genSingleComp( compdef: Models.Compdef ) {
     // build the competition
     const comp = Models.Competition.build({ data: leagueobj });
     await comp.save();
+
+    // add its start date to its action queue
+    await Models.ActionQueue.create({
+      type: ActionQueueTypes.START_COMP,
+      actionDate: moment().add( compdef.startOffset, 'days' ),
+      payload: comp.id
+    });
 
     // save its associations
     return Promise.all([

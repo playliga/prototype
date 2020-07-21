@@ -37,6 +37,7 @@ declare module 'main/database/models' {
     public season: number;
     public tiers: any[];
     public isOpen: boolean;
+    public startOffset: number;
     public readonly Continents?: Continent[];
   }
 
@@ -58,7 +59,7 @@ declare module 'main/database/models' {
     public Country?: Country;
     public Competitions?: Competition[];
 
-    public static findByRegionId( id: number ): Promise<Team[]>;
+    public static findByRegionIds( ids: number[] ): Promise<Team[]>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
     public getPersonas: Sequelize.HasManyGetAssociationsMixin<Persona>;
     public setCompetitions: Sequelize.BelongsToManySetAssociationsMixin<Competition, number>;

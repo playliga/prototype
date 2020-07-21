@@ -1,4 +1,4 @@
-import Sequelize, { Model } from 'sequelize';
+import Sequelize, { Model, Op } from 'sequelize';
 
 
 let _models = null;
@@ -25,11 +25,15 @@ class Team extends Model {
     this.belongsToMany( _models.Competition, { through: 'CompetitionTeams' });
   }
 
-  static findByRegionId( id ) {
+  static findByRegionIds( ids ) {
     return Team.findAll({
       include: [{
         model: _models.Country,
-        where: { continentId: id }
+        where: {
+          continentId: {
+            [Op.or]: ids
+          }
+        }
       }]
     });
   }

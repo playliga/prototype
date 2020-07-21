@@ -7,7 +7,8 @@ class Compdef extends Model {
       name: { type: Sequelize.STRING, unique: true },
       season: Sequelize.INTEGER,
       isOpen: Sequelize.BOOLEAN,
-      tiers: Sequelize.JSON
+      tiers: Sequelize.JSON,
+      startOffset: Sequelize.INTEGER,
     }, { sequelize, modelName: 'Compdef' });
   }
 
