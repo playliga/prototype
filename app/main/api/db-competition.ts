@@ -45,11 +45,33 @@ async function all( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
     return;
   }
 
-  const res = [] as any[];
   const comps = await Competition.findAll({ include: [{ all: true }] });
 
-  comps.forEach( c => res.push({ ...c.toJSON(), data: League.restore( c.data ) }));
-  evt.sender.send( request.responsechannel, JSON.stringify( res ) );
+  // load the team names from the group
+  // data into the standings object
+  const out = comps.map( c => {
+    const leagueobj = League.restore( c.data );
+
+    // only necessary if started
+    if( leagueobj.started ) {
+      leagueobj.divisions.forEach( div => {
+        div.conferences.forEach( ( conf, idx ) => {
+          conf.groupObj.standings = conf.groupObj.results().map( group => ({
+            ...group,
+            competitorInfo: div.getCompetitorName( idx, group.seed )
+          }));
+        });
+      });
+    }
+
+    // load everything back
+    return {
+      ...c.toJSON(),
+      data: leagueobj
+    };
+  });
+
+  evt.sender.send( request.responsechannel, JSON.stringify( out ) );
 }
 
 

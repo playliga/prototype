@@ -14,6 +14,8 @@ export interface Tournament {
   matches: Array<{ id: string }>;
   unscorable: Function;
   score: Function;
+  state: any[];
+  standings?: Result[];
 }
 
 

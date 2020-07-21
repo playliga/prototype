@@ -1,5 +1,6 @@
 import { findIndex, chunk, sortBy } from 'lodash';
 import cuid from 'cuid';
+import GroupStage from 'groupstage';
 import Duel from 'duel';
 import { IterableObject } from 'shared/types';
 import Competitor from './competitor';
@@ -33,6 +34,12 @@ class Division {
       .keys( args )
       .forEach( k => ins[k] = args[k] )
     ;
+    ins.conferences = args.conferences.map( ( c: Conference ) => ({
+      ...c,
+      groupObj: c.groupObj
+        ? GroupStage.restore( c.competitors.length, { groupSize: args.conferenceSize }, c.groupObj.state )
+        : null
+    }));
     return ins;
   }
 

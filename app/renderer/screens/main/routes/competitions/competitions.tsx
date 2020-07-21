@@ -39,15 +39,14 @@ function Standings( props: StandingsProps ) {
     >
       <Table.ColumnGroup title={props.title}>
         <Table.Column
-          title="Pos."
-          width="20%"
-          render={( t, r, idx ) => idx + 1}
+          width="80%"
+          title="Name"
+          render={item => `${item.pos || 1}. ${item.name}`}
         />
         <Table.Column
-          ellipsis
-          title="Name"
-          width="80%"
-          dataIndex="name"
+          title="W/L"
+          width="20%"
+          render={t => `${t?.wins || 0}/${t?.losses || 0}`}
         />
         {props.children}
       </Table.ColumnGroup>
@@ -61,13 +60,12 @@ function Standings( props: StandingsProps ) {
  */
 
 function Competition( props: any ) {
+  const nosquad = props.team.Players.length < 4;
   const joined = props
     .team
     .Competitions
     .findIndex( ( c: any ) => c.id === props.id )
   > -1;
-
-  const nosquad = props.team.Players.length < 4;
 
   return (
     <Col key={props.id} span={GRID_COL_WIDTH}>
@@ -77,7 +75,7 @@ function Competition( props: any ) {
 
       {/* LEAGUE NOT STARTED */}
       {/* SHOW TOP-DIVISION STANDINGS + JOIN BUTTON (IF APPLICABLE) */}
-      {!props.started && (
+      {!props.data.started && (
         <Space direction="vertical">
           <em>{'Not started.'}</em>
           <Standings
@@ -107,6 +105,29 @@ function Competition( props: any ) {
             </Button>
           )}
         </Space>
+      )}
+
+      {/* LEAGUE STARTED: SHOW GROUPS FOR FIRST DIVISION */}
+      {props.data.started && (
+        <Standings
+          disablePagination
+          title={props.data.divisions[0].name}
+          dataSource={props
+            .data
+            .divisions[0]
+            .conferences[0]
+            .groupObj
+            .standings
+            .slice( 0, 10 )
+            .map( ( s: any ) => ({
+              id: s.competitorInfo.id,
+              pos: s.pos,
+              name: s.competitorInfo.name,
+              wins: s.wins,
+              losses: s.losses
+            }))
+          }
+        />
       )}
     </Col>
   );

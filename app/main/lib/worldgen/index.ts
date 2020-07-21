@@ -74,7 +74,7 @@ async function handleQueueItem( item: Models.ActionQueue ) {
       return Models.Competition
         .findByPk( item.payload )
         .then( comp => Promise.resolve({ comp, league: League.restore( comp.data ) }) )
-        .then( ({ comp, league }) => comp.update({ data: league }) )
+        .then( ({ comp, league }) => { league.start(); return comp.update({ data: league }); })
       ;
   }
 }
