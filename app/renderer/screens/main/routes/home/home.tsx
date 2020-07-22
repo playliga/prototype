@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import moment from 'moment';
 import { Button, Typography } from 'antd';
@@ -19,48 +19,48 @@ interface Props extends RouteComponentProps {
 }
 
 
-class Home extends Component<Props> {
-  public async handleOnNext() {
-    await IpcService.send(
-      IPCRouting.Worldgen.CALENDAR_LOOP,
-      {}
-    );
+function formatDate( str: string | undefined ) {
+  if( !str ) {
+    return null;
   }
 
-  private formatDate = ( str: string | undefined ) => {
-    if( !str ) {
-      return null;
-    }
+  return moment( str ).format( 'MMM DD, YYYY' );
+}
 
-    return moment( str ).format( 'MMM DD, YYYY' );
-  }
 
-  public render() {
-    const { profile } = this.props;
-    const formatteddate = this.formatDate( profile.data?.currentDate );
+async function handleOnNext() {
+  await IpcService.send(
+    IPCRouting.Worldgen.CALENDAR_LOOP,
+    {}
+  );
+}
 
-    return (
-      <div id="home" className="content">
-        <section>
-          <Typography.Title>
-            {formatteddate?.toString() || 'Loading...'}
-          </Typography.Title>
-          <Button
-            block
-            type="primary"
-            size="large"
-            onClick={this.handleOnNext}
-          >
-            {'Next'}
-          </Button>
-        </section>
-        <InboxPreview
-          data={this.props.emails.data}
-          onClick={id => this.props.history.push( `/inbox/${id}` )}
-        />
-      </div>
-    );
-  }
+
+function Home( props: Props ) {
+  const { profile } = props;
+  const formatteddate = formatDate( profile.data?.currentDate );
+
+  return (
+    <div id="home" className="content">
+      <section>
+        <Typography.Title>
+          {formatteddate?.toString() || 'Loading...'}
+        </Typography.Title>
+        <Button
+          block
+          type="primary"
+          size="large"
+          onClick={handleOnNext}
+        >
+          {'Next'}
+        </Button>
+      </section>
+      <InboxPreview
+        data={props.emails.data}
+        onClick={id => props.history.push( `/inbox/${id}` )}
+      />
+    </div>
+  );
 }
 
 
