@@ -63,20 +63,18 @@ class Division {
     this.conferences = conferences;
   }
 
-  public getCompetitorGroupObj = ( name: string ): object | null => {
+  public getCompetitorConferenceAndSeedNumById = ( id: number ) => {
     const { conferences } = this;
-    let result = null;
+    let result: [ Conference, number ] = [ null, null ];
 
     for( let i = 0; i < conferences.length; i++ ) {
       // search the current conference's competitors
       const conf = conferences[ i ];
-      const index = findIndex( conf.competitors, ( competitor: Competitor ) => competitor.name === name );
+      const index = findIndex( conf.competitors, ( competitor: Competitor ) => competitor.id === id );
 
+      // found! seeds start at 1 so bump if 0
       if( index > -1 ) {
-        // found! seeds start at 1 so bump if 0
-        const seedNum = index + 1;
-
-        result = conf.groupObj.resultsFor( seedNum );
+        result = [ conf, index + 1 ];
         break;
       }
     }
@@ -84,9 +82,35 @@ class Division {
     return result;
   }
 
-  public getCompetitorName = ( confNum: number, seedNum: number ): Competitor => {
-    const { competitors } = this.conferences[ confNum ];
-    return competitors[ seedNum - 1 ]; // seeds are 1-based; array is 0-based...
+  public getCompetitorGroupObjById = ( id: number ) => {
+    const [ conf ] = this.getCompetitorConferenceAndSeedNumById( id );
+
+    if( !conf ) {
+      return null;
+    }
+
+    return conf.groupObj;
+  }
+
+  public getCompetitorStandingsById = ( id: number ) => {
+    const [ conf, seed ] = this.getCompetitorConferenceAndSeedNumById( id );
+
+    if( !conf || !seed ) {
+      return null;
+    }
+
+    return conf.groupObj.resultsFor( seed );
+  }
+
+  public getCompetitorBySeed = ( conf: number | Conference, seedNum: number ): Competitor => {
+    // a confid was provided so use that
+    if( typeof conf === 'number' ) {
+      const { competitors } = this.conferences[ conf as number ];
+      return competitors[ seedNum - 1 ]; // seeds are 1-based; array is 0-based...
+    }
+
+    // if the conference object was provided use that instead
+    return (conf as Conference).competitors[ seedNum - 1 ];
   }
 
   public isGroupStageDone = (): boolean => {
@@ -146,9 +170,9 @@ class Division {
       const [ winner, ...otherStandings ] = groupObj.results();
       const BOTN = Math.ceil( neighborPromotionNum );
 
-      this.conferenceWinners.push( this.getCompetitorName( 0, winner.seed ) );
+      this.conferenceWinners.push( this.getCompetitorBySeed( 0, winner.seed ) );
       this.relegationBottomfeeders = otherStandings.slice( otherStandings.length - BOTN ).map( item => (
-        this.getCompetitorName( 0, item.seed )
+        this.getCompetitorBySeed( 0, item.seed )
       ) );
       return true;
     }
@@ -185,9 +209,9 @@ class Division {
 
       // 1st place are automatically promoted and the next 3
       // are placed in the promotion playoffs
-      PROMOTED.push( this.getCompetitorName( confNum, topn[ 0 ].seed ) );
+      PROMOTED.push( this.getCompetitorBySeed( confNum, topn[ 0 ].seed ) );
       for( let index = 1; index < topn.length; index++ ) {
-        PLAYOFFS.push( this.getCompetitorName( confNum, topn[ index ].seed ) );
+        PLAYOFFS.push( this.getCompetitorBySeed( confNum, topn[ index ].seed ) );
       }
 
       // the BOTN from each conference is compiled into one big array
@@ -206,7 +230,7 @@ class Division {
 
     // and then add bottom feeders to relegation array
     this.relegationBottomfeeders = bottomfeeders.map( bottomfeeder => (
-      this.getCompetitorName( bottomfeeder.confNum, bottomfeeder.groupObj.seed )
+      this.getCompetitorBySeed( bottomfeeder.confNum, bottomfeeder.groupObj.seed )
     ) );
 
     // split playoffs into conferences

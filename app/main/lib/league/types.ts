@@ -7,15 +7,23 @@ export interface Result {
 }
 
 
+export interface Match {
+  id: { s: number; r: number; m: number };
+  p: [ number, number ];
+}
+
+
 export interface Tournament {
-  resultsFor: Function;
-  isDone: Function;
+  isDone: () => boolean;
+  matches: Array<{ id: number }>;
+  matchesFor: ( seed: number ) => Match[];
   results: () => Result[];
-  matches: Array<{ id: string }>;
-  unscorable: Function;
-  score: Function;
-  state: any[];
+  resultsFor: ( seed: number ) => Result;
+  score: ( matchId: number, mapScore: any[] ) => boolean;
   standings?: Result[];
+  state: any[];
+  unscorable: ( matchId: number, mapScore: any[], allowPast?: boolean ) => string | null;
+  upcoming: ( seed: number ) => Match[];
 }
 
 

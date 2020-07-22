@@ -93,6 +93,19 @@ describe( 'league', () => {
     expect( leagueObj.getDivision( RAND_DIV_NAME ) ).toEqual( divObj );
   });
 
+  it( 'gets division by competitor id', () => {
+    // start the league
+    leagueObj.start();
+
+    // get a competitor name from the last division
+    const divObj = leagueObj.getDivision( 'Open' );
+    const competitor = divObj.competitors[ divObj.competitors.length - 1 ];
+
+    // now try to find that competitor's division by name
+    const result = leagueObj.getDivisionByCompetitorId( competitor.id );
+    expect( result.name ).toEqual( divObj.name );
+  });
+
   it( 'start flag is toggled after starting the league', () => {
     leagueObj.start();
     expect( leagueObj.started ).toBeTruthy();

@@ -35,6 +35,41 @@
   & > * {
     flex-basis: 50%;
   }
+
+  & > *:first-child {
+    margin-right: 20px;
+  }
+
+  .match-preview-body {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+
+    & > * {
+      flex-basis: 45%;
+    }
+
+    img {
+      display: inline-block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: 100px;
+    }
+
+    .ant-space-item > span {
+      font-weight: 200;
+      font-variant: small-caps;
+      text-transform: uppercase;
+    }
+
+    .vs {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-basis: 10%;
+    }
+  }
 }
 
 

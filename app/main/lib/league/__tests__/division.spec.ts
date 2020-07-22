@@ -135,16 +135,17 @@ describe( 'division', () => {
 
   it( 'gets a competitor\'s group info', () => {
     // override one of the randomly generated competitors with our own
+    const ID = 1337;
     const NAME = 'dahang';
     const CONF_NUM = random( divObj.conferences.length - 1 );
     const SEED_NUM = random( CONF_SIZE );
-    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = new Competitor( 1337, NAME );
+    divObj.conferences[ CONF_NUM ].competitors[ SEED_NUM ] = new Competitor( ID, NAME );
 
-    expect( divObj.getCompetitorGroupObj( NAME ) ).not.toBeNull();
+    expect( divObj.getCompetitorGroupObjById( ID ) ).not.toBeNull();
   });
 
   it( 'returns null if a competitor\'s group info is not found', () => {
-    expect( divObj.getCompetitorGroupObj( 'rapha' ) ).toBeNull();
+    expect( divObj.getCompetitorGroupObjById( 1337 ) ).toBeNull();
   });
 
   it( 'returns a competitor name by seed and conference number', () => {
@@ -157,7 +158,7 @@ describe( 'division', () => {
     divObj.conferences[ CONF_NUM ].competitors[ INDEX ] = competitorObj;
 
     // pad the index number to emulate the seed numbers which are 1-based
-    expect( divObj.getCompetitorName( CONF_NUM, INDEX + 1 ) ).toEqual( competitorObj );
+    expect( divObj.getCompetitorBySeed( CONF_NUM, INDEX + 1 ) ).toEqual( competitorObj );
   });
 
   it( 'generates random scores for groupstage and promotion playoffs. ensures that division is all done.', () => {

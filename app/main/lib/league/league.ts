@@ -43,6 +43,21 @@ class League {
     return div;
   }
 
+  public getDivisionByCompetitorId = ( id: number ) => {
+    // search each divisions competitor list for the id
+    let found: undefined | Division = undefined;
+
+    this.divisions.forEach( div => {
+      if( found ) {
+        return;
+      }
+
+      found = div.competitors.find( c => c.id === id ) ? div : undefined;
+    });
+
+    return found;
+  }
+
   public isGroupStageDone = (): boolean => {
     // loop through each division and ensure all are done
     // bail on first false instance

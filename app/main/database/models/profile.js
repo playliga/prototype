@@ -36,8 +36,11 @@ class Profile extends Model {
         {
           model: _models.Team,
           include: [
-            _models.Competition,
             _models.Player,
+            {
+              model: _models.Competition,
+              include: [ _models.Continent ]
+            },
             {
               model: _models.Country,
               include: [ _models.Continent ]

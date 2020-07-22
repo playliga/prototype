@@ -1,6 +1,6 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { Competition, Team, Profile } from 'main/database/models';
+import { Competition, Team, Profile, Continent } from 'main/database/models';
 import { League } from 'main/lib/league';
 import * as IPCRouting from 'shared/ipc-routing';
 
@@ -13,6 +13,12 @@ interface IpcRequestParams {
 interface JoinParams extends IpcRequestParams {
   teamid?: number;
   divid?: number;
+}
+
+
+interface TeamMatches extends IpcRequestParams {
+  teamid?: number;
+  compid?: number;
 }
 
 
@@ -58,7 +64,7 @@ async function all( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
         div.conferences.forEach( ( conf, idx ) => {
           conf.groupObj.standings = conf.groupObj.results().map( group => ({
             ...group,
-            competitorInfo: div.getCompetitorName( idx, group.seed )
+            competitorInfo: div.getCompetitorBySeed( idx, group.seed )
           }));
         });
       });
@@ -116,8 +122,62 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
 }
 
 
+async function matchesUpcoming( evt: IpcMainEvent, request: IpcRequest<TeamMatches> ) {
+  // 1. get matches for all competitions
+  // 2. get matches for specific competition
+  const out = [] as any[];
+
+  // if no teamid provided, assume user's team
+  const profile = await Profile.getActiveProfile();
+  const teamid = request.params?.teamid || profile.Team.id;
+
+  // grab the team info
+  const teamobj = await Team.findByPk( teamid, {
+    include: [
+      { all: true },
+      {
+        model: Competition,
+        include: [ Continent ]
+      }
+    ]
+  });
+
+  teamobj.Competitions.forEach( compobj => {
+    const leagueobj = League.restore( compobj.data );
+    const divobj = leagueobj.getDivisionByCompetitorId( teamobj.id );
+
+    // @todo: bail if tourney not started
+    //
+    // get the team's upcoming matches
+    const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( teamobj.id );
+    const matches = conf.groupObj.upcoming( seednum );
+
+    // format the response object
+    out.push({
+      competition: compobj,
+      division: divobj,
+      matches: matches.map( match => ({
+        ...match,
+        team1: {
+          seed: match.p[ 0 ],
+          ...divobj.getCompetitorBySeed( conf, match.p[ 0 ] )
+        },
+        team2: {
+          seed: match.p[ 1 ],
+          ...divobj.getCompetitorBySeed( conf, match.p[ 1 ] )
+        },
+      }))
+    });
+  });
+
+  // return the output
+  evt.sender.send( request.responsechannel, JSON.stringify( out ) );
+}
+
+
 export default () => {
   ipcMain.on( IPCRouting.Database.COMPETITION_ALL, all );
   ipcMain.on( IPCRouting.Database.COMPETITION_JOIN, join );
+  ipcMain.on( IPCRouting.Database.COMPETITION_TEAM_MATCHES_UPCOMING, matchesUpcoming );
   ipcMain.on( IPCRouting.Database.COMPETITION_START, start );
 };

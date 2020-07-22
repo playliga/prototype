@@ -45,6 +45,7 @@ declare module 'main/database/models' {
   export class Competition extends BaseModel {
     public data: any;
     public Teams?: Team[];
+    public readonly Continents?: Continent[];
 
     public setCompdef: Sequelize.BelongsToSetAssociationMixin<Compdef, number>;
     public setContinents: Sequelize.BelongsToManySetAssociationsMixin<Continent, number>;

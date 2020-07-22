@@ -43,6 +43,7 @@ export const Worldgen = {
 export const Database = {
   COMPETITION_ALL: '/database/competition/all',
   COMPETITION_JOIN: '/database/competition/join',
+  COMPETITION_TEAM_MATCHES_UPCOMING: '/database/competition/team/matches/upcoming',
   COMPETITION_START: '/database/competition/start',
   GENERIC: '/database/',
   PROFILE_GET: '/database/profile/get',
