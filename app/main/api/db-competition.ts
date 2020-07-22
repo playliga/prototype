@@ -76,7 +76,7 @@ async function all( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
 
 
 async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
-  const compobj = await Competition.findByPk( request.params.id );
+  const compobj = await Competition.findByPk( request.params.id, { include: [{ all: true }] });
   const leagueobj = League.restore( compobj.data );
 
   let teamid = request.params.teamid;
@@ -94,6 +94,14 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
   // if no division was specified, default to the lowest one
   if( !divid ) {
     divid = leagueobj.divisions.length - 1;
+  }
+
+  // if the division length is already maxxed out then
+  // remove the last team to make room for the user
+  if( leagueobj.divisions[ divid ].size === leagueobj.divisions[ divid ].competitors.length ) {
+    const lastteam = leagueobj.divisions[ divid ].competitors[ leagueobj.divisions[ divid ].competitors.length - 1 ];
+    leagueobj.divisions[ divid ].removeCompetitor( lastteam.id );
+    await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ));
   }
 
   // save changes to db

@@ -197,7 +197,7 @@ export async function assignManagers() {
  * Generate the competitions after initial registration.
  */
 
-async function genSingleComp( compdef: Models.Compdef ) {
+async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile ) {
   // get south america just in case it's needed later
   const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
 
@@ -220,10 +220,13 @@ async function genSingleComp( compdef: Models.Compdef ) {
       regionids.push( sa.id );
     }
 
-    const teams = await Models.Team.findByRegionIds( regionids );
+    // skip user's team because they don't have a squad yet
+    let teams = await Models.Team.findByRegionIds( regionids );
+    teams = teams.filter( t => t.id !== profile.Team.id );
+
+    // build the league object
     const leagueobj = new League( compdef.name );
 
-    // add teams to the competition tiers
     compdef.tiers.forEach( ( tier, tdx ) => {
       const div = leagueobj.addDivision( tier.name, tier.minlen, tier.confsize );
       const tierteams = teams.filter( t => t.tier === tdx );
@@ -259,7 +262,8 @@ export async function genAllComps() {
   const compdefs = await Models.Compdef.findAll({
     include: [ 'Continents' ],
   });
-  return compdefs.map( genSingleComp );
+  const profile = await Models.Profile.getActiveProfile();
+  return compdefs.map( c => genSingleComp( c, profile ) );
 }
 
 

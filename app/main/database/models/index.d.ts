@@ -50,6 +50,7 @@ declare module 'main/database/models' {
     public setContinents: Sequelize.BelongsToManySetAssociationsMixin<Continent, number>;
     public setTeams: Sequelize.BelongsToManySetAssociationsMixin<Team, number>;
     public addTeam: Sequelize.BelongsToManyAddAssociationMixin<Team, number>;
+    public removeTeam: Sequelize.BelongsToManyRemoveAssociationMixin<Team, number>;
   }
 
 

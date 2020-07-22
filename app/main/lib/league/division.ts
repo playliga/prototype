@@ -54,6 +54,11 @@ class Division {
     this.competitors = [ ...this.competitors, ...competitors ];
   }
 
+  public removeCompetitor = ( id: number ): void => {
+    // @todo: bail if already started
+    this.competitors = this.competitors.filter( c => c.id !== id );
+  }
+
   public setConferences = ( conferences: Array<Conference> ): void => {
     this.conferences = conferences;
   }
