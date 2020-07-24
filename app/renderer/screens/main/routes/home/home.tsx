@@ -1,6 +1,7 @@
 import React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
 import moment from 'moment';
+import { ipcRenderer } from 'electron';
+import { RouteComponentProps } from 'react-router-dom';
 import { Button, Typography, Card, Space, Tooltip, Spin, Avatar, Empty } from 'antd';
 import { PlayCircleFilled, UserOutlined } from '@ant-design/icons';
 
@@ -63,7 +64,9 @@ function Home( props: Props ) {
   const cardactions = upcoming && upcoming.length > 0
     ? [
       <Tooltip title="Play!" key="play">
-        <PlayCircleFilled />
+        <PlayCircleFilled
+          onClick={() => ipcRenderer.send( '/game/start', { responsechannel: '/game/start' } )}
+        />
       </Tooltip>
     ] : null
   ;
