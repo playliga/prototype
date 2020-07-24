@@ -87,7 +87,6 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
       return Promise.resolve( rcon );
     } catch( error ) {
       log.info( error );
-      continue;
     }
   }
 
