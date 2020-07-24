@@ -1221,6 +1221,11 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
+"@network-utils/tcp-ping@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@network-utils/tcp-ping/-/tcp-ping-1.2.1.tgz#059935bccd15b015169dca302812a8c770604a78"
+  integrity sha512-zqmzBPEy3p+D9PT1s2XA2d0sdAuwB0tdhZo9/gpPNsu7YihDaHs8mWGMG64r1JWgJ0Vm+JyVPKW4CYasaU/NTQ==
+
 "@redux-saga/core@^1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@redux-saga/core/-/core-1.1.3.tgz#3085097b57a4ea8db5528d58673f20ce0950f6a4"
@@ -8611,6 +8616,13 @@ rc@^1.2.7, rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+rcon-client@4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/rcon-client/-/rcon-client-4.2.1.tgz#b2635962b205c79f043fdf4297655a16f3b603e2"
+  integrity sha512-aoEEKklKetbgGpwhQ8Nsdd9BHRmuJ6k+EAMCk1YywbC+b+GHiyf1maGIOipB0IweY5rP/XkrCZY23Gx0J77iSg==
+  dependencies:
+    typed-emitter "^0.1.0"
+
 react-dom@16.13.0:
   version "16.13.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.13.0.tgz#cdde54b48eb9e8a0ca1b3dc9943d9bb409b81866"
@@ -10477,6 +10489,11 @@ type@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/type/-/type-2.0.0.tgz#5f16ff6ef2eb44f260494dae271033b29c09a9c3"
   integrity sha512-KBt58xCHry4Cejnc2ISQAF7QY+ORngsWfxezO68+12hKV6lQY8P/psIkcbjeHWn7MqcgciWJyCCevFMJdIXpow==
+
+typed-emitter@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/typed-emitter/-/typed-emitter-0.1.0.tgz#ca532f100ccbf850e3a73b8ebf43d43e4f1f3849"
+  integrity sha512-Tfay0l6gJMP5rkil8CzGbLthukn+9BN/VXWcABVFPjOoelJ+koW8BuPZYk+h/L+lEeIp1fSzVRiWRPIjKVjPdg==
 
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"
