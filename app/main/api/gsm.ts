@@ -14,7 +14,7 @@ import { IpcRequest } from 'shared/types';
 
 // constants
 const CSGO_APPID = 730;
-const CSGO_BASEDIR = 'Steam/steamapps/common/Counter-Strike Global Offensive';
+const CSGO_BASEDIR = 'steamapps/common/Counter-Strike Global Offensive';
 const CSGO_CFGDIR = 'csgo/cfg';
 
 const RCON_MAX_ATTEMPTS = 15;
@@ -29,9 +29,9 @@ let gameproc;
 
 // set up the steam path
 if( is.osx() ) {
-  steampath = `${os.homedir()}/Library/Application Support`;
+  steampath = `${os.homedir()}/Library/Application Support/Steam`;
 } else {
-  steampath = 'windowspathhere';
+  steampath = 'D:/Steam';
 }
 
 
@@ -111,11 +111,19 @@ async function start( evt: IpcMainEvent, request: IpcRequest<any> ) {
 
   // launch csgo
   // @todo: support windows
-  gameproc = spawn(
-    'open',
-    [ `steam://rungameid/${CSGO_APPID}//'+exec liga +map de_dust2 -usercon'` ],
-    { shell: true }
-  );
+  if( is.osx() ) {
+    gameproc = spawn(
+      'open',
+      [ `steam://rungameid/${CSGO_APPID}//'+exec liga +map de_dust2 -usercon'` ],
+      { shell: true }
+    );
+  } else {
+    gameproc = spawn(
+      'steam.exe',
+      [ `steam://rungameid/${CSGO_APPID}//'+exec liga +map de_dust2 -usercon'` ],
+      { cwd: steampath }
+    );
+  }
 
   // handlers
   gameproc.on( 'error', () => evt.sender.send( request.responsechannel ) );
