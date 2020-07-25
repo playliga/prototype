@@ -110,7 +110,6 @@ async function start( evt: IpcMainEvent, request: IpcRequest<any> ) {
   }
 
   // launch csgo
-  // @todo: support windows
   if( is.osx() ) {
     gameproc = spawn(
       'open',
@@ -120,7 +119,12 @@ async function start( evt: IpcMainEvent, request: IpcRequest<any> ) {
   } else {
     gameproc = spawn(
       'steam.exe',
-      [ `steam://rungameid/${CSGO_APPID}//'+exec liga +map de_dust2 -usercon'` ],
+      [
+        '-applaunch', CSGO_APPID.toString(),
+        '+exec', 'liga',
+        '+map', 'de_dust',
+        '-usercon'
+      ],
       { cwd: steampath }
     );
   }
