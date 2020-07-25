@@ -1,4 +1,5 @@
 import events from 'events';
+import is from 'electron-is';
 import { Tail } from 'tail';
 
 
@@ -26,8 +27,16 @@ export class Scorebot extends events.EventEmitter {
   public constructor( logpath: string ) {
     super();
 
+    // `fs.watchFile` is required on windows, otherwise
+    // the logs won't be streamed in realtime
+    let useWatchFile = false;
+
+    if( is.windows() ) {
+      useWatchFile = true;
+    }
+
     // start tailing the provided file
-    this.tail = new Tail( logpath );
+    this.tail = new Tail( logpath, { useWatchFile });
 
     // bind `this` to the event handler to
     // call our own class's emit functions
