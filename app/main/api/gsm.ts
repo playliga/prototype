@@ -140,7 +140,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     rcon_password: RCON_PASSWORD,
     teamname1: divobj.getCompetitorBySeed( conf, seed1 ).name,
     teamname2: divobj.getCompetitorBySeed( conf, seed2 ).name,
-    logfile: path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE )
+    logfile: CSGO_LOGFILE
   });
 
   // launch csgo
