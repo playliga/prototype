@@ -80,6 +80,7 @@
     "@types/request": "2.48.4",
     "@types/request-promise": "4.1.45",
     "@types/sqlite3": "3.1.6",
+    "@types/tail": "2.0.0",
     "@types/validator": "10.11.3",
     "@types/webpack-env": "1.15.2",
     "@typescript-eslint/eslint-plugin": "2.24.0",
@@ -154,6 +155,7 @@
     "sequelize": "5.21.6",
     "sqlite3": "4.1.1",
     "squirrelly": "8.0.1",
+    "tail": "2.0.4",
     "validator": "11.1.0"
   }
 }

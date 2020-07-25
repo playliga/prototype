@@ -4,6 +4,7 @@ import fs from 'fs';
 import is from 'electron-is';
 import log from 'electron-log';
 import getLocalIP from 'main/lib/local-ip';
+import Scorebot from 'main/lib/scorebot';
 
 import * as Sqrl from 'squirrelly';
 import * as Models from 'main/database/models';
@@ -18,8 +19,9 @@ import { League } from 'main/lib/league';
 
 // constants
 const CSGO_APPID = 730;
-const CSGO_BASEDIR = 'steamapps/common/Counter-Strike Global Offensive';
-const CSGO_CFGDIR = 'csgo/cfg';
+const CSGO_BASEDIR = 'steamapps/common/Counter-Strike Global Offensive/csgo';
+const CSGO_CFGDIR = 'cfg';
+const CSGO_LOGFILE = 'logs/liga.log';
 
 const RCON_MAX_ATTEMPTS = 15;
 const RCON_PASSWORD = 'liga';
@@ -88,6 +90,7 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
         password: RCON_PASSWORD,
       });
 
+      log.info( 'connection to server established.' );
       return Promise.resolve( rcon );
     } catch( error ) {
       log.info( error );
@@ -137,6 +140,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     rcon_password: RCON_PASSWORD,
     teamname1: divobj.getCompetitorBySeed( conf, seed1 ).name,
     teamname2: divobj.getCompetitorBySeed( conf, seed2 ).name,
+    logfile: path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE )
   });
 
   // launch csgo
@@ -163,11 +167,22 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   gameproc.on( 'error', () => evt.sender.send( request.responsechannel ) );
   gameproc.on( 'close', () => evt.sender.send( request.responsechannel ) );
 
+  // connect to rcon
   const rcon = await initrcon();
-  rcon.send( 'say hello n00bs' )
-    .then(log.info)
-    .catch(log.error)
-  ;
+
+  // start watching log file
+  // @todo: clear liga.log first
+  const sb = new Scorebot.Scorebot( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
+
+  sb.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
+    switch( text ) {
+      case '.ready':
+        await rcon.send( 'mp_warmup_end' );
+        break;
+      default:
+        break;
+    }
+  });
 }
 
 
