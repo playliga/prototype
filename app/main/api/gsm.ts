@@ -5,11 +5,15 @@ import is from 'electron-is';
 import log from 'electron-log';
 import getLocalIP from 'main/lib/local-ip';
 
+import * as Sqrl from 'squirrelly';
+import * as Models from 'main/database/models';
+
 import { ping } from '@network-utils/tcp-ping';
 import { Rcon } from 'rcon-client';
 import { spawn } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
+import { League } from 'main/lib/league';
 
 
 // constants
@@ -96,18 +100,44 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
 
 
 /**
+ * Misc. helper functions
+ */
+
+function generateServerConfig( data: any ) {
+  // generate config file
+  const targetcfg = path.join( steampath, CSGO_BASEDIR, CSGO_CFGDIR, 'liga.cfg' );
+  const configtpl = fs.readFileSync(
+    path.join( __dirname, 'resources/liga.cfg' ),
+    'utf-8'
+  );
+
+  fs.writeFileSync( targetcfg, Sqrl.render( configtpl, data ) );
+}
+
+
+/**
  * IPC handlers
  */
 
-async function start( evt: IpcMainEvent, request: IpcRequest<any> ) {
-  // copy liga.cfg over to proper folder
-  // @todo: overwrite when copying
-  const sourcecfg = path.join( __dirname, 'resources/liga.cfg' );
-  const targetcfg = path.join( steampath, CSGO_BASEDIR, CSGO_CFGDIR, 'liga.cfg' );
+async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
+  // load user's profile and their league division
+  const profile = await Models.Profile.getActiveProfile();
+  const compobj = profile.Team.Competitions.find( c => c.id === request.params.id );
+  const leagueobj = League.restore( compobj.data );
+  const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
 
-  if( fs.existsSync( sourcecfg ) ) {
-    fs.copyFileSync( sourcecfg, targetcfg );
-  }
+  // grab their next match information
+  const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+  const [ match ] = conf.groupObj.upcoming( seednum );
+  const [ seed1, seed2 ] = match.p;
+
+  // generate config file
+  generateServerConfig({
+    hostname: `${leagueobj.name}: ${compobj.Continents[ 0 ].name} — ${divobj.name}`,
+    rcon_password: RCON_PASSWORD,
+    teamname1: divobj.getCompetitorBySeed( conf, seed1 ).name,
+    teamname2: divobj.getCompetitorBySeed( conf, seed2 ).name,
+  });
 
   // launch csgo
   if( is.osx() ) {
@@ -142,5 +172,5 @@ async function start( evt: IpcMainEvent, request: IpcRequest<any> ) {
 
 
 export default () => {
-  ipcMain.on( '/game/start', start );
+  ipcMain.on( '/game/play', play );
 };

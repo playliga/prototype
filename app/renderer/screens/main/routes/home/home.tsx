@@ -65,7 +65,12 @@ function Home( props: Props ) {
     ? [
       <Tooltip title="Play!" key="play">
         <PlayCircleFilled
-          onClick={() => ipcRenderer.send( '/game/start', { responsechannel: '/game/start' } )}
+          onClick={() => ipcRenderer.send( '/game/play', {
+            responsechannel: '/game/play',
+            params: {
+              id: upcoming[ 0 ].competition.id,
+            }
+          } )}
         />
       </Tooltip>
     ] : null
