@@ -1,5 +1,5 @@
 const protiers = require( '../fixtures/20200720002337-protiers' );
-const lowtiers = require( '../fixtures/20200525202850-lowtiers' );
+const lowtiers = require( '../fixtures/20200726180450-lowtiers' );
 
 
 const regionsmap = {

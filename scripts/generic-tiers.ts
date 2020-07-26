@@ -21,11 +21,11 @@ const args = minimist( process.argv.slice( 2 ), {
 
 
 const TIERS = [
-  { name: 'Advanced', minlen: 20, teams: [] },
+  { name: 'Advanced', minlen: 20, teams: [] as any[] },
   { name: 'Main', minlen: 20, teams: [] },
 ];
 const LOWTIERS = [
-  { name: 'Intermediate', minlen: 150, teams: [] },
+  { name: 'Intermediate', minlen: 150, teams: [] as any[] },
   { name: 'Open', minlen: 150, teams: [] },
 ];
 const REGIONS = [
@@ -234,8 +234,8 @@ function toregion( region: Region, data: any[][] ): Region {
     .map( ( team, idx ) => ({
       ...team,
       players: players.slice(
-        ( PER_SQUAD * idx ) + im.minlen,              // start
-        ( PER_SQUAD * idx ) + PER_SQUAD + im.minlen   // end
+        ( PER_SQUAD * idx ) + PER_SQUAD + ( im.minlen * PER_SQUAD ),  // start
+        ( PER_SQUAD * idx ) + ( PER_SQUAD * 2 ) + ( im.minlen * PER_SQUAD )   // end
       )
     }))
   ;
