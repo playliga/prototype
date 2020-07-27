@@ -230,10 +230,16 @@ async function patchScoreboardFile() {
 
 
 function launchCSGO() {
+  const commonflags = [
+    '+exec', 'liga',
+    '+map', 'de_dust',
+    '-usercon',
+  ];
+
   if( is.osx() ) {
     gameproc = spawn(
       'open',
-      [ `steam://rungameid/${CSGO_APPID}//'+exec liga +map de_dust2 -usercon'` ],
+      [ `steam://rungameid/${CSGO_APPID}//'${commonflags.join( ' ' )}'` ],
       { shell: true }
     );
   } else {
@@ -241,9 +247,7 @@ function launchCSGO() {
       'steam.exe',
       [
         '-applaunch', CSGO_APPID.toString(),
-        '+exec', 'liga',
-        '+map', 'de_dust',
-        '-usercon'
+        ...commonflags
       ],
       { cwd: steampath }
     );
