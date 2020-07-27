@@ -27,10 +27,12 @@ const CSGO_BOTCONFIG_BACKUP = 'botprofile.original.db';
 const CSGO_BOT_VOICEPITCH_MIN = 80;
 const CSGO_BOT_VOICEPITCH_MAX = 125;
 const CSGO_CFGDIR = 'cfg';
+const CSGO_GAMEMODES_FILE = 'gamemodes_liga.txt';
 const CSGO_LANGUAGE_FILE = 'csgo_english.txt';
 const CSGO_LANGUAGE_FILE_BACKUP = 'csgo_english.original.txt';
 const CSGO_LOGFILE = 'logs/liga.log';
 const CSGO_RESOURCEDIR = 'resource';
+const CSGO_SERVER_CONFIG_FILE = 'liga.cfg';
 
 const RCON_MAX_ATTEMPTS = 15;
 const RCON_PASSWORD = 'liga';
@@ -161,11 +163,23 @@ function generateSquads( team1: Models.Player[], team2: Models.Player[] ) {
 }
 
 
+async function generateGameModeConfig( data: any ) {
+  // generate file
+  const gmfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEMODES_FILE );
+  const gmfiletpl = await fs.promises.readFile(
+    path.join( __dirname, `resources/${CSGO_GAMEMODES_FILE}` ),
+    'utf8'
+  );
+
+  return fs.promises.writeFile( gmfile, Sqrl.render( gmfiletpl, data ) );
+}
+
+
 async function generateServerConfig( data: any ) {
   // generate config file
-  const targetcfg = path.join( steampath, CSGO_BASEDIR, CSGO_CFGDIR, 'liga.cfg' );
+  const targetcfg = path.join( steampath, CSGO_BASEDIR, CSGO_CFGDIR, CSGO_SERVER_CONFIG_FILE );
   const configtpl = await fs.promises.readFile(
-    path.join( __dirname, 'resources/liga.cfg' ),
+    path.join( __dirname, `resources/${CSGO_SERVER_CONFIG_FILE}` ),
     'utf8'
   );
 
@@ -231,9 +245,10 @@ async function patchScoreboardFile() {
 
 function launchCSGO() {
   const commonflags = [
-    '+exec', 'liga',
     '+map', 'de_dust',
+    '+game_mode', '1',
     '-usercon',
+    '-gamemodes_serverfile', 'gamemodes_liga.txt'
   ];
 
   if( is.osx() ) {
@@ -280,7 +295,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
 
   // generate each team's squads
-  const [ squad1, squad2 ] = generateSquads(
+  const squads = generateSquads(
     team1.Players.filter( p => p.alias !== profile.Player.alias ),
     team2.Players.filter( p => p.alias !== profile.Player.alias )
   );
@@ -288,6 +303,11 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // --------------------------------
   // SET UP CSGO CONFIG FILES
   // --------------------------------
+
+  // generate the gamemodes text file
+  await generateGameModeConfig({
+    server_config_file: CSGO_SERVER_CONFIG_FILE
+  });
 
   // generate server config
   await generateServerConfig({
@@ -299,7 +319,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   });
 
   // generate bot config
-  await generateBotConfig( squad1, squad2 );
+  await generateBotConfig( squads[ 0 ], squads[ 1 ] );
 
   // remove bot prefixes from scoreboard
   await patchScoreboardFile();
@@ -322,15 +342,18 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // BOT SET UP
   // --------------------------------
 
-  // once server is ready, start adding bots
-  //
-  // add team1 bots
-  await rcon.send( `bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ team1.tier ].difficulty}` );
-  await rcon.send( squad1.map( p => `bot_add_t ${p.alias}` ).join( ';' ) );
+  // add this match's bots
+  const botadd_cmd = squads.map( ( squad, idx ) => (
+    squad
+      .map( p => dedent`
+        bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ p.tier ].difficulty};
+        bot_add_${idx > 0 ? 'ct' : 't'} ${p.alias}
+      `)
+      .join( ';' )
+      .replace( /\n/g, '' )
+  ));
 
-  // add team2 bots
-  await rcon.send( `bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ team2.tier ].difficulty}` );
-  await rcon.send( squad2.map( p => `bot_add_ct ${p.alias}` ).join( ';' ) );
+  await Promise.all( botadd_cmd.map( c => rcon.send( c ) ) );
 
   // --------------------------------
   // SCOREBOT SET UP + EVENT HANDLERS
