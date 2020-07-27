@@ -60,8 +60,10 @@ declare module 'main/database/models' {
     public tier: number;
     public Country?: Country;
     public Competitions?: Competition[];
+    public Players?: Player[];
 
     public static findByRegionIds( ids: number[] ): Promise<Team[]>;
+    public static findByName( name: string ): Promise<Team>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
     public getPersonas: Sequelize.HasManyGetAssociationsMixin<Persona>;
     public setCompetitions: Sequelize.BelongsToManySetAssociationsMixin<Competition, number>;

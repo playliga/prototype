@@ -37,6 +37,16 @@ class Team extends Model {
       }]
     });
   }
+
+  static findByName( name ) {
+    return Team.findOne({
+      where: { name },
+      include: [
+        _models.Player,
+        _models.Country
+      ]
+    });
+  }
 }
 
 
