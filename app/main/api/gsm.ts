@@ -322,11 +322,11 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   //
   // add team1 bots
   await rcon.send( `bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ team1.tier ].difficulty}` );
-  await rcon.send( team1.Players.map( p => p.alias ).join( ';' ) );
+  await rcon.send( squad1.map( p => `bot_add_t ${p.alias}` ).join( ';' ) );
 
   // add team2 bots
   await rcon.send( `bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ team2.tier ].difficulty}` );
-  await rcon.send( team2.Players.map( p => p.alias ).join( ';' ) );
+  await rcon.send( squad2.map( p => `bot_add_ct ${p.alias}` ).join( ';' ) );
 
   // --------------------------------
   // SCOREBOT SET UP + EVENT HANDLERS
