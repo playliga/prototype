@@ -67,6 +67,8 @@ const TIER_TO_BOT_DIFFICULTY_MAP = [
 // variables
 let steampath: string;
 let gameproc: ChildProcessWithoutNullStreams;
+let rcon: Rcon;
+let scorebot: Scorebot.Scorebot;
 
 
 // set up the steam path
@@ -129,7 +131,7 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
       log.info( 'connection to server established.' );
       return Promise.resolve( rcon );
     } catch( error ) {
-      log.info( error );
+      log.debug( error );
     }
   }
 
@@ -142,7 +144,7 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
  * Misc. helper functions
  */
 
-function generateSquads( team1: Models.Player[], team2: Models.Player[] ) {
+function getSquads( team1: Models.Player[], team2: Models.Player[] ) {
   // load up the whole squad
   let squad1 = team1;
   let squad2 = team2;
@@ -225,7 +227,7 @@ async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player
 }
 
 
-async function patchScoreboardFile() {
+async function generateScoreboardFile() {
   // patch scoreboard the scoreboard file
   // to remove the BOT prefixes
   //
@@ -240,6 +242,40 @@ async function patchScoreboardFile() {
   // read/replace the BOT prefix
   const content = await fs.promises.readFile( scbfile, 'utf16le' );
   return fs.promises.writeFile( scbfile, content.replace( '"BOT %s1', '"%s1' ), 'utf16le' );
+}
+
+
+function restoreBotConfig() {
+  const botcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG );
+  const backupcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG_BACKUP );
+
+  // restore the backup file
+  if( fs.existsSync( backupcfg ) ) {
+    fs.copyFileSync( backupcfg, botcfg );
+  }
+}
+
+
+function restoreScoreboardFile() {
+  const scbfile = path.join( steampath, CSGO_BASEDIR, CSGO_RESOURCEDIR, CSGO_LANGUAGE_FILE );
+  const scbfile_backup = path.join( steampath, CSGO_BASEDIR, CSGO_RESOURCEDIR, CSGO_LANGUAGE_FILE_BACKUP );
+
+  if( fs.existsSync( scbfile_backup ) ) {
+    fs.copyFileSync( scbfile_backup, scbfile );
+  }
+}
+
+
+function cleanup() {
+  log.info( 'connection closed to gameserver. cleaning up...' );
+
+  // clean up connections to processes and/or files
+  gameproc.kill();
+  scorebot.unwatch();
+
+  // restore modified config files
+  restoreBotConfig();
+  restoreScoreboardFile();
 }
 
 
@@ -295,7 +331,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
 
   // generate each team's squads
-  const squads = generateSquads(
+  const squads = getSquads(
     team1.Players.filter( p => p.alias !== profile.Player.alias ),
     team2.Players.filter( p => p.alias !== profile.Player.alias )
   );
@@ -322,7 +358,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   await generateBotConfig( squads[ 0 ], squads[ 1 ] );
 
   // remove bot prefixes from scoreboard
-  await patchScoreboardFile();
+  await generateScoreboardFile();
 
   // --------------------------------
   // CSGO + RCON SET UP
@@ -332,11 +368,10 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   launchCSGO();
 
   // connect to rcon
-  const rcon = await initrcon();
+  rcon = await initrcon();
 
-  // csgo process event handlers
-  gameproc.on( 'error', () => evt.sender.send( request.responsechannel ) );
-  gameproc.on( 'close', () => evt.sender.send( request.responsechannel ) );
+  // restore default config files once the rcon connection is closed
+  rcon.on( 'end', cleanup );
 
   // --------------------------------
   // BOT SET UP
@@ -361,9 +396,9 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
 
   // start watching log file
   // @todo: clear liga.log first
-  const sb = new Scorebot.Scorebot( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
+  scorebot = new Scorebot.Scorebot( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
 
-  sb.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
+  scorebot.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
     switch( text ) {
       case '.ready':
         await rcon.send( 'mp_warmup_end' );

@@ -43,6 +43,10 @@ export class Scorebot extends events.EventEmitter {
     this.tail.on( 'line', this.onLine.bind( this ) );
   }
 
+  public unwatch() {
+    this.tail.unwatch();
+  }
+
   private onLine( data: string ) {
     // kill event
     // Mark<6><BOT><CT>" [-417 1742 -127] killed "Jerry<3><BOT><TERRORIST>" [-416 169 65] with "scar20
