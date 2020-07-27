@@ -140,6 +140,27 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
  * Misc. helper functions
  */
 
+function generateSquads( team1: Models.Player[], team2: Models.Player[] ) {
+  // load up the whole squad
+  let squad1 = team1;
+  let squad2 = team2;
+
+  // replace squad with starters if enough are set
+  const starters1 = squad1.filter( p => p.starter );
+  const starters2 = squad2.filter( p => p.starter );
+
+  if( starters1.length >= SQUAD_STARTERS_NUM ) {
+    squad1 = starters1;
+  }
+
+  if( starters2.length >= SQUAD_STARTERS_NUM ) {
+    squad2 = starters2;
+  }
+
+  return [ squad1, squad2 ];
+}
+
+
 async function generateServerConfig( data: any ) {
   // generate config file
   const targetcfg = path.join( steampath, CSGO_BASEDIR, CSGO_CFGDIR, 'liga.cfg' );
@@ -164,29 +185,13 @@ function generateBotSkill( p: Models.Player ) {
 }
 
 
-async function generateBotConfig( data: { p1: Models.Player[]; p2: Models.Player[] }) {
+async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player[] ) {
   // create a backup
   const botcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG );
   const backupcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG_BACKUP );
 
   if( !fs.existsSync( backupcfg ) ) {
     fs.copyFileSync( botcfg, backupcfg );
-  }
-
-  // load up the whole squad
-  let squad1 = data.p1;
-  let squad2 = data.p2;
-
-  // replace squad with starters if enough are set
-  const starters1 = data.p1.filter( p => p.starter );
-  const starters2 = data.p2.filter( p => p.starter );
-
-  if( starters1.length >= SQUAD_STARTERS_NUM ) {
-    squad1 = starters1;
-  }
-
-  if( starters2.length >= SQUAD_STARTERS_NUM ) {
-    squad2 = starters2;
   }
 
   // load up our bot config and write
@@ -270,6 +275,12 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   const team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
   const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
 
+  // generate each team's squads
+  const [ squad1, squad2 ] = generateSquads(
+    team1.Players.filter( p => p.alias !== profile.Player.alias ),
+    team2.Players.filter( p => p.alias !== profile.Player.alias )
+  );
+
   // --------------------------------
   // SET UP CSGO CONFIG FILES
   // --------------------------------
@@ -284,10 +295,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   });
 
   // generate bot config
-  await generateBotConfig({
-    p1: team1.Players.filter( p => p.alias !== profile.Player.alias ),
-    p2: team2.Players.filter( p => p.alias !== profile.Player.alias )
-  });
+  await generateBotConfig( squad1, squad2 );
 
   // remove bot prefixes from scoreboard
   await patchScoreboardFile();
