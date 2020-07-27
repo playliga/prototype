@@ -276,6 +276,9 @@ function cleanup() {
   // restore modified config files
   restoreBotConfig();
   restoreScoreboardFile();
+
+  // clean up the log file
+  fs.unlinkSync( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
 }
 
 
