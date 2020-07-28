@@ -241,7 +241,14 @@ async function generateScoreboardFile() {
 
   // read/replace the BOT prefix
   const content = await fs.promises.readFile( scbfile, 'utf16le' );
-  return fs.promises.writeFile( scbfile, content.replace( '"BOT %s1', '"%s1' ), 'utf16le' );
+  const newcontent = content
+    .replace( '"BOT %s1', '"%s1' )
+    .replace(
+      '"SFUI_scoreboard_lbl_bot"	"BOT"',
+      '"SFUI_scoreboard_lbl_bot"	"5"',
+    )
+  ;
+  return fs.promises.writeFile( scbfile, newcontent, 'utf16le' );
 }
 
 
