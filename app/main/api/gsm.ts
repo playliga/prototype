@@ -287,7 +287,7 @@ function launchCSGO() {
     '+map', 'de_dust',
     '+game_mode', '1',
     '-usercon',
-    '-gamemodes_serverfile', 'gamemodes_liga.txt'
+    '-gamemodes_serverfile', CSGO_GAMEMODES_FILE
   ];
 
   if( is.osx() ) {
@@ -398,7 +398,6 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // --------------------------------
 
   // start watching log file
-  // @todo: clear liga.log first
   scorebot = new Scorebot.Scorebot( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
 
   scorebot.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
