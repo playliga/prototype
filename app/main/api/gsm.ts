@@ -358,10 +358,13 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // generate server config
   await generateServerConfig({
     hostname: `${leagueobj.name}: ${compobj.Continents[ 0 ].name} — ${divobj.name}`,
+    humanteam: team1.name === profile.Team.name ? 'ct' : 't',
+    logfile: CSGO_LOGFILE,
     rcon_password: RCON_PASSWORD,
-    teamname1: team1.name,
-    teamname2: team2.name,
-    logfile: CSGO_LOGFILE
+    teamflag_ct: team1.Country.code,
+    teamflag_t: team2.Country.code,
+    teamname_ct: team1.name,
+    teamname_t: team2.name,
   });
 
   // generate bot config
@@ -392,7 +395,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     squad
       .map( p => dedent`
         bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ p.tier ].difficulty};
-        bot_add_${idx > 0 ? 'ct' : 't'} ${p.alias}
+        bot_add_${idx === 0 ? 'ct' : 't'} ${p.alias}
       `)
       .join( ';' )
       .replace( /\n/g, '' )
