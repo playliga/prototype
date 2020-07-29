@@ -419,8 +419,11 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     }
   });
 
-  scorebot.on( Scorebot.GameEvents.GAME_OVER, result => {
+  scorebot.on( Scorebot.GameEvents.GAME_OVER, async ( result: { map: string; score: number[] }) => {
     log.info( 'GAME IS OVER', result );
+    conf.groupObj.score( match.id, result.score );
+    compobj.data = leagueobj;
+    await compobj.save();
   });
 }
 

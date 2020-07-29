@@ -15,14 +15,14 @@ export interface Match {
 
 export interface Tournament {
   isDone: () => boolean;
-  matches: Array<{ id: number }>;
+  matches: Match[];
   matchesFor: ( seed: number ) => Match[];
   results: () => Result[];
   resultsFor: ( seed: number ) => Result;
-  score: ( matchId: number, mapScore: any[] ) => boolean;
+  score: ( matchId: object, mapScore: any[] ) => boolean;
   standings?: Result[];
   state: any[];
-  unscorable: ( matchId: number, mapScore: any[], allowPast?: boolean ) => string | null;
+  unscorable: ( matchId: object, mapScore: any[], allowPast?: boolean ) => string | null;
   upcoming: ( seed: number ) => Match[];
 }
 

@@ -49,42 +49,29 @@ export class Scorebot extends events.EventEmitter {
     this.tail.unwatch();
   }
 
-  private onLine( data: string ) {
-    // kill event
-    // Mark<6><BOT><CT>" [-417 1742 -127] killed "Jerry<3><BOT><TERRORIST>" [-416 169 65] with "scar20
-
-    // say event:
-    // LIMÓNPOLE<2><STEAM_1:0:4517681><TERRORIST>" say ".ready"
-    // res = data.match( `${STEAM_REGEX.source}${TEAM_REGEX.source}${SAY_REGEX.source}` );
-
-    // user joins (only one w/ steamid)
-    // "LIMÓNPOLE<2><STEAM_1:0:4517681><>" entered the game
-
+  private onLine( line: string ) {
     // figure out what type of event this is
-    let regexmatch = null;
+    //
+    // look for SAY events
+    let regexmatch = line.match( RegexTypes.SAY_REGEX );
 
-    for( let i = 0; i < Object.keys( GameEvents ).length; i++ ) {
+    if( regexmatch ) {
+      this.emit( GameEvents.SAY, regexmatch[ 1 ] );
+      return;
+    }
 
-      // look for SAY events
-      regexmatch = data.match( RegexTypes.SAY_REGEX );
+    // look for GAMEOVER events
+    regexmatch = line.match( RegexTypes.GAME_OVER_REGEX );
 
-      if( regexmatch ) {
-        this.emit( GameEvents.SAY, regexmatch[ 1 ] );
-        break;
-      }
-
-      // look for GAMEOVER events
-      regexmatch = data.match( RegexTypes.GAME_OVER_REGEX );
-
-      if( regexmatch ) {
-        this.emit( GameEvents.GAME_OVER, {
-          map: regexmatch[ 1 ],
-          score_team1: regexmatch[ 3 ],         // csgo inverts the final result. e.g.: 16:1
-          score_team2: regexmatch[ 2 ]          // so 16(team2) and 1(team1)
-        });
-        break;
-      }
-
+    if( regexmatch ) {
+      this.emit( GameEvents.GAME_OVER, {
+        map: regexmatch[ 1 ],
+        score: [
+          parseInt( regexmatch[ 3 ] ),         // csgo inverts the final result. e.g.: 16:1
+          parseInt( regexmatch[ 2 ] )          // so 16(team2) and 1(team1)
+        ]
+      });
+      return;
     }
   }
 }
