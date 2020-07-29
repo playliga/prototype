@@ -358,7 +358,6 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // generate server config
   await generateServerConfig({
     hostname: `${leagueobj.name}: ${compobj.Continents[ 0 ].name} — ${divobj.name}`,
-    humanteam: team1.name === profile.Team.name ? 'ct' : 't',
     logfile: CSGO_LOGFILE,
     rcon_password: RCON_PASSWORD,
     teamflag_ct: team1.Country.code,
@@ -418,6 +417,10 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
       default:
         break;
     }
+  });
+
+  scorebot.on( Scorebot.GameEvents.GAME_OVER, result => {
+    log.info( 'GAME IS OVER', result );
   });
 }
 
