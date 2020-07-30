@@ -2,8 +2,13 @@ import Competitor from './competitor';
 
 
 export interface Result {
+  draws: number;
+  gpos: number;
+  losses: number;
   pos: number;
+  pts: number;
   seed: number;
+  wins: number;
 }
 
 

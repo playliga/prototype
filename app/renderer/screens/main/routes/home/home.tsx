@@ -12,6 +12,7 @@ import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
 import IpcService from 'renderer/lib/ipc-service';
 import InboxPreview from 'renderer/screens/main/components/inbox-preview';
 import Connector from 'renderer/screens/main/components/connector';
+import Standings from  'renderer/screens/main/components/standings';
 
 
 interface Props extends RouteComponentProps {
@@ -52,12 +53,17 @@ const INBOX_PREVIEW_NUM = 3;
 function Home( props: Props ) {
   const { profile } = props;
   const [ upcoming, setUpcoming ] = React.useState([]);
+  const [ standings, setStandings ] = React.useState([]);
   const formatteddate = formatDate( profile.data?.currentDate );
 
   React.useEffect( () => {
     IpcService
       .send( IPCRouting.Database.COMPETITION_TEAM_MATCHES_UPCOMING )
       .then( res => setUpcoming( res ) )
+    ;
+    IpcService
+      .send( IPCRouting.Database.COMPETITION_TEAM_STANDINGS )
+      .then( res => setStandings( res ) )
     ;
   }, []);
 
@@ -130,10 +136,35 @@ function Home( props: Props ) {
           )}
         </Card>
       </section>
-      <InboxPreview
-        data={props.emails.data.slice( 0, INBOX_PREVIEW_NUM )}
-        onClick={id => props.history.push( `/inbox/${id}` )}
-      />
+      <section>
+        <InboxPreview
+          data={props.emails.data.slice( 0, INBOX_PREVIEW_NUM )}
+          onClick={id => props.history.push( `/inbox/${id}` )}
+        />
+        {( !standings || standings.length === 0 ) && (
+          <Spin size="large" />
+        )}
+
+        {standings && standings.length > 0 && ([
+          <Typography.Title style={{ textAlign: 'center' }} level={3} key="standings-title">
+            {standings[ 0 ].competition.data.name}: {standings[ 0 ].competition.Continents[0].name}
+          </Typography.Title>,
+          <Standings
+            key="standings"
+            disablePagination
+            highlightSeed={standings[0].seed}
+            title={standings[ 0 ].division.name}
+            dataSource={standings[ 0 ]
+              .standings
+              .map( ( s: any ) => ({
+                id: s.competitorInfo.id,
+                name: s.competitorInfo.name,
+                ...s,
+              }))
+            }
+          />
+        ])}
+      </section>
     </div>
   );
 }

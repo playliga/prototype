@@ -175,9 +175,50 @@ async function matchesUpcoming( evt: IpcMainEvent, request: IpcRequest<TeamMatch
 }
 
 
+async function standings( evt: IpcMainEvent, request: IpcRequest<TeamMatches> ) {
+  const out = [] as any[];
+
+  // if no teamid provided, assume user's team
+  const profile = await Profile.getActiveProfile();
+  const teamid = request.params?.teamid || profile.Team.id;
+
+  // grab the team info
+  const teamobj = await Team.findByPk( teamid, {
+    include: [
+      { all: true },
+      {
+        model: Competition,
+        include: [ Continent ]
+      }
+    ]
+  });
+
+  teamobj.Competitions.forEach( compobj => {
+    const leagueobj = League.restore( compobj.data );
+    const divobj = leagueobj.getDivisionByCompetitorId( teamobj.id );
+    const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( teamobj.id );
+
+    // format the response object
+    out.push({
+      competition: compobj,
+      division: divobj,
+      seed: seednum,
+      standings: conf.groupObj.results().map( item => ({
+        ...item,
+        competitorInfo: divobj.getCompetitorBySeed( conf, item.seed )
+      })),
+    });
+  });
+
+  // return the output
+  evt.sender.send( request.responsechannel, JSON.stringify( out ) );
+}
+
+
 export default () => {
   ipcMain.on( IPCRouting.Database.COMPETITION_ALL, all );
   ipcMain.on( IPCRouting.Database.COMPETITION_JOIN, join );
   ipcMain.on( IPCRouting.Database.COMPETITION_TEAM_MATCHES_UPCOMING, matchesUpcoming );
+  ipcMain.on( IPCRouting.Database.COMPETITION_TEAM_STANDINGS, standings );
   ipcMain.on( IPCRouting.Database.COMPETITION_START, start );
 };

@@ -1,58 +1,16 @@
 import React from 'react';
-import { SizeType } from 'antd/lib/config-provider/SizeContext';
-import { Spin, Row, Col, Typography, Table, Button, Space, Alert } from 'antd';
-
+import { Spin, Row, Col, Typography, Button, Space, Alert } from 'antd';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
+import Standings from 'renderer/screens/main/components/standings';
 
 
 const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
-
-
-/**
- * Standings Component
- */
-
-interface StandingsProps {
-  children?: any;
-  dataSource: any;
-  disablePagination?: boolean;
-  title?: string;
-  pageSize?: number;
-  size?: SizeType;
-  rowKey?: string;
-}
-
-
-function Standings( props: StandingsProps ) {
-  return (
-    <Table
-      size={props.size || 'small'}
-      dataSource={props.dataSource}
-      rowKey={props.rowKey || 'id'}
-      pagination={!props.disablePagination && { pageSize: props.pageSize || 20, hideOnSinglePage: true }}
-    >
-      <Table.ColumnGroup title={props.title}>
-        <Table.Column
-          width="80%"
-          title="Name"
-          render={item => `${item.pos || 1}. ${item.name}`}
-        />
-        <Table.Column
-          title="W/L"
-          width="20%"
-          render={t => `${t?.wins || 0}/${t?.losses || 0}`}
-        />
-        {props.children}
-      </Table.ColumnGroup>
-    </Table>
-  );
-}
 
 
 /**
