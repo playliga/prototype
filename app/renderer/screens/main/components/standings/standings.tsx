@@ -26,14 +26,20 @@ export default function Standings( props: StandingsProps ) {
     >
       <Table.ColumnGroup title={props.title}>
         <Table.Column
-          width="80%"
+          ellipsis
+          width="50%"
           title="Name"
           render={item => `${item.gpos || 1}. ${item.name}`}
         />
         <Table.Column
-          title="W/L"
+          title="W/L/D"
+          width="30%"
+          render={t => `${t?.wins || 0}/${t?.losses || 0}/${t?.draws || 0}`}
+        />
+        <Table.Column
+          title="Pts."
           width="20%"
-          render={t => `${t?.wins || 0}/${t?.losses || 0}`}
+          render={t => t?.pts || 0}
         />
         {props.children}
       </Table.ColumnGroup>
