@@ -21,14 +21,14 @@ import { League } from 'main/lib/league';
 
 
 // general settings
+const BOT_CONFIG = 'botprofile.db';
+const BOT_CONFIG_BACKUP = 'botprofile.original.db';
+const BOT_VOICEPITCH_MIN = 80;
+const BOT_VOICEPITCH_MAX = 125;
+const BOT_WEAPONPREFS_PROBABILITY_RIFLE = 3;
+const BOT_WEAPONPREFS_PROBABILITY_SNIPER = 1;
 const CSGO_APPID = 730;
 const CSGO_BASEDIR = 'steamapps/common/Counter-Strike Global Offensive/csgo';
-const CSGO_BOTCONFIG = 'botprofile.db';
-const CSGO_BOTCONFIG_BACKUP = 'botprofile.original.db';
-const CSGO_BOT_VOICEPITCH_MIN = 80;
-const CSGO_BOT_VOICEPITCH_MAX = 125;
-const CSGO_BOT_WEAPONPREFS_PROBABILITY_RIFLE = 3;
-const CSGO_BOT_WEAPONPREFS_PROBABILITY_SNIPER = 1;
 const CSGO_CFGDIR = 'cfg';
 const CSGO_GAMEMODES_FILE = 'gamemodes_liga.txt';
 const CSGO_LANGUAGE_FILE = 'csgo_english.txt';
@@ -36,13 +36,10 @@ const CSGO_LANGUAGE_FILE_BACKUP = 'csgo_english.original.txt';
 const CSGO_LOGFILE = 'logs/liga.log';
 const CSGO_RESOURCEDIR = 'resource';
 const CSGO_SERVER_CONFIG_FILE = 'liga.cfg';
-
 const RCON_MAX_ATTEMPTS = 15;
 const RCON_PASSWORD = 'liga';
 const RCON_PORT = 27015;
-
 const SQUAD_STARTERS_NUM = 5;
-
 const TIER_TO_BOT_DIFFICULTY = [
   {
     difficulty: 3,
@@ -76,8 +73,8 @@ let scorebot: Scorebot.Scorebot;
 
 // constants
 const weaponPrefsProbabilityTable = probable.createTableFromSizes([
-  [ CSGO_BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],     // 3x more likely
-  [ CSGO_BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]     // 1x more likely
+  [ BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],     // 3x more likely
+  [ BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]     // 1x more likely
 ]);
 
 
@@ -206,7 +203,7 @@ function generateBotSkill( p: Models.Player ) {
 
   return dedent`
     ${difficulty.templates[ template ]}+${weaponpref} ${p.alias}
-      VoicePitch = ${random( CSGO_BOT_VOICEPITCH_MIN, CSGO_BOT_VOICEPITCH_MAX )}
+      VoicePitch = ${random( BOT_VOICEPITCH_MIN, BOT_VOICEPITCH_MAX )}
     End\n
   `;
 }
@@ -214,8 +211,8 @@ function generateBotSkill( p: Models.Player ) {
 
 async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player[] ) {
   // create a backup
-  const botcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG );
-  const backupcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG_BACKUP );
+  const botcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG );
+  const backupcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG_BACKUP );
 
   if( !fs.existsSync( backupcfg ) ) {
     fs.copyFileSync( botcfg, backupcfg );
@@ -224,7 +221,7 @@ async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player
   // load up our bot config and write
   // the bot profiles to disk
   const configtpl = await fs.promises.readFile(
-    path.join( __dirname, 'resources', CSGO_BOTCONFIG ),
+    path.join( __dirname, 'resources', BOT_CONFIG ),
     'utf8'
   );
 
@@ -264,8 +261,8 @@ async function generateScoreboardFile() {
 
 
 function restoreBotConfig() {
-  const botcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG );
-  const backupcfg = path.join( steampath, CSGO_BASEDIR, CSGO_BOTCONFIG_BACKUP );
+  const botcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG );
+  const backupcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG_BACKUP );
 
   // restore the backup file
   if( fs.existsSync( backupcfg ) ) {
