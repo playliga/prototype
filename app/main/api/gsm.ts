@@ -4,6 +4,7 @@ import fs from 'fs';
 import is from 'electron-is';
 import log from 'electron-log';
 import dedent from 'dedent';
+import probable from 'probable';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 
@@ -19,13 +20,15 @@ import { IpcRequest } from 'shared/types';
 import { League } from 'main/lib/league';
 
 
-// constants
+// general settings
 const CSGO_APPID = 730;
 const CSGO_BASEDIR = 'steamapps/common/Counter-Strike Global Offensive/csgo';
 const CSGO_BOTCONFIG = 'botprofile.db';
 const CSGO_BOTCONFIG_BACKUP = 'botprofile.original.db';
 const CSGO_BOT_VOICEPITCH_MIN = 80;
 const CSGO_BOT_VOICEPITCH_MAX = 125;
+const CSGO_BOT_WEAPONPREFS_PROBABILITY_RIFLE = 3;
+const CSGO_BOT_WEAPONPREFS_PROBABILITY_SNIPER = 1;
 const CSGO_CFGDIR = 'cfg';
 const CSGO_GAMEMODES_FILE = 'gamemodes_liga.txt';
 const CSGO_LANGUAGE_FILE = 'csgo_english.txt';
@@ -40,10 +43,10 @@ const RCON_PORT = 27015;
 
 const SQUAD_STARTERS_NUM = 5;
 
-const TIER_TO_BOT_DIFFICULTY_MAP = [
+const TIER_TO_BOT_DIFFICULTY = [
   {
     difficulty: 3,
-    templates: [ 'Expert', 'Elite' ]
+    templates: [ 'Expert', 'Elite' ],
   },
   {
     difficulty: 2,
@@ -59,7 +62,7 @@ const TIER_TO_BOT_DIFFICULTY_MAP = [
   },
   {
     difficulty: 0,
-    templates: [ 'Easy' ]
+    templates: [ 'Easy' ],
   }
 ];
 
@@ -69,6 +72,13 @@ let steampath: string;
 let gameproc: ChildProcessWithoutNullStreams;
 let rcon: Rcon;
 let scorebot: Scorebot.Scorebot;
+
+
+// constants
+const weaponPrefsProbabilityTable = probable.createTableFromSizes([
+  [ CSGO_BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],     // 3x more likely
+  [ CSGO_BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]     // 1x more likely
+]);
 
 
 // set up the steam path
@@ -190,11 +200,12 @@ async function generateServerConfig( data: any ) {
 
 
 function generateBotSkill( p: Models.Player ) {
-  const difficulty = TIER_TO_BOT_DIFFICULTY_MAP[ p.tier ];
-  const templateidx = random( 0, difficulty.templates.length - 1 );
+  const difficulty = TIER_TO_BOT_DIFFICULTY[ p.tier ];
+  const template = random( 0, difficulty.templates.length - 1 );
+  const weaponpref = weaponPrefsProbabilityTable.roll();
 
   return dedent`
-    ${difficulty.templates[ templateidx ]} ${p.alias}
+    ${difficulty.templates[ template ]}+${weaponpref} ${p.alias}
       VoicePitch = ${random( CSGO_BOT_VOICEPITCH_MIN, CSGO_BOT_VOICEPITCH_MAX )}
     End\n
   `;
@@ -393,7 +404,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   const botadd_cmd = squads.map( ( squad, idx ) => (
     squad
       .map( p => dedent`
-        bot_difficulty ${TIER_TO_BOT_DIFFICULTY_MAP[ p.tier ].difficulty};
+        bot_difficulty ${TIER_TO_BOT_DIFFICULTY[ p.tier ].difficulty};
         bot_add_${idx === 0 ? 'ct' : 't'} ${p.alias}
       `)
       .join( ';' )

@@ -137,6 +137,7 @@
     "lodash": "4.17.19",
     "minimist": "1.2.5",
     "moment": "2.26.0",
+    "probable": "2.1.4",
     "rcon-client": "4.2.1",
     "react": "16.13.0",
     "react-dom": "16.13.0",
