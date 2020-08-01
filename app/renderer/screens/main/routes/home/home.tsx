@@ -141,7 +141,8 @@ function Home( props: Props ) {
           data={props.emails.data.slice( 0, INBOX_PREVIEW_NUM )}
           onClick={id => props.history.push( `/inbox/${id}` )}
         />
-        {( !standings || standings.length === 0 ) && (
+
+        {!standings && (
           <Spin size="large" />
         )}
 
