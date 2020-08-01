@@ -20,7 +20,8 @@ import {
   Space,
   Tag,
   Divider,
-  Tooltip
+  Tooltip,
+  Empty
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
@@ -173,6 +174,18 @@ function Squad( props: Props ) {
     return (
       <div id="squad" className="loading-container">
         <Spin size="large" />
+      </div>
+    );
+  }
+
+  // bail if no squad
+  if( squad && squad.length === 0 ) {
+    return (
+      <div id="squad" className="loading-container">
+        <Empty
+          image={Empty.PRESENTED_IMAGE_DEFAULT}
+          description="You don't have a squad!"
+        />
       </div>
     );
   }
