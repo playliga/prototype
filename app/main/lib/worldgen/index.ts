@@ -82,7 +82,7 @@ async function handleQueueItem( item: Models.ActionQueue ) {
 
 export async function calendarLoop() {
   // load profile
-  const profile = await Models.Profile.getActiveProfile();
+  let profile = await Models.Profile.getActiveProfile();
 
   if( !profile ) {
     return Promise.reject();
@@ -105,6 +105,9 @@ export async function calendarLoop() {
       .toDate()
     ;
     await profile.save();
+
+    // fetch a fresh profile in case of transfer moves
+    profile = await Models.Profile.getActiveProfile();
 
     // send the updated profile to the renderer
     ScreenManager

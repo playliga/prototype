@@ -11,6 +11,7 @@ import Standings from 'renderer/screens/main/components/standings';
 const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
+const SQUAD_STARTERS_NUM = 5;
 
 
 /**
@@ -18,7 +19,7 @@ const GRID_COL_WIDTH = 8;
  */
 
 function Competition( props: any ) {
-  const nosquad = props.team.Players.length < 4;
+  const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
   const joined = props
     .team
     .Competitions
