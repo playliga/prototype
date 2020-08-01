@@ -143,11 +143,14 @@ async function matchesUpcoming( evt: IpcMainEvent, request: IpcRequest<TeamMatch
   });
 
   teamobj.Competitions.forEach( compobj => {
+    // bail if tourney not started
+    if( !compobj.data.started ) {
+      return;
+    }
+
     const leagueobj = League.restore( compobj.data );
     const divobj = leagueobj.getDivisionByCompetitorId( teamobj.id );
 
-    // @todo: bail if tourney not started
-    //
     // get the team's upcoming matches
     const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( teamobj.id );
     const matches = conf.groupObj.upcoming( seednum );
@@ -194,6 +197,11 @@ async function standings( evt: IpcMainEvent, request: IpcRequest<TeamMatches> ) 
   });
 
   teamobj.Competitions.forEach( compobj => {
+    // bail if tourney not started
+    if( !compobj.data.started ) {
+      return;
+    }
+
     const leagueobj = League.restore( compobj.data );
     const divobj = leagueobj.getDivisionByCompetitorId( teamobj.id );
     const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( teamobj.id );
