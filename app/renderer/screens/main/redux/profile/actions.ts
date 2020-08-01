@@ -18,6 +18,22 @@ export function findFinish( payload: ProfileTypes.Profile ): ProfileTypes.Profil
 }
 
 
+export function updateSquadMember( payload: any ): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.UPDATE_SQUAD_MEMBER,
+    payload
+  };
+}
+
+
+export function updateSquadMemberFinish( payload: any ): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.UPDATE_SQUAD_MEMBER_FINISH,
+    payload
+  };
+}
+
+
 export function register() {
   return ( dispatch: Function ) => {
     ipcRenderer.on( IPCRouting.Database.PROFILE_GET, ( evt, data ) => {

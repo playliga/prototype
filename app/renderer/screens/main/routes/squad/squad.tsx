@@ -25,16 +25,16 @@ import {
 
 import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
-import * as SquadTypes from 'renderer/screens/main/redux/squad/types';
-import * as SquadActions from 'renderer/screens/main/redux/squad/actions';
-import { getWeeklyWages } from 'renderer/lib/util';
+import * as ProfileSelectors from 'renderer/screens/main/redux/profile/selectors';
+import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
 import Connector from 'renderer/screens/main/components/connector';
+import { getWeeklyWages } from 'renderer/lib/util';
 
 
 interface Props extends RouteComponentProps {
   dispatch: Function;
   profile: ProfileTypes.ProfileState;
-  squad: SquadTypes.SquadState;
+  squad: any[];
 }
 
 
@@ -169,7 +169,7 @@ function Squad( props: Props ) {
   const { profile, squad } = props;
 
   // bail if profile hasn't loaded
-  if( !profile.data || !squad.data ) {
+  if( !profile.data || !squad ) {
     return (
       <div id="squad" className="loading-container">
         <Spin size="large" />
@@ -177,21 +177,16 @@ function Squad( props: Props ) {
     );
   }
 
-  // on component load; fetch the squad
-  React.useEffect( () => {
-    props.dispatch( SquadActions.find( profile.data.Team.id ) );
-  }, []);
-
   return (
     <div id="squad" className="content">
       <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-        {squad.data.map( ( p: any ) =>
+        {squad.map( ( p: any ) =>
           <Col key={p.id} span={GRID_COL_WIDTH}>
             <PlayerCard
               player={p}
               me={profile.data.Player.id === p.id}
-              onSetStarter={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, starter: !p.starter }) )}
-              onTransferList={( p: any ) => props.dispatch( SquadActions.update({ id: p.id, transferListed: !p.transferListed }) )}
+              onSetStarter={( p: any ) => props.dispatch( ProfileActions.updateSquadMember({ id: p.id, starter: !p.starter }) )}
+              onTransferList={( p: any ) => props.dispatch( ProfileActions.updateSquadMember({ id: p.id, transferListed: !p.transferListed }) )}
               onClickDetails={(p: any ) => ipcRenderer.send( IPCRouting.Offer.OPEN, p.id )}
             />
           </Col>
@@ -202,4 +197,7 @@ function Squad( props: Props ) {
 }
 
 
-export default Connector.connect( Squad );
+export default Connector.connect(
+  Squad,
+  { squad: ProfileSelectors.getSquad }
+);

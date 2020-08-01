@@ -23,6 +23,28 @@ export default function emailReducer(
         loading: false,
         data: action.payload
       };
+    case ProfileTypes.UPDATE_SQUAD_MEMBER_FINISH:
+      return {
+        ...state,
+        loading: false,
+        data: {
+          ...state.data,
+          Team: {
+            ...state.data.Team,
+            Players: state.data.Team.Players.map( ( p: any ) => {
+              // this isn't the item we care about - keep it as-is
+              if( p.id !== action.payload.id ) {
+                return p;
+              }
+
+              return {
+                ...p,
+                ...action.payload
+              };
+            })
+          }
+        }
+      };
     default:
       return state;
   }

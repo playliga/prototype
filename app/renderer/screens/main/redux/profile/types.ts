@@ -1,5 +1,7 @@
 export const FIND = 'profile.find';
 export const FIND_FINISH = 'profile.find.finish';
+export const UPDATE_SQUAD_MEMBER = 'profile.updatesqdm';
+export const UPDATE_SQUAD_MEMBER_FINISH = 'profile.updatesqdm.finish';
 
 
 export interface Profile {
@@ -21,9 +23,23 @@ interface FindProfileFinishAction {
 }
 
 
+interface UpdateSquadMemberAction {
+  type: typeof UPDATE_SQUAD_MEMBER;
+  payload: any;             // @todo: is a player
+}
+
+
+interface UpdateSquadMemberFinishAction {
+  type: typeof UPDATE_SQUAD_MEMBER_FINISH;
+  payload: any;             // @todo: is a player
+}
+
+
 export type ProfileActionTypes =
   | FindProfileAction
   | FindProfileFinishAction
+  | UpdateSquadMemberAction
+  | UpdateSquadMemberFinishAction
 ;
 
 
