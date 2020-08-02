@@ -27,13 +27,13 @@
       },
       {
         "name":"Intermediate",
-        "minlen":56,
-        "confsize":8
+        "minlen":60,
+        "confsize":20
       },
       {
         "name":"Open",
-        "minlen":96,
-        "confsize":8
+        "minlen":100,
+        "confsize":20
       }
     ]
   },
