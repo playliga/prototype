@@ -1,7 +1,6 @@
 import React from 'react';
 import moment from 'moment';
 import { ipcRenderer } from 'electron';
-import { getEmojiFlag } from 'countries-list';
 import { UserOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import {
   Typography,
@@ -356,7 +355,7 @@ function Offer() {
             {freeagent ? 'Free Agent' : player.Team.name }
           </Typography.Title>
           <Typography.Text>
-            {getEmojiFlag( player.Country.code )}
+            <span className={`fp ${player.Country.code.toLowerCase()}`} />
             <Typography.Text type="secondary">
               {player.Country.name}
             </Typography.Text>

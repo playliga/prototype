@@ -1,5 +1,4 @@
 import React from 'react';
-import { getEmojiFlag } from 'countries-list';
 import { Select } from 'antd';
 
 
@@ -18,7 +17,7 @@ export default function CountrySelector( props: any ) {
         <OptGroup key={continent.code} label={continent.name}>
           {continent.Countries.map( ( country: any ) => (
             <Option key={country.name} value={country.name}>
-              {getEmojiFlag(country.code)}
+              <span className={`fp ${country.code.toLowerCase()}`} />
               {country.name}
             </Option>
           ) )}

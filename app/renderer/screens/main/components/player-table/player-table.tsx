@@ -1,5 +1,4 @@
 import React from 'react';
-import { getEmojiFlag } from 'countries-list';
 import { Table, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
@@ -49,7 +48,7 @@ export default function PlayerTable( props: any ) {
           { text: 'North America', value: 5 },
         ]}
         onFilter={( v: any, r: any ) => r.Country.ContinentId === v}
-        render={( alias: any, r: any ) => `${getEmojiFlag( r.Country.code )} ${alias}`}
+        render={( alias: any, r: any ) => <><span className={`fp ${r.Country.code.toLowerCase()}`} /> {alias}</>}
       />
       <Table.Column
         ellipsis

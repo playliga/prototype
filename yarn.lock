@@ -4697,6 +4697,11 @@ findup-sync@^3.0.0:
     micromatch "^3.0.4"
     resolve-dir "^1.0.1"
 
+flagpack@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/flagpack/-/flagpack-1.0.5.tgz#c122c5eda7aec2293bbefbfe13f35f4fff51cfd1"
+  integrity sha512-jrb3OEoVXPBXjmhwZq6C9DTH6Axarh+rfnT3kA5T4xQ2FD9MogwCasqNJnMvhHHkaEVryXwQf1MQvqVv8UsK3g==
+
 flat-cache@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/flat-cache/-/flat-cache-2.0.1.tgz#5d296d6f04bda44a4630a301413bdbc2ec085ec0"

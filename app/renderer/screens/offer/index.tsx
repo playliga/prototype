@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import Offer from './offer';
+import 'flagpack/dist/flagpack.css';
 import './assets/styles.scss';
+import Offer from './offer';
 
 
 const render = ( Component: React.ReactType<unknown> ) => {

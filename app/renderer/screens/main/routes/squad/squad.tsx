@@ -1,7 +1,6 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { ipcRenderer } from 'electron';
-import { getEmojiFlag } from 'countries-list';
 import {
   StarFilled,
   FolderOpenFilled,
@@ -108,7 +107,8 @@ function PlayerCard( props: any ) {
 
       <Divider orientation="center" className="flag-divider">
         <span className="flag-text">
-          {getEmojiFlag( player.Country.code )} {player.Country.name}
+          <span className={`fp ${player.Country.code.toLowerCase()}`} />
+          {player.Country.name}
         </span>
       </Divider>
 
