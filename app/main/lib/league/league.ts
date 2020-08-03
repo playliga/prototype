@@ -1,4 +1,3 @@
-// @flow
 import { find, chunk } from 'lodash';
 import cuid from 'cuid';
 import GroupStage from 'groupstage';
@@ -102,7 +101,7 @@ class League {
       const conferences = chunk( div.competitors, div.conferenceSize ).map( ( conf: Competitor[] ) => ({
         id: cuid(),
         competitors: conf,
-        groupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize })
+        groupObj: new GroupStage( conf.length, { groupSize: div.conferenceSize, meetTwice: div.meetTwice })
       }) );
       div.setConferences( conferences );
     });

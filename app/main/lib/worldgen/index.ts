@@ -237,6 +237,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
         .slice( 0, tier.minlen )
         .map( t => ({ id: t.id, name: t.name }) )
       ;
+      div.meetTwice = compdef.meetTwice;
       div.addCompetitors( competitors );
     });
 
@@ -254,6 +255,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     // save its associations
     return Promise.all([
       comp.setCompdef( compdef ),
+      comp.setComptype( compdef.Comptype ),
       comp.setContinents([ region ]),
       comp.setTeams( teams )
     ]);
@@ -263,7 +265,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
 
 export async function genAllComps() {
   const compdefs = await Models.Compdef.findAll({
-    include: [ 'Continents' ],
+    include: [ 'Continents', 'Comptype' ],
   });
   const profile = await Models.Profile.getActiveProfile();
   return compdefs.map( c => genSingleComp( c, profile ) );

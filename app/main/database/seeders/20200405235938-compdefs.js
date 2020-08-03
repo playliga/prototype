@@ -2,16 +2,24 @@ const data = require( '../fixtures/compdefs.json' );
 
 
 module.exports = {
-  up: ( queryInterface ) => {
+  up: async ( queryInterface ) => {
+    const [ comptypes ] = await queryInterface.sequelize.query(`
+      SELECT id, name FROM Comptypes;
+    `);
+
     // format the data to insert into the db
     const formattedrow = data.map( d => ({
+      comptypeId: comptypes.find( type => d.type === type.name ).id,
+      isOpen: d.isopen,
+      meetTwice: d.meetTwice,
       name: d.name,
       season: d.season,
-      tiers: JSON.stringify( d.tiers ),
-      isOpen: d.isopen,
       startOffset: d.startoffset,
+      tiers: JSON.stringify( d.tiers ),
+
+      // timestamps
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }));
     return queryInterface.bulkInsert( 'Compdefs', formattedrow, { ignoreDuplicates: true });
   },

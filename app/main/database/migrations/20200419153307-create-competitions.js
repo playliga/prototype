@@ -26,6 +26,13 @@ module.exports = {
           key: 'id'
         }
       },
+      comptypeId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'comptypes',
+          key: 'id'
+        }
+      },
     });
   },
   down: (queryInterface ) => {

@@ -1,4 +1,5 @@
 export { default as Compdef } from './compdef';
+export { default as Comptype } from './comptype';
 export { default as Competition } from './competition';
 export { default as Continent } from './continent';
 export { default as Country } from './country';

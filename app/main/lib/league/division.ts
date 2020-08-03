@@ -1,9 +1,9 @@
-import { findIndex, chunk, sortBy } from 'lodash';
 import cuid from 'cuid';
 import GroupStage from 'groupstage';
 import Duel from 'duel';
-import { IterableObject } from 'shared/types';
 import Competitor from './competitor';
+import { findIndex, chunk, sortBy } from 'lodash';
+import { IterableObject } from 'shared/types';
 import { Conference, PromotionConference, Result } from './types';
 
 
@@ -15,6 +15,7 @@ class Division {
   public conferenceSize: number;
   public conferences: Array<Conference> = [];
   public conferenceWinners: Array<Competitor> = [];
+  public meetTwice = false;
   public promotionConferences: Array<PromotionConference> = [];
   public promotionWinners: Array<Competitor> = [];
   public relegationBottomfeeders: Array<Competitor> = [];
@@ -37,7 +38,7 @@ class Division {
     ins.conferences = args.conferences.map( ( c: Conference ) => ({
       ...c,
       groupObj: c.groupObj
-        ? GroupStage.restore( c.competitors.length, { groupSize: args.conferenceSize }, c.groupObj.state )
+        ? GroupStage.restore( c.competitors.length, { groupSize: args.conferenceSize, meetTwice: args.meetTwice }, c.groupObj.state )
         : null
     }));
     return ins;

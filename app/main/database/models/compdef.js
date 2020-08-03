@@ -4,15 +4,30 @@ import Sequelize, { Model } from 'sequelize';
 class Compdef extends Model {
   static autoinit( sequelize ) {
     return this.init({
-      name: { type: Sequelize.STRING, unique: true },
-      season: Sequelize.INTEGER,
-      isOpen: Sequelize.BOOLEAN,
-      tiers: Sequelize.JSON,
-      startOffset: Sequelize.INTEGER,
+      isOpen: {
+        type: Sequelize.BOOLEAN
+      },
+      meetTwice: {
+        type: Sequelize.BOOLEAN
+      },
+      name: {
+        type: Sequelize.STRING,
+        unique: true
+      },
+      season: {
+        type: Sequelize.INTEGER
+      },
+      startOffset: {
+        type: Sequelize.INTEGER
+      },
+      tiers: {
+        type: Sequelize.JSON
+      },
     }, { sequelize, modelName: 'Compdef' });
   }
 
   static associate( models ) {
+    this.belongsTo( models.Comptype );
     this.belongsToMany( models.Continent, { through: 'CompdefContinents' });
   }
 }

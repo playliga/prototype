@@ -32,22 +32,31 @@ declare module 'main/database/models' {
   }
 
 
+  export class Comptype extends BaseModel {
+    public name: string;
+  }
+
+
   export class Compdef extends BaseModel {
     public name: string;
     public season: number;
     public tiers: any[];
     public isOpen: boolean;
     public startOffset: number;
+    public meetTwice: boolean;
     public readonly Continents?: Continent[];
+    public readonly Comptype?: Comptype;
   }
 
 
   export class Competition extends BaseModel {
     public data: any;
     public Teams?: Team[];
+    public readonly Comptype?: Comptype;
     public readonly Continents?: Continent[];
 
     public setCompdef: Sequelize.BelongsToSetAssociationMixin<Compdef, number>;
+    public setComptype: Sequelize.BelongsToSetAssociationMixin<Comptype, number>;
     public setContinents: Sequelize.BelongsToManySetAssociationsMixin<Continent, number>;
     public setTeams: Sequelize.BelongsToManySetAssociationsMixin<Team, number>;
     public addTeam: Sequelize.BelongsToManyAddAssociationMixin<Team, number>;

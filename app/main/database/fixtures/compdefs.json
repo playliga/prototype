@@ -1,10 +1,12 @@
 [
   {
     "id":"esea",
-    "name":"ESEA",
     "isopen": true,
+    "meetTwice": true,
+    "name":"ESEA",
     "season":32,
     "startoffset": 60,
+    "type": "league",
     "regions":[
       "eu",
       "na"
@@ -39,10 +41,12 @@
   },
   {
     "id":"eslpro",
-    "name":"ESL Pro",
     "isopen": false,
+    "meetTwice": true,
+    "name":"ESL Pro",
     "season":12,
     "startoffset": 60,
+    "type": "championsleague",
     "regions":[
       "eu"
     ],
