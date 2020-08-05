@@ -1,3 +1,5 @@
+const { uniq } = require( 'lodash' );
+const comps = require( '../fixtures/compdefs.json' );
 
 
 function genComptype( name ) {
@@ -11,11 +13,14 @@ function genComptype( name ) {
 
 module.exports = {
   up: async ( queryInterface ) => {
-    return queryInterface.bulkInsert( 'Comptypes', [
-      genComptype( 'championsleague' ),
-      genComptype( 'leaguecup' ),
-      genComptype( 'league' ),
-    ]);
+    // get the types of each competition defined
+    const comptypes = uniq( comps.map( d => d.type ) );
+
+    // save the data
+    return queryInterface.bulkInsert(
+      'Comptypes',
+      comptypes.map( genComptype )
+    );
   },
 
   down: () => {

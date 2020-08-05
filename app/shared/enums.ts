@@ -2,6 +2,7 @@ import { IterableObject } from './types';
 
 
 export const ActionQueueTypes = {
+  MATCHDAY: 'MATCHDAY',
   SEND_EMAIL: 'SEND_EMAIL',
   START_COMP: 'START_COMP',
   TRANSFER_MOVE: 'TRANSFER_MOVE',
@@ -22,4 +23,11 @@ export const OfferStatus = {
   ACCEPTED: 'accepted',
   PENDING: 'pending',
   REJECTED: 'rejected',
+};
+
+
+export const CompTypes = {
+  CHAMPIONS_LEAGUE: 'championsleague',
+  LEAGUE: 'league',
+  LEAGUE_CUP: 'leaguecup',
 };

@@ -6,6 +6,9 @@ const Application = {
   PLAYER_OFFER_RESPONSE_MAXDAYS: 1,
 
   CALENDAR_LOOP_MAX_ITERATIONS: 5,
+  MATCHDAYS_LEAGUE: [ 5, 6, 7 ],        // fri, sat, sun
+  MATCHDAYS_LEAGUECUP: [ 1, 2 ],        // mon, tues
+  MATCHDAYS_CHAMPLEAGUE: [ 3, 4 ],      // wed, thurs
 };
 
 

@@ -1,5 +1,3 @@
-import { Op } from 'sequelize';
-import { random } from 'lodash';
 import moment from 'moment';
 
 import * as Sqrl from 'squirrelly';
@@ -7,8 +5,11 @@ import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as Offer from './offer';
 
-import { ActionQueueTypes } from 'shared/enums';
+import { random } from 'lodash';
+import { Op } from 'sequelize';
+import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { League } from 'main/lib/league';
+
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
 import PlayerWages from 'main/constants/playerwages';
@@ -72,9 +73,9 @@ async function handleQueueItem( item: Models.ActionQueue ) {
       ;
     case ActionQueueTypes.START_COMP:
       return Models.Competition
-        .findByPk( item.payload )
-        .then( comp => Promise.resolve({ comp, league: League.restore( comp.data ) }) )
-        .then( ({ comp, league }) => { league.start(); return comp.update({ data: league }); })
+        .findByPk( item.payload, { include: [ 'Comptype' ] })
+        .then( startCompetition )
+        .then( generateMatchdays )
       ;
   }
 }
@@ -120,15 +121,83 @@ export async function calendarLoop() {
       )
     ;
 
-    // bail out of loop if an e-mail was sent
-    const hasemail = queue.findIndex( q => q.type === ActionQueueTypes.SEND_EMAIL );
+    // bail out of loop if any conditions are met
+    // @todo: BAIL ON THE SAME DAY THOUGH
+    const bail = queue.findIndex( q => (
+      q.type === ActionQueueTypes.SEND_EMAIL
+      || q.type === ActionQueueTypes.MATCHDAY
+    ));
 
-    if( hasemail >= 0 ) {
+    if( bail >= 0 ) {
       break;
     }
   }
 
   return Promise.resolve();
+}
+
+
+/**
+ * Start competitions and generate their matchdays
+ */
+
+function startCompetition( comp: Models.Competition ) {
+  const league = League.restore( comp.data );
+  league.start();
+  return comp.update({ data: league });
+}
+
+
+function getMatchdayWeekday( type: string, date: moment.Moment ) {
+  switch( type ) {
+    case CompTypes.LEAGUE: {
+      const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
+      return date.weekday( Application.MATCHDAYS_LEAGUE[ day ] );
+    }
+    default:
+      return;
+  }
+}
+
+
+async function generateMatchdays( comp: Models.Competition ) {
+  // get user's profile
+  const profile = await Models.Profile.getActiveProfile();
+
+  // bail if the user's team is not competing in this competition
+  const joined = profile
+    .Team
+    .Competitions
+    .findIndex( c => c.id === comp.id )
+  > -1;
+
+  if( !joined ) {
+    return Promise.resolve();
+  }
+
+  // get their team's division, conference, and seednum
+  const leagueobj = League.restore( comp.data );
+  const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
+  const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+  const matches = conf.groupObj.upcoming( seednum );
+
+  // generate their matchdays which tie into the actionqueue db table
+  const matchdays = matches.map( ( match, idx ) => ({
+    type: ActionQueueTypes.MATCHDAY,
+    actionDate: getMatchdayWeekday(
+      comp.Comptype.name,
+      moment( profile.currentDate ).add( idx + 1, 'weeks' )
+    ),
+    payload: {
+      compId: comp.id,
+      divId: divobj.name,
+      confId: conf.id,
+      matchdata: match
+    }
+  }));
+
+  // bulk insert into the actionqueue as matchdays
+  return Models.ActionQueue.bulkCreate( matchdays );
 }
 
 
