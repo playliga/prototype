@@ -8,9 +8,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      type: Sequelize.STRING,
-      actionDate: Sequelize.DATEONLY,
-      payload: Sequelize.JSON,
+      actionDate: {
+        type: Sequelize.DATEONLY,
+      },
+      completed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      payload: {
+        type: Sequelize.JSON,
+      },
+      type: {
+        type: Sequelize.STRING,
+      },
 
       // timestamps
       createdAt: {

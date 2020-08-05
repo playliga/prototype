@@ -145,6 +145,7 @@ declare module 'main/database/models' {
     public type: string;
     public actionDate: Date;
     public payload: any;
+    public completed: boolean;
   }
 
 

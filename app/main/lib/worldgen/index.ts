@@ -93,19 +93,15 @@ export async function calendarLoop() {
   for( let i = 0; i < Application.CALENDAR_LOOP_MAX_ITERATIONS; i++ ) {
     // load today's action items
     const queue = await Models.ActionQueue.findAll({
-      where: { actionDate: profile.currentDate }
+      where: { actionDate: profile.currentDate, completed: false }
     });
 
     if( queue && queue.length > 0 ) {
       await Promise.all( queue.map( handleQueueItem ) );
     }
 
-    // update today's date
-    profile.currentDate = moment( profile.currentDate )
-      .add( 1, 'day' )
-      .toDate()
-    ;
-    await profile.save();
+    // update the completed actionqueues
+    await Promise.all( queue.map( q => q.update({ completed: true }) ) );
 
     // fetch a fresh profile in case of transfer moves
     profile = await Models.Profile.getActiveProfile();
@@ -131,6 +127,13 @@ export async function calendarLoop() {
     if( bail >= 0 ) {
       break;
     }
+
+    // we made it this far — update today's date
+    profile.currentDate = moment( profile.currentDate )
+      .add( 1, 'day' )
+      .toDate()
+    ;
+    await profile.save();
   }
 
   return Promise.resolve();
