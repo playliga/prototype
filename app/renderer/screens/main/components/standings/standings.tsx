@@ -29,7 +29,7 @@ export default function Standings( props: StandingsProps ) {
           ellipsis
           width="50%"
           title="Name"
-          render={item => `${item.gpos || 1}. ${item.name}`}
+          render={( item, r, idx ) => `${idx + 1}. ${item.name}`}
         />
         <Table.Column
           title="W/L/D"
