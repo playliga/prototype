@@ -51,7 +51,7 @@
       "eu"
     ],
     "tiers":[{
-      "name":"Professional",
+      "name":"Premier",
       "minlen":20,
       "confsize":20
     }]

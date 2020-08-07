@@ -193,9 +193,9 @@ async function generateMatchdays( comp: Models.Competition ) {
     ),
     payload: {
       compId: comp.id,
-      divId: divobj.name,
       confId: conf.id,
-      matchdata: match
+      divId: divobj.name,
+      matchId: match.id,
     }
   }));
 

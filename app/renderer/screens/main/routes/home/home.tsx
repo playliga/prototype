@@ -1,18 +1,20 @@
 import React from 'react';
 import moment from 'moment';
+
 import { ipcRenderer } from 'electron';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Typography, Card, Space, Tooltip, Spin, Avatar, Empty } from 'antd';
-import { PlayCircleFilled, UserOutlined } from '@ant-design/icons';
+import { Button, Typography, Spin } from 'antd';
+import { NextMatchResponse, StandingsResponse } from 'renderer/screens/main/types';
 
 import * as IPCRouting from 'shared/ipc-routing';
 import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
 import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
 
 import IpcService from 'renderer/lib/ipc-service';
-import InboxPreview from 'renderer/screens/main/components/inbox-preview';
 import Connector from 'renderer/screens/main/components/connector';
-import Standings from  'renderer/screens/main/components/standings';
+import InboxPreview from 'renderer/screens/main/components/inbox-preview';
+import MatchPreview from 'renderer/screens/main/components/match-preview';
+import Standings from 'renderer/screens/main/components/standings';
 
 
 interface Props extends RouteComponentProps {
@@ -44,7 +46,7 @@ async function handleOnNext() {
 
 
 /**
- * Functional components
+ * Main component
  */
 
 const INBOX_PREVIEW_NUM = 3;
@@ -52,35 +54,35 @@ const INBOX_PREVIEW_NUM = 3;
 
 function Home( props: Props ) {
   const { profile } = props;
-  const [ upcoming, setUpcoming ] = React.useState([]);
-  const [ standings, setStandings ] = React.useState([]);
+  const [ next, setNext ] = React.useState<NextMatchResponse>();
+  const [ standings, setStandings ] = React.useState<StandingsResponse[]>([]);
   const formatteddate = formatDate( profile.data?.currentDate );
 
+  // get upcoming match
   React.useEffect( () => {
     IpcService
-      .send( IPCRouting.Database.COMPETITION_TEAM_MATCHES_UPCOMING )
-      .then( res => setUpcoming( res ) )
-    ;
-    IpcService
-      .send( IPCRouting.Database.COMPETITION_TEAM_STANDINGS )
-      .then( res => setStandings( res ) )
+      .send( IPCRouting.Competition.MATCHES_NEXT )
+      .then( res => setNext( res ) )
     ;
   }, []);
 
-  const cardactions = upcoming && upcoming.length > 0
-    ? [
-      <Tooltip title="Play!" key="play">
-        <PlayCircleFilled
-          onClick={() => ipcRenderer.send( '/game/play', {
-            responsechannel: '/game/play',
-            params: {
-              id: upcoming[ 0 ].competition.id,
-            }
-          } )}
-        />
-      </Tooltip>
-    ] : null
-  ;
+  // get standings
+  React.useEffect( () => {
+    if( !next ) {
+      return;
+    }
+
+    IpcService
+      .send( IPCRouting.Competition.STANDINGS, {
+        params: {
+          compId: next.competitionId,
+          confId: next.confId,
+          divName: next.division
+        }
+      })
+      .then( res => setStandings( res[ 0 ] ) )
+    ;
+  }, [ next ]);
 
   return (
     <div id="home" className="content">
@@ -99,42 +101,13 @@ function Home( props: Props ) {
           {'Next'}
         </Button>
 
-        <Card title="Upcoming Match" actions={cardactions}>
-          {!upcoming && <Spin size="small" />}
-
-          {upcoming && upcoming.length === 0 && (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="No upcoming matches."
-            />
-          )}
-
-          {upcoming && upcoming.length > 0 && (
-            <>
-              <div style={{ textAlign: 'center' }}>
-                <Typography.Title level={4} style={{ marginBottom: 0 }}>
-                  {upcoming[0].competition.data.name}: {upcoming[0].competition.Continents[0].name}
-                </Typography.Title>
-                <Typography.Text>
-                  {upcoming[0].division.name}
-                </Typography.Text>
-              </div>
-              <div className="match-preview-body">
-                <Space direction="vertical">
-                  <Avatar size={100} icon={<UserOutlined />} />
-                  <span>{upcoming[0].matches[0].team1.name}</span>
-                </Space>
-                <Typography.Text strong className="vs">
-                  {'VS'}
-                </Typography.Text>
-                <Space direction="vertical">
-                  <Avatar size={100} icon={<UserOutlined />} />
-                  <span>{upcoming[0].matches[0].team2.name}</span>
-                </Space>
-              </div>
-            </>
-          )}
-        </Card>
+        <MatchPreview
+          data={next}
+          onPlay={id => ipcRenderer.send( '/game/play', {
+            responsechannel: '/game/play',
+            params: { id }
+          })}
+        />
       </section>
       <section>
         <InboxPreview
@@ -143,18 +116,17 @@ function Home( props: Props ) {
         />
 
         {!standings && (
-          <Spin size="large" />
+          <Spin size="small" />
         )}
 
         {standings && standings.length > 0 && ([
           <Typography.Title style={{ textAlign: 'center' }} level={3} key="standings-title">
-            {standings[ 0 ].competition.data.name}: {standings[ 0 ].competition.Continents[0].name}
+            {standings[ 0 ].competition}: {standings[ 0 ].region}
           </Typography.Title>,
           <Standings
-            key="standings"
             disablePagination
-            highlightSeed={standings[0].seed}
-            title={standings[ 0 ].division.name}
+            key="standings"
+            title={standings[ 0 ].division}
             dataSource={standings[ 0 ]
               .standings
               .map( ( s: any ) => ({

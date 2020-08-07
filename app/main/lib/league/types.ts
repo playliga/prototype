@@ -19,6 +19,7 @@ export interface Match {
 
 
 export interface Tournament {
+  findMatch: ( matchId: object ) => Match;
   isDone: () => boolean;
   matches: Match[];
   matchesFor: ( seed: number ) => Match[];

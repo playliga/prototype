@@ -1,11 +1,12 @@
 import React from 'react';
-import { Spin, Row, Col, Typography, Button, Space, Alert } from 'antd';
-import * as IPCRouting from 'shared/ipc-routing';
-import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
-import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
+import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
+import { StandingsResponse } from 'renderer/screens/main/types';
+import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
+import * as profileActions from 'renderer/screens/main/redux/profile/actions';
+import * as IPCRouting from 'shared/ipc-routing';
 
 
 const GUTTER_H = 8;
@@ -14,41 +15,49 @@ const GRID_COL_WIDTH = 8;
 const SQUAD_STARTERS_NUM = 5;
 
 
+interface Props {
+  dispatch: Function;
+  profile: ProfileTypes.ProfileState;
+}
+
+
+interface CompetitionProps {
+  data: StandingsResponse;
+  joining: boolean;
+  onClick: () => void;
+  team: any;
+}
+
+
 /**
  * Competition Component
  */
 
-function Competition( props: any ) {
+function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
   const joined = props
     .team
     .Competitions
-    .findIndex( ( c: any ) => c.id === props.id )
+    .findIndex( ( c: any ) => c.id === props.data.competitionId )
   > -1;
 
   return (
-    <Col key={props.id} span={GRID_COL_WIDTH}>
+    <Col key={props.data.competitionId} span={GRID_COL_WIDTH}>
       <Typography.Title level={3}>
-        {props.data.name}: {props.Continents[0].name}
+        {props.data.competition}: {props.data.region}
       </Typography.Title>
 
       {/* LEAGUE NOT STARTED */}
-      {/* SHOW TOP-DIVISION STANDINGS + JOIN BUTTON (IF APPLICABLE) */}
-      {!props.data.started && (
+      {props.data.standings.length === 0 && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
-          <Standings
-            disablePagination
-            title={props.data.divisions[0].name}
-            dataSource={props.data.divisions[0].competitors.slice( 0, 10 )}
-          />
-          {nosquad && props.Compdef.isOpen && (
+          {nosquad && (
             <Alert
               type="warning"
               message="You don't have enough players in your squad to join."
             />
           )}
-          {!nosquad && props.Compdef.isOpen && (
+          {!nosquad && (
             <Button
               block
               type="primary"
@@ -66,24 +75,19 @@ function Competition( props: any ) {
         </Space>
       )}
 
-      {/* LEAGUE STARTED: SHOW GROUPS FOR FIRST DIVISION */}
-      {props.data.started && (
+      {/* LEAGUE STARTED: SHOW GROUPS FOR FIRST CONFERENCE */}
+      {props.data.standings.length > 0 && (
         <Standings
           disablePagination
-          title={props.data.divisions[0].name}
+          title={props.data.division}
           dataSource={props
             .data
-            .divisions[0]
-            .conferences[0]
-            .groupObj
             .standings
             .slice( 0, 10 )
             .map( ( s: any ) => ({
               id: s.competitorInfo.id,
-              pos: s.pos,
               name: s.competitorInfo.name,
-              wins: s.wins,
-              losses: s.losses
+              ...s,
             }))
           }
         />
@@ -97,26 +101,24 @@ function Competition( props: any ) {
  * Main Route Component
  */
 
-interface Props {
-  dispatch: Function;
-  profile: ProfileTypes.ProfileState;
-}
-
-
 function Competitions( props: Props ) {
   const [ joining, setJoining ] = React.useState( false );
-  const [ comps, setComps ] = React.useState([]);
+  const [ competitions, setCompetitions ] = React.useState<StandingsResponse[][]>([]);
 
   React.useEffect( () => {
     IpcService
-      .send( IPCRouting.Database.COMPETITION_ALL )
-      .then( c => setComps( c ) )
+      .send( IPCRouting.Competition.STANDINGS, {
+        params: {
+          divIdx: 0
+        }
+      })
+      .then( res => setCompetitions( res ) )
     ;
   }, []);
 
-  if( !comps || comps.length <= 0 ) {
+  if( !competitions || competitions.length === 0 ) {
     return (
-      <div id="competitions" className="loading-container">
+      <div id="competitions" className="content">
         <Spin size="large" />
       </div>
     );
@@ -125,17 +127,17 @@ function Competitions( props: Props ) {
   return (
     <div id="competitions" className="content">
       <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-        {comps.map( c => (
+        {competitions.map(([ comp ]) => (
           <Competition
-            {...c}
-            key={c.id}
+            key={comp.competitionId}
             team={props.profile.data.Team}
             joining={joining}
+            data={comp}
             onClick={async () => {
               setJoining( true );
               const newprofile = await IpcService.send(
-                IPCRouting.Database.COMPETITION_JOIN, {
-                  params: { id: c.id }
+                IPCRouting.Competition.JOIN, {
+                  params: { id: comp.competitionId }
                 }
               );
               props.dispatch( profileActions.findFinish( newprofile ) );
