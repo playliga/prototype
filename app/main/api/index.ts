@@ -1,6 +1,6 @@
 export { default as DBGeneric } from './db-generic';
+export { default as Calendar } from './calendar';
 export { default as Competition } from './competition';
-export { default as WGEmail } from './wg-email';
-export { default as WGCalendar } from './wg-calendar';
-export { default as WGProfile } from './wg-profile';
+export { default as Email } from './email';
+export { default as Profile } from './profile';
 export { default as GSM } from './gsm';

@@ -436,6 +436,6 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
 }
 
 
-export default () => {
+export default function() {
   ipcMain.on( '/game/play', play );
-};
+}

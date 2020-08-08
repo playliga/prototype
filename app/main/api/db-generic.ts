@@ -57,7 +57,7 @@ async function updatehandler( evt: IpcMainEvent, request: IpcRequest<UpdateParam
 }
 
 
-export default () => {
+export default function() {
   ipcMain.on( IPCRouting.Database.GENERIC, handler );
   ipcMain.on( IPCRouting.Database.UPDATE, updatehandler );
-};
+}

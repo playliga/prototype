@@ -21,6 +21,6 @@ async function get( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
 }
 
 
-export default () => {
+export default function() {
   ipcMain.on( IPCRouting.Database.PROFILE_GET, get );
-};
+}

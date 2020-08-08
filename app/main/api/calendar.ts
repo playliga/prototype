@@ -16,6 +16,6 @@ async function handler( evt: IpcMainEvent, request: IpcRequest<null> ) {
 }
 
 
-export default () => {
+export default function() {
   ipcMain.on( IPCRouting.Worldgen.CALENDAR_LOOP, handler );
-};
+}
