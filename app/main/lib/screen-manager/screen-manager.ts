@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import minimist from 'minimist';
 import { IterableObject } from 'shared/types';
 import { Screen } from './types';
@@ -39,13 +39,13 @@ export default class ScreenManager {
 
     // configure default screen options which
     // can be overriden by incoming options
-    const defaultoptions = {
+    const defaultoptions: BrowserWindowConstructorOptions = {
       fullscreenable: false,
 
-      // force `nodeIntegration` to true due to deprecation
-      // in Electron 5.0 API.
-      // see: https://bit.ly/2B7no8d
+      // force these preferences to `true` due to eventual
+      // deprecation in newer versions of Electron
       webPreferences: {
+        enableRemoteModule: true,
         nodeIntegration: true
       }
     };
