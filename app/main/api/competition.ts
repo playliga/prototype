@@ -25,6 +25,67 @@ interface StandingsParams {
 }
 
 
+/**
+ * Helper functions
+ */
+
+function getStandings( compobj: Models.Competition, divId: string | number, confId: string | null ) {
+  // load the league object
+  const leagueobj = League.restore( compobj.data );
+
+  // figure out how to get the division
+  let divobj: Division;
+
+  if( typeof divId === 'string' ) {
+    divobj = leagueobj.getDivision( divId );
+  } else {
+    divobj = leagueobj.divisions[ divId ];
+  }
+
+  // bail if specified division not found
+  if( !divobj ) {
+    return [];
+  }
+
+  // build base response object
+  const baseobj = {
+    competition: compobj.data.name,
+    competitionId: compobj.id,
+    division: divobj.name,
+    isOpen: compobj.Compdef.isOpen,
+    region: compobj.Continents[ 0 ].name,
+    regionId: compobj.Continents[ 0 ].id,
+  };
+
+  // bail if tournament not started
+  if( !compobj.data.started ) {
+    return [{
+      ...baseobj,
+      standings: []
+    }];
+  }
+
+  // filter by conference id (if provided)
+  let { conferences } = divobj;
+
+  if( confId ) {
+    conferences = conferences.filter( c => c.id === confId );
+  }
+
+  return conferences.map( conf => ({
+    ...baseobj,
+    standings: conf.groupObj.results().map( item => ({
+      ...item,
+      competitorInfo: divobj.getCompetitorBySeed( conf, item.seed )
+    })),
+  }));
+}
+
+
+/**
+ * IPC Handlers
+ */
+
 async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
   const compobj = await Models.Competition.findByPk( request.params.id, { include: [{ all: true }] });
   const leagueobj = League.restore( compobj.data );
@@ -121,59 +182,6 @@ async function nextMatch( evt: IpcMainEvent, req: IpcRequest<null> ) {
 }
 
 
-function genStandings( compobj: Models.Competition, divId: string | number, confId: string | null ) {
-  // load the league object
-  const leagueobj = League.restore( compobj.data );
-
-  // figure out how to get the division
-  let divobj: Division;
-
-  if( typeof divId === 'string' ) {
-    divobj = leagueobj.getDivision( divId );
-  } else {
-    divobj = leagueobj.divisions[ divId ];
-  }
-
-  // bail if specified division not found
-  if( !divobj ) {
-    return [];
-  }
-
-  // build base response object
-  const baseobj = {
-    competition: compobj.data.name,
-    competitionId: compobj.id,
-    division: divobj.name,
-    isOpen: compobj.Compdef.isOpen,
-    region: compobj.Continents[ 0 ].name,
-    regionId: compobj.Continents[ 0 ].id,
-  };
-
-  // bail if tournament not started
-  if( !compobj.data.started ) {
-    return [{
-      ...baseobj,
-      standings: []
-    }];
-  }
-
-  // filter by conference id (if provided)
-  let { conferences } = divobj;
-
-  if( confId ) {
-    conferences = conferences.filter( c => c.id === confId );
-  }
-
-  return conferences.map( conf => ({
-    ...baseobj,
-    standings: conf.groupObj.results().map( item => ({
-      ...item,
-      competitorInfo: divobj.getCompetitorBySeed( conf, item.seed )
-    })),
-  }));
-}
-
-
 async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) {
   let comps: Models.Competition[] = [];
 
@@ -186,9 +194,9 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
     comps = await Models.Competition.findAll({ include: [ 'Continents', 'Compdef' ]});
   }
 
-  // generate the standings for the provided division
+  // get the standings for the provided division
   const out = comps
-    .map( c => genStandings( c, req.params.divName || req.params.divIdx, req.params.confId ) )
+    .map( c => getStandings( c, req.params.divName || req.params.divIdx, req.params.confId ) )
     .filter( c => c.length > 0 )
   ;
   evt.sender.send( req.responsechannel, JSON.stringify( out ) );
