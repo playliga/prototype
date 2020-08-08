@@ -35,6 +35,7 @@ interface CompetitionProps {
 
 function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
+  const sameregion = props.team.Country.ContinentId === props.data.regionId;
   const joined = props
     .team
     .Competitions
@@ -51,13 +52,13 @@ function Competition( props: CompetitionProps ) {
       {props.data.standings.length === 0 && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
-          {nosquad && props.data.isOpen && (
+          {nosquad && sameregion && props.data.isOpen && (
             <Alert
               type="warning"
               message="You don't have enough players in your squad to join."
             />
           )}
-          {!nosquad && props.data.isOpen && (
+          {!nosquad && sameregion && props.data.isOpen && (
             <Button
               block
               type="primary"
