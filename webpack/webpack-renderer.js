@@ -76,10 +76,11 @@ function prodEntries() {
 
 
 export default {
-  mode: IS_PROD ? 'production' : 'development',
-  resolve: webpackConfigResolve,
   entry: IS_PROD ? prodEntries() : devEntries(),
+  devtool: 'eval-cheap-source-map',
+  mode: IS_PROD ? 'production' : 'development',
   output: IS_PROD ? outputs.PROD : outputs.DEV,
+  resolve: webpackConfigResolve,
   module: {
     rules: [
       webpackConfigShared.loaders.js,
