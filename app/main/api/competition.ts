@@ -144,7 +144,9 @@ function genStandings( compobj: Models.Competition, divId: string | number, conf
     competition: compobj.data.name,
     competitionId: compobj.id,
     division: divobj.name,
+    isOpen: compobj.Compdef.isOpen,
     region: compobj.Continents[ 0 ].name,
+    regionId: compobj.Continents[ 0 ].id,
   };
 
   // bail if tournament not started
@@ -177,11 +179,11 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
 
   if( req.params.compId ) {
     const res = await Models.Competition.findByPk( req.params.compId, {
-      include: [ 'Continents' ]
+      include: [ 'Continents', 'Compdef' ]
     });
     comps.push( res );
   } else {
-    comps = await Models.Competition.findAll({ include: [ 'Continents' ]});
+    comps = await Models.Competition.findAll({ include: [ 'Continents', 'Compdef' ]});
   }
 
   // generate the standings for the provided division

@@ -54,6 +54,7 @@ declare module 'main/database/models' {
     public Teams?: Team[];
     public readonly Comptype?: Comptype;
     public readonly Continents?: Continent[];
+    public readonly Compdef?: Compdef;
 
     public setCompdef: Sequelize.BelongsToSetAssociationMixin<Compdef, number>;
     public setComptype: Sequelize.BelongsToSetAssociationMixin<Comptype, number>;

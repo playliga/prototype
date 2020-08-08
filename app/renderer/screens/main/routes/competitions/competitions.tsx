@@ -51,13 +51,13 @@ function Competition( props: CompetitionProps ) {
       {props.data.standings.length === 0 && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
-          {nosquad && (
+          {nosquad && props.data.isOpen && (
             <Alert
               type="warning"
               message="You don't have enough players in your squad to join."
             />
           )}
-          {!nosquad && (
+          {!nosquad && props.data.isOpen && (
             <Button
               block
               type="primary"

@@ -23,6 +23,8 @@ export interface StandingsResponse {
   competition: string;
   competitionId: number;
   division: string;
+  isOpen: boolean;
   region: string;
+  regionId: number;
   standings: any[];
 }
