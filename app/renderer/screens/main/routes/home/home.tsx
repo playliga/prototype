@@ -114,10 +114,12 @@ function Home( props: Props ) {
 
         <MatchPreview
           data={next}
-          onPlay={id => ipcRenderer.send( '/game/play', {
-            responsechannel: '/game/play',
-            params: { id }
-          })}
+          onPlay={id => ipcRenderer.send(
+            IPCRouting.Competition.PLAY, {
+              responsechannel: IPCRouting.Competition.PLAY,
+              params: { id }
+            }
+          )}
         />
       </section>
       <section>

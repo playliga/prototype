@@ -9,6 +9,7 @@ import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 
 import * as Sqrl from 'squirrelly';
+import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
 import { random } from 'lodash';
@@ -437,5 +438,5 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
 
 
 export default function() {
-  ipcMain.on( '/game/play', play );
+  ipcMain.on( IPCRouting.Competition.PLAY, play );
 }
