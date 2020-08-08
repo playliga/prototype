@@ -58,6 +58,17 @@ function Home( props: Props ) {
   const [ standings, setStandings ] = React.useState<StandingsResponse[]>([]);
   const formatteddate = formatDate( profile.data?.currentDate );
 
+  // find our team's seed number
+  let seednum;
+
+  if( standings.length > 0 ) {
+    seednum = standings[ 0 ]
+      .standings
+      .find( s => s.competitorInfo.id === profile.data.Team.id )
+      .seed
+    ;
+  }
+
   // get upcoming match
   React.useEffect( () => {
     IpcService
@@ -126,6 +137,7 @@ function Home( props: Props ) {
           <Standings
             disablePagination
             key="standings"
+            highlightSeed={seednum}
             title={standings[ 0 ].division}
             dataSource={standings[ 0 ]
               .standings
