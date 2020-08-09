@@ -13,7 +13,7 @@ interface State {
 
 class Search extends React.Component<RouteComponentProps, State> {
   public state = {
-    data: []
+    data: [] as any[]
   }
 
   public async componentDidMount() {

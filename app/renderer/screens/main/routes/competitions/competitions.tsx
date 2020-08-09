@@ -3,8 +3,7 @@ import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
 import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
-import { StandingsResponse } from 'renderer/screens/main/types';
-import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
+import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
 
@@ -15,9 +14,8 @@ const GRID_COL_WIDTH = 8;
 const SQUAD_STARTERS_NUM = 5;
 
 
-interface Props {
+interface Props extends ApplicationState {
   dispatch: Function;
-  profile: ProfileTypes.ProfileState;
 }
 
 

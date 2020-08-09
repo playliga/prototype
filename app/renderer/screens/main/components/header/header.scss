@@ -1,0 +1,41 @@
+#header {
+  height: 72px;
+
+  .ant-page-header, .ant-page-header-heading {
+    height: 100%;
+    padding: 0;
+  }
+
+  .ant-page-header {
+    padding-left: 20px;
+    border-bottom: 1px solid gainsboro;
+  }
+
+  .ant-page-header-heading-title {
+    font-size: 1.5rem;
+    line-height: normal;
+  }
+
+  .ant-page-header-heading-extra {
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+
+  .ant-btn {
+    height: 100%;
+    min-width: 120px;
+    border-radius: 0;
+  }
+
+  .teamname-container {
+    font-weight: 200;
+    font-size: .5em;
+    font-variant: small-caps;
+  }
+
+  .date-container {
+    font-weight: 200;
+    font-variant: small-caps;
+  }
+}

@@ -1,6 +1,8 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { ipcRenderer } from 'electron';
+import { ApplicationState } from 'renderer/screens/main/types';
+import { getWeeklyWages } from 'renderer/lib/util';
 import {
   StarFilled,
   FolderOpenFilled,
@@ -24,16 +26,13 @@ import {
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
-import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
 import * as ProfileSelectors from 'renderer/screens/main/redux/profile/selectors';
 import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
 import Connector from 'renderer/screens/main/components/connector';
-import { getWeeklyWages } from 'renderer/lib/util';
 
 
-interface Props extends RouteComponentProps {
+interface Props extends RouteComponentProps, ApplicationState {
   dispatch: Function;
-  profile: ProfileTypes.ProfileState;
   squad: any[];
 }
 

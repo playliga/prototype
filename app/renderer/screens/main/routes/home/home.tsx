@@ -1,47 +1,27 @@
 import React from 'react';
-import moment from 'moment';
-
 import { ipcRenderer } from 'electron';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Typography, Spin } from 'antd';
-import { NextMatchResponse, StandingsResponse } from 'renderer/screens/main/types';
+import { Typography, Spin } from 'antd';
+import { NextMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 
 import * as IPCRouting from 'shared/ipc-routing';
-import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
-import * as ProfileTypes from 'renderer/screens/main/redux/profile/types';
-
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
+import Header from 'renderer/screens/main/components/header';
 import InboxPreview from 'renderer/screens/main/components/inbox-preview';
 import MatchPreview from 'renderer/screens/main/components/match-preview';
 import Standings from 'renderer/screens/main/components/standings';
 
 
-interface Props extends RouteComponentProps {
-  dispatch: Function;
-  emails: EmailTypes.EmailState;
-  profile: ProfileTypes.ProfileState;
-}
+interface Props extends RouteComponentProps, ApplicationState {}
 
 
 /**
  * Helper functions
  */
 
-function formatDate( str: string | undefined ) {
-  if( !str ) {
-    return null;
-  }
-
-  return moment( str ).format( 'MMM DD, YYYY' );
-}
-
-
-async function handleOnNext() {
-  await IpcService.send(
-    IPCRouting.Worldgen.CALENDAR_LOOP,
-    {}
-  );
+async function handleOnNextDay() {
+  await IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP );
 }
 
 
@@ -56,7 +36,6 @@ function Home( props: Props ) {
   const { profile } = props;
   const [ next, setNext ] = React.useState<NextMatchResponse>();
   const [ standings, setStandings ] = React.useState<StandingsResponse[]>([]);
-  const formatteddate = formatDate( profile.data?.currentDate );
 
   // find our team's seed number
   let seednum;
@@ -96,61 +75,56 @@ function Home( props: Props ) {
   }, [ next ]);
 
   return (
-    <div id="home" className="content">
-      <section>
-        <Typography.Title>
-          {formatteddate?.toString() || 'Loading...'}
-        </Typography.Title>
+    <div id="home">
+      {/* RENDER THE HEADER */}
+      <Header
+        onNextDay={handleOnNextDay}
+        {...props}
+      />
 
-        <Button
-          block
-          type="primary"
-          size="large"
-          onClick={handleOnNext}
-          style={{ marginBottom: 20 }}
-        >
-          {'Next'}
-        </Button>
-
-        <MatchPreview
-          data={next}
-          onPlay={id => ipcRenderer.send(
-            IPCRouting.Competition.PLAY, {
-              responsechannel: IPCRouting.Competition.PLAY,
-              params: { id }
-            }
-          )}
-        />
-      </section>
-      <section>
-        <InboxPreview
-          data={props.emails.data.slice( 0, INBOX_PREVIEW_NUM )}
-          onClick={id => props.history.push( `/inbox/${id}` )}
-        />
-
-        {!standings && (
-          <Spin size="small" />
-        )}
-
-        {standings && standings.length > 0 && ([
-          <Typography.Title style={{ textAlign: 'center' }} level={3} key="standings-title">
-            {standings[ 0 ].competition}: {standings[ 0 ].region}
-          </Typography.Title>,
-          <Standings
-            disablePagination
-            key="standings"
-            highlightSeed={seednum}
-            title={standings[ 0 ].division}
-            dataSource={standings[ 0 ]
-              .standings
-              .map( ( s: any ) => ({
-                id: s.competitorInfo.id,
-                name: s.competitorInfo.name,
-                ...s,
-              }))
-            }
+      {/* RENDER THE MAIN CONTENT */}
+      <section className="content">
+        <div>
+          <MatchPreview
+            data={next}
+            onPlay={id => ipcRenderer.send(
+              IPCRouting.Competition.PLAY, {
+                responsechannel: IPCRouting.Competition.PLAY,
+                params: { id }
+              }
+            )}
           />
-        ])}
+        </div>
+        <div>
+          <InboxPreview
+            data={props.emails.data.slice( 0, INBOX_PREVIEW_NUM )}
+            onClick={id => props.history.push( `/inbox/${id}` )}
+          />
+
+          {!standings && (
+            <Spin size="small" />
+          )}
+
+          {standings && standings.length > 0 && ([
+            <Typography.Title style={{ textAlign: 'center' }} level={3} key="standings-title">
+              {standings[ 0 ].competition}: {standings[ 0 ].region}
+            </Typography.Title>,
+            <Standings
+              disablePagination
+              key="standings"
+              highlightSeed={seednum}
+              title={standings[ 0 ].division}
+              dataSource={standings[ 0 ]
+                .standings
+                .map( ( s: any ) => ({
+                  id: s.competitorInfo.id,
+                  name: s.competitorInfo.name,
+                  ...s,
+                }))
+              }
+            />
+          ])}
+        </div>
       </section>
     </div>
   );

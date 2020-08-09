@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Route, RouteComponentProps } from 'react-router-dom';
 import { Layout } from 'antd';
+import { RouteConfig, ApplicationState } from 'renderer/screens/main/types';
 import {
   HomeOutlined,
   UserOutlined,
@@ -9,13 +10,11 @@ import {
   TrophyOutlined
 } from '@ant-design/icons';
 
-import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
 import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as Transfers from './transfers';
 
-import { RouteConfig } from 'renderer/screens/main/types';
 import Sidebar from 'renderer/screens/main/components/sidebar';
 import Connector from 'renderer/screens/main/components/connector';
 import Home from './home';
@@ -42,9 +41,8 @@ const routes: RouteConfig[] = [
  * The routes component.
  */
 
-interface Props extends RouteComponentProps {
+interface Props extends RouteComponentProps, ApplicationState {
   dispatch: Function;
-  emails: EmailTypes.EmailState;
   unread: number;
 }
 
@@ -120,7 +118,7 @@ class Routes extends Component<Props, State> {
           />
         ))}
 
-        {/* RENDER THE MAIN CONTENT */}
+        {/* RENDER THE CENTER CONTENT */}
         <Layout.Content
           id="route-container"
           className={this.state.collapsed ? 'collapsed' : ''}

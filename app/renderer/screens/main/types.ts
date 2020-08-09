@@ -1,3 +1,13 @@
+import { EmailState } from 'renderer/screens/main/redux/emails/types';
+import { ProfileState } from 'renderer/screens/main/redux/profile/types';
+
+
+export interface ApplicationState {
+  emails: EmailState;
+  profile: ProfileState;
+}
+
+
 export interface RouteConfig {
   id: string;
   path: string;

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+import { ApplicationState } from 'renderer/screens/main/types';
 
 import * as EmailTypes from 'renderer/screens/main/redux/emails/types';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
@@ -14,9 +15,8 @@ interface RouteParams {
 }
 
 
-interface Props extends RouteComponentProps<RouteParams> {
+interface Props extends RouteComponentProps<RouteParams>, ApplicationState {
   dispatch: Function;
-  emails: EmailTypes.EmailState;
 }
 
 
