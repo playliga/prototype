@@ -20,10 +20,7 @@ function Title( props: ApplicationState ) {
         <span>{data.Player.alias}</span>
       </section>
       <section className="teamname-container">
-        <span
-          key="1"
-          className={`fp ${data.Team.Country.code.toLowerCase()}`}
-        />
+        <span className={`fp ${data.Team.Country.code.toLowerCase()}`} />
         <span>{data.Team.name}</span>
       </section>
     </div>
