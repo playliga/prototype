@@ -42,7 +42,7 @@ export const Worldgen = {
 
 export const Competition = {
   JOIN: '/competition/join',
-  MATCHES_NEXT: '/competition/matches/next',
+  MATCHES_UPCOMING: '/competition/matches/upcoming',
   PLAY: '/competition/play',
   STANDINGS: '/competition/standings',
 };

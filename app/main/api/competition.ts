@@ -25,9 +25,51 @@ interface StandingsParams {
 }
 
 
+interface UpcomingParams {
+  limit?: number;
+}
+
 /**
  * Helper functions
  */
+
+
+async function formatMatchdata( payload: any ) {
+  // load the competition
+  const compobj = await Models.Competition.findByPk( payload.compId, {
+    include: [ 'Continents' ]
+  });
+
+  if( !compobj.data.started ) {
+    return null;
+  }
+
+  // grab the match data
+  const leagueobj = League.restore( compobj.data );
+  const divobj = leagueobj.getDivision( payload.divId );
+  const conf = divobj.conferences.find( c => c.id === payload.confId );
+  const match = conf.groupObj.findMatch( payload.matchId );
+
+  // build the response object and return it
+  return Promise.resolve({
+    competition: compobj.data.name,
+    competitionId: compobj.id,
+    confId: conf.id,
+    division: divobj.name,
+    region: compobj.Continents[ 0 ].name,
+    match: {
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        ...divobj.getCompetitorBySeed( conf, match.p[ 0 ] )
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        ...divobj.getCompetitorBySeed( conf, match.p[ 1 ] )
+      },
+    }
+  });
+}
 
 function getStandings( compobj: Models.Competition, divId: string | number, confId: string | null ) {
   // load the league object
@@ -130,54 +172,22 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
 }
 
 
-async function nextMatch( evt: IpcMainEvent, req: IpcRequest<null> ) {
-  // get the next matchday in the queue
-  const queue = await Models.ActionQueue.findOne({
+async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
+  // get the upcoming matchdays in the queue
+  const queue = await Models.ActionQueue.findAll({
+    limit: req.params?.limit || 5,
     where: {
       type: ActionQueueTypes.MATCHDAY,
       completed: false
-    }
+    },
   });
 
   if( !queue ) {
     return evt.sender.send( req.responsechannel, null );
   }
 
-  // load the competition
-  const compobj = await Models.Competition.findByPk( queue.payload.compId, {
-    include: [ 'Continents' ]
-  });
-
-  if( !compobj.data.started ) {
-    return evt.sender.send( req.responsechannel, null );
-  }
-
-  // grab the match data
-  const leagueobj = League.restore( compobj.data );
-  const divobj = leagueobj.getDivision( queue.payload.divId );
-  const conf = divobj.conferences.find( c => c.id === queue.payload.confId );
-  const match = conf.groupObj.findMatch( queue.payload.matchId );
-
-  // build the response object and return it
-  const res = {
-    competition: compobj.data.name,
-    competitionId: compobj.id,
-    confId: conf.id,
-    division: divobj.name,
-    region: compobj.Continents[ 0 ].name,
-    match: {
-      ...match,
-      team1: {
-        seed: match.p[ 0 ],
-        ...divobj.getCompetitorBySeed( conf, match.p[ 0 ] )
-      },
-      team2: {
-        seed: match.p[ 1 ],
-        ...divobj.getCompetitorBySeed( conf, match.p[ 1 ] )
-      },
-    }
-  };
-
+  // format the matchdays and send it back to the renderer
+  const res = await Promise.all( queue.map( q => formatMatchdata( q.payload ) ) );
   evt.sender.send( req.responsechannel, JSON.stringify( res ) );
 }
 
@@ -205,6 +215,6 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
 
 export default function() {
   ipcMain.on( IPCRouting.Competition.JOIN, join );
-  ipcMain.on( IPCRouting.Competition.MATCHES_NEXT, nextMatch );
+  ipcMain.on( IPCRouting.Competition.MATCHES_UPCOMING, upcoming );
   ipcMain.on( IPCRouting.Competition.STANDINGS, standings );
 }

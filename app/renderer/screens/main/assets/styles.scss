@@ -29,19 +29,6 @@
 * INDIVIDUAL ROUTE STYLES
 */
 
-#home .content {
-  display: flex;
-
-  & > * {
-    flex-basis: 50%;
-  }
-
-  & > *:first-child {
-    margin-right: 20px;
-  }
-}
-
-
 #inbox {
   display: flex;
 
