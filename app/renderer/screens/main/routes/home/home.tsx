@@ -1,7 +1,7 @@
 import React from 'react';
 import cuid from 'cuid';
 import { RouteComponentProps } from 'react-router-dom';
-import { Card, Row, Col, Empty, Table } from 'antd';
+import { Card, Row, Col, Empty, Table, Affix } from 'antd';
 import { UpcomingMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
@@ -133,10 +133,12 @@ function Home( props: Props ) {
   return (
     <div id="home">
       {/* RENDER THE HEADER */}
-      <Header
-        onNextDay={handleOnNextDay}
-        {...props}
-      />
+      <Affix>
+        <Header
+          onNextDay={handleOnNextDay}
+          {...props}
+        />
+      </Affix>
 
       {/* RENDER THE MAIN CONTENT */}
       <section className="content">
