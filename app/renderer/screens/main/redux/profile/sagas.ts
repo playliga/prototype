@@ -33,7 +33,7 @@ function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
 
 export default function* watch() {
   yield takeEvery(
-    ProfileTypes.FIND,
+    [ ProfileTypes.FIND, ProfileTypes.CALENDAR_FINISH ],
     find
   );
 

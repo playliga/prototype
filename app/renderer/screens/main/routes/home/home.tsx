@@ -4,7 +4,10 @@ import cuid from 'cuid';
 import { RouteComponentProps } from 'react-router-dom';
 import { Card, Row, Col, Empty, Table, Affix } from 'antd';
 import { UpcomingMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
+
 import * as IPCRouting from 'shared/ipc-routing';
+import * as profileActions from 'renderer/screens/main/redux/profile/actions';
+
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Header from 'renderer/screens/main/components/header';
@@ -38,8 +41,22 @@ interface Props extends RouteComponentProps, ApplicationState {
  * Helper functions
  */
 
-async function handleOnNextDay() {
-  await IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP );
+async function handleOnNextDay( dispatch: Function ) {
+  IpcService
+    .send( IPCRouting.Worldgen.CALENDAR_LOOP )
+    .then( () => dispatch( profileActions.calendarFinish() ) )
+  ;
+}
+
+
+async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function ) {
+  IpcService
+    .send( IPCRouting.Competition.PLAY, {
+      params: { id: upcoming.competitionId }
+    })
+    .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP ) )
+    .then( () => dispatch( profileActions.calendarFinish() ) )
+  ;
 }
 
 
@@ -100,16 +117,22 @@ function Home( props: Props ) {
   // set up some loading bools
   const hasUpcoming = upcoming && upcoming.length > 0;
   const hasStandings = standings && standings.length > 0;
+  const isMatchday = hasUpcoming && profile.data && upcoming[ 0 ].date === profile.data.currentDate;
+  const refreshUpcoming = hasUpcoming && moment( profile.data.currentDate ).isAfter( upcoming[ 0 ].date );
 
   // get upcoming matches
   React.useEffect( () => {
+    if( isMatchday || ( hasUpcoming && !refreshUpcoming ) ) {
+      return;
+    }
+
     IpcService
       .send( IPCRouting.Competition.MATCHES_UPCOMING, {
         params: { limit: NUM_UPCOMING_MATCHES }
       })
       .then( res => setUpcoming( res ) )
     ;
-  }, []);
+  }, [ profile ]);
 
   // get standings for next match (idx=0)
   React.useEffect( () => {
@@ -149,7 +172,9 @@ function Home( props: Props ) {
       {/* RENDER THE HEADER */}
       <Affix>
         <Header
-          onNextDay={handleOnNextDay}
+          isMatchday={isMatchday}
+          onNextDay={() => handleOnNextDay( props.dispatch )}
+          onPlay={() => handleOnPlay( upcoming[ 0 ], props.dispatch )}
           {...props}
         />
       </Affix>
@@ -188,7 +213,7 @@ function Home( props: Props ) {
           <Col span={COLSIZE_INBOX}>
             <Card
               bodyStyle={{ height: ROWHEIGHT_BOTTOM }}
-              loading={props.emails.data.length === 0}
+              loading={props.emails.loading}
               title="Inbox"
             >
               <InboxPreview

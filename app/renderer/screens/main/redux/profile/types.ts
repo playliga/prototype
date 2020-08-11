@@ -1,3 +1,4 @@
+export const CALENDAR_FINISH = 'profile.calendar.finish';
 export const FIND = 'profile.find';
 export const FIND_FINISH = 'profile.find.finish';
 export const UPDATE_SQUAD_MEMBER = 'profile.updatesqdm';
@@ -9,6 +10,11 @@ export interface Profile {
   currentDate: string;
   Player: any;
   Team: any;
+}
+
+
+interface CalendarFinishAction {
+  type: typeof CALENDAR_FINISH;
 }
 
 
@@ -36,6 +42,7 @@ interface UpdateSquadMemberFinishAction {
 
 
 export type ProfileActionTypes =
+  | CalendarFinishAction
   | FindProfileAction
   | FindProfileFinishAction
   | UpdateSquadMemberAction

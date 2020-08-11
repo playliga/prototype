@@ -433,6 +433,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     conf.groupObj.score( match.id, result.score );
     compobj.data = leagueobj;
     await compobj.save();
+    evt.sender.send( request.responsechannel );
   });
 }
 

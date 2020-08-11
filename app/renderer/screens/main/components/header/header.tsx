@@ -1,13 +1,16 @@
 import React from 'react';
 import moment from 'moment';
 import { PageHeader, Button, Spin, Typography } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, CaretRightOutlined } from '@ant-design/icons';
+import { green } from '@ant-design/colors';
 import { ApplicationState } from 'renderer/screens/main/types';
 import './header.scss';
 
 
 interface Props extends ApplicationState {
+  isMatchday?: boolean;
   onNextDay: () => void;
+  onPlay: () => void;
 }
 
 
@@ -49,12 +52,30 @@ export default function Header( props: Props ) {
         ghost={false}
         title={<Title {...props} />}
         extra={[
-          <Typography.Text key="0" className="date-container">
+          <Typography.Text key="1" className="date-container">
             {moment( data.currentDate ).format( 'ddd, MMM DD, YYYY' )}
           </Typography.Text>,
-          <Button key="1" type="primary" onClick={props.onNextDay}>
-            {'Next'}
-          </Button>
+          props.isMatchday
+            ? (
+              <Button
+                icon={<CaretRightOutlined />}
+                key="2"
+                onClick={props.onPlay}
+                style={{ backgroundColor: green[ 5 ], borderColor: green[ 5 ] }}
+                type="primary"
+              >
+                {'Play'}
+              </Button>
+            )
+            : (
+              <Button
+                key="2"
+                onClick={props.onNextDay}
+                type="primary"
+              >
+                {'Next'}
+              </Button>
+            )
         ]}
       />
     </div>

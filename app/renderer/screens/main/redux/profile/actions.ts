@@ -34,6 +34,13 @@ export function updateSquadMemberFinish( payload: any ): ProfileTypes.ProfileAct
 }
 
 
+export function calendarFinish(): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.CALENDAR_FINISH
+  };
+}
+
+
 export function register() {
   return ( dispatch: Function ) => {
     ipcRenderer.on( IPCRouting.Database.PROFILE_GET, ( evt, data ) => {

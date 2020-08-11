@@ -1,4 +1,5 @@
 import { ipcMain, IpcMainEvent } from 'electron';
+import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
 import { ActionQueueTypes } from 'shared/enums';
 import { League, Division } from 'main/lib/league';
@@ -175,11 +176,14 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
 
 async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
   // get the upcoming matchdays in the queue
+  const profile = await Models.Profile.getActiveProfile();
   const queue = await Models.ActionQueue.findAll({
     limit: req.params?.limit || 5,
     where: {
       type: ActionQueueTypes.MATCHDAY,
-      completed: false
+      actionDate: {
+        [Op.gte]: profile.currentDate
+      }
     },
   });
 

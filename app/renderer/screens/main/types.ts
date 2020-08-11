@@ -23,7 +23,7 @@ export interface UpcomingMatchResponse {
   competition: string;
   competitionId: number;
   confId: string;
-  date: Date;
+  date: string;
   division: string;
   region: string;
   match: any;
