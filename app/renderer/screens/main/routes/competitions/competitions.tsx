@@ -78,11 +78,11 @@ function Competition( props: CompetitionProps ) {
       {props.data.standings.length > 0 && (
         <Standings
           disablePagination
+          sliceData={10}
           title={props.data.division}
           dataSource={props
             .data
             .standings
-            .slice( 0, 10 )
             .map( ( s: any ) => ({
               id: s.competitorInfo.id,
               name: s.competitorInfo.name,
