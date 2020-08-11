@@ -195,29 +195,23 @@ function Home( props: Props ) {
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
-              {standings && standings.length === 0 && (
-                <Empty
-                  image={Empty.PRESENTED_IMAGE_DEFAULT}
-                  description="No standings data."
-                />
-              )}
-
-              {standings && standings.length > 0 && (
-                <Standings
-                  disablePagination
-                  highlightSeed={seednum}
-                  title={`${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`}
-                  dataSource={standings[ 0 ]
+              <Standings
+                disablePagination
+                highlightSeed={seednum}
+                sliceData={NUM_STANDINGS}
+                dataSource={standings && standings.length > 0 && (
+                  standings[ 0 ]
                     .standings
-                    .slice( 0, NUM_STANDINGS )
                     .map( ( s: any ) => ({
                       id: s.competitorInfo.id,
                       name: s.competitorInfo.name,
                       ...s,
                     }))
-                  }
-                />
-              )}
+                )}
+                title={standings && standings.length > 0 && (
+                  `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`
+                )}
+              />
             </Card>
           </Col>
         </Row>

@@ -11,6 +11,7 @@ interface StandingsProps {
   title?: string;
   pageSize?: number;
   size?: SizeType;
+  sliceData?: number;
   rowKey?: string;
 }
 
@@ -18,7 +19,7 @@ interface StandingsProps {
 export default function Standings( props: StandingsProps ) {
   return (
     <Table
-      dataSource={props.dataSource}
+      dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
       pagination={!props.disablePagination && { pageSize: props.pageSize || 20, hideOnSinglePage: true }}
       rowClassName={r => props.highlightSeed && props.highlightSeed === r.seed && 'ant-table-row-selected'}
       rowKey={props.rowKey || 'id'}
