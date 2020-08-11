@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import cuid from 'cuid';
 import { RouteComponentProps } from 'react-router-dom';
 import { Card, Row, Col, Empty, Table, Affix } from 'antd';
@@ -65,8 +66,13 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; seed: number }
       size="small"
     >
       <Table.Column
-        width="15%"
-        render={() => 'v.'}
+        width="25%"
+        dataIndex="date"
+        render={value => moment( value ).format( 'DD/MM' )}
+      />
+      <Table.Column
+        width="10%"
+        render={() => 'vs.'}
       />
       <Table.Column
         ellipsis
@@ -154,7 +160,7 @@ function Home( props: Props ) {
           {/* NEXT MATCH */}
           <Col span={COLSIZE_MATCHPREV}>
             <Card
-              bodyStyle={{ height: ROWHEIGHT_TOP }}
+              bodyStyle={{ height: ROWHEIGHT_TOP, padding: CARD_PADDING }}
               loading={!upcoming}
               title="Next Match"
             >
@@ -165,7 +171,7 @@ function Home( props: Props ) {
           {/* UPCOMING MATCHES */}
           <Col span={COLSIZE_UPCOMING}>
             <Card
-              bodyStyle={{ height: ROWHEIGHT_TOP }}
+              bodyStyle={{ height: ROWHEIGHT_TOP, padding: CARD_PADDING }}
               loading={!upcoming}
               title="Upcoming Fixtures"
             >

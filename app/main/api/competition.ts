@@ -34,9 +34,9 @@ interface UpcomingParams {
  */
 
 
-async function formatMatchdata( payload: any ) {
+async function formatMatchdata( queue: Models.ActionQueue ) {
   // load the competition
-  const compobj = await Models.Competition.findByPk( payload.compId, {
+  const compobj = await Models.Competition.findByPk( queue.payload.compId, {
     include: [ 'Continents' ]
   });
 
@@ -46,15 +46,16 @@ async function formatMatchdata( payload: any ) {
 
   // grab the match data
   const leagueobj = League.restore( compobj.data );
-  const divobj = leagueobj.getDivision( payload.divId );
-  const conf = divobj.conferences.find( c => c.id === payload.confId );
-  const match = conf.groupObj.findMatch( payload.matchId );
+  const divobj = leagueobj.getDivision( queue.payload.divId );
+  const conf = divobj.conferences.find( c => c.id === queue.payload.confId );
+  const match = conf.groupObj.findMatch( queue.payload.matchId );
 
   // build the response object and return it
   return Promise.resolve({
     competition: compobj.data.name,
     competitionId: compobj.id,
     confId: conf.id,
+    date: queue.actionDate,
     division: divobj.name,
     region: compobj.Continents[ 0 ].name,
     match: {
@@ -187,7 +188,7 @@ async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
   }
 
   // format the matchdays and send it back to the renderer
-  const res = await Promise.all( queue.map( q => formatMatchdata( q.payload ) ) );
+  const res = await Promise.all( queue.map( formatMatchdata ) );
   evt.sender.send( req.responsechannel, JSON.stringify( res ) );
 }
 

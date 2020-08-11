@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { Typography, Space, Avatar, Empty } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { UpcomingMatchResponse } from 'renderer/screens/main/types';
@@ -23,7 +24,10 @@ export default function MatchPreview( props: Props ) {
   return (
     <>
       <div style={{ textAlign: 'center' }}>
-        <Typography.Title level={4} style={{ marginBottom: 0 }}>
+        <Typography.Text type="secondary">
+          {moment( props.data.date ).format( 'ddd, MMM DD, YYYY' )}
+        </Typography.Text>
+        <Typography.Title level={4} style={{ marginTop: 0, marginBottom: 0 }}>
           {props.data.competition}: {props.data.region}
         </Typography.Title>
         <Typography.Text>
