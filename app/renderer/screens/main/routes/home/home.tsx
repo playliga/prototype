@@ -195,6 +195,13 @@ function Home( props: Props ) {
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
+              {standings && standings.length === 0 && (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_DEFAULT}
+                  description="No standings data."
+                />
+              )}
+
               {standings && standings.length > 0 && (
                 <Standings
                   disablePagination
