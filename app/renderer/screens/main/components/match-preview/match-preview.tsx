@@ -14,7 +14,7 @@ export default function MatchPreview( props: Props ) {
   if( !props.data ) {
     return (
       <Empty
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
+        image={Empty.PRESENTED_IMAGE_DEFAULT}
         description="No upcoming matches."
       />
     );

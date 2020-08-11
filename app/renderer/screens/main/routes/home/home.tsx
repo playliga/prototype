@@ -91,17 +91,6 @@ function Home( props: Props ) {
   const [ upcoming, setUpcoming ] = React.useState<UpcomingMatchResponse[]>();
   const [ standings, setStandings ] = React.useState<StandingsResponse[]>();
 
-  // find our team's seed number
-  let seednum: number;
-
-  if( standings && standings.length > 0 ) {
-    seednum = standings[ 0 ]
-      .standings
-      .find( s => s.competitorInfo.id === profile.data.Team.id )
-      .seed
-    ;
-  }
-
   // get upcoming matches
   React.useEffect( () => {
     IpcService
@@ -114,8 +103,12 @@ function Home( props: Props ) {
 
   // get standings for next match (idx=0)
   React.useEffect( () => {
-    if( !upcoming || upcoming.length === 0 ) {
+    if( !upcoming ) {
       return;
+    }
+
+    if( upcoming.length === 0 ) {
+      return setStandings([]);
     }
 
     IpcService
@@ -129,6 +122,17 @@ function Home( props: Props ) {
       .then( res => setStandings( res[ 0 ] ) )
     ;
   }, [ upcoming ]);
+
+  // find our team's seed number
+  let seednum: number;
+
+  if( standings && standings.length > 0 ) {
+    seednum = standings[ 0 ]
+      .standings
+      .find( s => s.competitorInfo.id === profile.data.Team.id )
+      .seed
+    ;
+  }
 
   return (
     <div id="home">
@@ -157,7 +161,7 @@ function Home( props: Props ) {
           {/* UPCOMING MATCHES */}
           <Col span={COLSIZE_UPCOMING}>
             <Card
-              bodyStyle={{ height: ROWHEIGHT_TOP, padding: CARD_PADDING }}
+              bodyStyle={{ height: ROWHEIGHT_TOP }}
               loading={!upcoming}
               title="Upcoming Fixtures"
             >
