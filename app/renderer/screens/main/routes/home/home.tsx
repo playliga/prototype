@@ -47,7 +47,7 @@ async function handleOnNextDay() {
  */
 
 function UpcomingMatches( props: { data: UpcomingMatchResponse[]; seed: number }) {
-  if( props.data && props.data.length === 0 ) {
+  if( !props.data || props.data.length === 0 ) {
     return (
       <Empty
         image={Empty.PRESENTED_IMAGE_DEFAULT}
@@ -91,6 +91,10 @@ function Home( props: Props ) {
   const [ upcoming, setUpcoming ] = React.useState<UpcomingMatchResponse[]>();
   const [ standings, setStandings ] = React.useState<StandingsResponse[]>();
 
+  // set up some loading bools
+  const hasUpcoming = upcoming && upcoming.length > 0;
+  const hasStandings = standings && standings.length > 0;
+
   // get upcoming matches
   React.useEffect( () => {
     IpcService
@@ -107,7 +111,7 @@ function Home( props: Props ) {
       return;
     }
 
-    if( upcoming.length === 0 ) {
+    if( !hasUpcoming ) {
       return setStandings([]);
     }
 
@@ -126,7 +130,7 @@ function Home( props: Props ) {
   // find our team's seed number
   let seednum: number;
 
-  if( standings && standings.length > 0 ) {
+  if( hasStandings ) {
     seednum = standings[ 0 ]
       .standings
       .find( s => s.competitorInfo.id === profile.data.Team.id )
@@ -154,7 +158,7 @@ function Home( props: Props ) {
               loading={!upcoming}
               title="Next Match"
             >
-              <MatchPreview data={upcoming && upcoming[ 0 ]} />
+              <MatchPreview data={hasUpcoming && upcoming[ 0 ]} />
             </Card>
           </Col>
 
@@ -167,7 +171,7 @@ function Home( props: Props ) {
             >
               <UpcomingMatches
                 seed={seednum}
-                data={upcoming && upcoming.slice( 1 )}
+                data={hasUpcoming && upcoming.slice( 1 )}
               />
             </Card>
           </Col>
@@ -199,7 +203,7 @@ function Home( props: Props ) {
                 disablePagination
                 highlightSeed={seednum}
                 sliceData={NUM_STANDINGS}
-                dataSource={standings && standings.length > 0 && (
+                dataSource={hasStandings && (
                   standings[ 0 ]
                     .standings
                     .map( ( s: any ) => ({
@@ -208,7 +212,7 @@ function Home( props: Props ) {
                       ...s,
                     }))
                 )}
-                title={standings && standings.length > 0 && (
+                title={hasStandings && (
                   `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`
                 )}
               />
