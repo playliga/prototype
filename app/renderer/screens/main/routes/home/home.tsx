@@ -3,7 +3,6 @@ import cuid from 'cuid';
 import { RouteComponentProps } from 'react-router-dom';
 import { Card, Row, Col, Empty, Table } from 'antd';
 import { UpcomingMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
-
 import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
@@ -24,8 +23,8 @@ const GUTTER_V = 8;
 const NUM_INBOX_PREVIEW = 3;
 const NUM_STANDINGS = 10;
 const NUM_UPCOMING_MATCHES = 6;
-const TOP_ROW_HEIGHT = 230;
-const BOT_ROW_HEIGHT = 500;
+const ROWHEIGHT_TOP = 230;
+const ROWHEIGHT_BOTTOM = 500;
 
 
 // declare interfaces and types
@@ -145,7 +144,7 @@ function Home( props: Props ) {
           {/* NEXT MATCH */}
           <Col span={COLSIZE_MATCHPREV}>
             <Card
-              bodyStyle={{ height: TOP_ROW_HEIGHT }}
+              bodyStyle={{ height: ROWHEIGHT_TOP }}
               loading={!upcoming}
               title="Next Match"
             >
@@ -156,7 +155,7 @@ function Home( props: Props ) {
           {/* UPCOMING MATCHES */}
           <Col span={COLSIZE_UPCOMING}>
             <Card
-              bodyStyle={{ height: TOP_ROW_HEIGHT, padding: CARD_PADDING }}
+              bodyStyle={{ height: ROWHEIGHT_TOP, padding: CARD_PADDING }}
               loading={!upcoming}
               title="Upcoming Fixtures"
             >
@@ -172,7 +171,7 @@ function Home( props: Props ) {
           {/* INBOX PREVIEW */}
           <Col span={COLSIZE_INBOX}>
             <Card
-              bodyStyle={{ height: BOT_ROW_HEIGHT }}
+              bodyStyle={{ height: ROWHEIGHT_BOTTOM }}
               loading={props.emails.data.length === 0}
               title="Inbox"
             >
@@ -187,7 +186,7 @@ function Home( props: Props ) {
           <Col span={COLSIZE_STANDINGS}>
             <Card
               title="League Table"
-              bodyStyle={{ height: BOT_ROW_HEIGHT, padding: CARD_PADDING }}
+              bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
               {standings && standings.length > 0 && (
