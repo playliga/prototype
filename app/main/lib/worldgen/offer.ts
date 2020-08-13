@@ -28,8 +28,8 @@ async function teamRespondOffer( offerdetails: OfferRequest, response: string, r
 
   // figure out when the team will send their response
   const daysoffset = random(
-    Application.TEAM_OFFER_RESPONSE_MINDAYS,
-    Application.TEAM_OFFER_RESPONSE_MAXDAYS
+    Application.OFFER_TEAM_RESPONSE_MINDAYS,
+    Application.OFFER_TEAM_RESPONSE_MAXDAYS
   );
 
   const targetdate = moment( _profile.currentDate ).add( daysoffset, 'days' );
@@ -89,8 +89,8 @@ async function playerRespondOffer(
   // figure out when to send the player's response which
   // can be affected if this player had a team
   const daysoffset = teamresponseoffset + random(
-    Application.PLAYER_OFFER_RESPONSE_MINDAYS,
-    Application.PLAYER_OFFER_RESPONSE_MAXDAYS
+    Application.OFFER_PLAYER_RESPONSE_MINDAYS,
+    Application.OFFER_PLAYER_RESPONSE_MAXDAYS
   );
 
   const targetdate = moment( _profile.currentDate ).add( daysoffset, 'days' );
@@ -201,7 +201,7 @@ export async function parse( offerdetails: OfferRequest ) {
 
   // add the transfer buffer time — this is the time one must
   // wait before negotiating wages with the player again
-  const eligibledate = moment( actiondate ).add( Application.PLAYER_ELIGIBLE_BUFFER_DAYS, 'days' );
+  const eligibledate = moment( actiondate ).add( Application.OFFER_PLAYER_ELIGIBLE_BUFFER_DAYS, 'days' );
 
   return Models.ActionQueue.create({
     type: ActionQueueTypes.TRANSFER_MOVE,
