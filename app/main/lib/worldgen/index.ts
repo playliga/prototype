@@ -4,14 +4,14 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as Offer from './offer';
+import * as CalendarLoop from './calendar-loop';
 
 import { random } from 'lodash';
 import { Op } from 'sequelize';
-import { ActionQueueTypes, CompTypes } from 'shared/enums';
+import { ActionQueueTypes } from 'shared/enums';
 import { League } from 'main/lib/league';
 
 import ScreenManager from 'main/lib/screen-manager';
-import Application from 'main/constants/application';
 import PlayerWages from 'main/constants/playerwages';
 import EmailDialogue from 'main/constants/emaildialogue';
 
@@ -39,169 +39,9 @@ async function sendEmailAndEmit( payload: any ) {
 
 /**
  * Calendar loop
- *
- * query action queue items for today's date
- * and execute those action items.
- *
- * bail out if:
- * - any e-mails are sent
- * - we reach MAX_ITERATIONS
  */
 
-async function handleQueueItem( item: Models.ActionQueue ) {
-  switch( item.type ) {
-    case ActionQueueTypes.SEND_EMAIL:
-      return sendEmailAndEmit( item.payload );
-    case ActionQueueTypes.TRANSFER_OFFER_RESPONSE:
-      return Models.TransferOffer.update(
-        { status: item.payload.status, msg: item.payload.msg },
-        { where: { id: item.payload.id } }
-      );
-    case ActionQueueTypes.TRANSFER_MOVE:
-      return Models.Player
-        .findByPk( item.payload.targetid )
-        .then( player => Promise.all([
-          player?.update({
-            monthlyWages: item.payload.wages,
-            transferValue: item.payload.fee,
-            transferListed: false,
-            tier: item.payload.tier,
-            eligibleDate: item.payload.eligible,
-          }),
-          player?.setTeam( item.payload.teamid )
-        ]))
-      ;
-    case ActionQueueTypes.START_COMP:
-      return Models.Competition
-        .findByPk( item.payload, { include: [ 'Comptype' ] })
-        .then( startCompetition )
-        .then( generateMatchdays )
-      ;
-  }
-}
-
-
-export async function calendarLoop() {
-  // load profile
-  let profile = await Models.Profile.getActiveProfile();
-
-  if( !profile ) {
-    return Promise.reject();
-  }
-
-  // iterate thru the calendar
-  for( let i = 0; i < Application.CALENDAR_LOOP_MAX_ITERATIONS; i++ ) {
-    // load today's action items
-    const queue = await Models.ActionQueue.findAll({
-      where: { actionDate: profile.currentDate, completed: false }
-    });
-
-    if( queue && queue.length > 0 ) {
-      await Promise.all( queue.map( handleQueueItem ) );
-    }
-
-    // update the completed actionqueues
-    await Promise.all( queue.map( q => q.update({ completed: true }) ) );
-
-    // fetch a fresh profile in case of transfer moves
-    profile = await Models.Profile.getActiveProfile();
-
-    // send the updated profile to the renderer
-    ScreenManager
-      .getScreenById( IPCRouting.Main._ID )
-      .handle
-      .webContents
-      .send(
-        IPCRouting.Database.PROFILE_GET,
-        JSON.stringify( profile )
-      )
-    ;
-
-    // bail out of loop if any conditions are met
-    // @todo: BAIL ON THE SAME DAY THOUGH
-    const bail = queue.findIndex( q => (
-      q.type === ActionQueueTypes.SEND_EMAIL
-      || q.type === ActionQueueTypes.MATCHDAY
-    ));
-
-    if( bail >= 0 ) {
-      break;
-    }
-
-    // we made it this far — update today's date
-    profile.currentDate = moment( profile.currentDate )
-      .add( 1, 'day' )
-      .toDate()
-    ;
-    await profile.save();
-  }
-
-  return Promise.resolve();
-}
-
-
-/**
- * Start competitions and generate their matchdays
- */
-
-function startCompetition( comp: Models.Competition ) {
-  const league = League.restore( comp.data );
-  league.start();
-  return comp.update({ data: league });
-}
-
-
-function getMatchdayWeekday( type: string, date: moment.Moment ) {
-  switch( type ) {
-    case CompTypes.LEAGUE: {
-      const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
-      return date.weekday( Application.MATCHDAYS_LEAGUE[ day ] );
-    }
-    default:
-      return;
-  }
-}
-
-
-async function generateMatchdays( comp: Models.Competition ) {
-  // get user's profile
-  const profile = await Models.Profile.getActiveProfile();
-
-  // bail if the user's team is not competing in this competition
-  const joined = profile
-    .Team
-    .Competitions
-    .findIndex( c => c.id === comp.id )
-  > -1;
-
-  if( !joined ) {
-    return Promise.resolve();
-  }
-
-  // get their team's division, conference, and seednum
-  const leagueobj = League.restore( comp.data );
-  const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
-  const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-  const matches = conf.groupObj.upcoming( seednum );
-
-  // generate their matchdays which tie into the actionqueue db table
-  const matchdays = matches.map( ( match, idx ) => ({
-    type: ActionQueueTypes.MATCHDAY,
-    actionDate: getMatchdayWeekday(
-      comp.Comptype.name,
-      moment( profile.currentDate ).add( idx + 1, 'weeks' )
-    ),
-    payload: {
-      compId: comp.id,
-      confId: conf.id,
-      divId: divobj.name,
-      matchId: match.id,
-    }
-  }));
-
-  // bulk insert into the actionqueue as matchdays
-  return Models.ActionQueue.bulkCreate( matchdays );
-}
+export { CalendarLoop };
 
 
 /**
