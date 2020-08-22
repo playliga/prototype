@@ -16,6 +16,7 @@ import Application from 'main/constants/application';
 const itemloop = new ItemLoop.ItemLoop();
 
 
+// runs once at the start and end of every tick
 itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const queue = await Models.ActionQueue.findAll({
@@ -36,6 +37,7 @@ itemloop.register( ItemLoop.MiddlewareType.END, async () => {
 });
 
 
+// runs after all items in the tick are executed
 itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
   // update the completed items
   await Promise.all( items.map( i => i.update({ completed: true }) ) );
@@ -56,6 +58,7 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
 });
 
 
+// the types of jobs that can run on every tick
 itemloop.register( ActionQueueTypes.SEND_EMAIL, async item => {
   const email = await Models.Email.send( item.payload );
 
@@ -105,6 +108,11 @@ itemloop.register( ActionQueueTypes.START_COMP, async item => {
     .then( generateMatchdays )
   ;
 });
+
+
+// ----------------------------
+// HELPER AND UTILITY FUNCTIONS
+// ----------------------------
 
 
 /**
@@ -172,7 +180,7 @@ async function generateMatchdays( comp: Models.Competition ) {
 
 
 /**
- * Calendar Module
+ * Main function
  *
  * Queries actionqueue items for today's date
  * and executes those action items.
