@@ -101,7 +101,7 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     .then( Worldgen.assignManagers )
 
     // generate the competitions
-    .then( Worldgen.genAllComps )
+    .then( Worldgen.Competition.genAllComps )
 
     // generate wages
     .then( Worldgen.calculateWages )
