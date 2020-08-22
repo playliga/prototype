@@ -1,9 +1,8 @@
 import moment from 'moment';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
-import { random } from 'lodash';
-import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { League } from 'main/lib/league';
+import * as WGCompetition from './competition';
+import { ActionQueueTypes } from 'shared/enums';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
@@ -104,79 +103,10 @@ itemloop.register( ActionQueueTypes.TRANSFER_MOVE, async item => {
 itemloop.register( ActionQueueTypes.START_COMP, async item => {
   return Models.Competition
     .findByPk( item.payload, { include: [ 'Comptype' ] })
-    .then( startCompetition )
-    .then( generateMatchdays )
+    .then( WGCompetition.start )
+    .then( WGCompetition.generateMatchdays )
   ;
 });
-
-
-// ----------------------------
-// HELPER AND UTILITY FUNCTIONS
-// ----------------------------
-
-
-/**
- * Start competitions and generate their matchdays
- */
-
-function startCompetition( comp: Models.Competition ) {
-  const league = League.restore( comp.data );
-  league.start();
-  return comp.update({ data: league });
-}
-
-
-function getMatchdayWeekday( type: string, date: moment.Moment ) {
-  switch( type ) {
-    case CompTypes.LEAGUE: {
-      const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
-      return date.weekday( Application.MATCHDAYS_LEAGUE[ day ] );
-    }
-    default:
-      return;
-  }
-}
-
-
-async function generateMatchdays( comp: Models.Competition ) {
-  // get user's profile
-  const profile = await Models.Profile.getActiveProfile();
-
-  // bail if the user's team is not competing in this competition
-  const joined = profile
-    .Team
-    .Competitions
-    .findIndex( c => c.id === comp.id )
-  > -1;
-
-  if( !joined ) {
-    return Promise.resolve();
-  }
-
-  // get their team's division, conference, and seednum
-  const leagueobj = League.restore( comp.data );
-  const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
-  const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-  const matches = conf.groupObj.upcoming( seednum );
-
-  // generate their matchdays which tie into the actionqueue db table
-  const matchdays = matches.map( ( match, idx ) => ({
-    type: ActionQueueTypes.MATCHDAY,
-    actionDate: getMatchdayWeekday(
-      comp.Comptype.name,
-      moment( profile.currentDate ).add( idx + 1, 'weeks' )
-    ),
-    payload: {
-      compId: comp.id,
-      confId: conf.id,
-      divId: divobj.name,
-      matchId: match.id,
-    }
-  }));
-
-  // bulk insert into the actionqueue as matchdays
-  return Models.ActionQueue.bulkCreate( matchdays );
-}
 
 
 /**
