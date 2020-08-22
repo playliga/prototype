@@ -3,14 +3,14 @@ import is from 'electron-is';
 import { ipcMain, Menu, IpcMainEvent } from 'electron';
 
 import * as IPCRouting from 'shared/ipc-routing';
-import * as WorldGen from 'main/lib/worldgen';
 import { IpcRequest, OfferRequest, OfferReview } from 'shared/types';
 import { TransferOffer, Profile } from 'main/database/models';
 import { Player } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
-import ScreenManager from 'main/lib/screen-manager';
-import DefaultMenuTemplate from 'main/lib/default-menu';
 import { OfferStatus } from 'shared/enums';
+import ScreenManager from 'main/lib/screen-manager';
+import Worldgen from 'main/lib/worldgen';
+import DefaultMenuTemplate from 'main/lib/default-menu';
 
 
 /**
@@ -106,7 +106,7 @@ function sendOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferRequest> 
   }
 
   // let world gen handle the offer
-  WorldGen
+  Worldgen
     .Offer
     .parse( params )
     .then( () => sendresponse() )
@@ -135,7 +135,7 @@ async function reviewOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferR
   }
 
   // otherwise, let the player decide now
-  WorldGen
+  Worldgen
     .Offer
     .parse({
       teamdata: offerdata.Team,
