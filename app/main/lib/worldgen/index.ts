@@ -4,7 +4,7 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as Offer from './offer';
-import * as CalendarLoop from './calendar-loop';
+import * as Calendar from './calendar';
 
 import { random } from 'lodash';
 import { Op } from 'sequelize';
@@ -38,10 +38,10 @@ async function sendEmailAndEmit( payload: any ) {
 
 
 /**
- * Calendar loop
+ * Calendar Module
  */
 
-export { CalendarLoop };
+export { Calendar };
 
 
 /**

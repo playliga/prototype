@@ -172,12 +172,12 @@ async function generateMatchdays( comp: Models.Competition ) {
 
 
 /**
- * Calendar loop
+ * Calendar Module
  *
- * query action queue items for today's date
- * and execute those action items.
+ * Queries actionqueue items for today's date
+ * and executes those action items.
  */
 
-export function start() {
+export function loop() {
   return itemloop.start( Application.CALENDAR_LOOP_MAX_ITERATIONS );
 }

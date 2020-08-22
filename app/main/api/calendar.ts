@@ -11,7 +11,7 @@ async function handler( evt: IpcMainEvent, request: IpcRequest<null> ) {
   }
 
   // begin the calendar loop
-  await Worldgen.CalendarLoop.start();
+  await Worldgen.Calendar.loop();
   evt.sender.send( request.responsechannel, null );
 }
 
