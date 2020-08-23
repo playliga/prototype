@@ -104,7 +104,7 @@ itemloop.register( ActionQueueTypes.START_COMP, async item => {
   return Models.Competition
     .findByPk( item.payload, { include: [ 'Comptype' ] })
     .then( WGCompetition.start )
-    .then( WGCompetition.generateMatchdays )
+    .then( WGCompetition.genUserMatchdays )
   ;
 });
 

@@ -18,7 +18,7 @@ export function start( comp: Models.Competition ) {
 
 
 /**
- * Generates matchdays for a competition.
+ * Generates the user's matchdays.
  */
 
 function getMatchdayWeekday( type: string, date: moment.Moment ) {
@@ -33,7 +33,7 @@ function getMatchdayWeekday( type: string, date: moment.Moment ) {
 }
 
 
-export async function generateMatchdays( comp: Models.Competition ) {
+export async function genUserMatchdays( comp: Models.Competition ) {
   // get user's profile
   const profile = await Models.Profile.getActiveProfile();
 
