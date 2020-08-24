@@ -55,7 +55,14 @@ export class ItemLoop {
     // run the middleware loop
     for( let i = 0; i < max; i++ ) {
       const items = await initm.callback();
-      const results = await Promise.all( items.map( this.runMiddleware.bind( this ) ) );
+      const results = [];
+
+      // run the items sequentially to
+      // avoid race conditions
+      for( let j = 0; j < items.length; j++ ) {
+        const item = items[ j ];
+        results.push( await this.runMiddleware( item ) );
+      }
 
       // run the generic middleware
       await Promise.all( genericm.map( m => m.callback( items ) ) );
