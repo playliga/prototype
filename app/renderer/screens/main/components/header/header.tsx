@@ -9,6 +9,7 @@ import './header.scss';
 
 interface Props extends ApplicationState {
   isMatchday?: boolean;
+  loading?: boolean;
   onNextDay: () => void;
   onPlay: () => void;
 }
@@ -70,6 +71,7 @@ export default function Header( props: Props ) {
             : (
               <Button
                 key="2"
+                disabled={props.loading}
                 onClick={props.onNextDay}
                 type="primary"
               >
