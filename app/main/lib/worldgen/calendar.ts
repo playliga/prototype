@@ -3,6 +3,7 @@ import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
 import { ActionQueueTypes } from 'shared/enums';
+import { League } from 'main/lib/league';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
@@ -104,8 +105,24 @@ itemloop.register( ActionQueueTypes.START_COMP, async item => {
   return Models.Competition
     .findByPk( item.payload, { include: [ 'Comptype' ] })
     .then( WGCompetition.start )
-    .then( WGCompetition.genUserMatchdays )
+    .then( WGCompetition.genMatchdays )
   ;
+});
+
+
+itemloop.register( ActionQueueTypes.MATCHDAY, () => {
+  return Promise.resolve( false );
+});
+
+
+itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
+  const compobj = await Models.Competition.findByPk( item.payload.compId );
+  const leagueobj = League.restore( compobj.data );
+  const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
+  const conf = divobj.conferences.find( c => c.id === item.payload.confId );
+  conf.groupObj.score( item.payload.matchId, [ 10, 0 ]);
+  compobj.data = leagueobj;
+  return compobj.save();
 });
 
 

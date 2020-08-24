@@ -25,6 +25,7 @@ export interface Tournament {
   matchesFor: ( seed: number ) => Match[];
   results: () => Result[];
   resultsFor: ( seed: number ) => Result;
+  rounds: () => Match[][];
   score: ( matchId: object, mapScore: any[] ) => boolean;
   standings?: Result[];
   state: any[];

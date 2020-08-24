@@ -1,27 +1,30 @@
 import moment from 'moment';
 import * as Models from 'main/database/models';
-import { random } from 'lodash';
+import { random, flattenDeep } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { League } from 'main/lib/league';
 import Application from 'main/constants/application';
 
 
+// ------------------------
+// UTILITY/HELPER FUNCTIONS
+// ------------------------
+
 /**
- * Start a competition.
+ * Whether the team joined the specified competiton
  */
 
-export function start( comp: Models.Competition ) {
-  const league = League.restore( comp.data );
-  league.start();
-  return comp.update({ data: league });
+function didJoin( team: Models.Team, comp: Models.Competition ) {
+  return team.Competitions.findIndex( c => c.id === comp.id ) > -1;
 }
 
 
 /**
- * Generates the user's matchdays.
+ * Get the weekday that the competition's
+ * matchday should be played on
  */
 
-function getMatchdayWeekday( type: string, date: moment.Moment ) {
+function getWeekday( type: string, date: moment.Moment ) {
   switch( type ) {
     case CompTypes.LEAGUE: {
       const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
@@ -33,49 +36,9 @@ function getMatchdayWeekday( type: string, date: moment.Moment ) {
 }
 
 
-export async function genUserMatchdays( comp: Models.Competition ) {
-  // get user's profile
-  const profile = await Models.Profile.getActiveProfile();
-
-  // bail if the user's team is not competing in this competition
-  const joined = profile
-    .Team
-    .Competitions
-    .findIndex( c => c.id === comp.id )
-  > -1;
-
-  if( !joined ) {
-    return Promise.resolve();
-  }
-
-  // get their team's division, conference, and seednum
-  const leagueobj = League.restore( comp.data );
-  const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
-  const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-  const matches = conf.groupObj.upcoming( seednum );
-
-  // generate their matchdays which tie into the actionqueue db table
-  const matchdays = matches.map( ( match, idx ) => ({
-    type: ActionQueueTypes.MATCHDAY,
-    actionDate: getMatchdayWeekday(
-      comp.Comptype.name,
-      moment( profile.currentDate ).add( idx + 1, 'weeks' )
-    ),
-    payload: {
-      compId: comp.id,
-      confId: conf.id,
-      divId: divobj.name,
-      matchId: match.id,
-    }
-  }));
-
-  // bulk insert into the actionqueue as matchdays
-  return Models.ActionQueue.bulkCreate( matchdays );
-}
-
-
 /**
- * Generate the competitions after initial registration.
+ * Generate a single competition based
+ * off of the definition schema
  */
 
 async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile ) {
@@ -140,6 +103,77 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
   }));
 }
 
+
+// ------------------------
+// EXPORTED FUNCTIONS
+// ------------------------
+
+/**
+ * Start a competition.
+ */
+
+export function start( comp: Models.Competition ) {
+  const league = League.restore( comp.data );
+  league.start();
+  return comp.update({ data: league });
+}
+
+
+/**
+ * Generates matchdays for a competition
+ */
+
+export async function genMatchdays( comp: Models.Competition ) {
+  // init the league object
+  const leagueobj = League.restore( comp.data );
+
+  // if the user joined, grab their conf+seed numbers
+  const profile = await Models.Profile.getActiveProfile();
+  const joined = didJoin( profile.Team, comp );
+
+  let userseed: number;
+  let userconf: string;
+
+  if( joined ) {
+    const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
+    const info = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+    userconf = info[ 0 ].id;
+    userseed = info[ 1 ];
+  }
+
+  // loop thru the competition's divisions and their
+  // conferences and record the match days per round
+  const matchdays = leagueobj.divisions.map( divobj => {
+    return divobj.conferences.map( conf => {
+      return conf.groupObj.rounds().map( ( rnd, idx ) => {
+        return rnd.map( match => ({
+          type: conf.id === userconf && match.p.includes( userseed )
+            ? ActionQueueTypes.MATCHDAY
+            : ActionQueueTypes.MATCHDAY_NPC
+          ,
+          actionDate: getWeekday(
+            comp.Comptype.name,
+            moment( profile.currentDate ).add( idx + 1, 'weeks' )
+          ),
+          payload: {
+            compId: comp.id,
+            confId: conf.id,
+            divId: divobj.name,
+            matchId: match.id,
+          }
+        }));
+      });
+    });
+  });
+
+  await Models.ActionQueue.bulkCreate( flattenDeep( matchdays ) );
+  return Promise.resolve();
+}
+
+
+/**
+ * Generate the competitions after initial registration.
+ */
 
 export async function genAllComps() {
   const compdefs = await Models.Compdef.findAll({
