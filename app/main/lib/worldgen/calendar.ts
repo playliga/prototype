@@ -133,6 +133,6 @@ itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
  * and executes those action items.
  */
 
-export function loop() {
-  return itemloop.start( Application.CALENDAR_LOOP_MAX_ITERATIONS );
+export function loop( max = Application.CALENDAR_LOOP_MAX_ITERATIONS ) {
+  return itemloop.start( max );
 }

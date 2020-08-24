@@ -1,6 +1,6 @@
 import moment from 'moment';
 import * as Models from 'main/database/models';
-import { random, flattenDeep } from 'lodash';
+import { random, flattenDeep, shuffle } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { League } from 'main/lib/league';
 import Application from 'main/constants/application';
@@ -114,6 +114,12 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
 
 export function start( comp: Models.Competition ) {
   const league = League.restore( comp.data );
+
+  // shuffle divisions before starting
+  league.divisions.forEach( divobj => {
+    divobj.competitors = shuffle( divobj.competitors );
+  });
+
   league.start();
   return comp.update({ data: league });
 }

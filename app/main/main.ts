@@ -8,6 +8,7 @@ import { Sequelize } from 'sequelize';
 import * as Models from 'main/database/models';
 import * as IPCApis from 'main/api';
 import * as Screens from 'main/screens';
+import Application from 'main/constants/application';
 import ScreenManager from 'main/lib/screen-manager';
 
 
@@ -25,20 +26,17 @@ if( is.dev() ) {
  * Set-up the application database
  */
 
-const DBNAME    = 'save0.sqlite';
-const DBPATH    = path.join( app.getPath( 'userData' ), 'databases' );
-
-
 function setupDB() {
-  const targetpath = path.join( DBPATH, DBNAME );
+  const dbpath = path.join( app.getPath( 'userData' ), 'databases' );
+  const targetpath = path.join( dbpath, Application.DB_NAME );
 
   // copy source-controlled db if not found
   if( !fs.existsSync( targetpath ) ) {
-    const localpath = path.join( __dirname, 'resources/databases', DBNAME );
+    const localpath = path.join( __dirname, 'resources/databases', Application.DB_NAME );
 
     // create parent folder if not found
-    if( !fs.existsSync( DBPATH ) ) {
-      fs.mkdirSync( DBPATH );
+    if( !fs.existsSync( dbpath ) ) {
+      fs.mkdirSync( dbpath );
     }
 
     // copy over the local copy
@@ -47,16 +45,17 @@ function setupDB() {
     }
   }
 
-  // configure sequelize logging
+  // turn off logging in production
+  // to improve performance
   const loggingfunc = is.production()
-    ? log.debug.bind( log )
+    ? false
     : ( msg: string ) => log.debug( msg )
   ;
 
   // configure the connection pool
   const poolconfig = is.production()
     ? {
-      max: 50,
+      max: Application.DB_CNX_LIMIT,
       min: 0,
     } : undefined
   ;

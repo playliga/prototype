@@ -56,7 +56,9 @@ async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function
     .send( IPCRouting.Competition.PLAY, {
       params: { id: upcoming.competitionId }
     })
-    .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP ) )
+    .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP, {
+      params: { max: 1 }
+    }))
     .then( () => dispatch( profileActions.calendarFinish() ) )
   ;
 }

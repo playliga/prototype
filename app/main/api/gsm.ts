@@ -345,6 +345,17 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   const [ match ] = conf.groupObj.upcoming( seednum );
   const [ seed1, seed2 ] = match.p;
 
+  // -----------
+  // START DEBUG
+  // -----------
+  // conf.groupObj.score( match.id, [ 10, 0 ]);
+  // compobj.data = leagueobj;
+  // await compobj.save();
+  // return evt.sender.send( request.responsechannel );
+  // -----------
+  // END DEBUG
+  // -----------
+
   // grab the team information for this match
   const team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
   const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
