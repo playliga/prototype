@@ -2,12 +2,12 @@ import { IterableObject } from './types';
 
 
 export const ActionQueueTypes = {
-  MATCHDAY: 'MATCHDAY',
-  MATCHDAY_NPC: 'MATCHDAY_NPC',
-  SEND_EMAIL: 'SEND_EMAIL',
-  START_COMP: 'START_COMP',
-  TRANSFER_MOVE: 'TRANSFER_MOVE',
-  TRANSFER_OFFER_RESPONSE: 'TRANSFER_OFFER_RESPONSE',
+  MATCHDAY                : 'MATCHDAY',
+  MATCHDAY_NPC            : 'MATCHDAY_NPC',
+  SEND_EMAIL              : 'SEND_EMAIL',
+  START_COMP              : 'START_COMP',
+  TRANSFER_MOVE           : 'TRANSFER_MOVE',
+  TRANSFER_OFFER_RESPONSE : 'TRANSFER_OFFER_RESPONSE',
 };
 
 
@@ -21,14 +21,14 @@ export const Tiers: IterableObject<string> = {
 
 
 export const OfferStatus = {
-  ACCEPTED: 'accepted',
-  PENDING: 'pending',
-  REJECTED: 'rejected',
+  ACCEPTED  : 'accepted',
+  PENDING   : 'pending',
+  REJECTED  : 'rejected',
 };
 
 
 export const CompTypes = {
-  CHAMPIONS_LEAGUE: 'championsleague',
-  LEAGUE: 'league',
-  LEAGUE_CUP: 'leaguecup',
+  CHAMPIONS_LEAGUE  : 'championsleague',
+  LEAGUE            : 'league',
+  LEAGUE_CUP        : 'leaguecup',
 };
