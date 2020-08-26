@@ -8,7 +8,7 @@ class Player extends Model {
       transferListed: { type: Sequelize.BOOLEAN, defaultValue: false },
       transferValue: { type: Sequelize.INTEGER, defaultValue: 0 },
       monthlyWages: { type: Sequelize.INTEGER, defaultValue: 0 },
-      eligibleDate: { type: Sequelize.DATEONLY, allowNull: true, defaultValue: Sequelize.NOW },
+      eligibleDate: { type: Sequelize.DATEONLY, allowNull: true },
       tier: Sequelize.INTEGER,
       starter: Sequelize.BOOLEAN,
     }, { sequelize, modelName: 'Player' });

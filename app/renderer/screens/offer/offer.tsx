@@ -71,11 +71,14 @@ function teamAcceptedOffer( items: any[] ) {
 }
 
 
-function isEligibleForNegotiations( currentDate: Date, eligibleDate: Date ) {
-  if( !currentDate || !eligibleDate ) {
-    return false;
+function isEligibleForNegotiations( currentDate: Date, eligibleDate: Date | null ) {
+  // eligible by default
+  if( !eligibleDate ) {
+    return true;
   }
 
+  // otherwise, check if eligible by
+  // checking against today's date
   return moment( currentDate ).isSameOrAfter( eligibleDate );
 }
 

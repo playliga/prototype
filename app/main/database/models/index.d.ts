@@ -87,7 +87,7 @@ declare module 'main/database/models' {
     public transferListed: boolean;
     public transferValue: number;
     public monthlyWages: number;
-    public eligibleDate: Date;
+    public eligibleDate: Date | null;
     public starter: boolean;
     public readonly Team?: Team;
 
@@ -98,6 +98,7 @@ declare module 'main/database/models' {
 
   export class Profile extends BaseModel {
     public currentDate: Date;
+    public currentSeason: number;
     public readonly Team?: Team;
     public readonly Player?: Player;
 

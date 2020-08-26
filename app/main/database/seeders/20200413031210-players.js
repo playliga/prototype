@@ -39,7 +39,7 @@ module.exports = {
           countryId: countryid,
           createdAt: new Date(),
           updatedAt: new Date(),
-          eligibleDate: moment( new Date() ).format( 'YYYY-MM-DD' ),
+          eligibleDate: null,
           starter: false,
         });
       });

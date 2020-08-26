@@ -64,11 +64,14 @@ export class ItemLoop {
         results.push( await this.runMiddleware( item ) );
       }
 
-      // run the generic middleware
-      await Promise.all( genericm.map( m => m.callback( items ) ) );
+      // run the generic middleware (also sequentially)
+      for( let j = 0; j < genericm.length; j++ ) {
+        const item = genericm[ j ];
+        results.push( await item.callback( items ) );
+      }
 
       // do we need to bail out early?
-      const bail = flatten( results ).findIndex( r => !r );
+      const bail = flatten( results ).findIndex( r => r === false );
 
       if( bail > -1 ) {
         break;

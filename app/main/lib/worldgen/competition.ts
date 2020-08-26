@@ -89,7 +89,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     // add its start date to its action queue
     await Models.ActionQueue.create({
       type: ActionQueueTypes.START_COMP,
-      actionDate: moment().add( compdef.startOffset, 'days' ),
+      actionDate: moment( profile.currentDate ).add( compdef.startOffset, 'days' ),
       payload: comp.id
     });
 

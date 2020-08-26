@@ -9,9 +9,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       currentDate: {
-        allowNull: true,
-        default: Date.now(),
+        allowNull: false,
         type: Sequelize.DATEONLY
+      },
+      currentSeason: {
+        allowNull: false,
+        type: Sequelize.NUMBER,
       },
 
       // timestamps

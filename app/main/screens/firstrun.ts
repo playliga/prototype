@@ -1,15 +1,15 @@
 import path from 'path';
-import { ipcMain, Menu } from 'electron';
+import moment from 'moment';
 import is from 'electron-is';
-
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
-
+import { ipcMain, Menu } from 'electron';
 import { IterableObject } from 'shared/types';
 import { Screen } from 'main/lib/screen-manager/types';
 import Worldgen from 'main/lib/worldgen';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
+import Application from 'main/constants/application';
 
 
 // module-level variables and constants
@@ -74,8 +74,18 @@ async function saveplayer( data: IterableObject<any>[] ) {
     tier: 4,
   });
 
+  // build the first season date
+  const today = moment([
+    Application.PRESEASON_FIRST_YEAR,
+    Application.PRESEASON_START_MONTH,
+    Application.PRESEASON_START_DAY,
+  ]);
+
   // create the new user profile
-  const profile = await Models.Profile.create();
+  const profile = await Models.Profile.create({
+    currentDate: today.toDate(),
+    currentSeason: Application.PRESEASON_FIRST_YEAR,
+  });
 
   // save associations and return as a single promise
   return Promise.all([

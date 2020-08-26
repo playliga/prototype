@@ -8,10 +8,13 @@ class Profile extends Model {
   static autoinit( sequelize ) {
     return this.init({
       currentDate: {
-        allowNull: true,
-        defaultValue: Sequelize.NOW,
+        allowNull: false,
         type: Sequelize.DATEONLY
-      }
+      },
+      currentSeason: {
+        allowNull: false,
+        type: Sequelize.NUMBER,
+      },
     }, { sequelize, modelName: 'Profile' });
   }
 

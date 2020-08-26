@@ -38,6 +38,15 @@ We might have to spend a little more for this offer.
 `;
 
 
+const PRESEASON_SQUAD_DEADLINE = `
+Hi, {{it.player.alias}}.
+
+We don't have enough squad members to join any competitions.
+
+There are some free agents in the transfer market we can send offers to.
+`;
+
+
 const TEAM_ACCEPT = `
 Hi, {{it.player.alias}}.
 
@@ -64,6 +73,7 @@ export default {
   PLAYER_ACCEPT,
   PLAYER_REJECT_REASON_TIER,
   PLAYER_REJECT_REASON_WAGES,
+  PRESEASON_SQUAD_DEADLINE,
   TEAM_ACCEPT,
   TEAM_REJECT_REASON_NOTFORSALE,
   TEAM_REJECT_REASON_FEE,
