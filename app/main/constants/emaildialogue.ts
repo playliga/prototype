@@ -38,6 +38,15 @@ We might have to spend a little more for this offer.
 `;
 
 
+const PRESEASON_COMP_DEADLINE = `
+Hi, {{it.player.alias}}.
+
+Our squad is ready to go but I noticed we haven't joined any competitions.
+
+The season is about to start so we should get on that!
+`;
+
+
 const PRESEASON_SQUAD_DEADLINE = `
 Hi, {{it.player.alias}}.
 
@@ -73,6 +82,7 @@ export default {
   PLAYER_ACCEPT,
   PLAYER_REJECT_REASON_TIER,
   PLAYER_REJECT_REASON_WAGES,
+  PRESEASON_COMP_DEADLINE,
   PRESEASON_SQUAD_DEADLINE,
   TEAM_ACCEPT,
   TEAM_REJECT_REASON_NOTFORSALE,
