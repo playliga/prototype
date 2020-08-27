@@ -1,10 +1,10 @@
-import moment from 'moment';
 import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
 import { ActionQueueTypes } from 'shared/enums';
 import { League } from 'main/lib/league';
+import moment from 'moment';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
@@ -56,63 +56,6 @@ itemloop.register( ItemLoop.MiddlewareType.END, () => {
  * this can be declared several times.
  */
 
-// checks to see if the required tasks have  been
-// completed by the user before the season starts
-itemloop.register( null, async () => {
-  const profile = await Models.Profile.getActiveProfile();
-  const today = moment( profile.currentDate );
-  const tomorrow = today.add( 1, 'day' );
-  const hassquad = profile.Team.Players.length >= 5;
-  const joinedcomp = profile.Team.Competitions.length > 0;
-
-  // are we in pre-season?
-  const preseason_start = moment([ today.year(), Application.PRESEASON_START_MONTH, Application.PRESEASON_START_DAY ]);
-  const preseason_end = preseason_start.add( Application.PRESEASON_LENGTH, 'days' );
-  const preseason_days_left = preseason_end.diff( today, 'days' );
-  const preseason = today.isBefore( preseason_end );
-
-  // if we are in pre-season do we need to send an
-  // e-mail in case the user does not have a squad?
-  const squad_deadline = Application.PRESEASON_SQUAD_DEADLINE_DAYS.includes( preseason_days_left );
-
-  if( preseason && squad_deadline && !hassquad ) {
-    const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
-    await Models.ActionQueue.create({
-      type: ActionQueueTypes.SEND_EMAIL,
-      actionDate: tomorrow,
-      payload: {
-        from: persona.id,
-        to: profile.Player.id,
-        subject: 'Concerned about our squad',
-        content: Sqrl.render( EmailDialogue.PRESEASON_SQUAD_DEADLINE, { player: profile.Player }),
-        sentAt: tomorrow,
-      }
-    });
-  }
-
-  // if we are in pre-season do we need to send an e-mail
-  // in case the user has not joined any competitions?
-  const comp_deadline = Application.PRESEASON_COMP_DEADLINE_DAYS.includes( preseason_days_left );
-
-  if( preseason && comp_deadline && hassquad && !joinedcomp ) {
-    const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
-    await Models.ActionQueue.create({
-      type: ActionQueueTypes.SEND_EMAIL,
-      actionDate: tomorrow,
-      payload: {
-        from: persona.id,
-        to: profile.Player.id,
-        subject: 'Join a competition',
-        content: Sqrl.render( EmailDialogue.PRESEASON_COMP_DEADLINE, { player: profile.Player }),
-        sentAt: tomorrow,
-      }
-    });
-  }
-
-  return Promise.resolve();
-});
-
-
 // marks the items as completed and lets the
 // front-end know this iteration is done
 itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
@@ -140,6 +83,61 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
 /**
  * the types of jobs that can run on every tick
  */
+
+itemloop.register( ActionQueueTypes.PRESEASON_CHECK_COMP, async () => {
+  // check if this dude has joined any competitions
+  const profile = await Models.Profile.getActiveProfile();
+  const today = moment( profile.currentDate );
+  const tomorrow = today.add( 1, 'day' );
+  const joined = profile.Team.Competitions.length > 0;
+
+  if( joined ) {
+    return Promise.resolve();
+  }
+
+  // bruh, get your shit together
+  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.SEND_EMAIL,
+    actionDate: tomorrow,
+    payload: {
+      from: persona.id,
+      to: profile.Player.id,
+      subject: 'Join a competition',
+      content: Sqrl.render( EmailDialogue.PRESEASON_COMP_DEADLINE, { player: profile.Player }),
+      sentAt: tomorrow,
+    }
+  });
+});
+
+itemloop.register( ActionQueueTypes.PRESEASON_CHECK_SQUAD, async () => {
+  // time to check if this dude has his squad in order
+  const profile = await Models.Profile.getActiveProfile();
+  const today = moment( profile.currentDate );
+  const tomorrow = today.add( 1, 'day' );
+  const hassquad = profile.Team.Players.length >= 5;
+
+  if( hassquad ) {
+    return Promise.resolve();
+  }
+
+  // bruh, get your shit together
+  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.SEND_EMAIL,
+    actionDate: tomorrow,
+    payload: {
+      from: persona.id,
+      to: profile.Player.id,
+      subject: 'Concerned about our squad',
+      content: Sqrl.render( EmailDialogue.PRESEASON_SQUAD_DEADLINE, { player: profile.Player }),
+      sentAt: tomorrow,
+    }
+  });
+});
+
 
 itemloop.register( ActionQueueTypes.SEND_EMAIL, async item => {
   const email = await Models.Email.send( item.payload );

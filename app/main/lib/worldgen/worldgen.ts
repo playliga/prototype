@@ -3,9 +3,12 @@ import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import { random } from 'lodash';
 import { Op } from 'sequelize';
+import { ActionQueueTypes } from 'shared/enums';
+import moment from 'moment';
 import ScreenManager from 'main/lib/screen-manager';
 import PlayerWages from 'main/constants/playerwages';
 import EmailDialogue from 'main/constants/emaildialogue';
+import Application from 'main/constants/application';
 
 
 /**
@@ -26,6 +29,33 @@ async function sendEmailAndEmit( payload: any ) {
   ;
 
   return Promise.resolve();
+}
+
+
+/**
+ * Add preseason checks
+ */
+
+export async function preseasonChecks() {
+  const profile = await Models.Profile.getActiveProfile();
+  const today = moment( profile.currentDate );
+  const preseason_start = moment([ today.year(), Application.PRESEASON_START_MONTH, Application.PRESEASON_START_DAY ]);
+  const preseason_end = preseason_start.add( Application.PRESEASON_LENGTH, 'days' );
+
+  const actions = [
+    ...Application.PRESEASON_COMP_DEADLINE_DAYS.map( offset => ({
+      type: ActionQueueTypes.PRESEASON_CHECK_COMP,
+      actionDate: moment( preseason_end ).subtract( offset, 'days' ),
+      payload: null
+    })),
+    ...Application.PRESEASON_SQUAD_DEADLINE_DAYS.map( offset => ({
+      type: ActionQueueTypes.PRESEASON_CHECK_SQUAD,
+      actionDate: moment( preseason_end ).subtract( offset, 'days' ),
+      payload: null
+    }))
+  ];
+
+  return Models.ActionQueue.bulkCreate( actions );
 }
 
 

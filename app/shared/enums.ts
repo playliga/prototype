@@ -4,6 +4,8 @@ import { IterableObject } from './types';
 export const ActionQueueTypes = {
   MATCHDAY                : 'MATCHDAY',
   MATCHDAY_NPC            : 'MATCHDAY_NPC',
+  PRESEASON_CHECK_COMP    : 'PRESEASON_CHECK_COMP',
+  PRESEASON_CHECK_SQUAD   : 'PRESEASON_CHECK_SQUAD',
   SEND_EMAIL              : 'SEND_EMAIL',
   START_COMP              : 'START_COMP',
   TRANSFER_MOVE           : 'TRANSFER_MOVE',

@@ -116,6 +116,9 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     // generate wages
     .then( Worldgen.calculateWages )
 
+    // add preseason checks
+    .then( Worldgen.preseasonChecks )
+
     // finished!
     .then( openMainWindow )
   ;
