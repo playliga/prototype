@@ -23,14 +23,18 @@ async function bumpDate() {
 }
 
 
-/**
- * Set up the item loop module
- */
+// ---------------------------
+// ITEM LOOP MODULE MIDDLEWARE
+// ---------------------------
 
 const itemloop = new ItemLoop.ItemLoop();
 
 
-// runs once at the start and end of every tick
+/**
+ * Runs at the beginning and end of every tick.
+ */
+
+// gets the items we'll be iterating thru
 itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const queue = await Models.ActionQueue.findAll({
@@ -41,13 +45,19 @@ itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
 });
 
 
+// bumps the current date
 itemloop.register( ItemLoop.MiddlewareType.END, () => {
-  // bump the current date
   return bumpDate();
 });
 
 
-// runs after all items in the tick are executed
+/**
+ * runs after all items in the tick are executed.
+ * this can be declared several times.
+ */
+
+// checks to see if the required tasks have  been
+// completed by the user before the season starts
 itemloop.register( null, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const today = moment( profile.currentDate );
@@ -103,6 +113,8 @@ itemloop.register( null, async () => {
 });
 
 
+// marks the items as completed and lets the
+// front-end know this iteration is done
 itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
   // update the completed items
   await Promise.all( items.map( i => i.update({ completed: true }) ) );
@@ -125,7 +137,10 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
 });
 
 
-// the types of jobs that can run on every tick
+/**
+ * the types of jobs that can run on every tick
+ */
+
 itemloop.register( ActionQueueTypes.SEND_EMAIL, async item => {
   const email = await Models.Email.send( item.payload );
 
