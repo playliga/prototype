@@ -2,6 +2,7 @@ import React from 'react';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
+import Application from 'main/constants/application';
 import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
 import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
@@ -11,7 +12,7 @@ import * as IPCRouting from 'shared/ipc-routing';
 const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
-const SQUAD_STARTERS_NUM = 5;
+const SQUAD_STARTERS_NUM = Application.SQUAD_MIN_LENGTH;
 
 
 interface Props extends ApplicationState {

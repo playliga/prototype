@@ -1,4 +1,3 @@
-const moment = require( 'moment' );
 const players = require( '../fixtures/20200516133922-freeagents.json' );
 
 

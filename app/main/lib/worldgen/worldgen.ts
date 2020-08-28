@@ -42,6 +42,7 @@ export async function preseasonChecks() {
   const preseason_start = moment([ today.year(), Application.PRESEASON_START_MONTH, Application.PRESEASON_START_DAY ]);
   const preseason_end = preseason_start.add( Application.PRESEASON_LENGTH, 'days' );
 
+  // set up action items for the preseason checks
   const actions = [
     ...Application.PRESEASON_COMP_DEADLINE_DAYS.map( offset => ({
       type: ActionQueueTypes.PRESEASON_CHECK_COMP,
@@ -54,6 +55,19 @@ export async function preseasonChecks() {
       payload: null
     }))
   ];
+
+  // set up action items for when to auto-add competitions/squad members
+  actions.push({
+    type: ActionQueueTypes.PRESEASON_AUTOADD_COMP,
+    actionDate: moment( preseason_end ).subtract( Application.PRESEASON_AUTOADD_COMP, 'days' ),
+    payload: null
+  });
+
+  actions.push({
+    type: ActionQueueTypes.PRESEASON_AUTOADD_SQUAD,
+    actionDate: moment( preseason_end ).subtract( Application.PRESEASON_AUTOADD_SQUAD, 'days' ),
+    payload: null
+  });
 
   return Models.ActionQueue.bulkCreate( actions );
 }

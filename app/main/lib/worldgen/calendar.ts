@@ -2,7 +2,8 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
-import { ActionQueueTypes } from 'shared/enums';
+import { flatten } from 'lodash';
+import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { League } from 'main/lib/league';
 import moment from 'moment';
 import ItemLoop from 'main/lib/item-loop';
@@ -84,7 +85,7 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
  * the types of jobs that can run on every tick
  */
 
-itemloop.register( ActionQueueTypes.PRESEASON_CHECK_COMP, async () => {
+itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_COMP, async () => {
   // check if this dude has joined any competitions
   const profile = await Models.Profile.getActiveProfile();
   const today = moment( profile.currentDate );
@@ -92,6 +93,124 @@ itemloop.register( ActionQueueTypes.PRESEASON_CHECK_COMP, async () => {
   const joined = profile.Team.Competitions.length > 0;
 
   if( joined ) {
+    return Promise.resolve();
+  }
+
+  // grab competition within same region as the user
+  const region = profile.Team.Country.Continent;
+  const compobj = await Models.Competition.findOne({
+    include: [
+      { model: Models.Team },
+      {
+        model: Models.Continent,
+        where: { id: region.id }
+      },
+      {
+        model: Models.Comptype,
+        where: { name: CompTypes.LEAGUE }
+      }
+    ]
+  });
+
+  // add user to competition
+  const leagueobj = League.restore( compobj.data );
+  const divid = leagueobj.divisions.length - 1;
+
+  // if the division length is already maxxed out then
+  // remove the last team to make room for the user
+  if( leagueobj.divisions[ divid ].size === leagueobj.divisions[ divid ].competitors.length ) {
+    const lastteam = leagueobj.divisions[ divid ].competitors[ leagueobj.divisions[ divid ].competitors.length - 1 ];
+    leagueobj.divisions[ divid ].removeCompetitor( lastteam.id );
+    await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ));
+  }
+
+  // save changes to db
+  leagueobj.divisions[ divid ].addCompetitor( profile.Team.id, profile.Team.name );
+  compobj.data = leagueobj;
+
+  await compobj.save();
+  await compobj.addTeam( profile.Team );
+
+  // let the user know we've added to a competition
+  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.SEND_EMAIL,
+    actionDate: tomorrow,
+    payload: {
+      from: persona.id,
+      to: profile.Player.id,
+      subject: 'We joined a league',
+      content: Sqrl.render( EmailDialogue.PRESEASON_AUTOADD_COMP, {
+        player: profile.Player,
+        compname: leagueobj.name,
+        compregion: region.name
+      }),
+      sentAt: tomorrow,
+    }
+  });
+});
+
+
+itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_SQUAD, async () => {
+  // check if this dude finally has a squad
+  const profile = await Models.Profile.getActiveProfile();
+  const today = moment( profile.currentDate );
+  const tomorrow = today.add( 1, 'day' );
+  const hassquad = profile.Team.Players.length >= Application.SQUAD_MIN_LENGTH;
+
+  if( hassquad ) {
+    return Promise.resolve();
+  }
+
+  // grab players from the same region as user's team
+  const region = profile.Team.Country.Continent;
+  const players = await Models.Player.findAll({
+    limit: Application.SQUAD_MIN_LENGTH,
+    where: { tier: profile.Team.tier },
+    include: [{
+      model: Models.Country,
+      where: { continentId: region.id }
+    }]
+  });
+
+  // add the players to the user's squad
+  const res = players.map( p => [
+    p.update({ transferListed: false, tier: profile.Team.tier }),
+    p.setTeam( profile.Team )
+  ]);
+
+  await Promise.all( flatten( res ) as Promise<any>[] );
+
+  // let the user know we've added some squad members
+  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.SEND_EMAIL,
+    actionDate: tomorrow,
+    payload: {
+      from: persona.id,
+      to: profile.Player.id,
+      subject: 'New squad members',
+      content: Sqrl.render( EmailDialogue.PRESEASON_AUTOADD_SQUAD, {
+        player: profile.Player,
+        players: players,
+      }),
+      sentAt: tomorrow,
+    }
+  });
+});
+
+
+itemloop.register( ActionQueueTypes.PRESEASON_CHECK_COMP, async () => {
+  // check if this dude has joined any competitions
+  const profile = await Models.Profile.getActiveProfile();
+  const today = moment( profile.currentDate );
+  const tomorrow = today.add( 1, 'day' );
+  const joined = profile.Team.Competitions.length > 0;
+  const hassquad = profile.Team.Players.length >= Application.SQUAD_MIN_LENGTH;
+
+  if( joined || !hassquad ) {
     return Promise.resolve();
   }
 
@@ -104,7 +223,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_CHECK_COMP, async () => {
     payload: {
       from: persona.id,
       to: profile.Player.id,
-      subject: 'Join a competition',
+      subject: 'Let\'s join a competition',
       content: Sqrl.render( EmailDialogue.PRESEASON_COMP_DEADLINE, { player: profile.Player }),
       sentAt: tomorrow,
     }
@@ -116,7 +235,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_CHECK_SQUAD, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const today = moment( profile.currentDate );
   const tomorrow = today.add( 1, 'day' );
-  const hassquad = profile.Team.Players.length >= 5;
+  const hassquad = profile.Team.Players.length >= Application.SQUAD_MIN_LENGTH;
 
   if( hassquad ) {
     return Promise.resolve();
