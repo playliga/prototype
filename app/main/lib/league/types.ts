@@ -15,6 +15,8 @@ export interface Result {
 export interface Match {
   id: { s: number; r: number; m: number };
   p: [ number, number ];
+  m: [ number, number ];
+  data: any;
 }
 
 
@@ -23,6 +25,7 @@ export interface Tournament {
   isDone: () => boolean;
   matches: Match[];
   matchesFor: ( seed: number ) => Match[];
+  metadata: any;
   results: () => Result[];
   resultsFor: ( seed: number ) => Result;
   rounds: () => Match[][];

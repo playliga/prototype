@@ -298,9 +298,9 @@ function cleanup() {
 }
 
 
-function launchCSGO() {
+function launchCSGO( map = 'de_dust2' ) {
   const commonflags = [
-    '+map', 'de_dust',
+    '+map', map,
     '+game_mode', '1',
     '-usercon',
     '-gamemodes_serverfile', CSGO_GAMEMODES_FILE
@@ -349,7 +349,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // START DEBUG
   // -----------
   // conf.groupObj.score( match.id, [ 10, 0 ]);
-  // compobj.data = leagueobj;
+  // compobj.data = leagueobj.save();
   // await compobj.save();
   // return evt.sender.send( request.responsechannel );
   // -----------
@@ -397,7 +397,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // --------------------------------
 
   // launch csgo
-  launchCSGO();
+  launchCSGO( match.data.map );
 
   // connect to rcon
   rcon = await initrcon();
@@ -442,7 +442,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   scorebot.on( Scorebot.GameEvents.GAME_OVER, async ( result: { map: string; score: number[] }) => {
     log.info( 'GAME IS OVER', result );
     conf.groupObj.score( match.id, result.score );
-    compobj.data = leagueobj;
+    compobj.data = leagueobj.save();
     await compobj.save();
     evt.sender.send( request.responsechannel );
   });

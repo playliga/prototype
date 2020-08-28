@@ -104,6 +104,14 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; seed: number }
             : value.team1.name
         )}
       />
+      <Table.Column
+        ellipsis
+        render={value => (
+          <em>
+            {'on'} {value.match.data.map}
+          </em>
+        )}
+      />
     </Table>
   );
 }

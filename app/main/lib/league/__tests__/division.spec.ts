@@ -296,4 +296,29 @@ describe( 'division', () => {
     // from the main division
     expect( inviteDivision.relegationBottomfeeders.length ).toEqual( PREMDIV_PROMOTION_NUM );
   });
+
+  it( 'saves and restores match metadata', () => {
+    const MAP = 'de_dust2';
+    const [ conf ] = divObj.conferences;
+    const [ match ] = conf.groupObj.matches;
+    match.data = { damap: MAP };
+
+    const data = divObj.save();
+    const newdivObj = Division.restore({ ...data });
+    const [ newConf ] = newdivObj.conferences;
+    const [ newMatch ] = newConf.groupObj.matches;
+    expect( newMatch.data.damap === MAP );
+  });
+
+  it( 'saves and restores without metadata', () => {
+    const [ conf ] = divObj.conferences;
+    const [ match ] = conf.groupObj.matches;
+    generateGroupStageScores( conferences );
+
+    const data = divObj.save();
+    const newDivObj = Division.restore({ ...data });
+    const [ newConf ] = newDivObj.conferences;
+    const [ newMatch ] = newConf.groupObj.matches;
+    expect( newMatch ).toEqual( match );
+  });
 });

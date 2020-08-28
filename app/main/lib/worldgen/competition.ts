@@ -121,7 +121,29 @@ export function start( comp: Models.Competition ) {
   });
 
   league.start();
-  return comp.update({ data: league });
+
+  // assign maps to each round's matches
+  const mappool = shuffle( Application.MAP_POOL );
+  let mapidx = 0;
+
+  league.divisions.forEach( divObj => {
+    divObj.conferences.forEach( conf => {
+      conf.groupObj.rounds().forEach( rnd => {
+        // save match metadata
+        rnd.forEach( match => match.data = { map: mappool[ mapidx ]} );
+
+        // reset if map pool index has reached
+        // the end of the map pool array
+        if( mapidx === mappool.length - 1 ) {
+          mapidx = 0;
+        } else {
+          mapidx ++;
+        }
+      });
+    });
+  });
+
+  return comp.update({ data: league.save() });
 }
 
 

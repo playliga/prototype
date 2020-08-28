@@ -126,7 +126,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_COMP, async () => {
 
   // save changes to db
   leagueobj.divisions[ divid ].addCompetitor( profile.Team.id, profile.Team.name );
-  compobj.data = leagueobj;
+  compobj.data = leagueobj.save();
 
   await compobj.save();
   await compobj.addTeam( profile.Team );
@@ -320,7 +320,7 @@ itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
   const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
   const conf = divobj.conferences.find( c => c.id === item.payload.confId );
   conf.groupObj.score( item.payload.matchId, [ 10, 0 ]);
-  compobj.data = leagueobj;
+  compobj.data = leagueobj.save();
   return compobj.save();
 });
 

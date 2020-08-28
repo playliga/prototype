@@ -161,7 +161,7 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
 
   // save changes to db
   leagueobj.divisions[ divid ].addCompetitor( teamobj.id, teamobj.name );
-  compobj.data = leagueobj;
+  compobj.data = leagueobj.save();
 
   await compobj.save();
   await compobj.addTeam( teamid );

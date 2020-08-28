@@ -29,6 +29,13 @@ class League {
     return ins;
   }
 
+  public save() {
+    return {
+      ...this,
+      divisions: this.divisions.map( d => d.save() )
+    };
+  }
+
   public addDivision = ( name: string, size = 128, conferenceSize = 8 ): Division => {
     // TODO — first check that division does not already exist in array
     const div = new Division( name, size, conferenceSize );

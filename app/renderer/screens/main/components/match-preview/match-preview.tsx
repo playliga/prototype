@@ -47,6 +47,11 @@ export default function MatchPreview( props: Props ) {
           <span>{props.data.match.team2.name}</span>
         </Space>
       </div>
+      <div className="match-preview-footer">
+        <Typography.Text mark>
+          {props.data.match.data.map}
+        </Typography.Text>
+      </div>
     </>
   );
 }

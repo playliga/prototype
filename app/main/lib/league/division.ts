@@ -38,10 +38,23 @@ class Division {
     ins.conferences = args.conferences.map( ( c: Conference ) => ({
       ...c,
       groupObj: c.groupObj
-        ? GroupStage.restore( c.competitors.length, { groupSize: args.conferenceSize, meetTwice: args.meetTwice }, c.groupObj.state )
+        ? GroupStage.restore( c.competitors.length, { groupSize: args.conferenceSize, meetTwice: args.meetTwice }, c.groupObj.state, c.groupObj.metadata )
         : null
     }));
     return ins;
+  }
+
+  public save() {
+    return {
+      ...this,
+      conferences: this.conferences.map( c => ({
+        ...c,
+        groupObj: {
+          ...c.groupObj,
+          metadata: c.groupObj.metadata()
+        }
+      }))
+    };
   }
 
   public addCompetitor = ( id: number, name: string ): void => {
