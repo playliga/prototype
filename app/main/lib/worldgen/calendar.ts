@@ -10,6 +10,7 @@ import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
+import Score from './score';
 
 
 /**
@@ -319,7 +320,10 @@ itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
   const leagueobj = League.restore( compobj.data );
   const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
   const conf = divobj.conferences.find( c => c.id === item.payload.confId );
-  conf.groupObj.score( item.payload.matchId, [ 10, 0 ]);
+  const match = conf.groupObj.findMatch( item.payload.matchId );
+  const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+  const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+  conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
   compobj.data = leagueobj.save();
   return compobj.save();
 });

@@ -7,6 +7,7 @@ import dedent from 'dedent';
 import probable from 'probable';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
+// import Worldgen from 'main/lib/worldgen';
 
 import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -345,20 +346,20 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   const [ match ] = conf.groupObj.upcoming( seednum );
   const [ seed1, seed2 ] = match.p;
 
+  // grab the team information for this match
+  const team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
+  const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+
   // -----------
   // START DEBUG
   // -----------
-  // conf.groupObj.score( match.id, [ 10, 0 ]);
+  // conf.groupObj.score( match.id, Worldgen.Score( team1, team2 ) );
   // compobj.data = leagueobj.save();
   // await compobj.save();
   // return evt.sender.send( request.responsechannel );
   // -----------
   // END DEBUG
   // -----------
-
-  // grab the team information for this match
-  const team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
-  const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
 
   // generate each team's squads
   const squads = getSquads(
