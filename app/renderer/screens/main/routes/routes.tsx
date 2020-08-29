@@ -13,13 +13,13 @@ import {
 import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
-import * as Transfers from './transfers';
 
 import Sidebar from 'renderer/screens/main/components/sidebar';
 import Connector from 'renderer/screens/main/components/connector';
 import Home from './home';
 import Inbox from './inbox';
 import Squad from './squad';
+import Transfers from './transfers';
 import Competitions from './competitions';
 
 
@@ -27,12 +27,7 @@ const routes: RouteConfig[] = [
   { id: '/home', path: '/home', component: Home, title: 'Home', icon: HomeOutlined },
   { id: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined },
   { id: '/squad', path: '/squad', component: Squad, title: 'Squad', icon: UserOutlined },
-  {
-    id: '/transfers', path: '/transfers', title: 'Transfers', icon: PieChartOutlined,
-    subroutes: [
-      { id: '/transfers/search', path: '/transfers/search', component: Transfers.Search, title: 'Search Players' },
-    ]
-  },
+  { id: '/transfers', path: '/transfers', component: Transfers, title: 'Transfers', icon: PieChartOutlined },
   { id: '/competitions', path: '/competitions', component: Competitions, title: 'Competitions', icon: TrophyOutlined },
 ];
 

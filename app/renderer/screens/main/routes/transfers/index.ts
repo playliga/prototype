@@ -1,1 +1,2 @@
-export { default as Search } from './search';
+import Transfers from './transfers';
+export default Transfers;

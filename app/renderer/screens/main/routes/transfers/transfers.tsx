@@ -11,7 +11,7 @@ interface State {
 }
 
 
-class Search extends React.Component<RouteComponentProps, State> {
+class Transfers extends React.Component<RouteComponentProps, State> {
   public state = {
     data: [] as any[]
   }
@@ -47,4 +47,4 @@ class Search extends React.Component<RouteComponentProps, State> {
 }
 
 
-export default Search;
+export default Transfers;
