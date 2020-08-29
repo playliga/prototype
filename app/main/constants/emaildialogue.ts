@@ -76,6 +76,15 @@ There are some free agents in the transfer market we can send offers to.
 `;
 
 
+const PRESEASON_SQUAD_COMPLETE = `
+  Hey, {{it.player.alias}}.
+
+  I see we've gotten our squad in order. Now we can join competitions!
+
+  Head on over to the competitions screen and look at what we can join.
+`;
+
+
 const TEAM_ACCEPT = `
 Hi, {{it.player.alias}}.
 
@@ -105,6 +114,7 @@ export default {
   PRESEASON_AUTOADD_COMP,
   PRESEASON_AUTOADD_SQUAD,
   PRESEASON_COMP_DEADLINE,
+  PRESEASON_SQUAD_COMPLETE,
   PRESEASON_SQUAD_DEADLINE,
   TEAM_ACCEPT,
   TEAM_REJECT_REASON_NOTFORSALE,

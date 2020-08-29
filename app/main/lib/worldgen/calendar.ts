@@ -285,19 +285,41 @@ itemloop.register( ActionQueueTypes.TRANSFER_OFFER_RESPONSE, async item => {
 
 
 itemloop.register( ActionQueueTypes.TRANSFER_MOVE, async item => {
-  return Models.Player
-    .findByPk( item.payload.targetid )
-    .then( player => Promise.all([
-      player?.update({
-        monthlyWages: item.payload.wages,
-        transferValue: item.payload.fee,
-        transferListed: false,
-        tier: item.payload.tier,
-        eligibleDate: item.payload.eligible,
-      }),
-      player?.setTeam( item.payload.teamid )
-    ]))
-  ;
+  const player = await Models.Player.findByPk( item.payload.targetid );
+
+  await Promise.all([
+    player?.update({
+      monthlyWages: item.payload.wages,
+      transferValue: item.payload.fee,
+      transferListed: false,
+      tier: item.payload.tier,
+      eligibleDate: item.payload.eligible,
+    }),
+    player?.setTeam( item.payload.teamid )
+  ]);
+
+  // if user has reached the minimum squad,
+  // then we send a next-steps e-mail
+  const profile = await Models.Profile.getActiveProfile();
+
+  if( profile.Team.Players.length === Application.SQUAD_MIN_LENGTH ) {
+    const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+    const tomorrow = moment( profile.currentDate ).add( 1, 'day' );
+
+    return Models.ActionQueue.create({
+      type: ActionQueueTypes.SEND_EMAIL,
+      actionDate: tomorrow,
+      payload: {
+        from: persona.id,
+        to: profile.Player.id,
+        subject: 'Our squad is complete!',
+        content: Sqrl.render( EmailDialogue.PRESEASON_SQUAD_COMPLETE, { player: profile.Player }),
+        sentAt: tomorrow,
+      }
+    });
+  } else {
+    return Promise.resolve();
+  }
 });
 
 
