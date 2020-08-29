@@ -26,6 +26,10 @@ function didJoin( team: Models.Team, comp: Models.Competition ) {
 
 function getWeekday( type: string, date: moment.Moment ) {
   switch( type ) {
+    case CompTypes.CHAMPIONS_LEAGUE: {
+      const day = random( 0, Application.MATCHDAYS_CHAMPLEAGUE.length - 1 );
+      return date.weekday( Application.MATCHDAYS_CHAMPLEAGUE[ day ] );
+    }
     case CompTypes.LEAGUE: {
       const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
       return date.weekday( Application.MATCHDAYS_LEAGUE[ day ] );
