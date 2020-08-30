@@ -31,13 +31,16 @@ class Cup {
   }
 
   public save() {
-    return {
-      ...this,
-      duelObj: {
+    const out = { ...this };
+
+    if( this.duelObj ) {
+      out.duelObj = {
         ...this.duelObj,
         metadata: this.duelObj.metadata()
-      }
-    };
+      };
+    }
+
+    return out;
   }
 
   public addCompetitor( id: number, name: string ) {
@@ -52,6 +55,20 @@ class Cup {
 
   public removeCompetitor( id: number ) {
     this.competitors = this.competitors.filter( c => c.id !== id );
+  }
+
+  public getCompetitorSeedNumById( id: number ) {
+    const idx = this.competitors.findIndex( c => c.id === id );
+
+    // found! seeds start at 1 so bump if 0
+    return idx > - 1
+      ? idx + 1
+      : -1;
+  }
+
+  public getCompetitorBySeed( seed: number ) {
+    // seeds are 1-based; array is 0-based...
+    return this.competitors[ seed - 1 ];
   }
 
   public start() {

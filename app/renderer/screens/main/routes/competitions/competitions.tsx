@@ -35,6 +35,7 @@ interface CompetitionProps {
 function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
   const sameregion = props.team.Country.ContinentId === props.data.regionId;
+  const [ isleague, iscup ] = props.data.type;
   const joined = props
     .team
     .Competitions
@@ -47,8 +48,8 @@ function Competition( props: CompetitionProps ) {
         {props.data.competition}: {props.data.region}
       </Typography.Title>
 
-      {/* LEAGUE NOT STARTED */}
-      {props.data.standings.length === 0 && (
+      {/* COMPETITION NOT STARTED */}
+      {( ( isleague && props.data.standings.length === 0 ) || ( iscup && !props.data.match ) ) && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
           {nosquad && sameregion && props.data.isOpen && (
@@ -76,7 +77,7 @@ function Competition( props: CompetitionProps ) {
       )}
 
       {/* LEAGUE STARTED: SHOW GROUPS FOR FIRST CONFERENCE */}
-      {props.data.standings.length > 0 && (
+      {isleague && props.data.standings.length > 0 && (
         <Standings
           disablePagination
           sliceData={10}

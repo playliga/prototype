@@ -1,35 +1,13 @@
 import * as Sqrl from 'squirrelly';
-import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import { random } from 'lodash';
 import { Op } from 'sequelize';
 import { ActionQueueTypes } from 'shared/enums';
+import { sendEmailAndEmit } from 'shared/util';
 import moment from 'moment';
-import ScreenManager from 'main/lib/screen-manager';
 import PlayerWages from 'main/constants/playerwages';
 import EmailDialogue from 'main/constants/emaildialogue';
 import Application from 'main/constants/application';
-
-
-/**
- * Generic utility functions
- */
-
-async function sendEmailAndEmit( payload: any ) {
-  const email = await Models.Email.send( payload );
-
-  ScreenManager
-    .getScreenById( IPCRouting.Main._ID )
-    .handle
-    .webContents
-    .send(
-      IPCRouting.Worldgen.EMAIL_NEW,
-      JSON.stringify( email )
-    )
-  ;
-
-  return Promise.resolve();
-}
 
 
 /**

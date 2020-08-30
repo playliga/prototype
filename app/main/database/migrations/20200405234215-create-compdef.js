@@ -27,7 +27,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       tiers: {
-        type: Sequelize.JSON
+        type: Sequelize.JSON,
+        allowNull: true
       },
 
       // associations

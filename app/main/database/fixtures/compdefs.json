@@ -55,5 +55,19 @@
       "minlen":20,
       "confsize":20
     }]
+  },
+  {
+    "id": "csgocup",
+    "isopen": true,
+    "meetTwice": false,
+    "name": "CSGO CUP",
+    "season": 1,
+    "startoffset": 90,
+    "type": "leaguecup",
+    "regions": [
+      "eu",
+      "na"
+    ],
+    "tiers": null
   }
 ]

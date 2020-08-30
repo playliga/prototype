@@ -1,8 +1,10 @@
-import moment from 'moment';
-import * as Models from 'main/database/models';
 import { random, flattenDeep, shuffle } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { League } from 'main/lib/league';
+import { Match } from 'main/lib/league/types';
+import { League, Cup } from 'main/lib/league';
+import { parseCompType } from 'shared/util';
+import * as Models from 'main/database/models';
+import moment from 'moment';
 import Application from 'main/constants/application';
 
 
@@ -34,9 +36,125 @@ function getWeekday( type: string, date: moment.Moment ) {
       const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
       return date.weekday( Application.MATCHDAYS_LEAGUE[ day ] );
     }
+    case CompTypes.LEAGUE_CUP: {
+      const day = random( 0, Application.MATCHDAYS_LEAGUECUP.length - 1 );
+      return date.weekday( Application.MATCHDAYS_LEAGUECUP[ day ] );
+    }
     default:
       return;
   }
+}
+
+
+/**
+ * Generate map pools per round
+ */
+
+function genMappool( rounds: Match[][] ) {
+  const mappool = shuffle( Application.MAP_POOL );
+  let mapidx = 0;
+
+  rounds.forEach( rnd => {
+    // save match metadata
+    rnd.forEach( match => match.data = { map: mappool[ mapidx ]} );
+
+    // reset if map pool index has reached
+    // the end of the map pool array
+    if( mapidx === mappool.length - 1 ) {
+      mapidx = 0;
+    } else {
+      mapidx ++;
+    }
+  });
+}
+
+
+/**
+ * Generate match days for a league
+ */
+
+async function genLeagueMatchdays( comp: Models.Competition ) {
+  // setup vars
+  const profile = await Models.Profile.getActiveProfile();
+  const joined = didJoin( profile.Team, comp );
+  const leagueobj = League.restore( comp.data );
+
+  // if the user joined, grab their conf+seed numbers
+  let userseed: number;
+  let userconf: string;
+
+  if( joined ) {
+    const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
+    const info = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+    userconf = info[ 0 ].id;
+    userseed = info[ 1 ];
+  }
+
+  // loop thru the competition's divisions and their
+  // conferences and record the match days per round
+  const matchdays = leagueobj.divisions.map( divobj => {
+    return divobj.conferences.map( conf => {
+      return conf.groupObj.rounds().map( ( rnd, idx ) => {
+        return rnd.map( match => ({
+          type: conf.id === userconf && match.p.includes( userseed )
+            ? ActionQueueTypes.MATCHDAY
+            : ActionQueueTypes.MATCHDAY_NPC
+          ,
+          actionDate: getWeekday(
+            comp.Comptype.name,
+            moment( profile.currentDate ).add( idx + 1, 'weeks' )
+          ),
+          payload: {
+            compId: comp.id,
+            confId: conf.id,
+            divId: divobj.name,
+            matchId: match.id,
+          }
+        }));
+      });
+    });
+  });
+
+  return Promise.resolve( matchdays );
+}
+
+
+/**
+ * Generate match days for a cup
+ */
+
+async function genCupMatchdays( comp: Models.Competition ) {
+  // setup vars
+  const profile = await Models.Profile.getActiveProfile();
+  const joined = didJoin( profile.Team, comp );
+  const cupobj = Cup.restore( comp.data );
+
+  // if user joined, grab their seed num
+  let userseed: number;
+
+  if( joined ) {
+    userseed = cupobj.getCompetitorSeedNumById( profile.Team.id );
+  }
+
+  // record matchdays per round
+  const matchdays = cupobj.duelObj.rounds().map( ( rnd, idx ) => {
+    return rnd.map( match => ({
+      type: match.p.includes( userseed )
+        ? ActionQueueTypes.MATCHDAY
+        : ActionQueueTypes.MATCHDAY_NPC
+      ,
+      actionDate: getWeekday(
+        comp.Comptype.name,
+        moment( profile.currentDate ).add( idx + 1, 'weeks' )
+      ),
+      payload: {
+        compId: comp.id,
+        matchId: match.id,
+      }
+    }));
+  });
+
+  return Promise.resolve( matchdays );
 }
 
 
@@ -72,22 +190,34 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     let teams = await Models.Team.findByRegionIds( regionids );
     teams = teams.filter( t => t.id !== profile.Team.id );
 
-    // build the league object
-    const leagueobj = new League( compdef.name );
+    // build the league or cup object
+    const [ isleague, iscup ] = parseCompType( compdef.Comptype.name );
+    let data: League | Cup;
 
-    compdef.tiers.forEach( ( tier, tdx ) => {
-      const div = leagueobj.addDivision( tier.name, tier.minlen, tier.confsize );
-      const tierteams = teams.filter( t => t.tier === tdx );
-      const competitors = tierteams
-        .slice( 0, tier.minlen )
-        .map( t => ({ id: t.id, name: t.name }) )
-      ;
-      div.meetTwice = compdef.meetTwice;
-      div.addCompetitors( competitors );
-    });
+    if( isleague ) {
+      data = new League( compdef.name );
+
+      compdef.tiers.forEach( ( tier, tdx ) => {
+        const div = data.addDivision( tier.name, tier.minlen, tier.confsize );
+        const tierteams = teams.filter( t => t.tier === tdx );
+        const competitors = tierteams
+          .slice( 0, tier.minlen )
+          .map( t => ({ id: t.id, name: t.name }) )
+        ;
+        div.meetTwice = compdef.meetTwice;
+        div.addCompetitors( competitors );
+      });
+    } else if( iscup ) {
+      data = new Cup( compdef.name );
+
+      // no tiers, every team will participate
+      if( !compdef.tiers ) {
+        data.addCompetitors( teams.map( t => ({ id: t.id, name: t.name }) ) );
+      }
+    }
 
     // build the competition
-    const comp = Models.Competition.build({ data: leagueobj });
+    const comp = Models.Competition.build({ data });
     await comp.save();
 
     // add its start date to its action queue
@@ -117,37 +247,31 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
  */
 
 export function start( comp: Models.Competition ) {
-  const league = League.restore( comp.data );
+  const [ isleague, iscup ] = parseCompType( comp.Comptype.name );
+  let data: League | Cup;
 
-  // shuffle divisions before starting
-  league.divisions.forEach( divobj => {
-    divobj.competitors = shuffle( divobj.competitors );
-  });
+  if( isleague ) {
+    data = League.restore( comp.data );
+    data.start();
 
-  league.start();
+    // shuffle divisions before starting
+    data.divisions.forEach( divobj => {
+      divobj.competitors = shuffle( divobj.competitors );
+    });
 
-  // assign maps to each round's matches
-  const mappool = shuffle( Application.MAP_POOL );
-  let mapidx = 0;
-
-  league.divisions.forEach( divObj => {
-    divObj.conferences.forEach( conf => {
-      conf.groupObj.rounds().forEach( rnd => {
-        // save match metadata
-        rnd.forEach( match => match.data = { map: mappool[ mapidx ]} );
-
-        // reset if map pool index has reached
-        // the end of the map pool array
-        if( mapidx === mappool.length - 1 ) {
-          mapidx = 0;
-        } else {
-          mapidx ++;
-        }
+    // assign maps to each round's matches
+    data.divisions.forEach( divObj => {
+      divObj.conferences.forEach( conf => {
+        genMappool( conf.groupObj.rounds() );
       });
     });
-  });
+  } else if( iscup ) {
+    data = Cup.restore( comp.data );
+    data.start();
+    genMappool( data.duelObj.rounds() );
+  }
 
-  return comp.update({ data: league.save() });
+  return comp.update({ data: data.save() });
 }
 
 
@@ -156,47 +280,14 @@ export function start( comp: Models.Competition ) {
  */
 
 export async function genMatchdays( comp: Models.Competition ) {
-  // init the league object
-  const leagueobj = League.restore( comp.data );
+  const [ isleague, iscup ] = parseCompType( comp.Comptype.name );
+  let matchdays: any[];
 
-  // if the user joined, grab their conf+seed numbers
-  const profile = await Models.Profile.getActiveProfile();
-  const joined = didJoin( profile.Team, comp );
-
-  let userseed: number;
-  let userconf: string;
-
-  if( joined ) {
-    const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
-    const info = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-    userconf = info[ 0 ].id;
-    userseed = info[ 1 ];
+  if( isleague ) {
+    matchdays = await genLeagueMatchdays( comp );
+  } else if( iscup ) {
+    matchdays = await genCupMatchdays( comp );
   }
-
-  // loop thru the competition's divisions and their
-  // conferences and record the match days per round
-  const matchdays = leagueobj.divisions.map( divobj => {
-    return divobj.conferences.map( conf => {
-      return conf.groupObj.rounds().map( ( rnd, idx ) => {
-        return rnd.map( match => ({
-          type: conf.id === userconf && match.p.includes( userseed )
-            ? ActionQueueTypes.MATCHDAY
-            : ActionQueueTypes.MATCHDAY_NPC
-          ,
-          actionDate: getWeekday(
-            comp.Comptype.name,
-            moment( profile.currentDate ).add( idx + 1, 'weeks' )
-          ),
-          payload: {
-            compId: comp.id,
-            confId: conf.id,
-            divId: divobj.name,
-            matchId: match.id,
-          }
-        }));
-      });
-    });
-  });
 
   await Models.ActionQueue.bulkCreate( flattenDeep( matchdays ) );
   return Promise.resolve();

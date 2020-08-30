@@ -15,7 +15,7 @@ module.exports = {
       name: d.name,
       season: d.season,
       startOffset: d.startoffset,
-      tiers: JSON.stringify( d.tiers ),
+      tiers: d.tiers ? JSON.stringify( d.tiers ) : null,
 
       // timestamps
       createdAt: new Date(),

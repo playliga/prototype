@@ -22,20 +22,23 @@ export interface RouteConfig {
 export interface UpcomingMatchResponse {
   competition: string;
   competitionId: number;
-  confId: string;
+  confId?: string;
   date: string;
-  division: string;
+  division?: string;
   region: string;
   match: any;
+  type: string[];
 }
 
 
 export interface StandingsResponse {
   competition: string;
   competitionId: number;
-  division: string;
+  division?: string;
   isOpen: boolean;
   region: string;
   regionId: number;
-  standings: any[];
+  standings?: any[];
+  match?: any[];
+  type: string[];
 }

@@ -21,7 +21,8 @@ class Compdef extends Model {
         type: Sequelize.INTEGER
       },
       tiers: {
-        type: Sequelize.JSON
+        type: Sequelize.JSON,
+        allowNull: true
       },
     }, { sequelize, modelName: 'Compdef' });
   }

@@ -24,6 +24,7 @@ const COLSIZE_STANDINGS = 12;
 const COLSIZE_UPCOMING = 12;
 const GUTTER_H = 8;
 const GUTTER_V = 8;
+const NUM_CUP_MATCHES = 12;
 const NUM_INBOX_PREVIEW = 3;
 const NUM_STANDINGS = 10;
 const NUM_UPCOMING_MATCHES = 6;
@@ -68,7 +69,7 @@ async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function
  * Helper components
  */
 
-function UpcomingMatches( props: { data: UpcomingMatchResponse[]; seed: number }) {
+function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: number }) {
   if( !props.data || props.data.length === 0 ) {
     return (
       <Empty
@@ -87,9 +88,14 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; seed: number }
       size="small"
     >
       <Table.Column
-        width="25%"
+        width="20%"
         dataIndex="date"
         render={value => moment( value ).format( 'DD/MM' )}
+      />
+      <Table.Column
+        width="20%"
+        dataIndex="type"
+        render={value => value[ 0 ] ? 'League' : 'Cup' }
       />
       <Table.Column
         width="10%"
@@ -97,20 +103,46 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; seed: number }
       />
       <Table.Column
         ellipsis
-        dataIndex="match"
         render={value => (
-          value.team1.seed === props.seed
-            ? value.team2.name
-            : value.team1.name
+          value.match.team1.id === props.userteamid
+            ? value.match.team2.name
+            : value.match.team1.name
         )}
+      />
+    </Table>
+  );
+}
+
+
+function CupPreview( props: { data: StandingsResponse[]; seed: number }) {
+  if( !props.data || props.data.length === 0 ) {
+    return (
+      <Empty
+        image={Empty.PRESENTED_IMAGE_DEFAULT}
+        description="No upcoming matches."
+      />
+    );
+  }
+
+  return (
+    <Table
+      dataSource={props.data}
+      pagination={false}
+      rowKey={() => cuid()}
+      showHeader={false}
+      size="small"
+    >
+      <Table.Column
+        ellipsis
+        render={value => value.match.team1.seed > -1 ? value.match.team1.name : 'BYE'}
+      />
+      <Table.Column
+        width="10%"
+        render={() => 'vs.'}
       />
       <Table.Column
         ellipsis
-        render={value => (
-          <em>
-            {'on'} {value.match.data.map}
-          </em>
-        )}
+        render={value => value.match.team2.seed > -1 ? value.match.team2.name : 'BYE'}
       />
     </Table>
   );
@@ -132,6 +164,8 @@ function Home( props: Props ) {
   const hasStandings = standings && standings.length > 0;
   const isMatchday = hasUpcoming && profile.data && upcoming[ 0 ].date === profile.data.currentDate;
   const refreshUpcoming = hasUpcoming && moment( profile.data.currentDate ).isAfter( upcoming[ 0 ].date );
+  const isleague = hasUpcoming && upcoming[ 0 ].type[ 0 ];
+  const iscup = hasUpcoming && upcoming[ 0 ].type[ 1 ];
 
   // get upcoming matches
   React.useEffect( () => {
@@ -147,7 +181,7 @@ function Home( props: Props ) {
     ;
   }, [ profile ]);
 
-  // get standings for next match (idx=0)
+  // get standings for next match
   React.useEffect( () => {
     if( !upcoming ) {
       return;
@@ -172,7 +206,7 @@ function Home( props: Props ) {
   // find our team's seed number
   let seednum: number;
 
-  if( hasStandings ) {
+  if( hasStandings && isleague ) {
     seednum = standings[ 0 ]
       .standings
       .find( s => s.competitorInfo.id === profile.data.Team.id )
@@ -215,8 +249,8 @@ function Home( props: Props ) {
               title="Upcoming Fixtures"
             >
               <UpcomingMatches
-                seed={seednum}
                 data={hasUpcoming && upcoming.slice( 1 )}
+                userteamid={props.profile.data && props.profile.data.Team.id}
               />
             </Card>
           </Col>
@@ -240,27 +274,35 @@ function Home( props: Props ) {
           {/* STANDINGS PREVIEW */}
           <Col span={COLSIZE_STANDINGS}>
             <Card
-              title="League Table"
+              title={isleague ? 'League Table' : 'Cup Matches'}
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
-              <Standings
-                disablePagination
-                highlightSeed={seednum}
-                sliceData={NUM_STANDINGS}
-                dataSource={hasStandings && (
-                  standings[ 0 ]
-                    .standings
-                    .map( ( s: any ) => ({
-                      id: s.competitorInfo.id,
-                      name: s.competitorInfo.name,
-                      ...s,
-                    }))
-                )}
-                title={hasStandings && (
-                  `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`
-                )}
-              />
+              {isleague && (
+                <Standings
+                  disablePagination
+                  highlightSeed={seednum}
+                  sliceData={NUM_STANDINGS}
+                  dataSource={hasStandings && (
+                    standings[ 0 ]
+                      .standings
+                      .map( ( s: any ) => ({
+                        id: s.competitorInfo.id,
+                        name: s.competitorInfo.name,
+                        ...s,
+                      }))
+                  )}
+                  title={hasStandings && (
+                    `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`
+                  )}
+                />
+              )}
+              {iscup && (
+                <CupPreview
+                  seed={seednum}
+                  data={hasStandings && standings.slice( 0, NUM_CUP_MATCHES )}
+                />
+              )}
             </Card>
           </Col>
         </Row>

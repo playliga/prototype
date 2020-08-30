@@ -2,9 +2,10 @@ import { ipcMain, IpcMainEvent } from 'electron';
 import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
 import { ActionQueueTypes } from 'shared/enums';
-import { League, Division } from 'main/lib/league';
+import { League, Division, Cup } from 'main/lib/league';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
+import { parseCompType } from 'shared/util';
 
 
 interface IpcRequestParams {
@@ -30,29 +31,18 @@ interface UpcomingParams {
   limit?: number;
 }
 
+
 /**
  * Helper functions
  */
 
-
-async function formatMatchdata( queue: Models.ActionQueue ) {
-  // load the competition
-  const compobj = await Models.Competition.findByPk( queue.payload.compId, {
-    include: [ 'Continents' ]
-  });
-
-  if( !compobj.data.started ) {
-    return null;
-  }
-
-  // grab the match data
+function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Competition ) {
   const leagueobj = League.restore( compobj.data );
   const divobj = leagueobj.getDivision( queue.payload.divId );
   const conf = divobj.conferences.find( c => c.id === queue.payload.confId );
   const match = conf.groupObj.findMatch( queue.payload.matchId );
 
-  // build the response object and return it
-  return Promise.resolve({
+  return ({
     competition: compobj.data.name,
     competitionId: compobj.id,
     confId: conf.id,
@@ -73,7 +63,69 @@ async function formatMatchdata( queue: Models.ActionQueue ) {
   });
 }
 
-function getStandings( compobj: Models.Competition, divId: string | number, confId: string | null ) {
+
+function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competition ) {
+  const cupobj = Cup.restore( compobj.data );
+  const match = cupobj.duelObj.findMatch( queue.payload.matchId );
+
+  return ({
+    competition: compobj.data.name,
+    competitionId: compobj.id,
+    date: queue.actionDate,
+    region: compobj.Continents[ 0 ].name,
+    match: {
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        ...cupobj.getCompetitorBySeed( match.p[ 0 ] )
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        ...cupobj.getCompetitorBySeed( match.p[ 1 ] )
+      },
+    }
+  });
+}
+
+
+async function formatMatchdata( queue: Models.ActionQueue ) {
+  // load the competition
+  const compobj = await Models.Competition.findByPk( queue.payload.compId, {
+    include: [ 'Continents', 'Comptype' ]
+  });
+
+  if( !compobj.data.started ) {
+    return Promise.resolve();
+  }
+
+  // response object
+  let output;
+
+  // format the match data
+  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+
+  if( isleague ) {
+    output = formatLeagueMatchdata( queue, compobj );
+  } else if( iscup ) {
+    output = formatCupMatchdata( queue, compobj );
+  }
+
+  // append the comptype for this match
+  return Promise.resolve({
+    ...output,
+    type: [ isleague, iscup ]
+  });
+}
+
+
+function getLeagueStandings( compobj: Models.Competition, divId: string | number, confId: string | null ) {
+  // bail if comptype is not a league
+  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+
+  if( !isleague ) {
+    return [];
+  }
+
   // load the league object
   const leagueobj = League.restore( compobj.data );
 
@@ -99,6 +151,7 @@ function getStandings( compobj: Models.Competition, divId: string | number, conf
     isOpen: compobj.Compdef.isOpen,
     region: compobj.Continents[ 0 ].name,
     regionId: compobj.Continents[ 0 ].id,
+    type: [ isleague, iscup ]
   };
 
   // bail if tournament not started
@@ -126,16 +179,61 @@ function getStandings( compobj: Models.Competition, divId: string | number, conf
 }
 
 
+function getCupStandings( compobj: Models.Competition ) {
+  // bail if comptype is not a league
+  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+
+  if( !iscup ) {
+    return [];
+  }
+
+  // load the cup object
+  const cupobj = Cup.restore( compobj.data );
+
+  // build base response object
+  const baseobj = {
+    competition: compobj.data.name,
+    competitionId: compobj.id,
+    isOpen: compobj.Compdef.isOpen,
+    region: compobj.Continents[ 0 ].name,
+    regionId: compobj.Continents[ 0 ].id,
+    type: [ isleague, iscup ]
+  };
+
+  // bail if tournament not started
+  if( !compobj.data.started ) {
+    return [{
+      ...baseobj,
+      round: [] as any[]
+    }];
+  }
+
+  return cupobj.duelObj.currentRound().map( match => ({
+    ...baseobj,
+    match: {
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        ...cupobj.getCompetitorBySeed( match.p[ 0 ] )
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        ...cupobj.getCompetitorBySeed( match.p[ 1 ] )
+      },
+    }
+  }));
+}
+
+
 /**
  * IPC Handlers
  */
 
 async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
   const compobj = await Models.Competition.findByPk( request.params.id, { include: [{ all: true }] });
-  const leagueobj = League.restore( compobj.data );
+  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
 
   let teamid = request.params.teamid;
-  let divid = request.params.divId;
 
   // fetch the team
   //
@@ -146,22 +244,33 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
 
   const teamobj = await Models.Team.findByPk( teamid );
 
-  // if no division was specified, default to the lowest one
-  if( !divid ) {
-    divid = leagueobj.divisions.length - 1;
-  }
+  if( isleague ) {
+    // build league obj
+    const leagueobj = League.restore( compobj.data );
 
-  // if the division length is already maxxed out then
-  // remove the last team to make room for the user
-  if( leagueobj.divisions[ divid ].size === leagueobj.divisions[ divid ].competitors.length ) {
-    const lastteam = leagueobj.divisions[ divid ].competitors[ leagueobj.divisions[ divid ].competitors.length - 1 ];
-    leagueobj.divisions[ divid ].removeCompetitor( lastteam.id );
-    await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ));
-  }
+    // if no division was specified, default to the lowest one
+    let divid = request.params.divId;
 
-  // save changes to db
-  leagueobj.divisions[ divid ].addCompetitor( teamobj.id, teamobj.name );
-  compobj.data = leagueobj.save();
+    if( !divid ) {
+      divid = leagueobj.divisions.length - 1;
+    }
+
+    // if the division length is already maxxed out then
+    // remove the last team to make room for the user
+    if( leagueobj.divisions[ divid ].size === leagueobj.divisions[ divid ].competitors.length ) {
+      const lastteam = leagueobj.divisions[ divid ].competitors[ leagueobj.divisions[ divid ].competitors.length - 1 ];
+      leagueobj.divisions[ divid ].removeCompetitor( lastteam.id );
+      await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ));
+    }
+
+    // save changes to db
+    leagueobj.divisions[ divid ].addCompetitor( teamobj.id, teamobj.name );
+    compobj.data = leagueobj.save();
+  } else if( iscup ) {
+    const cupobj = Cup.restore( compobj.data );
+    cupobj.addCompetitor( teamobj.id, teamobj.name );
+    compobj.data = cupobj.save();
+  }
 
   await compobj.save();
   await compobj.addTeam( teamid );
@@ -179,6 +288,7 @@ async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
   const profile = await Models.Profile.getActiveProfile();
   const queue = await Models.ActionQueue.findAll({
     limit: req.params?.limit || 5,
+    order: [ [ 'actionDate', 'ASC' ] ],
     where: {
       type: ActionQueueTypes.MATCHDAY,
       actionDate: {
@@ -200,21 +310,33 @@ async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
 async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) {
   let comps: Models.Competition[] = [];
 
+  // get all competitions if no id was provided
   if( req.params.compId ) {
     const res = await Models.Competition.findByPk( req.params.compId, {
-      include: [ 'Continents', 'Compdef' ]
+      include: [ 'Continents', 'Compdef', 'Comptype' ]
     });
     comps.push( res );
   } else {
-    comps = await Models.Competition.findAll({ include: [ 'Continents', 'Compdef' ]});
+    comps = await Models.Competition.findAll({ include: [ 'Continents', 'Compdef', 'Comptype' ]});
   }
 
-  // get the standings for the provided division
-  const out = comps
-    .map( c => getStandings( c, req.params.divName || req.params.divIdx, req.params.confId ) )
+  // get standings for the league types
+  const leagues = comps.filter( c => parseCompType( c.Comptype.name )[ 0 ] );
+  const cups = comps.filter( c => parseCompType( c.Comptype.name )[ 1 ] );
+
+  // get the standings for league types
+  const leaguedata = leagues
+    .map( c => getLeagueStandings( c, req.params.divName || req.params.divIdx, req.params.confId ) )
     .filter( c => c.length > 0 )
   ;
-  evt.sender.send( req.responsechannel, JSON.stringify( out ) );
+
+  // get the current round for cup types
+  const cupdata = cups
+    .map( c => getCupStandings( c ) )
+    .filter( c => c.length > 0 )
+  ;
+
+  evt.sender.send( req.responsechannel, JSON.stringify([ ...leaguedata, ...cupdata ]) );
 }
 
 

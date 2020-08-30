@@ -4,7 +4,8 @@ import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
 import { flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { League } from 'main/lib/league';
+import { sendEmailAndEmit, parseCompType } from 'shared/util';
+import { League, Cup } from 'main/lib/league';
 import moment from 'moment';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
@@ -260,18 +261,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_CHECK_SQUAD, async () => {
 
 
 itemloop.register( ActionQueueTypes.SEND_EMAIL, async item => {
-  const email = await Models.Email.send( item.payload );
-
-  ScreenManager
-    .getScreenById( IPCRouting.Main._ID )
-    .handle
-    .webContents
-    .send(
-      IPCRouting.Worldgen.EMAIL_NEW,
-      JSON.stringify( email )
-    )
-  ;
-
+  await sendEmailAndEmit( item.payload );
   return Promise.resolve( false );
 });
 
@@ -338,15 +328,31 @@ itemloop.register( ActionQueueTypes.MATCHDAY, () => {
 
 
 itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
-  const compobj = await Models.Competition.findByPk( item.payload.compId );
-  const leagueobj = League.restore( compobj.data );
-  const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
-  const conf = divobj.conferences.find( c => c.id === item.payload.confId );
-  const match = conf.groupObj.findMatch( item.payload.matchId );
-  const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-  const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
-  conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
-  compobj.data = leagueobj.save();
+  const compobj = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
+  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+  let data: League | Cup;
+
+  if( isleague ) {
+    data = League.restore( compobj.data );
+    const divobj = data.divisions.find( d => d.name === item.payload.divId );
+    const conf = divobj.conferences.find( c => c.id === item.payload.confId );
+    const match = conf.groupObj.findMatch( item.payload.matchId );
+    const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+    const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+    conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
+  } else if( iscup ) {
+    data = Cup.restore( compobj.data );
+    const match = data.duelObj.findMatch( item.payload.matchId );
+
+    // can only score if it's not a "walkover" match
+    if( !data.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
+      const team1 = await Models.Team.findByPk( data.getCompetitorBySeed( match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findByPk( data.getCompetitorBySeed( match.p[ 1 ] ).id );
+      data.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+    }
+  }
+
+  compobj.data = data.save();
   return compobj.save();
 });
 
