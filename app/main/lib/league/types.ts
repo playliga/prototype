@@ -21,6 +21,7 @@ export interface Match {
 
 
 export interface Tournament {
+  currentRound: ( section?: number ) => Match[];
   findMatch: ( matchId: object ) => Match;
   isDone: () => boolean;
   matches: Match[];
