@@ -1,0 +1,55 @@
+import React from 'react';
+import { Table } from 'antd';
+import { SizeType } from 'antd/lib/config-provider/SizeContext';
+
+
+interface Props {
+  children?: any;
+  dataSource: any[];
+  disablePagination?: boolean;
+  title?: string;
+  pageSize?: number;
+  size?: SizeType;
+  sliceData?: number;
+  rowKey?: string;
+}
+
+
+export default function MatchResults( props: Props ) {
+  return (
+    <Table
+      dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
+      pagination={!props.disablePagination && ({
+        pageSize: props.pageSize || 20,
+        hideOnSinglePage: true,
+        showSizeChanger: false
+      })}
+      rowKey={props.rowKey || ( r => JSON.stringify( r.id ) )}
+      size={props.size || 'small'}
+    >
+      <Table.ColumnGroup title={props.title}>
+        <Table.Column
+          ellipsis
+          title="Home"
+          width="35%"
+          render={value => value.team1.seed > -1 ? value.team1.name : 'BYE'}
+        />
+        <Table.Column
+          ellipsis
+          title="Away"
+          width="35%"
+          render={value => value.team2.seed > -1 ? value.team2.name : 'BYE'}
+        />
+        <Table.Column
+          title="Score"
+          width="30%"
+          align="center"
+          render={value => value.m
+            ? `${value.m[ 0 ]} - ${value.m[ 1 ]}`
+            : 'TBD'
+          }
+        />
+      </Table.ColumnGroup>
+    </Table>
+  );
+}

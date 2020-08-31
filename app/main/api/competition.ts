@@ -208,9 +208,9 @@ function getCupStandings( compobj: Models.Competition ) {
     }];
   }
 
-  return cupobj.duelObj.currentRound().map( match => ({
+  return [{
     ...baseobj,
-    match: {
+    round: cupobj.duelObj.currentRound().map( match => ({
       ...match,
       team1: {
         seed: match.p[ 0 ],
@@ -220,8 +220,8 @@ function getCupStandings( compobj: Models.Competition ) {
         seed: match.p[ 1 ],
         ...cupobj.getCompetitorBySeed( match.p[ 1 ] )
       },
-    }
-  }));
+    }))
+  }];
 }
 
 

@@ -3,15 +3,18 @@ import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
 import Application from 'main/constants/application';
-import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
-import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
+import MatchResults from 'renderer/screens/main/components/match-results';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
+import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
+import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 
 
 const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
+const NUM_CUP_MATCHES = 10;
+const NUM_STANDINGS = 10;
 const SQUAD_STARTERS_NUM = Application.SQUAD_MIN_LENGTH;
 
 
@@ -49,7 +52,7 @@ function Competition( props: CompetitionProps ) {
       </Typography.Title>
 
       {/* COMPETITION NOT STARTED */}
-      {( ( isleague && props.data.standings.length === 0 ) || ( iscup && !props.data.match ) ) && (
+      {( ( isleague && props.data.standings.length === 0 ) || ( iscup && props.data.round.length === 0 ) ) && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
           {nosquad && sameregion && props.data.isOpen && (
@@ -80,7 +83,7 @@ function Competition( props: CompetitionProps ) {
       {isleague && props.data.standings.length > 0 && (
         <Standings
           disablePagination
-          sliceData={10}
+          sliceData={NUM_STANDINGS}
           title={props.data.division}
           dataSource={props
             .data
@@ -91,6 +94,15 @@ function Competition( props: CompetitionProps ) {
               ...s,
             }))
           }
+        />
+      )}
+
+      {/* CUP STARTED */}
+      {iscup && props.data.round.length > 0 && (
+        <MatchResults
+          sliceData={NUM_CUP_MATCHES}
+          title={`Round ${props.data.round[ 0 ].id.r} results`}
+          dataSource={props.data.round}
         />
       )}
     </Col>
@@ -104,7 +116,7 @@ function Competition( props: CompetitionProps ) {
 
 function Competitions( props: Props ) {
   const [ joining, setJoining ] = React.useState( false );
-  const [ competitions, setCompetitions ] = React.useState<StandingsResponse[][]>([]);
+  const [ standings, setStandings ] = React.useState<StandingsResponse[][]>([]);
 
   React.useEffect( () => {
     IpcService
@@ -113,11 +125,11 @@ function Competitions( props: Props ) {
           divIdx: 0
         }
       })
-      .then( res => setCompetitions( res ) )
+      .then( res => setStandings( res ) )
     ;
   }, []);
 
-  if( !competitions || competitions.length === 0 ) {
+  if( !standings || standings.length === 0 ) {
     return (
       <div id="competitions" className="content">
         <Spin size="large" />
@@ -128,7 +140,7 @@ function Competitions( props: Props ) {
   return (
     <div id="competitions" className="content">
       <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-        {competitions.map(([ comp ]) => (
+        {standings.map( ([ comp ]) => (
           <Competition
             key={comp.competitionId}
             team={props.profile.data.Team}

@@ -14,6 +14,7 @@ import Header from 'renderer/screens/main/components/header';
 import InboxPreview from 'renderer/screens/main/components/inbox-preview';
 import MatchPreview from 'renderer/screens/main/components/match-preview';
 import Standings from 'renderer/screens/main/components/standings';
+import MatchResults from 'renderer/screens/main/components/match-results';
 
 
 // constants and variables
@@ -24,7 +25,7 @@ const COLSIZE_STANDINGS = 12;
 const COLSIZE_UPCOMING = 12;
 const GUTTER_H = 8;
 const GUTTER_V = 8;
-const NUM_CUP_MATCHES = 12;
+const NUM_CUP_MATCHES = 9;
 const NUM_INBOX_PREVIEW = 3;
 const NUM_STANDINGS = 10;
 const NUM_UPCOMING_MATCHES = 6;
@@ -108,41 +109,6 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: nu
             ? value.match.team2.name
             : value.match.team1.name
         )}
-      />
-    </Table>
-  );
-}
-
-
-function CupPreview( props: { data: StandingsResponse[]; seed: number }) {
-  if( !props.data || props.data.length === 0 ) {
-    return (
-      <Empty
-        image={Empty.PRESENTED_IMAGE_DEFAULT}
-        description="No upcoming matches."
-      />
-    );
-  }
-
-  return (
-    <Table
-      dataSource={props.data}
-      pagination={false}
-      rowKey={() => cuid()}
-      showHeader={false}
-      size="small"
-    >
-      <Table.Column
-        ellipsis
-        render={value => value.match.team1.seed > -1 ? value.match.team1.name : 'BYE'}
-      />
-      <Table.Column
-        width="10%"
-        render={() => 'vs.'}
-      />
-      <Table.Column
-        ellipsis
-        render={value => value.match.team2.seed > -1 ? value.match.team2.name : 'BYE'}
       />
     </Table>
   );
@@ -298,9 +264,12 @@ function Home( props: Props ) {
                 />
               )}
               {iscup && (
-                <CupPreview
-                  seed={seednum}
-                  data={hasStandings && standings.slice( 0, NUM_CUP_MATCHES )}
+                <MatchResults
+                  pageSize={NUM_CUP_MATCHES}
+                  dataSource={hasStandings && standings[ 0 ].round}
+                  title={hasStandings && (
+                    `Round ${standings[ 0 ].round[ 0 ].id.r} results`
+                  )}
                 />
               )}
             </Card>

@@ -39,6 +39,6 @@ export interface StandingsResponse {
   region: string;
   regionId: number;
   standings?: any[];
-  match?: any[];
+  round?: any[];
   type: string[];
 }
