@@ -240,7 +240,7 @@ function Home( props: Props ) {
           {/* STANDINGS PREVIEW */}
           <Col span={COLSIZE_STANDINGS}>
             <Card
-              title={isleague ? 'League Table' : 'Cup Matches'}
+              title={iscup ? 'Cup Matches' :'League Table'}
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
