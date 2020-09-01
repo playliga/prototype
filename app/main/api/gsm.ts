@@ -19,7 +19,9 @@ import { Rcon } from 'rcon-client';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { League } from 'main/lib/league';
+import { parseCompType } from 'shared/util';
+import { Match, Tournament } from 'main/lib/league/types';
+import { League, Cup } from 'main/lib/league';
 
 
 // general settings
@@ -335,27 +337,57 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // SET UP VARS
   // --------------------------------
 
-  // load user's profile and their league division
+  // load user's profile and the competition object
   const profile = await Models.Profile.getActiveProfile();
-  const compobj = profile.Team.Competitions.find( c => c.id === request.params.id );
-  const leagueobj = League.restore( compobj.data );
-  const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
+  const competition = profile.Team.Competitions.find( c => c.id === request.params.id );
+  const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
 
-  // grab their next match information
-  const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-  const [ match ] = conf.groupObj.upcoming( seednum );
-  const [ seed1, seed2 ] = match.p;
+  // these will be used later when launching/closing the game
+  let compobj: League | Cup;
+  let tourneyobj: Tournament;
+  let match: Match;
+  let team1: Models.Team;
+  let team2: Models.Team;
+  let hostname_suffix: string;
 
-  // grab the team information for this match
-  const team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
-  const team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+  // populate the above vars depending
+  // on the competition type
+  if( isleague ) {
+    // grab the match information
+    const leagueobj = League.restore( competition.data );
+    const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
+    const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+    const [ _match ] = conf.groupObj.upcoming( seednum );
+    const [ seed1, seed2 ] = _match.p;
+
+    // assign to the respective vars
+    compobj = leagueobj;
+    tourneyobj = conf.groupObj;
+    team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
+    team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+    hostname_suffix = divobj.name;
+  } else if( iscup ) {
+    // grab the match information
+    const cupobj = Cup.restore( competition.data );
+    const seednum = cupobj.getCompetitorSeedNumById( profile.Team.id );
+    const [ _match ] = cupobj.duelObj.upcoming( seednum );
+    const [ seed1, seed2 ] = _match.p;
+
+    // assign to the respective vars
+    compobj = cupobj;
+    tourneyobj = cupobj.duelObj;
+    match = _match;
+    team1 = await Models.Team.findByName( cupobj.getCompetitorBySeed( seed1 ).name );
+    team2 = await Models.Team.findByName( cupobj.getCompetitorBySeed( seed2 ).name );
+    hostname_suffix = `Round ${match.id.r}`;
+  }
 
   // -----------
   // START DEBUG
   // -----------
-  // conf.groupObj.score( match.id, Worldgen.Score( team1, team2 ) );
-  // compobj.data = leagueobj.save();
-  // await compobj.save();
+  // tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
+  // competition.data = compobj.save();
+  // await competition.save();
   // return evt.sender.send( request.responsechannel );
   // -----------
   // END DEBUG
@@ -378,7 +410,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
 
   // generate server config
   await generateServerConfig({
-    hostname: `${leagueobj.name}: ${compobj.Continents[ 0 ].name} — ${divobj.name}`,
+    hostname: `${compobj.name}: ${competition.Continents[ 0 ].name} — ${hostname_suffix}`,
     logfile: CSGO_LOGFILE,
     rcon_password: RCON_PASSWORD,
     teamflag_ct: team1.Country.code,
@@ -442,9 +474,9 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
 
   scorebot.on( Scorebot.GameEvents.GAME_OVER, async ( result: { map: string; score: number[] }) => {
     log.info( 'GAME IS OVER', result );
-    conf.groupObj.score( match.id, result.score );
-    compobj.data = leagueobj.save();
-    await compobj.save();
+    tourneyobj.score( match.id, result.score );
+    competition.data = compobj.save();
+    await competition.save();
     evt.sender.send( request.responsechannel );
   });
 }

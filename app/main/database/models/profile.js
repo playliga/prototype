@@ -48,7 +48,7 @@ class Profile extends Model {
             },
             {
               model: _models.Competition,
-              include: [ _models.Continent ]
+              include: [ _models.Continent, _models.Comptype ]
             },
             {
               model: _models.Country,
