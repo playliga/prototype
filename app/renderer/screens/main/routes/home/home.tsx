@@ -172,7 +172,7 @@ function Home( props: Props ) {
   // find our team's seed number
   let seednum: number;
 
-  if( hasStandings && isleague ) {
+  if( hasStandings && isleague && standings[ 0 ].standings ) {
     seednum = standings[ 0 ]
       .standings
       .find( s => s.competitorInfo.id === profile.data.Team.id )
@@ -249,7 +249,7 @@ function Home( props: Props ) {
                   disablePagination
                   highlightSeed={seednum}
                   sliceData={NUM_STANDINGS}
-                  dataSource={hasStandings && (
+                  dataSource={hasStandings && standings[ 0 ].standings && (
                     standings[ 0 ]
                       .standings
                       .map( ( s: any ) => ({

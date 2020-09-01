@@ -43,7 +43,6 @@ itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
   const queue = await Models.ActionQueue.findAll({
     where: { actionDate: profile.currentDate, completed: false }
   });
-
   return Promise.resolve( queue );
 });
 
