@@ -363,6 +363,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     // assign to the respective vars
     compobj = leagueobj;
     tourneyobj = conf.groupObj;
+    match = _match;
     team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
     team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
     hostname_suffix = divobj.name;
