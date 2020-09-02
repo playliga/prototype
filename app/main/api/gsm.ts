@@ -7,7 +7,7 @@ import dedent from 'dedent';
 import probable from 'probable';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
-// import Worldgen from 'main/lib/worldgen';
+import Worldgen from 'main/lib/worldgen';
 
 import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -388,6 +388,12 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   // -----------
   // tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
   // competition.data = compobj.save();
+
+  // // generate new round for tourney
+  // if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+  //   await Worldgen.Competition.genMatchdays( competition );
+  // }
+
   // await competition.save();
   // return evt.sender.send( request.responsechannel );
   // -----------
@@ -477,6 +483,12 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     log.info( 'GAME IS OVER', result );
     tourneyobj.score( match.id, result.score );
     competition.data = compobj.save();
+
+    // generate new round for tourney
+    if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+      await Worldgen.Competition.genMatchdays( competition );
+    }
+
     await competition.save();
     evt.sender.send( request.responsechannel );
   });
