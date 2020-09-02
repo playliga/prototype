@@ -29,6 +29,14 @@ function generateRoundScores( duelObj: Tournament ) {
 }
 
 
+function getRoundId( m: Match ) {
+  return ({
+    s: m.id.s,
+    r: m.id.r
+  });
+}
+
+
 describe( 'cup', () => {
   const CUP_NAME = 'Cup Competition';
   const NUM_COMPETITORS = 16;
@@ -109,5 +117,23 @@ describe( 'cup', () => {
 
     expect( duelObj.currentRound() ).toBeUndefined();
     expect( duelObj.isDone() ).toBeTruthy();
+  });
+
+  it( 'checks if all matches have been scored', () => {
+    const { duelObj } = cupobj;
+
+    // let's generate scores for the first round
+    const firstround = duelObj.currentRound();
+    firstround.forEach( m => generateMatchScore( m, duelObj ) );
+
+    const froundid = getRoundId( firstround[ 0 ] );
+    expect( cupobj.matchesDone( froundid ) ).toBeTruthy();
+
+    // now generate scores for only one match
+    const secondround = duelObj.currentRound();
+    secondround.slice( 0, 1 ).forEach( m => generateMatchScore( m, duelObj ) );
+
+    const sroundid = getRoundId( secondround[ 0 ] );
+    expect( cupobj.matchesDone( sroundid ) ).toBeFalsy();
   });
 });

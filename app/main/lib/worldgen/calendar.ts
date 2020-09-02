@@ -329,29 +329,34 @@ itemloop.register( ActionQueueTypes.MATCHDAY, () => {
 itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
   const compobj = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
   const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
-  let data: League | Cup;
 
   if( isleague ) {
-    data = League.restore( compobj.data );
-    const divobj = data.divisions.find( d => d.name === item.payload.divId );
+    const leagueobj = League.restore( compobj.data );
+    const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
     const conf = divobj.conferences.find( c => c.id === item.payload.confId );
     const match = conf.groupObj.findMatch( item.payload.matchId );
     const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
     const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
     conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
+    compobj.data = leagueobj.save();
   } else if( iscup ) {
-    data = Cup.restore( compobj.data );
-    const match = data.duelObj.findMatch( item.payload.matchId );
+    const cupobj = Cup.restore( compobj.data );
+    const match = cupobj.duelObj.findMatch( item.payload.matchId );
 
-    // can only score if it's not a "walkover" match
-    if( !data.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
-      const team1 = await Models.Team.findByPk( data.getCompetitorBySeed( match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( data.getCompetitorBySeed( match.p[ 1 ] ).id );
-      data.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+    // can only score if it's not a BYE
+    if( !cupobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
+      const team1 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
+      cupobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+      compobj.data = cupobj.save();
+
+      // check to see if we need to gen more matchdays
+      if( cupobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        await WGCompetition.genMatchdays( compobj );
+      }
     }
   }
 
-  compobj.data = data.save();
   return compobj.save();
 });
 

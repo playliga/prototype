@@ -12,8 +12,15 @@ export interface Result {
 }
 
 
+export interface MatchId {
+  s: number;
+  r: number;
+  m: number;
+}
+
+
 export interface Match {
-  id: { s: number; r: number; m: number };
+  id: MatchId;
   p: [ number, number ];
   m: [ number, number ];
   data: any;
@@ -23,6 +30,7 @@ export interface Match {
 export interface Tournament {
   currentRound: ( section?: number ) => Match[];
   findMatch: ( matchId: object ) => Match;
+  findMatches: ( idPartial: Partial<MatchId> ) => Match[];
   isDone: () => boolean;
   matches: Match[];
   matchesFor: ( seed: number ) => Match[];

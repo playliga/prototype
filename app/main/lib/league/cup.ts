@@ -1,5 +1,5 @@
 import { IterableObject } from 'shared/types';
-import { Tournament } from './types';
+import { Tournament, MatchId } from './types';
 import Duel from 'duel';
 import Competitor from './competitor';
 
@@ -82,6 +82,11 @@ class Cup {
     }
 
     return this.duelObj.isDone();
+  }
+
+  public matchesDone( idpartial: Partial<MatchId> ) {
+    const matches = this.duelObj.findMatches( idpartial );
+    return matches.every( m => Array.isArray( m.m ) );
   }
 }
 
