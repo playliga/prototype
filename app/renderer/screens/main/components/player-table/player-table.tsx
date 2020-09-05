@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
-import { Tiers } from 'shared/enums';
+import Tiers from 'shared/tiers';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
 import './player-table.scss';
 
@@ -18,7 +18,7 @@ function TeamColumn( props: any ) {
         {props.name}
       </Typography.Text>
       <Typography.Text type="secondary">
-        {Tiers[ props.tier ]}
+        {Tiers[ props.tier ].name}
       </Typography.Text>
     </div>
   );
@@ -55,9 +55,9 @@ export default function PlayerTable( props: any ) {
         title="Team"
         dataIndex="Team"
         filters={[
-          ...Object.keys( Tiers ).map( i => ({
-            text: `${Tiers[ i ]}`,
-            value: parseInt( i ),
+          ...Tiers.map( ( tier, idx ) => ({
+            text: `${tier.name}`,
+            value: idx,
           })),
           {
             text: 'Free Agent',

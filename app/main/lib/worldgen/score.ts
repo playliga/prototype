@@ -1,5 +1,6 @@
 import probable from 'probable';
 import { random } from 'lodash';
+import Tiers from 'shared/tiers';
 
 
 const SCORE_LOSER_LOW = 0;
@@ -10,8 +11,8 @@ export default function( team1: any, team2: any ) {
   // use probability to determine a winner
   // calculate weight based off of tier
   const ptable = probable.createTableFromSizes([
-    [ team1.tier, team1.id ],
-    [ team2.tier, team2.id ],
+    [ Tiers[ team1.tier ].multiplier, team1.id ],
+    [ Tiers[ team2.tier ].multiplier, team2.id ],
   ]);
 
   // who won?

@@ -1,6 +1,3 @@
-import { IterableObject } from './types';
-
-
 export const ActionQueueTypes = {
   MATCHDAY                : 'MATCHDAY',
   MATCHDAY_NPC            : 'MATCHDAY_NPC',
@@ -12,15 +9,6 @@ export const ActionQueueTypes = {
   START_COMP              : 'START_COMP',
   TRANSFER_MOVE           : 'TRANSFER_MOVE',
   TRANSFER_OFFER_RESPONSE : 'TRANSFER_OFFER_RESPONSE',
-};
-
-
-export const Tiers: IterableObject<string> = {
-  0: 'Premier',
-  1: 'Advanced',
-  2: 'Main',
-  3: 'Intermediate',
-  4: 'Open'
 };
 
 
