@@ -7,7 +7,8 @@ module.exports = {
   ],
   "moduleNameMapper": {
     "^.+\\.(css|scss)$": "identity-obj-proxy",
-    "^.+\\.(gif|ttf|eot|svg|jpg|png)$": "<rootDir>/__test__/fileMock.js"
+    "^.+\\.(gif|ttf|eot|svg|jpg|png)$": "<rootDir>/__test__/fileMock.js",
+    "^shared(.*)$": "<rootDir>/app/shared$1",
   },
   "moduleDirectories": [
     "node_modules",
