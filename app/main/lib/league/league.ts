@@ -1,4 +1,4 @@
-import { find, chunk } from 'lodash';
+import { find, chunk, shuffle } from 'lodash';
 import cuid from 'cuid';
 import GroupStage from 'groupstage';
 import { IterableObject } from 'shared/types';
@@ -102,6 +102,9 @@ class League {
 
   public start = (): void => {
     this.divisions.forEach( ( div: Division ) => {
+      // shuffle competitors first
+      div.competitors = shuffle( div.competitors );
+
       // keep a copy of the groupstage object and store into memory
       // groupstage lib makes each competitor face *all* others in same group.
       // so — split each division into "conferences" where each competitor only plays N matches

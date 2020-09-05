@@ -262,11 +262,6 @@ export function start( comp: Models.Competition ) {
     data = League.restore( comp.data );
     data.start();
 
-    // shuffle divisions before starting
-    data.divisions.forEach( divobj => {
-      divobj.competitors = shuffle( divobj.competitors );
-    });
-
     // assign maps to each round's matches
     data.divisions.forEach( divObj => {
       divObj.conferences.forEach( conf => {

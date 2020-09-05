@@ -1,3 +1,4 @@
+import { shuffle } from 'lodash';
 import { IterableObject } from 'shared/types';
 import { Tournament, MatchId } from './types';
 import Duel from 'duel';
@@ -73,6 +74,7 @@ class Cup {
 
   public start() {
     this.started = true;
+    this.competitors = shuffle( this.competitors );
     this.duelObj = new Duel( this.competitors.length, { short: true });
   }
 
