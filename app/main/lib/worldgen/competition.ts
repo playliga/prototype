@@ -94,7 +94,16 @@ async function genLeagueMatchdays( comp: Models.Competition ) {
   // conferences and record the match days per round
   const matchdays = leagueobj.divisions.map( divobj => {
     return divobj.conferences.map( conf => {
-      return conf.groupObj.rounds().map( ( rnd, idx ) => {
+      // shuffle matches if meettwice is enabled. groupstage
+      // lib has home/away games right after each other
+      let rounds = conf.groupObj.rounds();
+
+      if( divobj.meetTwice ) {
+        rounds = shuffle( rounds );
+      }
+
+      // generate the matchdays
+      return rounds.map( ( rnd, idx ) => {
         return rnd.map( match => ({
           type: conf.id === userconf && match.p.includes( userseed )
             ? ActionQueueTypes.MATCHDAY
