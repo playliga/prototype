@@ -1,11 +1,11 @@
 export default [
   {
     name: 'Premier',
-    multiplier: 4,
+    multiplier: 5,
   },
   {
     name: 'Advanced',
-    multiplier: 3,
+    multiplier: 4,
   },
   {
     name: 'Main',
@@ -13,10 +13,10 @@ export default [
   },
   {
     name: 'Intermediate',
-    multiplier: 3,
+    multiplier: 2,
   },
   {
     name: 'Open',
-    multiplier: 3,
+    multiplier: 1,
   }
 ];
