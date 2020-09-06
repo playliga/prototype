@@ -8,6 +8,7 @@ import probable from 'probable';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 import Worldgen from 'main/lib/worldgen';
+import Application from 'main/constants/application';
 
 import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -417,6 +418,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
 
   // generate server config
   await generateServerConfig({
+    demo: Application.DEMO_MODE,
     hostname: `${compobj.name}: ${competition.Continents[ 0 ].name} — ${hostname_suffix}`,
     logfile: CSGO_LOGFILE,
     rcon_password: RCON_PASSWORD,

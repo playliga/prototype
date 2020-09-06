@@ -1,5 +1,6 @@
 const Application = {
   CALENDAR_LOOP_MAX_ITERATIONS      : 5,
+  DEMO_MODE                         : true,
   DB_CNX_LIMIT                      : 10000,
   DB_NAME                           : 'save0.sqlite',
   MAP_POOL                          : [ 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_overpass', 'de_train', 'de_vertigo' ],
