@@ -37,6 +37,7 @@ export interface StandingsResponse {
   division?: string;
   isOpen: boolean;
   region: string;
+  regioncode: string;
   regionId: number;
   standings?: any[];
   round?: any[];

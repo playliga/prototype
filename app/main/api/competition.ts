@@ -150,6 +150,7 @@ function getLeagueStandings( compobj: Models.Competition, divId: string | number
     division: divobj.name,
     isOpen: compobj.Compdef.isOpen,
     region: compobj.Continents[ 0 ].name,
+    regioncode: compobj.Continents[ 0 ].code,
     regionId: compobj.Continents[ 0 ].id,
     type: [ isleague, iscup ]
   };
@@ -196,6 +197,7 @@ function getCupStandings( compobj: Models.Competition ) {
     competitionId: compobj.id,
     isOpen: compobj.Compdef.isOpen,
     region: compobj.Continents[ 0 ].name,
+    regioncode: compobj.Continents[ 0 ].code,
     regionId: compobj.Continents[ 0 ].id,
     type: [ isleague, iscup ]
   };
