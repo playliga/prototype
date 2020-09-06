@@ -37,14 +37,14 @@ export default function MatchPreview( props: Props ) {
       <div className="match-preview-body">
         <Space direction="vertical">
           <Avatar size={100} icon={<UserOutlined />} />
-          <span>{props.data.match.team1.name}</span>
+          <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
         </Space>
         <Typography.Text strong className="vs">
           {'VS'}
         </Typography.Text>
         <Space direction="vertical">
           <Avatar size={100} icon={<UserOutlined />} />
-          <span>{props.data.match.team2.name}</span>
+          <Typography.Text ellipsis>{props.data.match.team2.name}</Typography.Text>
         </Space>
       </div>
       <div className="match-preview-footer">
