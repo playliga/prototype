@@ -17,6 +17,14 @@ interface StandingsProps {
 
 
 export default function Standings( props: StandingsProps ) {
+  // replace last item in standings with highlighted seed
+  if( props.highlightSeed && props.sliceData ) {
+    const idx = props.dataSource.findIndex( d => d.seed === props.highlightSeed );
+    if( idx > -1 ) {
+      props.dataSource[ props.sliceData - 1 ] = { ...props.dataSource[ idx ], realpos: idx + 1 };
+    }
+  }
+
   return (
     <Table
       dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
@@ -30,7 +38,7 @@ export default function Standings( props: StandingsProps ) {
           ellipsis
           width="50%"
           title="Name"
-          render={( item, r, idx ) => `${idx + 1}. ${item.name}`}
+          render={( item, r, idx ) => `${item.realpos || idx + 1}. ${item.name}`}
         />
         <Table.Column
           title="W/L/D"
