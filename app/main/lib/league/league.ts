@@ -139,7 +139,7 @@ class League {
         ? neighbor.conferenceWinners.length + neighbor.promotionConferences.length
         : 0;
 
-      divObj.startPostSeason( neighborPromotionNum );
+      divObj.startPostSeason( neighborPromotionNum, i === this.divisions.length - 1 );
     }
 
     return allDone;

@@ -64,8 +64,8 @@ export function generatePlayoffScores( promotionConferences: PromotionConference
 }
 
 describe( 'division', () => {
-  const SIZE = 256;
-  const CONF_SIZE = 8;
+  const SIZE = 100;
+  const CONF_SIZE = 20;
 
   let divObj: Division;
   let conferences: Conference[];
@@ -91,7 +91,7 @@ describe( 'division', () => {
 
   it( 'adds a competitor', () => {
     const COMP_NAME = 'compLexity Gaming';
-    const div = new Division( 'Invite', 64 );
+    const div = new Division( 'Invite', 20 );
     div.addCompetitor( 1337, COMP_NAME );
 
     expect( div.competitors ).toEqual(
@@ -106,7 +106,7 @@ describe( 'division', () => {
       { id: 2, name: 'Team 3D' },
       { id: 3, name: 'Evil Geniuses' }
     ];
-    const div = new Division( 'Invite', 64 );
+    const div = new Division( 'Invite', 20 );
     div.addCompetitor( 1337, COMP_NAME );
     div.addCompetitors( COMP_ARRAY );
 
@@ -207,8 +207,8 @@ describe( 'division', () => {
     expect( divObj.isDone() ).toBeTruthy();
     expect( divObj.endPostSeason() ).toBeTruthy();
 
-    // conference winners should equal the same amount of conferences
-    expect( divObj.conferenceWinners.length ).toEqual( divObj.conferences.length );
+    // conference winners should equal the same amount of conferences * 2 (1st, 2nd)
+    expect( divObj.conferenceWinners.length ).toEqual( divObj.conferences.length * 2 );
 
     // promotion winners should equal the same amount of promotion coneferences
     expect( divObj.promotionWinners.length ).toEqual( divObj.promotionConferences.length );
@@ -219,13 +219,13 @@ describe( 'division', () => {
    * Emulate a division other than 'Open' and how the division object
    * handles relegations.
    */
-  // MAIN(64, 8, 8) = 19 move down, 10 move up
-  // PREMIER(32, 4, 8) = 10 move down, 5 move up
+  // MAIN(20, 20, 1) = 3 move down, 3 move up
+  // PREMIER(20, 20, 1) = 3 move down, 3 move up
   it( 'compiles list of relegation bottomfeeders if a neighbor promotion num is provided', () => {
     // create premier division object
-    const MAINDIV_PROMOTION_NUM = 10;
-    const PREM_SIZE = 32;
-    const PREM_CONF_SIZE = 8;
+    const MAINDIV_PROMOTION_NUM = 3;
+    const PREM_SIZE = 20;
+    const PREM_CONF_SIZE = 20;
     const premierDivision = new Division( 'Premier', PREM_SIZE, PREM_CONF_SIZE );
 
     // add competitors
@@ -258,13 +258,13 @@ describe( 'division', () => {
     expect( premierDivision.relegationBottomfeeders.length ).toEqual( MAINDIV_PROMOTION_NUM );
   });
 
-  // PREMIER(32, 4, 8) = 10 move down, 5 move up
-  // INVITE(16, 1, 16 ) = 5 move down, 1 winner :)
+  // PREMIER(20, 20, 1) = 3 move down, 3 move up
+  // INVITE(20, 20, 1 ) = 3 move down, 1 winner :)
   it( 'compiles list of relegation bottomfeeders if a neighbor promotion num is provided for the top division', () => {
     // create premier division object
-    const PREMDIV_PROMOTION_NUM = 5;
-    const INV_SIZE = 16;
-    const INV_CONF_SIZE = 16;
+    const PREMDIV_PROMOTION_NUM = 3;
+    const INV_SIZE = 20;
+    const INV_CONF_SIZE = 20;
     const inviteDivision = new Division( 'Invite', INV_SIZE, INV_CONF_SIZE );
 
     // add competitors
@@ -290,7 +290,7 @@ describe( 'division', () => {
 
     // now end the regular season but also pass in the number of competitors
     // that will be moving up from the main division
-    expect( inviteDivision.startPostSeason( PREMDIV_PROMOTION_NUM ) ).toBeTruthy();
+    expect( inviteDivision.startPostSeason( PREMDIV_PROMOTION_NUM, true ) ).toBeTruthy();
 
     // the number of relegated competitors should match the number of promoted competitors
     // from the main division

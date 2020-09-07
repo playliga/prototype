@@ -55,17 +55,17 @@ import { generateGroupStageScores, generatePlayoffScores } from './division.spec
 describe( 'league', () => {
   const LEAGUE_NAME = 'CAL';
   const DIVISIONS = [
-    { name: 'Open', size: 256, confSize: 8 },
-    { name: 'Intermediate', size: 128, confSize: 8 },
-    { name: 'Main', size: 64, confSize: 8 },
-    { name: 'Premier', size: 32, confSize: 8 },
-    { name: 'Invite', size: 16, confSize: 16 }
+    { name: 'Open', size: 100, confSize: 20 },
+    { name: 'Intermediate', size: 60, confSize: 20 },
+    { name: 'Main', size: 20, confSize: 20 },
+    { name: 'Premier', size: 20, confSize: 20 },
+    { name: 'Invite', size: 20, confSize: 20 }
   ];
 
   // used for division tests
   const RAND_DIV_NAME = 'Random Division';
-  const RAND_DIV_SIZE = 64;
-  const RAND_DIV_CONF_SIZE = 8;
+  const RAND_DIV_SIZE = 60;
+  const RAND_DIV_CONF_SIZE = 20;
 
   let leagueObj: League;
 

@@ -171,7 +171,7 @@ class Division {
     return done;
   }
 
-  public startPostSeason = ( neighborPromotionNum = 0 ): boolean => {
+  public startPostSeason = ( neighborPromotionNum = 0, topdiv = false ): boolean => {
     // abort if pending matches
     if( !this.isGroupStageDone() ) {
       return false;
@@ -179,7 +179,7 @@ class Division {
 
     // if we have one conference then promotion is not possible
     // this means it's the top division
-    if( this.conferences.length === 1 ) {
+    if( topdiv ) {
       const { groupObj } = this.conferences[ 0 ];
       const [ winner, ...otherStandings ] = groupObj.results();
       const BOTN = Math.ceil( neighborPromotionNum );
@@ -207,24 +207,26 @@ class Division {
       ? Math.ceil( neighborPromotionNum / this.conferences.length )
       : 0;
 
-    // 1st-place positions from each conference are eligible for
+    // 1st/2nd-place positions from each conference are eligible for
     // automatic promotion. the rest are from promotion playoffs
-    const AUTOMATIC_PROMOTION_NUM = this.conferences.length;
+    const AUTOMATIC_PROMOTION_NUM = this.conferences.length * 2;
     const PLAYOFF_PROMOTION_NUM = PROMOTION_NUM - AUTOMATIC_PROMOTION_NUM;
 
-    // TOP-N positions from each conference are eligible (2nd, 3rd, 4th; currently)
-    // for the promotion playoffs
-    const PLAYOFF_TOPN = 4; // should this be hardcoded?
+    // TOP-N positions from each conference are eligible
+    // (3rd thru 6th) for the promotion playoffs
+    const PLAYOFF_TOPN = 6; // should this be hardcoded?
 
     this.conferences.forEach( ( conf: Conference, confNum: number ) => {
       const standings = conf.groupObj.results();
       const topn = standings.slice( 0, PLAYOFF_TOPN );
       const bottomfeedersStandings = standings.slice( standings.length - BOTN );
 
-      // 1st place are automatically promoted and the next 3
-      // are placed in the promotion playoffs
+      // 1st/2nd place are automatically promoted and the
+      // next 4 are placed in the promotion playoffs
       PROMOTED.push( this.getCompetitorBySeed( confNum, topn[ 0 ].seed ) );
-      for( let index = 1; index < topn.length; index++ ) {
+      PROMOTED.push( this.getCompetitorBySeed( confNum, topn[ 1 ].seed ) );
+
+      for( let index = 2; index < topn.length; index++ ) {
         PLAYOFFS.push( this.getCompetitorBySeed( confNum, topn[ index ].seed ) );
       }
 
