@@ -46,7 +46,7 @@ export default function MatchResults( props: Props ) {
           align="center"
           render={value => value.m
             ? `${value.m[ 0 ]} - ${value.m[ 1 ]}`
-            : 'TBD'
+            : '-'
           }
         />
       </Table.ColumnGroup>

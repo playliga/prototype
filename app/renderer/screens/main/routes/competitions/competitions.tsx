@@ -9,6 +9,7 @@ import * as IPCRouting from 'shared/ipc-routing';
 import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
+import { parseCupRound } from 'renderer/screens/main/util';
 
 
 const GUTTER_H = 8;
@@ -109,7 +110,7 @@ function Competition( props: CompetitionProps ) {
       {iscup && props.data.round.length > 0 && (
         <MatchResults
           sliceData={NUM_CUP_MATCHES}
-          title={`Round ${props.data.round[ 0 ].id.r} results`}
+          title={parseCupRound( props.data.round )}
           dataSource={props.data.round}
         />
       )}
