@@ -7,7 +7,7 @@ import MatchResults from 'renderer/screens/main/components/match-results';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
 import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
-import { ProfileOutlined } from '@ant-design/icons';
+import { RightOutlined } from '@ant-design/icons';
 import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 
 
@@ -48,13 +48,13 @@ function Competition( props: CompetitionProps ) {
 
   return (
     <Col key={props.data.competitionId} span={GRID_COL_WIDTH}>
-      <Typography.Title level={3} ellipsis>
+      <Typography.Title level={3}>
         <Space>
           <Typography.Text ellipsis>
             {props.data.competition}: {props.data.regioncode}
           </Typography.Text>
           <Typography.Link>
-            <ProfileOutlined />
+            <RightOutlined />
           </Typography.Link>
         </Space>
       </Typography.Title>
