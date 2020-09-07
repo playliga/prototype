@@ -1,5 +1,5 @@
+import Argparse from 'main/lib/argparse';
 import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
-import minimist from 'minimist';
 import { IterableObject } from 'shared/types';
 import { Screen } from './types';
 
@@ -32,11 +32,6 @@ export default class ScreenManager {
       return screens[ id ];
     }
 
-    // configure command line args
-    const args = minimist( process.argv.slice( 2 ), {
-      boolean: [ 'dev-console' ]
-    });
-
     // configure default screen options which
     // can be overriden by incoming options
     const defaultoptions: BrowserWindowConstructorOptions = {
@@ -61,7 +56,7 @@ export default class ScreenManager {
     screen.handle.loadURL( url, urlOptions );
 
     // open dev tools if provided via cli args
-    if( args[ 'dev-console' ] ) {
+    if( Argparse[ 'dev-console' ] ) {
       screen.handle.webContents.openDevTools();
     }
 

@@ -8,6 +8,7 @@ import probable from 'probable';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 import Worldgen from 'main/lib/worldgen';
+import Argparse from 'main/lib/argparse';
 import Application from 'main/constants/application';
 
 import * as Sqrl from 'squirrelly';
@@ -384,28 +385,27 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     hostname_suffix = `Round ${match.id.r}`;
   }
 
-  // -----------
-  // START DEBUG
-  // -----------
-  // tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
-  // competition.data = compobj.save();
-
-  // // generate new round for tourney
-  // if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-  //   await Worldgen.Competition.genMatchdays( competition );
-  // }
-
-  // await competition.save();
-  // return evt.sender.send( request.responsechannel );
-  // -----------
-  // END DEBUG
-  // -----------
-
   // generate each team's squads
   const squads = getSquads(
     team1.Players.filter( p => p.alias !== profile.Player.alias ),
     team2.Players.filter( p => p.alias !== profile.Player.alias )
   );
+
+  // --------------------------------
+  // SIMULATE THE GAME?
+  // --------------------------------
+  if( Argparse[ 'sim-games'] ) {
+    tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
+    competition.data = compobj.save();
+
+    // generate new round for tourney
+    if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+      await Worldgen.Competition.genMatchdays( competition );
+    }
+
+    await competition.save();
+    return evt.sender.send( request.responsechannel );
+  }
 
   // --------------------------------
   // SET UP CSGO CONFIG FILES

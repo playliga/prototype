@@ -70,12 +70,24 @@ function launchElectron( err ) {
 
   log.info( 'Running application...' );
 
+  // electron args
+  const electronargs = [ '--' ];
+
+  if( ARGS[ 'dev-console' ] ) {
+    electronargs.push( '--dev-console' );
+  }
+
+  if( ARGS[ 'sim-games' ] ) {
+    electronargs.push( '--sim-games' );
+  }
+
+  // run the app
   childProcess = spawn(
     'npm',
     [
       'run',
       'start:electron',
-      ARGS[ 'dev-console' ] ? '-- --dev-console' : '',
+      electronargs.length > 1 ? electronargs.join( ' ' ) : '',
       '--silent'
     ], {
       shell: true,
