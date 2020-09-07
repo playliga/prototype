@@ -138,6 +138,11 @@ async function genCupMatchdays( comp: Models.Competition ) {
   const joined = didJoin( profile.Team, comp );
   const cupobj = Cup.restore( comp.data );
 
+  // bail if tourney is finished
+  if( cupobj.duelObj.isDone() ) {
+    return Promise.resolve([]);
+  }
+
   // if user joined, grab their seed num
   let userseed: number;
 
@@ -292,7 +297,11 @@ export async function genMatchdays( comp: Models.Competition ) {
     matchdays = await genCupMatchdays( comp );
   }
 
-  await Models.ActionQueue.bulkCreate( flattenDeep( matchdays ) );
+  // generate matchdays if any were found
+  if( matchdays.length > 0 ) {
+    await Models.ActionQueue.bulkCreate( flattenDeep( matchdays ) );
+  }
+
   return Promise.resolve();
 }
 

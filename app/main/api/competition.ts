@@ -206,13 +206,22 @@ function getCupStandings( compobj: Models.Competition ) {
   if( !compobj.data.started ) {
     return [{
       ...baseobj,
-      round: [] as any[]
+      round: []
     }];
+  }
+
+  // or return the final result if finished!
+  let matches;
+
+  if( cupobj.duelObj.isDone() ) {
+    matches = cupobj.duelObj.matches.slice( -1 );
+  } else {
+    matches = cupobj.duelObj.currentRound();
   }
 
   return [{
     ...baseobj,
-    round: cupobj.duelObj.currentRound().map( match => ({
+    round: matches.map( match => ({
       ...match,
       team1: {
         seed: match.p[ 0 ],
