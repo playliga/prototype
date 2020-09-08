@@ -85,9 +85,9 @@ async function genLeagueMatchdays( comp: Models.Competition ) {
 
   if( joined ) {
     const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
-    const info = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-    userconf = info[ 0 ].id;
-    userseed = info[ 1 ];
+    const [ conf, seed ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+    userconf = conf.id;
+    userseed = seed;
   }
 
   // bail if tourney is finished
