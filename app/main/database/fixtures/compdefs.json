@@ -2,7 +2,7 @@
   {
     "id":"esea",
     "isopen": true,
-    "meetTwice": true,
+    "meetTwice": false,
     "name":"ESEA",
     "season":32,
     "startoffset": 60,
@@ -42,7 +42,7 @@
   {
     "id":"eslpro",
     "isopen": false,
-    "meetTwice": true,
+    "meetTwice": false,
     "name":"ESL Pro",
     "season":12,
     "startoffset": 60,
