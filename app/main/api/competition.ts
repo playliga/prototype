@@ -2,10 +2,11 @@ import { ipcMain, IpcMainEvent } from 'electron';
 import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
 import { ActionQueueTypes } from 'shared/enums';
+import { parseCupRound } from 'shared/util';
+import { parseCompType } from 'main/lib/util';
 import { League, Division, Cup } from 'main/lib/league';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
-import { parseCompType } from 'shared/util';
 
 
 interface IpcRequestParams {
@@ -39,8 +40,19 @@ interface UpcomingParams {
 function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Competition ) {
   const leagueobj = League.restore( compobj.data );
   const divobj = leagueobj.getDivision( queue.payload.divId );
-  const conf = divobj.conferences.find( c => c.id === queue.payload.confId );
-  const match = conf.groupObj.findMatch( queue.payload.matchId );
+
+  let conf;
+  let match;
+  let postseason;
+
+  if( leagueobj.isGroupStageDone() ) {
+    conf = divobj.promotionConferences.find( c => c.id === queue.payload.confId );
+    match = conf.duelObj.findMatch( queue.payload.matchId );
+    postseason = parseCupRound( conf.duelObj.currentRound() );
+  } else {
+    conf = divobj.conferences.find( c => c.id === queue.payload.confId );
+    match = conf.groupObj.findMatch( queue.payload.matchId );
+  }
 
   return ({
     competition: compobj.data.name,
@@ -49,6 +61,7 @@ function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Compe
     date: queue.actionDate,
     division: divobj.name,
     region: compobj.Continents[ 0 ].name,
+    postseason: postseason,
     match: {
       ...match,
       team1: {
@@ -163,6 +176,44 @@ function getLeagueStandings( compobj: Models.Competition, divId: string | number
     }];
   }
 
+  // handle post-season first
+  if( leagueobj.isGroupStageDone() ) {
+    // filter by conference
+    let { promotionConferences } = divobj;
+
+    if( confId ) {
+      promotionConferences = promotionConferences.filter( c => c.id === confId );
+    }
+
+    return promotionConferences.map( conf => {
+      // if tourney is done, show the last match instead
+      let matches;
+
+      if( conf.duelObj.isDone() ) {
+        matches = conf.duelObj.matches.slice( -1 );
+      } else {
+        matches = conf.duelObj.currentRound();
+      }
+
+      return {
+        ...baseobj,
+        round: matches.map( match => ({
+          ...match,
+          team1: {
+            seed: match.p[ 0 ],
+            ...divobj.getCompetitorBySeed( conf, match.p[ 0 ] )
+          },
+          team2: {
+            seed: match.p[ 1 ],
+            ...divobj.getCompetitorBySeed( conf, match.p[ 1 ] )
+          }
+        }))
+      };
+    });
+  }
+
+  // regular season
+  //
   // filter by conference id (if provided)
   let { conferences } = divobj;
 

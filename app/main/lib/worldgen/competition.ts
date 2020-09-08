@@ -2,7 +2,7 @@ import { random, flattenDeep, shuffle } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Match } from 'main/lib/league/types';
 import { League, Cup } from 'main/lib/league';
-import { parseCompType } from 'shared/util';
+import { parseCompType } from 'main/lib/util';
 import * as Models from 'main/database/models';
 import moment from 'moment';
 import Application from 'main/constants/application';
@@ -50,7 +50,7 @@ function getWeekday( type: string, date: moment.Moment ) {
  * Generate map pools per round
  */
 
-function genMappool( rounds: Match[][] ) {
+export function genMappool( rounds: Match[][] ) {
   const mappool = shuffle( Application.MAP_POOL );
   let mapidx = 0;
 
@@ -90,9 +90,56 @@ async function genLeagueMatchdays( comp: Models.Competition ) {
     userseed = info[ 1 ];
   }
 
+  // bail if tourney is finished
+  if( leagueobj.isDone() ) {
+    return Promise.resolve([]);
+  }
+
   // loop thru the competition's divisions and their
   // conferences and record the match days per round
   const matchdays = leagueobj.divisions.map( divobj => {
+    // are we in the post-season?
+    if( divobj.isGroupStageDone() ) {
+      // bail if no post-season conferences.
+      // e.g.: for the top division
+      if( !divobj.promotionConferences.length ) {
+        return [];
+      }
+
+      // have to grab the user's promotion conf/seed;
+      // reset them tho if they didn't make it
+      const [ _userconf, _userseed ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
+
+      if( _userconf && _userseed ) {
+        userconf = _userconf.id;
+        userseed = _userseed;
+      } else {
+        userconf = null;
+        userseed = null;
+      }
+
+      // now generate the matches for the current round
+      return divobj.promotionConferences.map( conf => {
+        return conf.duelObj.currentRound().map( match => ({
+          type: conf.id === userconf && match.p.includes( userseed )
+            ? ActionQueueTypes.MATCHDAY
+            : ActionQueueTypes.MATCHDAY_NPC
+          ,
+          actionDate: getWeekday(
+            comp.Comptype.name,
+            moment( profile.currentDate ).add( 1, 'weeks' )
+          ),
+          payload: {
+            compId: comp.id,
+            confId: conf.id,
+            divId: divobj.name,
+            matchId: match.id,
+          }
+        }));
+      });
+    }
+
+    // nope, must be regular season
     return divobj.conferences.map( conf => {
       // shuffle matches if meettwice is enabled. groupstage
       // lib has home/away games right after each other

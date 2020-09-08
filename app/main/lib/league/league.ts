@@ -1,7 +1,8 @@
-import { find, chunk, shuffle } from 'lodash';
+import { chunk, shuffle, flatten } from 'lodash';
 import cuid from 'cuid';
 import GroupStage from 'groupstage';
 import { IterableObject } from 'shared/types';
+import { MatchId } from './types';
 import Division from './division';
 import Competitor from './competitor';
 
@@ -26,13 +27,17 @@ class League {
       .forEach( k => ins[k] = args[k] )
     ;
     ins.divisions = args.divisions.map( ( d: any ) => Division.restore( d ) );
+    if( ins.postSeasonDivisions ) {
+      ins.postSeasonDivisions = args.postSeasonDivisions.map( ( d: any ) => Division.restore( d ) );
+    }
     return ins;
   }
 
   public save() {
     return {
       ...this,
-      divisions: this.divisions.map( d => d.save() )
+      divisions: this.divisions.map( d => d.save() ),
+      postSeasonDivisions: this.postSeasonDivisions.map( d => d.save() ),
     };
   }
 
@@ -44,9 +49,8 @@ class League {
     return div;
   }
 
-  public getDivision = ( name: string ) => {
-    const div = find( this.divisions, item => item.name === name );
-    return div;
+  public getDivision( name: string ) {
+    return this.divisions.find( divobj => divobj.name === name );
   }
 
   public getDivisionByCompetitorId = ( id: number ) => {
@@ -91,7 +95,7 @@ class League {
     // because the latter does not support `break`
     for( let i = 0; i < this.divisions.length; i++ ) {
       const divObj = this.divisions[ i ];
-      if( !divObj.isDone() ) {
+      if( !divObj.isDone( i === 0) ) {
         done = false;
         break;
       }
@@ -122,13 +126,21 @@ class League {
   public startPostSeason = (): boolean => {
     let allDone = true;
 
-    // start post-season for each individual division
-    for( let i = 0; i < this.divisions.length; i++ ) {
+    // start post-season for each division in reverse order;
+    // from the lowest tier (open) to highest (invite)
+    for( let i = this.divisions.length - 1; i >= 0; i-- ) {
       const divObj = this.divisions[ i ];
-      const neighbor = this.divisions[ i - 1 ] || null;
+      const neighbor = this.divisions[ i + 1 ] || null;
+      const topdiv = i === 0;
 
       // bail on first instance of an unfinished division
       if( !divObj.isGroupStageDone() ) {
+        allDone = false;
+        break;
+      }
+
+      // bail if post season has already been started
+      if( !topdiv && divObj.promotionConferences.length > 0 ) {
         allDone = false;
         break;
       }
@@ -139,7 +151,7 @@ class League {
         ? neighbor.conferenceWinners.length + neighbor.promotionConferences.length
         : 0;
 
-      divObj.startPostSeason( neighborPromotionNum, i === this.divisions.length - 1 );
+      divObj.startPostSeason( neighborPromotionNum, topdiv );
     }
 
     return allDone;
@@ -153,12 +165,12 @@ class League {
       const divObj = this.divisions[ i ];
 
       // bail on first instance of an unfinished division
-      if( !divObj.isGroupStageDone() || !divObj.isDone() ) {
+      if( !divObj.isGroupStageDone() || !divObj.isDone( i === 0 ) ) {
         allDone = false;
         break;
       }
 
-      divObj.endPostSeason();
+      divObj.endPostSeason( i === 0 );
     }
 
     return allDone;
@@ -173,17 +185,17 @@ class League {
     this.divisions.forEach( ( currentDivision: Division, index: number ) => {
       const prevDivision = this.divisions[ index - 1 ];
       const nextDivision = this.divisions[ index + 1 ];
-      const postSeasonDivision = new Division( currentDivision.name, currentDivision.conferenceSize );
+      const postSeasonDivision = new Division( currentDivision.name, currentDivision.size, currentDivision.conferenceSize );
 
       // pull in the promoted competitors from the previous division
       if( prevDivision ) {
-        postSeasonDivision.addCompetitors( prevDivision.conferenceWinners );
-        postSeasonDivision.addCompetitors( prevDivision.promotionWinners );
+        postSeasonDivision.addCompetitors( prevDivision.relegationBottomfeeders );
       }
 
       // pull in the relegated competitors from the next division
       if( nextDivision ) {
-        postSeasonDivision.addCompetitors( nextDivision.relegationBottomfeeders );
+        postSeasonDivision.addCompetitors( nextDivision.conferenceWinners );
+        postSeasonDivision.addCompetitors( nextDivision.promotionWinners );
       }
 
       // pull in the current division's mid table
@@ -200,17 +212,30 @@ class League {
       }));
 
       // for the bottom division relegation positions have no where to go. so include them too
-      if( !prevDivision ) {
+      if( !nextDivision ) {
         postSeasonDivision.addCompetitors( currentDivision.relegationBottomfeeders );
       }
 
       // for the top division the winner has no where to go. so include him too
-      if( !nextDivision ) {
+      if( !prevDivision ) {
         postSeasonDivision.addCompetitors( currentDivision.conferenceWinners );
       }
 
       // finally, reassign to the league object's post-season division array
       this.postSeasonDivisions[ index ] = postSeasonDivision;
+    });
+  }
+
+  public matchesDone( idpartial: Partial<MatchId> ) {
+    // bail if not in post-season
+    if( !this.isGroupStageDone() ) {
+      return false;
+    }
+
+    const confs = flatten( this.divisions.map( d => d.promotionConferences ) );
+    return confs.every( conf => {
+      const matches = conf.duelObj.findMatches( idpartial );
+      return matches.every( m => Array.isArray( m.m ) );
     });
   }
 }

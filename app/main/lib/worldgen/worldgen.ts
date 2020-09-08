@@ -3,7 +3,7 @@ import * as Models from 'main/database/models';
 import { random } from 'lodash';
 import { Op } from 'sequelize';
 import { ActionQueueTypes } from 'shared/enums';
-import { sendEmailAndEmit } from 'shared/util';
+import { sendEmailAndEmit } from 'main/lib/util';
 import moment from 'moment';
 import PlayerWages from 'main/constants/playerwages';
 import EmailDialogue from 'main/constants/emaildialogue';

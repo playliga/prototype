@@ -1,32 +1,22 @@
-import { CompTypes } from './enums';
-import * as Models from 'main/database/models';
-import * as IPCRouting from 'shared/ipc-routing';
-import ScreenManager from 'main/lib/screen-manager';
+/**
+ * Returns the proper round description depending
+ * on the number of matches left. For example:
+ *
+ * - RO16, Quarterfinals, Semifinals, Final
+ * - Round xx
+ */
 
-
-export function parseCompType( type: string ) {
-  const leagues = [ CompTypes.CHAMPIONS_LEAGUE, CompTypes.LEAGUE ];
-  const cups = [ CompTypes.LEAGUE_CUP ];
-
-  return [
-    leagues.includes( type ),
-    cups.includes( type ),
-  ];
-}
-
-
-export async function sendEmailAndEmit( payload: any ) {
-  const email = await Models.Email.send( payload );
-
-  ScreenManager
-    .getScreenById( IPCRouting.Main._ID )
-    .handle
-    .webContents
-    .send(
-      IPCRouting.Worldgen.EMAIL_NEW,
-      JSON.stringify( email )
-    )
-  ;
-
-  return Promise.resolve();
+export function parseCupRound( round: any[] ) {
+  switch( round.length ) {
+    case 8:
+      return 'RO16';
+    case 4:
+      return 'Quarterfinals';
+    case 2:
+      return 'Semifinals';
+    case 1:
+      return 'Grand Final';
+    default:
+      return `Round ${round[ 0 ].id.r}`;
+  }
 }

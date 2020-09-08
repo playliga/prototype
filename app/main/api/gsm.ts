@@ -21,7 +21,7 @@ import { Rcon } from 'rcon-client';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { parseCompType } from 'shared/util';
+import { parseCompType } from 'main/lib/util';
 import { Match, Tournament } from 'main/lib/league/types';
 import { League, Cup } from 'main/lib/league';
 
@@ -358,16 +358,30 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     // grab the match information
     const leagueobj = League.restore( competition.data );
     const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
-    const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-    const [ _match ] = conf.groupObj.upcoming( seednum );
-    const [ seed1, seed2 ] = _match.p;
+    const postseason = leagueobj.isGroupStageDone();
 
-    // assign to the respective vars
+    // assigned vars will differ depending
+    // on the current stage of the season
+    if( postseason ) {
+      const [ conf, seednum ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
+      const matchinfo = conf.duelObj.upcoming( seednum );
+      const [ seed1, seed2 ] = matchinfo[ 0 ].p;
+      tourneyobj = conf.duelObj;
+      match = matchinfo[ 0 ];
+      team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
+      team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+    } else {
+      const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+      const matchinfo = conf.groupObj.upcoming( seednum );
+      const [ seed1, seed2 ] = matchinfo[ 0 ].p;
+      tourneyobj = conf.groupObj;
+      match = matchinfo[ 0 ];
+      team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
+      team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+    }
+
+    // assign the remaining vars
     compobj = leagueobj;
-    tourneyobj = conf.groupObj;
-    match = _match;
-    team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
-    team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
     hostname_suffix = divobj.name;
   } else if( iscup ) {
     // grab the match information
@@ -397,6 +411,18 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   if( Argparse[ 'sim-games'] ) {
     tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
     competition.data = compobj.save();
+
+    // generate new round for league postseason
+    if( isleague && compobj.isGroupStageDone() && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+      await Worldgen.Competition.genMatchdays( competition );
+    }
+
+    // end the season?
+    if( isleague && compobj.isDone() ) {
+      compobj.endPostSeason();
+      compobj.end();
+      competition.data = compobj.save();
+    }
 
     // generate new round for tourney
     if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
@@ -485,6 +511,18 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     log.info( 'GAME IS OVER', result );
     tourneyobj.score( match.id, result.score );
     competition.data = compobj.save();
+
+    // generate new round for league postseason
+    if( isleague && compobj.isGroupStageDone() && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+      await Worldgen.Competition.genMatchdays( competition );
+    }
+
+    // end the season?
+    if( isleague && compobj.isDone() ) {
+      compobj.endPostSeason();
+      compobj.end();
+      competition.data = compobj.save();
+    }
 
     // generate new round for tourney
     if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {

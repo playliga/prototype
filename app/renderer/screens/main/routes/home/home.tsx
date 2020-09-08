@@ -3,6 +3,7 @@ import moment from 'moment';
 import cuid from 'cuid';
 import { RouteComponentProps } from 'react-router-dom';
 import { Card, Row, Col, Empty, Table, Affix } from 'antd';
+import { parseCupRound } from 'shared/util';
 import { UpcomingMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 
 import * as IPCRouting from 'shared/ipc-routing';
@@ -132,6 +133,7 @@ function Home( props: Props ) {
   const refreshUpcoming = hasUpcoming && moment( profile.data.currentDate ).isAfter( upcoming[ 0 ].date );
   const isleague = hasUpcoming && upcoming[ 0 ].type[ 0 ];
   const iscup = hasUpcoming && upcoming[ 0 ].type[ 1 ];
+  const ispostseason = isleague && !!upcoming[ 0 ].postseason;
 
   // get upcoming matches
   React.useEffect( () => {
@@ -244,7 +246,7 @@ function Home( props: Props ) {
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
-              {isleague && (
+              {isleague && !ispostseason && (
                 <Standings
                   disablePagination
                   highlightSeed={seednum}
@@ -263,13 +265,11 @@ function Home( props: Props ) {
                   )}
                 />
               )}
-              {iscup && (
+              {( iscup || ispostseason ) && (
                 <MatchResults
                   pageSize={NUM_CUP_MATCHES}
                   dataSource={hasStandings && standings[ 0 ].round}
-                  title={hasStandings && (
-                    `Round ${standings[ 0 ].round[ 0 ].id.r} results`
-                  )}
+                  title={hasStandings && parseCupRound( standings[ 0 ].round )}
                 />
               )}
             </Card>

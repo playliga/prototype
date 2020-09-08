@@ -1,7 +1,8 @@
-import { find } from 'lodash';
+import { find, random } from 'lodash';
 import adjectiveAnimal from 'adjective-animal';
 import { League, Division, Competitor } from '..';
 import { generateGroupStageScores, generatePlayoffScores } from './division.spec';
+import Score from '../../worldgen/score';
 
 
 /**
@@ -55,11 +56,11 @@ import { generateGroupStageScores, generatePlayoffScores } from './division.spec
 describe( 'league', () => {
   const LEAGUE_NAME = 'CAL';
   const DIVISIONS = [
-    { name: 'Open', size: 100, confSize: 20 },
-    { name: 'Intermediate', size: 60, confSize: 20 },
-    { name: 'Main', size: 20, confSize: 20 },
+    { name: 'Invite', size: 20, confSize: 20 },
     { name: 'Premier', size: 20, confSize: 20 },
-    { name: 'Invite', size: 20, confSize: 20 }
+    { name: 'Main', size: 20, confSize: 20 },
+    { name: 'Intermediate', size: 60, confSize: 20 },
+    { name: 'Open', size: 100, confSize: 20 },
   ];
 
   // used for division tests
@@ -74,11 +75,12 @@ describe( 'league', () => {
     leagueObj = new League( LEAGUE_NAME );
 
     // populate the league with divisions and competitors
-    DIVISIONS.forEach( ( div ) => {
+    DIVISIONS.forEach( ( div, dividx ) => {
       const divObj = leagueObj.addDivision( div.name, div.size, div.confSize );
 
       for( let i = 0; i < div.size; i++ ) {
-        divObj.addCompetitor( i, adjectiveAnimal.generateName() );
+        const uuid = i + dividx + random( 0, 255 );
+        divObj.addCompetitor( uuid, adjectiveAnimal.generateName() + uuid  );
       }
     });
   });
@@ -99,7 +101,7 @@ describe( 'league', () => {
 
     // get a competitor name from the last division
     const divObj = leagueObj.getDivision( 'Open' );
-    const competitor = divObj.competitors[ divObj.competitors.length - 1 ];
+    const [ competitor ] = divObj.competitors.slice( -1 );
 
     // now try to find that competitor's division by name
     const result = leagueObj.getDivisionByCompetitorId( competitor.id );
@@ -263,22 +265,79 @@ describe( 'league', () => {
     leagueObj.end();
 
     // collect relegations and promotions from neighboring divisions
-    const [ prevDivision,, nextDivision,, ] = leagueObj.divisions;
-    const promotedFromPrev = [ ...prevDivision.conferenceWinners, ...prevDivision.promotionWinners ];
-    const relegatedFromNext = nextDivision.relegationBottomfeeders;
+    const [ mainDivision,, openDivision ] = leagueObj.divisions.slice( -3 );
+    const promotedFromOpen = [ ...openDivision.conferenceWinners, ...openDivision.promotionWinners ];
+    const relegatedFromMain = mainDivision.relegationBottomfeeders;
 
     // promoted and relegated from neighboring divisions should exist in the current post-season
-    const currentPostSeasonDivision = leagueObj.postSeasonDivisions[ 1 ];
-    promotedFromPrev.forEach( ( comp: Competitor ) => {
+    const [ imDivision ] = leagueObj.postSeasonDivisions.slice( -2, -1 );
+    promotedFromOpen.forEach( ( comp: Competitor ) => {
       expect(
-        find( currentPostSeasonDivision.competitors, ( item: Competitor ) => item.name === comp.name )
+        find( imDivision.competitors, ( item: Competitor ) => item.name === comp.name )
       ).not.toBe( undefined );
     });
 
-    relegatedFromNext.forEach( ( comp: Competitor ) => {
+    relegatedFromMain.forEach( ( comp: Competitor ) => {
       expect(
-        find( currentPostSeasonDivision.competitors, ( item: Competitor ) => item.name === comp.name )
+        find( imDivision.competitors, ( item: Competitor ) => item.name === comp.name )
       ).not.toBe( undefined );
     });
+  });
+
+  it( 'checks that all matches across the league are finished for the current round', () => {
+    // start the league
+    leagueObj.start();
+
+    // generate group stage scores for each division
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name ) as Division;
+      generateGroupStageScores( divObj.conferences );
+    });
+
+    // start post-season if all group stages are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // generate matches for the first round of every division
+    leagueObj.divisions.forEach( divobj => {
+      divobj.promotionConferences.forEach( conf => {
+        const matches = conf.duelObj.currentRound();
+        matches.forEach( m => conf.duelObj.score( m.id, Score(
+          { tier: 1, id: 'foo' },
+          { tier: 1, id: 'bar' }
+        )));
+      });
+    });
+
+    expect( leagueObj.matchesDone({ s: 1, r: 1 }) ).toBeTruthy();
+  });
+
+  it( 'checks that all matches across the league are *not* finished for the current round', () => {
+    // start the league
+    leagueObj.start();
+
+    // generate group stage scores for each division
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name ) as Division;
+      generateGroupStageScores( divObj.conferences );
+    });
+
+    // start post-season if all group stages are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // generate matches for just one division
+    const [ divobj ] = leagueObj.divisions.slice( -1 );
+    divobj.promotionConferences.forEach( conf => {
+      const matches = conf.duelObj.currentRound();
+      matches.forEach( m => conf.duelObj.score( m.id, Score(
+        { tier: 1, id: 'foo' },
+        { tier: 1, id: 'bar' }
+      )));
+    });
+
+    expect( leagueObj.matchesDone({ s: 1, r: 1 }) ).toBeFalsy();
   });
 });

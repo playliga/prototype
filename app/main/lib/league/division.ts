@@ -35,12 +35,23 @@ class Division {
       .keys( args )
       .forEach( k => ins[k] = args[k] )
     ;
+
+    // restore regular season data
     ins.conferences = args.conferences.map( ( c: Conference ) => ({
       ...c,
       groupObj: c.groupObj
         ? GroupStage.restore( c.competitors.length, { groupSize: args.conferenceSize, meetTwice: args.meetTwice }, c.groupObj.state, c.groupObj.metadata )
         : null
     }));
+
+    // post-season data
+    if( args.promotionConferences && args.promotionConferences.length > 0 ) {
+      ins.promotionConferences = args.promotionConferences.map( ( c: PromotionConference ) => ({
+        ...c,
+        duelObj: Duel.restore( c.competitors.length, { short: true }, c.duelObj.state, c.duelObj.metadata )
+      }));
+    }
+
     return ins;
   }
 
@@ -52,6 +63,13 @@ class Division {
         groupObj: {
           ...c.groupObj,
           metadata: c.groupObj.metadata()
+        }
+      })),
+      promotionConferences: this.promotionConferences.map( c => ({
+        ...c,
+        duelObj: {
+          ...c.duelObj,
+          metadata: c.duelObj.metadata()
         }
       }))
     };
@@ -96,6 +114,26 @@ class Division {
     return result;
   }
 
+  public getCompetitorPromotionConferenceAndSeedNumById( id: number ) {
+    const { promotionConferences } = this;
+    const conf = promotionConferences.find( conf => conf.competitors.some( ctr => ctr.id === id ) );
+    let result: [ PromotionConference, number ] = [ null, null ];
+
+    // bail early if nothing was found
+    if( !conf ) {
+      return result;
+    }
+
+    // otherwise, try to find their seed number
+    const idx = conf.competitors.findIndex( ctr => ctr.id === id );
+
+    if( idx > -1 ) {
+      result = [ conf, idx + 1 ];
+    }
+
+    return result;
+  }
+
   public getCompetitorGroupObjById = ( id: number ) => {
     const [ conf ] = this.getCompetitorConferenceAndSeedNumById( id );
 
@@ -116,7 +154,7 @@ class Division {
     return conf.groupObj.resultsFor( seed );
   }
 
-  public getCompetitorBySeed = ( conf: number | Conference, seedNum: number ): Competitor => {
+  public getCompetitorBySeed = ( conf: number | Conference | PromotionConference, seedNum: number ): Competitor => {
     // a confid was provided so use that
     if( typeof conf === 'number' ) {
       const { competitors } = this.conferences[ conf as number ];
@@ -146,9 +184,15 @@ class Division {
     return done;
   }
 
-  public isDone = (): boolean => {
+  public isDone = ( topdiv = false ): boolean => {
     // bail early if group stage is not done
     if( !this.isGroupStageDone() ) {
+      return false;
+    }
+
+    // if no promotion conferences have been set up,
+    // then the post-season has not started
+    if( !topdiv && !this.promotionConferences.length ) {
       return false;
     }
 
@@ -161,7 +205,7 @@ class Division {
     for( let i = 0; i < this.promotionConferences.length; i++ ) {
       const { duelObj } = this.promotionConferences[ i ];
 
-      if( duelObj && !duelObj.isDone() ) {
+      if( !duelObj || ( duelObj && !duelObj.isDone() ) ) {
         done = false;
         break;
       }
@@ -269,9 +313,9 @@ class Division {
     return true;
   }
 
-  public endPostSeason = (): boolean => {
+  public endPostSeason = ( topdiv = false ): boolean => {
     // bail early if group stage or playoffs are not done
-    if( !this.isGroupStageDone() || !this.isDone() ) {
+    if( !this.isGroupStageDone() || !this.isDone( topdiv ) ) {
       return false;
     }
 

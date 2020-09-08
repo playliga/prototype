@@ -25,6 +25,7 @@ export interface UpcomingMatchResponse {
   confId?: string;
   date: string;
   division?: string;
+  postseason?: string;
   region: string;
   match: any;
   type: string[];

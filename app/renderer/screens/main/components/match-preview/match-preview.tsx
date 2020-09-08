@@ -32,6 +32,9 @@ export default function MatchPreview( props: Props ) {
         </Typography.Title>
         <Typography.Text>
           {props.data.division}
+          {props.data.postseason && `
+            (Promotion ${props.data.postseason})
+          `}
         </Typography.Text>
       </div>
       <div className="match-preview-body">
@@ -49,7 +52,10 @@ export default function MatchPreview( props: Props ) {
       </div>
       <div className="match-preview-footer">
         <Typography.Text mark>
-          {props.data.match.data.map}
+          {props.data.match.data
+            ? props.data.match.data.map
+            : 'TBD'
+          }
         </Typography.Text>
       </div>
     </>

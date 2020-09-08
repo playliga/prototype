@@ -6,10 +6,10 @@ import Application from 'main/constants/application';
 import MatchResults from 'renderer/screens/main/components/match-results';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
+import { parseCupRound } from 'shared/util';
 import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
-import { parseCupRound } from 'renderer/screens/main/util';
 
 
 const GUTTER_H = 8;
