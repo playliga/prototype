@@ -22,7 +22,7 @@ import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { parseCompType } from 'main/lib/util';
-import { Match, Tournament } from 'main/lib/league/types';
+import { Match, Tournament, MatchId } from 'main/lib/league/types';
 import { League, Cup } from 'main/lib/league';
 
 
@@ -334,7 +334,7 @@ function launchCSGO( map = 'de_dust2' ) {
  * IPC handlers
  */
 
-async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
+async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number; matchId: MatchId }> ) {
   // --------------------------------
   // SET UP VARS
   // --------------------------------
@@ -363,21 +363,17 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
     // assigned vars will differ depending
     // on the current stage of the season
     if( postseason ) {
-      const [ conf, seednum ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
-      const matchinfo = conf.duelObj.upcoming( seednum );
-      const [ seed1, seed2 ] = matchinfo[ 0 ].p;
+      const [ conf ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
       tourneyobj = conf.duelObj;
-      match = matchinfo[ 0 ];
-      team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
-      team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+      match = conf.duelObj.findMatch( request.params.matchId );
+      team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
+      team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).name );
     } else {
-      const [ conf, seednum ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
-      const matchinfo = conf.groupObj.upcoming( seednum );
-      const [ seed1, seed2 ] = matchinfo[ 0 ].p;
+      const [ conf ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
       tourneyobj = conf.groupObj;
-      match = matchinfo[ 0 ];
-      team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed1 ).name );
-      team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, seed2 ).name );
+      match = conf.groupObj.findMatch( request.params.matchId );
+      team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
+      team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).name );
     }
 
     // assign the remaining vars
@@ -386,16 +382,13 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number }> ) {
   } else if( iscup ) {
     // grab the match information
     const cupobj = Cup.restore( competition.data );
-    const seednum = cupobj.getCompetitorSeedNumById( profile.Team.id );
-    const [ _match ] = cupobj.duelObj.upcoming( seednum );
-    const [ seed1, seed2 ] = _match.p;
 
     // assign to the respective vars
     compobj = cupobj;
     tourneyobj = cupobj.duelObj;
-    match = _match;
-    team1 = await Models.Team.findByName( cupobj.getCompetitorBySeed( seed1 ).name );
-    team2 = await Models.Team.findByName( cupobj.getCompetitorBySeed( seed2 ).name );
+    match = cupobj.duelObj.findMatch( request.params.matchId );
+    team1 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 0 ] ).name );
+    team2 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 1 ] ).name );
     hostname_suffix = `Round ${match.id.r}`;
   }
 
