@@ -41,7 +41,10 @@ const itemloop = new ItemLoop.ItemLoop();
 itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const queue = await Models.ActionQueue.findAll({
-    where: { actionDate: profile.currentDate, completed: false }
+    where: { actionDate: profile.currentDate, completed: false },
+    order: [
+      [ 'type', 'DESC' ]
+    ]
   });
   return Promise.resolve( queue );
 });
