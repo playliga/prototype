@@ -57,7 +57,7 @@ async function handleOnNextDay( dispatch: Function, setLoading: Function ) {
 async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function ) {
   IpcService
     .send( IPCRouting.Competition.PLAY, {
-      params: { id: upcoming.competitionId, matchId: upcoming.match.id }
+      params: { quid: upcoming.quid, compId: upcoming.competitionId, matchId: upcoming.match.id }
     })
     .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP, {
       params: { max: 1 }

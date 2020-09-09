@@ -334,14 +334,22 @@ function launchCSGO( map = 'de_dust2' ) {
  * IPC handlers
  */
 
-async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number; matchId: MatchId }> ) {
+interface PlayRequest {
+  quid: number;
+  compId: number;
+  matchId: MatchId;
+}
+
+
+async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
   // SET UP VARS
   // --------------------------------
 
   // load user's profile and the competition object
   const profile = await Models.Profile.getActiveProfile();
-  const competition = profile.Team.Competitions.find( c => c.id === request.params.id );
+  const competition = profile.Team.Competitions.find( c => c.id === request.params.compId );
+  const queue = await Models.ActionQueue.findByPk( request.params.quid );
   const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
 
   // these will be used later when launching/closing the game
@@ -423,6 +431,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number; matchI
     }
 
     await competition.save();
+    await queue.update({ completed: true });
     return evt.sender.send( request.responsechannel );
   }
 
@@ -523,6 +532,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<{ id: number; matchI
     }
 
     await competition.save();
+    await queue.update({ completed: true });
     evt.sender.send( request.responsechannel );
   });
 }

@@ -20,6 +20,7 @@ export interface RouteConfig {
 
 
 export interface UpcomingMatchResponse {
+  quid: number;
   competition: string;
   competitionId: number;
   confId?: string;

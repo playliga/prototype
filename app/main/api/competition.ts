@@ -55,12 +55,8 @@ function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Compe
   }
 
   return ({
-    competition: compobj.data.name,
-    competitionId: compobj.id,
     confId: conf.id,
-    date: queue.actionDate,
     division: divobj.name,
-    region: compobj.Continents[ 0 ].name,
     postseason: postseason,
     match: {
       ...match,
@@ -82,10 +78,6 @@ function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competit
   const match = cupobj.duelObj.findMatch( queue.payload.matchId );
 
   return ({
-    competition: compobj.data.name,
-    competitionId: compobj.id,
-    date: queue.actionDate,
-    region: compobj.Continents[ 0 ].name,
     match: {
       ...match,
       team1: {
@@ -126,7 +118,12 @@ async function formatMatchdata( queue: Models.ActionQueue ) {
   // append the comptype for this match
   return Promise.resolve({
     ...output,
-    type: [ isleague, iscup ]
+    competition: compobj.data.name,
+    competitionId: compobj.id,
+    date: queue.actionDate,
+    quid: queue.id,
+    region: compobj.Continents[ 0 ].name,
+    type: [ isleague, iscup ],
   });
 }
 
