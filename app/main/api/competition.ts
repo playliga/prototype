@@ -96,7 +96,7 @@ function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competit
 async function formatMatchdata( queue: Models.ActionQueue ) {
   // load the competition
   const compobj = await Models.Competition.findByPk( queue.payload.compId, {
-    include: [ 'Continents', 'Comptype' ]
+    include: [ 'Continent', 'Comptype' ]
   });
 
   if( !compobj.data.started ) {
@@ -122,7 +122,7 @@ async function formatMatchdata( queue: Models.ActionQueue ) {
     competitionId: compobj.id,
     date: queue.actionDate,
     quid: queue.id,
-    region: compobj.Continents[ 0 ].name,
+    region: compobj.Continent.name,
     type: [ isleague, iscup ],
   });
 }
@@ -159,9 +159,9 @@ function getLeagueStandings( compobj: Models.Competition, divId: string | number
     competitionId: compobj.id,
     division: divobj.name,
     isOpen: compobj.Compdef.isOpen,
-    region: compobj.Continents[ 0 ].name,
-    regioncode: compobj.Continents[ 0 ].code,
-    regionId: compobj.Continents[ 0 ].id,
+    region: compobj.Continent.name,
+    regioncode: compobj.Continent.code,
+    regionId: compobj.Continent.id,
     type: [ isleague, iscup ]
   };
 
@@ -244,9 +244,9 @@ function getCupStandings( compobj: Models.Competition ) {
     competition: compobj.data.name,
     competitionId: compobj.id,
     isOpen: compobj.Compdef.isOpen,
-    region: compobj.Continents[ 0 ].name,
-    regioncode: compobj.Continents[ 0 ].code,
-    regionId: compobj.Continents[ 0 ].id,
+    region: compobj.Continent.name,
+    regioncode: compobj.Continent.code,
+    regionId: compobj.Continent.id,
     type: [ isleague, iscup ]
   };
 
@@ -372,11 +372,11 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
   // get all competitions if no id was provided
   if( req.params.compId ) {
     const res = await Models.Competition.findByPk( req.params.compId, {
-      include: [ 'Continents', 'Compdef', 'Comptype' ]
+      include: [ 'Continent', 'Compdef', 'Comptype' ]
     });
     comps.push( res );
   } else {
-    comps = await Models.Competition.findAll({ include: [ 'Continents', 'Compdef', 'Comptype' ]});
+    comps = await Models.Competition.findAll({ include: [ 'Continent', 'Compdef', 'Comptype' ]});
   }
 
   // get standings for the league types

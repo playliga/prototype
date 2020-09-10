@@ -33,6 +33,13 @@ module.exports = {
           key: 'id'
         }
       },
+      continentId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'continents',
+          key: 'id'
+        }
+      },
     });
   },
   down: (queryInterface ) => {

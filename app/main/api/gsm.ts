@@ -447,7 +447,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // generate server config
   await generateServerConfig({
     demo: Application.DEMO_MODE,
-    hostname: `${compobj.name}: ${competition.Continents[ 0 ].name} — ${hostname_suffix}`,
+    hostname: `${compobj.name}: ${competition.Continent.name} — ${hostname_suffix}`,
     logfile: CSGO_LOGFILE,
     rcon_password: RCON_PASSWORD,
     teamflag_ct: team1.Country.code,

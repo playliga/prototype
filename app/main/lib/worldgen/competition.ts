@@ -291,7 +291,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     return Promise.all([
       comp.setCompdef( compdef ),
       comp.setComptype( compdef.Comptype ),
-      comp.setContinents([ region ]),
+      comp.setContinent( region ),
       comp.setTeams( teams )
     ]);
   }));

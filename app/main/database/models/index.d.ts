@@ -53,12 +53,12 @@ declare module 'main/database/models' {
     public data: any;
     public Teams?: Team[];
     public readonly Comptype?: Comptype;
-    public readonly Continents?: Continent[];
+    public readonly Continent?: Continent;
     public readonly Compdef?: Compdef;
 
     public setCompdef: Sequelize.BelongsToSetAssociationMixin<Compdef, number>;
     public setComptype: Sequelize.BelongsToSetAssociationMixin<Comptype, number>;
-    public setContinents: Sequelize.BelongsToManySetAssociationsMixin<Continent, number>;
+    public setContinent: Sequelize.BelongsToSetAssociationMixin<Continent, number>;
     public setTeams: Sequelize.BelongsToManySetAssociationsMixin<Team, number>;
     public addTeam: Sequelize.BelongsToManyAddAssociationMixin<Team, number>;
     public removeTeam: Sequelize.BelongsToManyRemoveAssociationMixin<Team, number>;

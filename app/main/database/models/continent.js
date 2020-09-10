@@ -11,8 +11,8 @@ class Continent extends Model {
 
   static associate( models ) {
     this.hasMany( models.Country );
+    this.hasMany( models.Competition );
     this.belongsToMany( models.Compdef, { through: 'CompdefContinents' });
-    this.belongsToMany( models.Competition, { through: 'CompetitionContinents' });
   }
 }
 
