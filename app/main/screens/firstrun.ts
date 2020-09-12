@@ -83,7 +83,7 @@ async function saveplayer( data: IterableObject<any>[] ) {
 
   // create the new user profile
   const profile = await Models.Profile.create({
-    currentDate: today.toDate(),
+    currentDate: today,
     currentSeason: Application.PRESEASON_FIRST_YEAR,
   });
 
@@ -118,6 +118,9 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
 
     // add preseason checks
     .then( Worldgen.preseasonChecks )
+
+    // set an end date for the season
+    .then( Worldgen.endOfSeason )
 
     // finished!
     .then( openMainWindow )

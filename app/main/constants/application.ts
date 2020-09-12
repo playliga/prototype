@@ -17,6 +17,7 @@ const Application = {
   PRESEASON_COMP_DEADLINE_DAYS      : [ 14, 7 ],          // when to start asking to join a competition
   PRESEASON_FIRST_YEAR              : 2019,               // the very first pre-season's year
   PRESEASON_LENGTH                  : 60,                 // when the regular season starts
+  PRESEASON_PREV_END_DAYS           : 5,                  // how many days before pre-season does the prev season end
   PRESEASON_SQUAD_DEADLINE_DAYS     : [ 30, 14, 7 ],      // when to start enforcing minimum squad depth
   PRESEASON_START_DAY               : 1,                  // pre-season start day
   PRESEASON_START_MONTH             : 6,                  // pre-season start month
