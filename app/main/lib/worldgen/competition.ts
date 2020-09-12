@@ -1,4 +1,4 @@
-import { random, flattenDeep, shuffle } from 'lodash';
+import { random, flattenDeep, shuffle, flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Match } from 'main/lib/league/types';
 import { League, Cup } from 'main/lib/league';
@@ -18,6 +18,47 @@ import Application from 'main/constants/application';
 
 function didJoin( team: Models.Team, comp: Models.Competition ) {
   return team.Competitions.findIndex( c => c.id === comp.id ) > -1;
+}
+
+
+/**
+ * Sync teams to their current tiers.
+ */
+
+
+function flattenCompetition( compobj: Models.Competition ) {
+  const { postSeasonDivisions } = League.restore( compobj.data );
+  const out: any[][] = [];
+
+  postSeasonDivisions.forEach( ( d, tdx ) => {
+    const { competitors } = d;
+    const data = competitors.map( c => ({ id: c.id, tier: tdx }));
+    out.push( data );
+  });
+
+  return flatten( out );
+}
+
+
+export async function syncTiers() {
+  const compdefs = await Models.Compdef.findAll({
+    include: [{
+      model: Models.Comptype,
+      where: {
+        name: CompTypes.LEAGUE
+      }
+    }]
+  });
+
+  // for each compdef we're going to generate a
+  // list of team ids and their new tiers
+  // @todo: add season to competition model
+  return Promise.all( compdefs.map( async compdef => {
+    const competitions = await Models.Competition.findAll({ where: { comptypeId: compdef.id } });
+    const teams = flatten( competitions.map( flattenCompetition ) );
+    const innerwork = teams.map( t => Models.Team.update( t, { where: { id: t.id } }) );
+    return Promise.all( innerwork );
+  }));
 }
 
 
@@ -239,16 +280,38 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
   }
 
   return Promise.all( regions.map( async region => {
-    // north america also includes south america
+    // include south america in the NA region
     const regionids = [ region.id ];
 
     if( region.code === 'NA' ) {
       regionids.push( sa.id );
     }
 
-    // skip user's team because they don't have a squad yet
-    let teams = await Models.Team.findByRegionIds( regionids );
-    teams = teams.filter( t => t.id !== profile.Team.id );
+    // was there a prev season?
+    let prevcomp: Models.Competition;
+    let prevleague: League;
+
+    if( compdef.Comptype.name === CompTypes.LEAGUE ) {
+      prevcomp = await Models.Competition.findOne({
+        where: {
+          continentId: region.id,
+          compdefId: compdef.id,
+        }
+      });
+    }
+
+    if( prevcomp ) {
+      prevleague = League.restore( prevcomp.data );
+    }
+
+    // build the competition's eligible teams. we're going to
+    // filter out the user's team if they don't have a squad
+    let allteams = await Models.Team.findByRegionIds( regionids );
+    let compteams: Models.Team[] = [];
+
+    if( profile.Team.Players.length < Application.SQUAD_MIN_LENGTH ) {
+      allteams = allteams.filter( t => t.id !== profile.Team.id );
+    }
 
     // build the league or cup object
     const [ isleague, iscup ] = parseCompType( compdef.Comptype.name );
@@ -259,20 +322,28 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
 
       compdef.tiers.forEach( ( tier, tdx ) => {
         const div = data.addDivision( tier.name, tier.minlen, tier.confsize );
-        const tierteams = teams.filter( t => t.tier === tdx );
-        const competitors = tierteams
-          .slice( 0, tier.minlen )
-          .map( t => ({ id: t.id, name: t.name }) )
+        const tierteams = prevleague
+          ? prevleague.postSeasonDivisions[ tdx ].competitors
+          : allteams.filter( t => t.tier === tdx ).map( t => ({ id: t.id, name: t.name }))
+        ;
+        const competitors = prevleague
+          ? tierteams
+          : tierteams.slice( 0, tier.minlen )
         ;
         div.meetTwice = compdef.meetTwice;
         div.addCompetitors( competitors );
+        compteams = [
+          ...compteams,
+          ...allteams.filter( t => competitors.some( c => c.id === t.id ) )
+        ];
       });
     } else if( iscup ) {
       data = new Cup( compdef.name );
 
       // no tiers, every team will participate
       if( !compdef.tiers ) {
-        data.addCompetitors( teams.map( t => ({ id: t.id, name: t.name }) ) );
+        data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name }) ) );
+        compteams = allteams;
       }
     }
 
@@ -292,7 +363,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
       comp.setCompdef( compdef ),
       comp.setComptype( compdef.Comptype ),
       comp.setContinent( region ),
-      comp.setTeams( teams )
+      comp.setTeams( compteams )
     ]);
   }));
 }

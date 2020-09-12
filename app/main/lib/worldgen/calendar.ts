@@ -89,6 +89,76 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
  * the types of jobs that can run on every tick
  */
 
+itemloop.register( ActionQueueTypes.MATCHDAY, () => {
+  return Promise.resolve( false );
+});
+
+
+itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
+  const compobj = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
+  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+
+  if( isleague ) {
+    const leagueobj = League.restore( compobj.data );
+    const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
+
+    // post-season?
+    if( leagueobj.isGroupStageDone() ) {
+      const conf = divobj.promotionConferences.find( c => c.id === item.payload.confId );
+      const match = conf.duelObj.findMatch( item.payload.matchId );
+      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+      conf.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+      compobj.data = leagueobj.save();
+
+      // gen new matchdays?
+      if( leagueobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        await WGCompetition.genMatchdays( compobj );
+      }
+
+      // end the season?
+      if( leagueobj.isDone() ) {
+        leagueobj.endPostSeason();
+        leagueobj.end();
+        compobj.data = leagueobj.save();
+      }
+    } else {
+      const conf = divobj.conferences.find( c => c.id === item.payload.confId );
+      const match = conf.groupObj.findMatch( item.payload.matchId );
+      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+      conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
+      compobj.data = leagueobj.save();
+    }
+
+    // matches scored; do we need to start the post-season?
+    if( leagueobj.isGroupStageDone() && leagueobj.startPostSeason() ) {
+      compobj.data = leagueobj.save();
+      await WGCompetition.genMatchdays( compobj );
+    }
+  } else if( iscup ) {
+    const cupobj = Cup.restore( compobj.data );
+    const match = cupobj.duelObj.findMatch( item.payload.matchId );
+
+    // can only score if it's not a BYE
+    if( !cupobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
+      const team1 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
+      cupobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+      compobj.data = cupobj.save();
+
+      // check to see if we need to gen more matchdays
+      if( cupobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        await WGCompetition.genMatchdays( compobj );
+      }
+    }
+  }
+
+  // save changes to the db
+  return compobj.save();
+});
+
+
 itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_COMP, async () => {
   // check if this dude has joined any competitions
   const profile = await Models.Profile.getActiveProfile();
@@ -268,11 +338,20 @@ itemloop.register( ActionQueueTypes.SEND_EMAIL, async item => {
 });
 
 
-itemloop.register( ActionQueueTypes.TRANSFER_OFFER_RESPONSE, async item => {
-  return Models.TransferOffer.update(
-    { status: item.payload.status, msg: item.payload.msg },
-    { where: { id: item.payload.id } }
-  );
+itemloop.register( ActionQueueTypes.START_COMP, async item => {
+  return Models.Competition
+    .findByPk( item.payload, { include: [ 'Comptype' ] })
+    .then( WGCompetition.start )
+    .then( WGCompetition.genMatchdays )
+  ;
+});
+
+
+itemloop.register( ActionQueueTypes.START_SEASON, () => {
+  return Promise.resolve()
+    .then( WGCompetition.syncTiers )
+    .then( WGCompetition.genAllComps )
+  ;
 });
 
 
@@ -315,82 +394,11 @@ itemloop.register( ActionQueueTypes.TRANSFER_MOVE, async item => {
 });
 
 
-itemloop.register( ActionQueueTypes.START_COMP, async item => {
-  return Models.Competition
-    .findByPk( item.payload, { include: [ 'Comptype' ] })
-    .then( WGCompetition.start )
-    .then( WGCompetition.genMatchdays )
-  ;
-});
-
-
-itemloop.register( ActionQueueTypes.MATCHDAY, () => {
-  return Promise.resolve( false );
-});
-
-
-itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
-  const compobj = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
-
-  if( isleague ) {
-    const leagueobj = League.restore( compobj.data );
-    const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
-
-    // post-season?
-    if( leagueobj.isGroupStageDone() ) {
-      const conf = divobj.promotionConferences.find( c => c.id === item.payload.confId );
-      const match = conf.duelObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
-      conf.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = leagueobj.save();
-
-      // gen new matchdays?
-      if( leagueobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        await WGCompetition.genMatchdays( compobj );
-      }
-
-      // end the season?
-      if( leagueobj.isDone() ) {
-        leagueobj.endPostSeason();
-        leagueobj.end();
-        compobj.data = leagueobj.save();
-      }
-    } else {
-      const conf = divobj.conferences.find( c => c.id === item.payload.confId );
-      const match = conf.groupObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
-      conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = leagueobj.save();
-    }
-
-    // matches scored; do we need to start the post-season?
-    if( leagueobj.isGroupStageDone() && leagueobj.startPostSeason() ) {
-      compobj.data = leagueobj.save();
-      await WGCompetition.genMatchdays( compobj );
-    }
-  } else if( iscup ) {
-    const cupobj = Cup.restore( compobj.data );
-    const match = cupobj.duelObj.findMatch( item.payload.matchId );
-
-    // can only score if it's not a BYE
-    if( !cupobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
-      const team1 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
-      cupobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = cupobj.save();
-
-      // check to see if we need to gen more matchdays
-      if( cupobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        await WGCompetition.genMatchdays( compobj );
-      }
-    }
-  }
-
-  // save changes to the db
-  return compobj.save();
+itemloop.register( ActionQueueTypes.TRANSFER_OFFER_RESPONSE, async item => {
+  return Models.TransferOffer.update(
+    { status: item.payload.status, msg: item.payload.msg },
+    { where: { id: item.payload.id } }
+  );
 });
 
 

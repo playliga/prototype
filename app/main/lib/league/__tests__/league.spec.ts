@@ -340,4 +340,42 @@ describe( 'league', () => {
 
     expect( leagueObj.matchesDone({ s: 1, r: 1 }) ).toBeFalsy();
   });
+
+  it( 'restores after season completion', () => {
+    // start the league
+    leagueObj.start();
+
+    // generate group stage scores
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name ) as Division;
+      const { conferences } = divObj;
+
+      generateGroupStageScores( conferences );
+    });
+
+    // start the league's post-season if all group stage matches are done
+    if( leagueObj.isGroupStageDone() ) {
+      leagueObj.startPostSeason();
+    }
+
+    // loop through each division and generate playoff scores
+    leagueObj.divisions.forEach( ( division: Division ) => {
+      const divObj = leagueObj.getDivision( division.name ) as Division;
+
+      // now generate the playoff scores
+      generatePlayoffScores( divObj.promotionConferences );
+    });
+
+    // if league's post-season is done compile list of winners
+    if( leagueObj.isDone() ) {
+      leagueObj.endPostSeason();
+    }
+
+    leagueObj.end();
+
+    // test out the restore logic
+    const data = leagueObj.save();
+    const newLeagueObj = League.restore({ ...data });
+    expect( leagueObj.postSeasonDivisions.length ).toEqual( newLeagueObj.postSeasonDivisions.length );
+  });
 });
