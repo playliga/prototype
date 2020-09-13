@@ -59,6 +59,7 @@ export default function Header( props: Props ) {
           props.isMatchday
             ? (
               <Button
+                disabled={props.loading}
                 icon={<CaretRightOutlined />}
                 key="2"
                 onClick={props.onPlay}
@@ -70,8 +71,8 @@ export default function Header( props: Props ) {
             )
             : (
               <Button
-                key="2"
                 disabled={props.loading}
+                key="2"
                 onClick={props.onNextDay}
                 type="primary"
               >

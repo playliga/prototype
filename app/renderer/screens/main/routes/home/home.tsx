@@ -46,13 +46,14 @@ async function handleOnNextDay( dispatch: Function, setLoading: Function ) {
   setLoading( true );
   IpcService
     .send( IPCRouting.Worldgen.CALENDAR_LOOP )
-    .then( () => { setLoading( false ); return Promise.resolve(); })
+    .then( () => Promise.resolve( setLoading( false )) )
     .then( () => dispatch( profileActions.calendarFinish() ) )
   ;
 }
 
 
-async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function ) {
+async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function, setLoading: Function ) {
+  setLoading( true );
   IpcService
     .send( IPCRouting.Competition.PLAY, {
       params: { quid: upcoming.quid, compId: upcoming.competitionId, matchId: upcoming.match.id }
@@ -60,6 +61,7 @@ async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function
     .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP, {
       params: { max: 1 }
     }))
+    .then( () => Promise.resolve( setLoading( false )) )
     .then( () => dispatch( profileActions.calendarFinish() ) )
   ;
 }
@@ -187,7 +189,7 @@ function Home( props: Props ) {
         <Header
           isMatchday={isMatchday}
           onNextDay={() => handleOnNextDay( props.dispatch, setLoading )}
-          onPlay={() => handleOnPlay( upcoming[ 0 ], props.dispatch )}
+          onPlay={() => handleOnPlay( upcoming[ 0 ], props.dispatch, setLoading )}
           loading={loading}
           {...props}
         />
