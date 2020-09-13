@@ -251,6 +251,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
         where: {
           continentId: region.id,
           compdefId: compdef.id,
+          season: compdef.season - 1,
         }
       });
     }
