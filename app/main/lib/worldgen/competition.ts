@@ -195,20 +195,25 @@ async function genCupMatchdays( comp: Models.Competition ) {
   }
 
   // grab matches for the current round
-  const matches = cupobj.duelObj.currentRound().map( match => ({
-    type: match.p.includes( userseed )
-      ? ActionQueueTypes.MATCHDAY
-      : ActionQueueTypes.MATCHDAY_NPC
-    ,
-    actionDate: getWeekday(
-      comp.Comptype.name,
-      moment( profile.currentDate ).add( 1, 'weeks' )
-    ),
-    payload: {
-      compId: comp.id,
-      matchId: match.id,
-    }
-  }));
+  const matches = cupobj
+    .duelObj
+    .currentRound()
+    .filter( m => cupobj.duelObj.unscorable( m.id, [ 0, 1 ] ) === null )
+    .map( m => ({
+      type: m.p.includes( userseed )
+        ? ActionQueueTypes.MATCHDAY
+        : ActionQueueTypes.MATCHDAY_NPC
+      ,
+      actionDate: getWeekday(
+        comp.Comptype.name,
+        moment( profile.currentDate ).add( 1, 'weeks' )
+      ),
+      payload: {
+        compId: comp.id,
+        matchId: m.id,
+      }
+    }))
+  ;
 
   // save as a single matchday
   return Promise.resolve([ matches ]);
