@@ -1,14 +1,8 @@
+import * as IPCRouting from 'shared/ipc-routing';
+import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import React from 'react';
 import moment from 'moment';
 import cuid from 'cuid';
-import { RouteComponentProps } from 'react-router-dom';
-import { Card, Row, Col, Empty, Table, Affix } from 'antd';
-import { parseCupRound } from 'shared/util';
-import { UpcomingMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
-
-import * as IPCRouting from 'shared/ipc-routing';
-import * as profileActions from 'renderer/screens/main/redux/profile/actions';
-
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Header from 'renderer/screens/main/components/header';
@@ -16,6 +10,10 @@ import InboxPreview from 'renderer/screens/main/components/inbox-preview';
 import MatchPreview from 'renderer/screens/main/components/match-preview';
 import Standings from 'renderer/screens/main/components/standings';
 import MatchResults from 'renderer/screens/main/components/match-results';
+import { RouteComponentProps } from 'react-router-dom';
+import { Card, Row, Col, Empty, Table, Affix } from 'antd';
+import { parseCupRound } from 'shared/util';
+import { UpcomingMatchResponse, StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 
 
 // constants and variables
@@ -269,7 +267,7 @@ function Home( props: Props ) {
                 <MatchResults
                   pageSize={NUM_CUP_MATCHES}
                   dataSource={hasStandings && standings[ 0 ].round}
-                  title={hasStandings && parseCupRound( standings[ 0 ].round )}
+                  title={hasStandings && standings[ 0 ].round && parseCupRound( standings[ 0 ].round )}
                 />
               )}
             </Card>
