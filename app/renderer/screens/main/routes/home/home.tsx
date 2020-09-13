@@ -46,8 +46,8 @@ async function handleOnNextDay( dispatch: Function, setLoading: Function ) {
   setLoading( true );
   IpcService
     .send( IPCRouting.Worldgen.CALENDAR_LOOP )
-    .then( () => Promise.resolve( setLoading( false )) )
     .then( () => dispatch( profileActions.calendarFinish() ) )
+    .then( () => Promise.resolve( setLoading( false )) )
   ;
 }
 
@@ -61,8 +61,8 @@ async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function
     .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP, {
       params: { max: 1 }
     }))
-    .then( () => Promise.resolve( setLoading( false )) )
     .then( () => dispatch( profileActions.calendarFinish() ) )
+    .then( () => Promise.resolve( setLoading( false )) )
   ;
 }
 
