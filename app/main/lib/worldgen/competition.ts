@@ -330,6 +330,23 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
 // EXPORTED FUNCTIONS
 // ------------------------
 
+/**
+ * Sets the date for the next season.
+ */
+
+export async function nextSeasonStartDate() {
+  const profile = await Models.Profile.getActiveProfile();
+  const today = moment( profile.currentDate );
+  const preseason_start = moment([ today.year(), Application.PRESEASON_START_MONTH, Application.PRESEASON_START_DAY ]);
+  const newseason_start = moment( preseason_start ).add( 1, 'year' ).subtract( Application.PRESEASON_PREV_END_DAYS, 'days' );
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.START_SEASON,
+    actionDate: newseason_start,
+    payload: null,
+  });
+}
+
 
 /**
  * Bump season number on all competitions.

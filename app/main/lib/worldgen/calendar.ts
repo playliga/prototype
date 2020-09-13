@@ -349,6 +349,7 @@ itemloop.register( ActionQueueTypes.START_COMP, async item => {
 
 itemloop.register( ActionQueueTypes.START_SEASON, () => {
   return Promise.resolve()
+    .then( WGCompetition.nextSeasonStartDate )
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )
     .then( WGCompetition.genAllComps )

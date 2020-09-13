@@ -119,8 +119,8 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     // add preseason checks
     .then( Worldgen.preseasonChecks )
 
-    // set an end date for the season
-    .then( Worldgen.endOfSeason )
+    // set a start date for the next season
+    .then( Worldgen.Competition.nextSeasonStartDate )
 
     // finished!
     .then( openMainWindow )
