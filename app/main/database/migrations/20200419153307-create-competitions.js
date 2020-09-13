@@ -11,6 +11,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.JSON,
       },
+      season: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

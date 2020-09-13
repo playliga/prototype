@@ -51,6 +51,7 @@ declare module 'main/database/models' {
 
   export class Competition extends BaseModel {
     public data: any;
+    public season: number;
     public Teams?: Team[];
     public readonly Comptype?: Comptype;
     public readonly Continent?: Continent;

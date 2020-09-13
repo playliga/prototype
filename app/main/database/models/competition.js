@@ -8,6 +8,11 @@ class Competition extends Model {
         allowNull: false,
         type: Sequelize.JSON,
       },
+      season: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      },
     }, { sequelize, modelName: 'Competition' });
   }
 

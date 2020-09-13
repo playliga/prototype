@@ -303,7 +303,8 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     }
 
     // build the competition
-    const comp = Models.Competition.build({ data });
+    const season = compdef.season;
+    const comp = Models.Competition.build({ data, season });
     await comp.save();
 
     // add its start date to its action queue
