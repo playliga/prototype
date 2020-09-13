@@ -1,5 +1,5 @@
 const Application = {
-  CALENDAR_LOOP_MAX_ITERATIONS      : 5,
+  CALENDAR_LOOP_MAX_ITERATIONS      : 15,
   DEMO_MODE                         : true,
   DB_CNX_LIMIT                      : 10000,
   DB_NAME                           : 'save0.sqlite',

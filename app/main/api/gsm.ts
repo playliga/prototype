@@ -409,12 +409,13 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
   // SIMULATE THE GAME?
   // --------------------------------
-  if( Argparse[ 'sim-games'] ) {
+  if( Argparse[ 'sim-games' ] ) {
     tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
     competition.data = compobj.save();
 
     // generate new round for league postseason
-    if( isleague && compobj.isGroupStageDone() && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+    if( isleague && compobj.isGroupStageDone() && ( compobj.startPostSeason() || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) ) {
+      competition.data = compobj.save();
       await Worldgen.Competition.genMatchdays( competition );
     }
 
@@ -515,7 +516,8 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     competition.data = compobj.save();
 
     // generate new round for league postseason
-    if( isleague && compobj.isGroupStageDone() && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+    if( isleague && compobj.isGroupStageDone() && ( compobj.startPostSeason() || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) ) {
+      competition.data = compobj.save();
       await Worldgen.Competition.genMatchdays( competition );
     }
 

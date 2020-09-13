@@ -2,16 +2,15 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
-import { flatten } from 'lodash';
-import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { League, Cup } from 'main/lib/league';
-import { sendEmailAndEmit, parseCompType } from 'main/lib/util';
 import moment from 'moment';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
-import Score from './score';
+import { flatten } from 'lodash';
+import { ActionQueueTypes, CompTypes } from 'shared/enums';
+import { League } from 'main/lib/league';
+import { sendEmailAndEmit } from 'main/lib/util';
 
 
 /**
@@ -95,67 +94,7 @@ itemloop.register( ActionQueueTypes.MATCHDAY, () => {
 
 
 itemloop.register( ActionQueueTypes.MATCHDAY_NPC, async item => {
-  const compobj = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
-
-  if( isleague ) {
-    const leagueobj = League.restore( compobj.data );
-    const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
-
-    // post-season?
-    if( leagueobj.isGroupStageDone() ) {
-      const conf = divobj.promotionConferences.find( c => c.id === item.payload.confId );
-      const match = conf.duelObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
-      conf.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = leagueobj.save();
-
-      // gen new matchdays?
-      if( leagueobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        await WGCompetition.genMatchdays( compobj );
-      }
-
-      // end the season?
-      if( leagueobj.isDone() ) {
-        leagueobj.endPostSeason();
-        leagueobj.end();
-        compobj.data = leagueobj.save();
-      }
-    } else {
-      const conf = divobj.conferences.find( c => c.id === item.payload.confId );
-      const match = conf.groupObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
-      conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = leagueobj.save();
-    }
-
-    // matches scored; do we need to start the post-season?
-    if( leagueobj.isGroupStageDone() && leagueobj.startPostSeason() ) {
-      compobj.data = leagueobj.save();
-      await WGCompetition.genMatchdays( compobj );
-    }
-  } else if( iscup ) {
-    const cupobj = Cup.restore( compobj.data );
-    const match = cupobj.duelObj.findMatch( item.payload.matchId );
-
-    // can only score if it's not a BYE
-    if( !cupobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
-      const team1 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
-      cupobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = cupobj.save();
-
-      // check to see if we need to gen more matchdays
-      if( cupobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        await WGCompetition.genMatchdays( compobj );
-      }
-    }
-  }
-
-  // save changes to the db
-  return compobj.save();
+  return WGCompetition.simNPCMatchday( item );
 });
 
 
