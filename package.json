@@ -1,6 +1,6 @@
 {
   "name": "la-liga",
-  "version": "2.0.0-alpha21",
+  "version": "2.0.0-alpha22",
   "description": "A football manager-type game for e-sports",
   "main": "main.bundle.js",
   "author": "Steve Rivera",
