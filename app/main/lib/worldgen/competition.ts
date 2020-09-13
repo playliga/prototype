@@ -22,9 +22,9 @@ function didJoin( team: Models.Team, comp: Models.Competition ) {
 
 
 /**
- * Sync teams to their current tiers.
+ * Flattens the competition's post-season divisions
+ * into a single array of competitors.
  */
-
 
 function flattenCompetition( compobj: Models.Competition ) {
   const { postSeasonDivisions } = League.restore( compobj.data );
@@ -37,28 +37,6 @@ function flattenCompetition( compobj: Models.Competition ) {
   });
 
   return flatten( out );
-}
-
-
-export async function syncTiers() {
-  const compdefs = await Models.Compdef.findAll({
-    include: [{
-      model: Models.Comptype,
-      where: {
-        name: CompTypes.LEAGUE
-      }
-    }]
-  });
-
-  // for each compdef we're going to generate a
-  // list of team ids and their new tiers
-  // @todo: add season to competition model
-  return Promise.all( compdefs.map( async compdef => {
-    const competitions = await Models.Competition.findAll({ where: { comptypeId: compdef.id } });
-    const teams = flatten( competitions.map( flattenCompetition ) );
-    const innerwork = teams.map( t => Models.Team.update( t, { where: { id: t.id } }) );
-    return Promise.all( innerwork );
-  }));
 }
 
 
@@ -84,29 +62,6 @@ function getWeekday( type: string, date: moment.Moment ) {
     default:
       return;
   }
-}
-
-
-/**
- * Generate map pools per round
- */
-
-export function genMappool( rounds: Match[][] ) {
-  const mappool = shuffle( Application.MAP_POOL );
-  let mapidx = 0;
-
-  rounds.forEach( rnd => {
-    // save match metadata
-    rnd.forEach( match => match.data = { map: mappool[ mapidx ]} );
-
-    // reset if map pool index has reached
-    // the end of the map pool array
-    if( mapidx === mappool.length - 1 ) {
-      mapidx = 0;
-    } else {
-      mapidx ++;
-    }
-  });
 }
 
 
@@ -372,6 +327,69 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
 // ------------------------
 // EXPORTED FUNCTIONS
 // ------------------------
+
+
+/**
+ * Bump season number on all competitions.
+ */
+
+export async function bumpSeasonNumbers() {
+  const compdefs = await Models.Compdef.findAll();
+  return Promise.all( compdefs.map( c => {
+    c.season += 1;
+    return c.save();
+  }));
+}
+
+
+/**
+ * Sync teams to their current tiers.
+ */
+
+export async function syncTiers() {
+  const compdefs = await Models.Compdef.findAll({
+    include: [{
+      model: Models.Comptype,
+      where: {
+        name: CompTypes.LEAGUE
+      }
+    }]
+  });
+
+  // for each compdef we're going to generate a
+  // list of team ids and their new tiers
+  // @todo: add season to competition model
+  return Promise.all( compdefs.map( async compdef => {
+    const competitions = await Models.Competition.findAll({ where: { comptypeId: compdef.id } });
+    const teams = flatten( competitions.map( flattenCompetition ) );
+    const innerwork = teams.map( t => Models.Team.update( t, { where: { id: t.id } }) );
+    return Promise.all( innerwork );
+  }));
+}
+
+
+/**
+ * Generate map pools per round
+ */
+
+export function genMappool( rounds: Match[][] ) {
+  const mappool = shuffle( Application.MAP_POOL );
+  let mapidx = 0;
+
+  rounds.forEach( rnd => {
+    // save match metadata
+    rnd.forEach( match => match.data = { map: mappool[ mapidx ]} );
+
+    // reset if map pool index has reached
+    // the end of the map pool array
+    if( mapidx === mappool.length - 1 ) {
+      mapidx = 0;
+    } else {
+      mapidx ++;
+    }
+  });
+}
+
 
 /**
  * Start a competition.
