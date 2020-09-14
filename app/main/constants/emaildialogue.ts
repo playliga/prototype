@@ -7,6 +7,19 @@ Without a squad we won't be able to compete in any competitions.
 `;
 
 
+const INTRO_HOW_TO_PLAY = `
+Hey, {{it.player.alias}}.
+
+Our first match is coming up so I wanted to let you know about a few things.
+
+- Once you're in-game you can type ".ready" in chat and the match will start immediately.
+- You can also wait for the warm-up timer to finish.
+- After the match is over, you can close out your game as the score will be automatically recorded.
+
+GL HF!
+`;
+
+
 const PLAYER_ACCEPT = `
 Hi, {{it.player.alias}}.
 
@@ -108,6 +121,7 @@ The offer is too low. You cheap idiot.
 
 export default {
   INTRO,
+  INTRO_HOW_TO_PLAY,
   PLAYER_ACCEPT,
   PLAYER_REJECT_REASON_TIER,
   PLAYER_REJECT_REASON_WAGES,

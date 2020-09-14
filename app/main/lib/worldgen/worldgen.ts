@@ -16,6 +16,19 @@ import Application from 'main/constants/application';
 
 export async function preseasonChecks() {
   const profile = await Models.Profile.getActiveProfile();
+  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+  const first_comp = await Models.ActionQueue.findOne({
+    order: [
+      [ 'actionDate', 'ASC' ]
+    ],
+    where: {
+      type: ActionQueueTypes.START_COMP,
+      actionDate: {
+        [Op.gte]: profile.currentDate
+      }
+    }
+  });
+
   const today = moment( profile.currentDate );
   const preseason_start = moment([ today.year(), Application.PRESEASON_START_MONTH, Application.PRESEASON_START_DAY ]);
   const preseason_end = preseason_start.add( Application.PRESEASON_LENGTH, 'days' );
@@ -45,6 +58,19 @@ export async function preseasonChecks() {
     type: ActionQueueTypes.PRESEASON_AUTOADD_SQUAD,
     actionDate: moment( preseason_end ).subtract( Application.PRESEASON_AUTOADD_SQUAD, 'days' ),
     payload: null
+  });
+
+  // send an e-mail before the first matchday to explain how to play
+  actions.push({
+    type: ActionQueueTypes.SEND_EMAIL,
+    actionDate: moment( first_comp.actionDate ),
+    payload: {
+      from: persona.id,
+      to: profile.Player.id,
+      subject: 'Our upcoming match',
+      content: Sqrl.render( EmailDialogue.INTRO_HOW_TO_PLAY, { player: profile.Player }),
+      sentAt: moment( first_comp.actionDate ),
+    }
   });
 
   return Models.ActionQueue.bulkCreate( actions );
