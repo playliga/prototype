@@ -338,6 +338,7 @@ interface PlayRequest {
   quid: number;
   compId: number;
   matchId: MatchId;
+  sim: boolean;
 }
 
 
@@ -409,7 +410,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
   // SIMULATE THE GAME?
   // --------------------------------
-  if( Argparse[ 'sim-games' ] ) {
+  if( Argparse[ 'sim-games' ] || request.params.sim ) {
     tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
     competition.data = compobj.save();
 
