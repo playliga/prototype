@@ -23,7 +23,8 @@ import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { parseCompType } from 'main/lib/util';
 import { Match, Tournament, MatchId } from 'main/lib/league/types';
-import { League, Cup } from 'main/lib/league';
+import { League, Cup, Division } from 'main/lib/league';
+import { genMappool } from 'main/lib/worldgen/competition';
 
 
 // general settings
@@ -412,12 +413,22 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
   if( Argparse[ 'sim-games' ] || request.params.sim ) {
     tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
+    // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 1 : 0, team2.id === profile.Team.id ? 1 : 0 ] );
+    // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 0 : 1, team2.id === profile.Team.id ? 0 : 1 ] );
     competition.data = compobj.save();
 
     // generate new round for league postseason
-    if( isleague && compobj.isGroupStageDone() && ( compobj.startPostSeason() || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) ) {
-      competition.data = compobj.save();
-      await Worldgen.Competition.genMatchdays( competition );
+    if( isleague && compobj.isGroupStageDone() ) {
+      const startps = compobj.startPostSeason();
+
+      if( startps ) {
+        (compobj.divisions as Division[]).forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
+      }
+
+      if( startps || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        competition.data = compobj.save();
+        await Worldgen.Competition.genMatchdays( competition );
+      }
     }
 
     // end the season?
@@ -516,10 +527,17 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     tourneyobj.score( match.id, result.score );
     competition.data = compobj.save();
 
-    // generate new round for league postseason
-    if( isleague && compobj.isGroupStageDone() && ( compobj.startPostSeason() || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) ) {
-      competition.data = compobj.save();
-      await Worldgen.Competition.genMatchdays( competition );
+    if( isleague && compobj.isGroupStageDone() ) {
+      const startps = compobj.startPostSeason();
+
+      if( startps ) {
+        (compobj.divisions as Division[]).forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
+      }
+
+      if( startps || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        competition.data = compobj.save();
+        await Worldgen.Competition.genMatchdays( competition );
+      }
     }
 
     // end the season?

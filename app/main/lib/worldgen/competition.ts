@@ -436,6 +436,7 @@ export async function simNPCMatchday( item: any ) {
 
     // matches scored; do we need to start the post-season?
     if( leagueobj.isGroupStageDone() && leagueobj.startPostSeason() ) {
+      leagueobj.divisions.forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
       compobj.data = leagueobj.save();
       await genMatchdays( compobj );
     }
