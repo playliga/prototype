@@ -356,11 +356,12 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
 
   // these will be used later when launching/closing the game
   let compobj: League | Cup;
-  let tourneyobj: Tournament;
+  let hostname_suffix: string;
   let match: Match;
+  let allow_ot: boolean;
   let team1: Models.Team;
   let team2: Models.Team;
-  let hostname_suffix: string;
+  let tourneyobj: Tournament;
 
   // populate the above vars depending
   // on the competition type
@@ -374,12 +375,14 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     // on the current stage of the season
     if( postseason ) {
       const [ conf ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
+      allow_ot = true;
       tourneyobj = conf.duelObj;
       match = conf.duelObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
       team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).name );
     } else {
       const [ conf ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+      allow_ot = false;
       tourneyobj = conf.groupObj;
       match = conf.groupObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
@@ -394,6 +397,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     const cupobj = Cup.restore( competition.data );
 
     // assign to the respective vars
+    allow_ot = true;
     compobj = cupobj;
     tourneyobj = cupobj.duelObj;
     match = cupobj.duelObj.findMatch( request.params.matchId );
@@ -462,6 +466,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     demo: Application.DEMO_MODE,
     hostname: `${compobj.name}: ${competition.Continent.name} — ${hostname_suffix}`,
     logfile: CSGO_LOGFILE,
+    ot: allow_ot,
     rcon_password: RCON_PASSWORD,
     teamflag_ct: team1.Country.code,
     teamflag_t: team2.Country.code,
