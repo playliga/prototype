@@ -327,7 +327,7 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
     compobj.data = leagueobj.save();
   } else if( iscup ) {
     const cupobj = Cup.restore( compobj.data );
-    cupobj.addCompetitor( teamobj.id, teamobj.name );
+    cupobj.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
     compobj.data = cupobj.save();
   }
 

@@ -304,7 +304,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
 
       // no tiers, every team will participate
       if( !compdef.tiers ) {
-        data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name }) ) );
+        data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
         compteams = allteams;
       }
     }

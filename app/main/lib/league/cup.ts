@@ -44,13 +44,13 @@ class Cup {
     return out;
   }
 
-  public addCompetitor( id: number, name: string ) {
-    const comp = new Competitor( id, name );
+  public addCompetitor( id: number, name: string, tier: number ) {
+    const comp = new Competitor( id, name, tier );
     this.competitors.push( comp );
   }
 
   public addCompetitors( competitorsStrArr: Competitor[] ) {
-    const competitors = competitorsStrArr.map( i => new Competitor( i.id, i.name ) );
+    const competitors = competitorsStrArr.map( i => new Competitor( i.id, i.name, i.tier ) );
     this.competitors = [ ...this.competitors, ...competitors ];
   }
 
