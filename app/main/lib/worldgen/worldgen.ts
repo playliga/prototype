@@ -11,6 +11,19 @@ import Application from 'main/constants/application';
 
 
 /**
+ * Trims completed items from the action queue.
+ */
+
+export async function trimActionQueue() {
+  return Models.ActionQueue.destroy({
+    where: {
+      completed: 1,
+    }
+  });
+}
+
+
+/**
  * Add preseason checks
  */
 

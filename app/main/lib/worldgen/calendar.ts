@@ -2,6 +2,7 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
+import * as Worldgen from './worldgen';
 import moment from 'moment';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
@@ -288,6 +289,7 @@ itemloop.register( ActionQueueTypes.START_COMP, async item => {
 
 itemloop.register( ActionQueueTypes.START_SEASON, () => {
   return Promise.resolve()
+    .then( Worldgen.trimActionQueue )
     .then( WGCompetition.nextSeasonStartDate )
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )
