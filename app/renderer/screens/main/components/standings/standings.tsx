@@ -20,7 +20,7 @@ export default function Standings( props: StandingsProps ) {
   // replace last item in standings with highlighted seed
   if( props.highlightSeed && props.sliceData ) {
     const idx = props.dataSource.findIndex( d => d.seed === props.highlightSeed );
-    if( idx > -1 && idx > props.sliceData ) {
+    if( idx > -1 && idx >= props.sliceData ) {
       props.dataSource[ props.sliceData - 1 ] = { ...props.dataSource[ idx ], realpos: idx + 1 };
     }
   }
