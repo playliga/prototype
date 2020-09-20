@@ -362,6 +362,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   let team1: Models.Team;
   let team2: Models.Team;
   let tourneyobj: Tournament;
+  let allow_draw = false;
 
   // populate the above vars depending
   // on the competition type
@@ -383,6 +384,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     } else {
       const [ conf ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
       allow_ot = false;
+      allow_draw = true;
       tourneyobj = conf.groupObj;
       match = conf.groupObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
@@ -416,7 +418,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // SIMULATE THE GAME?
   // --------------------------------
   if( Argparse[ 'sim-games' ] || request.params.sim ) {
-    tourneyobj.score( match.id, Worldgen.Score( team1, team2 ) );
+    tourneyobj.score( match.id, Worldgen.Score( team1, team2, allow_draw ) );
     // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 1 : 0, team2.id === profile.Team.id ? 1 : 0 ] );
     // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 0 : 1, team2.id === profile.Team.id ? 0 : 1 ] );
     competition.data = compobj.save();

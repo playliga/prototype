@@ -430,7 +430,7 @@ export async function simNPCMatchday( item: any ) {
       const match = conf.groupObj.findMatch( item.payload.matchId );
       const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
       const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
-      conf.groupObj.score( item.payload.matchId, Score( team1, team2 ) );
+      conf.groupObj.score( item.payload.matchId, Score( team1, team2, true ) );
       compobj.data = leagueobj.save();
     }
 
