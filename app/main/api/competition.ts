@@ -377,6 +377,9 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
     comps.push( res );
   } else {
     comps = await Models.Competition.findAll({ include: [ 'Continent', 'Compdef', 'Comptype' ]});
+
+    // filter by current season only
+    comps = comps.filter( c => c.season === c.Compdef.season );
   }
 
   // get standings for the league types
