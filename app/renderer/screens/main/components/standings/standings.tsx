@@ -22,7 +22,7 @@ function getRowClass( rowdata: any, pos: number, seed?: number ) {
     seed === rowdata.seed
       ? rowdata.realpos < RELEGATION
         ? 'ant-table-row-selected'
-        : 'relegation'
+        : 'ant-table-row-selected relegation'
 
       // highlight promotion
       : pos <= PROMOTION_AUTO
