@@ -1,31 +1,19 @@
 .promotion-auto {
-  td {
-    background: lighten( darkseagreen, 25 );
-  }
-
-  &:hover td {
-    background: lighten( darkseagreen, 20 ) !important;
+  td:first-child {
+    border-left: 2px solid lighten( green, 25 );
   }
 }
 
 
 .promotion-playoffs {
-  td {
-    background: lighten( lightsteelblue, 15 );
-  }
-
-  &:hover td {
-    background: lighten( lightsteelblue, 10 ) !important;
+  td:first-child {
+    border-left: 2px solid lighten( steelblue, 25 );
   }
 }
 
 
 .relegation {
-  td {
-    background: lighten( salmon, 25 );
-  }
-
-  &:hover td {
-    background: lighten( salmon, 20 ) !important;
+  td:first-child {
+    border-left: 2px solid lighten( salmon, 25 );
   }
 }
