@@ -20,7 +20,7 @@ function getRowClass( rowdata: any, pos: number, seed?: number ) {
     // highlight user seed with their own color,
     // unless they are in the relegation zone
     seed === rowdata.seed
-      ? pos < RELEGATION
+      ? rowdata.realpos < RELEGATION
         ? 'ant-table-row-selected'
         : 'relegation'
 
