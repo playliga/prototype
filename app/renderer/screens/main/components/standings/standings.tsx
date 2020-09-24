@@ -1,7 +1,46 @@
 import React from 'react';
 import { SizeType } from 'antd/lib/config-provider/SizeContext';
 import { Table } from 'antd';
+import './standings.scss';
 
+
+/**
+ * Helper functions
+ */
+
+
+// @todo: store these in the shared folder
+const PROMOTION_AUTO      = 2;
+const PROMOTION_PLAYOFFS  = 6;
+const RELEGATION          = 18;
+
+
+function getRowClass( rowdata: any, pos: number, seed?: number ) {
+  return (
+    // highlight user seed with their own color,
+    // unless they are in the relegation zone
+    seed === rowdata.seed
+      ? pos < RELEGATION
+        ? 'ant-table-row-selected'
+        : 'relegation'
+
+      // highlight promotion
+      : pos <= PROMOTION_AUTO
+        ? 'promotion-auto'
+        : pos > PROMOTION_AUTO && pos <= PROMOTION_PLAYOFFS
+          ? 'promotion-playoffs'
+
+          // highlight relegation
+          : pos >= RELEGATION
+            ? 'relegation'
+            : ''
+  );
+}
+
+
+/**
+ * Standings component
+ */
 
 interface StandingsProps {
   children?: any;
@@ -29,7 +68,7 @@ export default function Standings( props: StandingsProps ) {
     <Table
       dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
       pagination={!props.disablePagination && { pageSize: props.pageSize || 20, hideOnSinglePage: true }}
-      rowClassName={r => props.highlightSeed && props.highlightSeed === r.seed && 'ant-table-row-selected'}
+      rowClassName={( r, idx ) => getRowClass( r, idx + 1, props.highlightSeed )}
       rowKey={props.rowKey || 'id'}
       size={props.size || 'small'}
     >
