@@ -409,8 +409,8 @@ export async function simNPCMatchday( item: any ) {
     if( leagueobj.isGroupStageDone() ) {
       const conf = divobj.promotionConferences.find( c => c.id === item.payload.confId );
       const match = conf.duelObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+      const team1 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
       conf.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
       compobj.data = leagueobj.save();
 
@@ -428,8 +428,8 @@ export async function simNPCMatchday( item: any ) {
     } else {
       const conf = divobj.conferences.find( c => c.id === item.payload.confId );
       const match = conf.groupObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+      const team1 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
       conf.groupObj.score( item.payload.matchId, Score( team1, team2, true ) );
       compobj.data = leagueobj.save();
     }
@@ -446,8 +446,8 @@ export async function simNPCMatchday( item: any ) {
 
     // can only score if it's not a BYE
     if( !cupobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
-      const team1 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findByPk( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
+      const team1 = await Models.Team.findWithSquad( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
+      const team2 = await Models.Team.findWithSquad( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
       cupobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
       compobj.data = cupobj.save();
 

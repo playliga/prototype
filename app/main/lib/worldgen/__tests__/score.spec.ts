@@ -29,4 +29,17 @@ describe( 'score simulator', () => {
       expect( Array.isArray( result ) ).toBeTruthy();
     }
   });
+
+  it( 'considers player tier levels', () => {
+    const ITERATIONS = 50;
+
+    // append team
+    team1.Players = new Array( 5 ).fill({ tier: team1.tier });
+    team2.Players = new Array( 5 ).fill({ tier: team2.tier });
+
+    for( let i = 0; i < ITERATIONS; i++ ) {
+      const result = Score( team1, team2 );
+      expect( Array.isArray( result ) ).toBeTruthy();
+    }
+  });
 });

@@ -9,12 +9,37 @@ const SCORE_LOSER_HIGH = 14;
 const SCORE_DRAW = 15;
 
 
+/**
+ * Grab the team's skill level based
+ * off of the players in their squad.
+ */
+
+function getTeamSkillLevel( players: any[] ) {
+  return players
+    .map( p => p.tier )
+    .reduce( ( a, b ) => a + b )
+  ;
+}
+
+
 export default function( team1: any, team2: any, allowdraw = false ) {
+  // calculate probability weight for teams
+  let w_team1 = Tiers[ team1.tier ].multiplier;
+  let w_team2 = Tiers[ team2.tier ].multiplier;
+
+  if( team1.Players && team1.Players.length > 0 ) {
+    w_team1 += getTeamSkillLevel( team1.Players );
+  }
+
+  if( team2.Players && team2.Players.length > 0 ) {
+    w_team2 += getTeamSkillLevel( team2.Players );
+  }
+
   // use probability to determine a winner
   // calculate weight based off of tier
   const rawtable = [
-    [ Tiers[ team1.tier ].multiplier, team1.id ],
-    [ Tiers[ team2.tier ].multiplier, team2.id ],
+    [ w_team1, team1.id ],
+    [ w_team2, team2.id ],
   ];
 
   // do we allow draws? if so, the chance to

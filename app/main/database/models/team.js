@@ -47,6 +47,12 @@ class Team extends Model {
       ]
     });
   }
+
+  static findWithSquad( id ) {
+    return Team.findByPk( id, {
+      include: [ _models.Player ]
+    });
+  }
 }
 
 

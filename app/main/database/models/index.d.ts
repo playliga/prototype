@@ -75,6 +75,7 @@ declare module 'main/database/models' {
 
     public static findByRegionIds( ids: number[] ): Promise<Team[]>;
     public static findByName( name: string ): Promise<Team>;
+    public static findWithSquad( id: number ): Promise<Team>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
     public getPersonas: Sequelize.HasManyGetAssociationsMixin<Persona>;
     public setCompetitions: Sequelize.BelongsToManySetAssociationsMixin<Competition, number>;
