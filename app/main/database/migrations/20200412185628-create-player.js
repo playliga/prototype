@@ -3,7 +3,7 @@ module.exports = {
     return queryInterface.createTable( 'Players', {
       // main fields
       id: { allowNull: false, autoIncrement: true, primaryKey: true, type: Sequelize.INTEGER },
-      alias: { type: Sequelize.STRING, unique: true },
+      alias: { type: Sequelize.STRING },
       transferListed: { type: Sequelize.BOOLEAN, defaultValue: false },
       transferValue: { type: Sequelize.INTEGER, defaultValue: 0 },
       monthlyWages: { type: Sequelize.INTEGER, defaultValue: 0 },

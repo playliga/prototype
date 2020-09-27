@@ -427,6 +427,7 @@ async function run() {
   // normalize the regional data into a flat array of teams
   // make sure to dedupe before saving it to the file
   const teams = uniqBy( flatten( data.map( normalizeregion ) ), 'name' );
+  const squadfilled = teams.filter( team => team.players.length >= 5 );
 
   // now save everything to output file
   fs.writeFile( args.o, JSON.stringify( teams ), 'utf8', () => {
@@ -436,7 +437,8 @@ async function run() {
       =============================
 
       Saved ${teams.length} teams after dedupe.
-    `);
+      Saved ${squadfilled.length} teams with full squads. (5 or greater).
+      `);
   });
 }
 

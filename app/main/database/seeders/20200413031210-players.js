@@ -44,7 +44,7 @@ module.exports = {
       });
     });
 
-    return queryInterface.bulkInsert( 'Players', output, { ignoreDuplicates: true });
+    return queryInterface.bulkInsert( 'Players', output );
   },
 
   down: () => {
