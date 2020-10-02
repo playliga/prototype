@@ -1,4 +1,5 @@
 export const ActionQueueTypes = {
+  ENDSEASON_REPORT        : 'ENDSEASON_REPORT',
   MATCHDAY                : 'MATCHDAY',
   MATCHDAY_NPC            : 'MATCHDAY_NPC',
   PRESEASON_AUTOADD_COMP  : 'PRESEASON_AUTOADD_COMP',

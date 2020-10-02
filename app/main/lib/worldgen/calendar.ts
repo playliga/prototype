@@ -89,6 +89,83 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
  * the types of jobs that can run on every tick
  */
 
+itemloop.register( ActionQueueTypes.ENDSEASON_REPORT, async () => {
+  // grab the league the user is in
+  // grab their position (based off of idx)
+  // did they move up?
+  // did they move down?
+  //
+  // grab the cup the user is in
+  // did they make it far?
+  const profile = await Models.Profile.getActiveProfile();
+  const persona = await Models.Persona.findOne({
+    where: { teamId: profile.Team.id },
+    include: [{
+      model: Models.PersonaType,
+      where: { name: 'Assistant Manager' }
+    }]
+  });
+  const baseemail = {
+    from: persona,
+    to: profile.Player,
+    sentAt: profile.currentDate
+  };
+  const [ compobj ] = profile
+    .Team
+    .Competitions
+    .filter( c => c.season === c.Compdef.season && c.Comptype.name === CompTypes.LEAGUE )
+  ;
+
+  if( compobj ) {
+    const leagueobj = League.restore( compobj.data );
+    const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
+    const [ conf, seed ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+    const results = conf.groupObj.results();
+    const pos = results.findIndex( r => r.seed === seed ) + 1;    // 17
+
+    // @todo: store these in the shared folder
+    const PROMOTION_AUTO      = 2;
+    const PROMOTION_PLAYOFFS  = 6;
+    const RELEGATION          = 18;
+    const WINNERS_BRACKET     = 1;
+
+    if( pos <= PROMOTION_AUTO ) {
+      // automatic move-up
+      await sendEmailAndEmit({
+        ...baseemail,
+        subject: 'Moving on up!',
+        content: Sqrl.render( EmailDialogue.ENDSEASON_PROMOTION_AUTO, { player: profile.Player }),
+      });
+    }
+
+    if( pos > PROMOTION_AUTO && pos <= PROMOTION_PLAYOFFS ) {
+      // promotional playoffs. did they win?
+      const [ pconf, pseed ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
+      const match = pconf.duelObj.findMatch({ s: WINNERS_BRACKET, r: pconf.duelObj.p, m: 1 });
+
+      if( match.p.includes( pseed ) ) {
+        await sendEmailAndEmit({
+          ...baseemail,
+          subject: 'Moving on up!',
+          content: Sqrl.render( EmailDialogue.ENDSEASON_PROMOTION_PLAYOFFS, { player: profile.Player }),
+        });
+      }
+    }
+
+    if( pos >= RELEGATION ) {
+      // :( relegated (if not bottom division)
+      await sendEmailAndEmit({
+        ...baseemail,
+        subject: 'Whoops.',
+        content: Sqrl.render( EmailDialogue.ENDSEASON_RELEGATION, { player: profile.Player }),
+      });
+    }
+  }
+
+  return Promise.resolve();
+});
+
+
 itemloop.register( ActionQueueTypes.MATCHDAY, () => {
   return Promise.resolve( false );
 });
@@ -291,6 +368,7 @@ itemloop.register( ActionQueueTypes.START_SEASON, () => {
   return Promise.resolve()
     .then( Worldgen.trimActionQueue )
     .then( WGCompetition.nextSeasonStartDate )
+    .then( Worldgen.scheduleEndSeasonReport )
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )
     .then( WGCompetition.genAllComps )

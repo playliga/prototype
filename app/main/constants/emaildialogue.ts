@@ -1,3 +1,26 @@
+const ENDSEASON_PROMOTION_AUTO = `
+Hey, {{it.player.alias}}.
+
+Congratulations on a successful season!
+
+I'm looking forward to our next season in a higher division.
+`;
+
+
+const ENDSEASON_PROMOTION_PLAYOFFS = `
+Hey, {{it.player.alias}}.
+
+Congratulations on making it thru the promotional playoffs and earning us a spot in a higher division!
+`;
+
+
+const ENDSEASON_RELEGATION = `
+Hey, {{it.player.alias}}.
+
+That wasn't a good season for us. We'll be going down a division as a result, but I'm sure we'll come back next season stronger than ever!
+`;
+
+
 const INTRO = `
 Hi, {{it.player.alias}}.
 
@@ -120,6 +143,9 @@ The offer is too low. You cheap idiot.
 
 
 export default {
+  ENDSEASON_PROMOTION_AUTO,
+  ENDSEASON_PROMOTION_PLAYOFFS,
+  ENDSEASON_RELEGATION,
   INTRO,
   INTRO_HOW_TO_PLAY,
   PLAYER_ACCEPT,

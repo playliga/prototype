@@ -246,3 +246,25 @@ export async function sendIntroEmail() {
     sentAt: profile?.currentDate || new Date()
   });
 }
+
+
+/**
+ * Schedule the end of season e-mail.
+ */
+
+export async function scheduleEndSeasonReport() {
+  // get the date for the start of the next season
+  // subtract a day to schedule the report
+  const action = await Models.ActionQueue.findOne({
+    where: {
+      completed: false,
+      type: ActionQueueTypes.START_SEASON
+    }
+  });
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.ENDSEASON_REPORT,
+    actionDate: moment( action.actionDate ).subtract( 1, 'day' ),
+    payload: null,
+  });
+}

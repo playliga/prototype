@@ -35,6 +35,7 @@ export interface Tournament {
   matches: Match[];
   matchesFor: ( seed: number ) => Match[];
   metadata: any;
+  p?: number;
   results: () => Result[];
   resultsFor: ( seed: number ) => Result;
   rounds: () => Match[][];
