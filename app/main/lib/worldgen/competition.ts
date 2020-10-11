@@ -4,8 +4,8 @@ import Application from 'main/constants/application';
 import Score from './score';
 import { random, flattenDeep, shuffle, flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { Match } from 'main/lib/league/types';
-import { League, Cup } from 'main/lib/league';
+import { Conference, Match, PromotionConference } from 'main/lib/league/types';
+import { League, Cup, Division } from 'main/lib/league';
 import { parseCompType } from 'main/lib/util';
 
 
@@ -398,68 +398,92 @@ export async function syncTiers() {
  */
 
 export async function simNPCMatchday( item: any ) {
-  const compobj = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+  // these will be used later when recording the match data
+  let compobj: League | Cup;
+  let conf: Conference | PromotionConference;
+  let match: Match;
+  let team1: Models.Team;
+  let team2: Models.Team;
+  let is_postseason: boolean;
+
+  // sim the match
+  const competition = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
+  const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
 
   if( isleague ) {
-    const leagueobj = League.restore( compobj.data );
-    const divobj = leagueobj.divisions.find( d => d.name === item.payload.divId );
+    compobj = League.restore( competition.data );
+    const divobj = compobj.divisions.find( d => d.name === item.payload.divId );
 
     // post-season?
-    if( leagueobj.isGroupStageDone() ) {
-      const conf = divobj.promotionConferences.find( c => c.id === item.payload.confId );
-      const match = conf.duelObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+    if( compobj.isGroupStageDone() ) {
+      conf = divobj.promotionConferences.find( c => c.id === item.payload.confId );
+      match = conf.duelObj.findMatch( item.payload.matchId );
+      team1 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+      team2 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
       conf.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = leagueobj.save();
+      is_postseason = true;
+      competition.data = compobj.save();
 
       // gen new matchdays?
-      if( leagueobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        await genMatchdays( compobj );
+      if( compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        await genMatchdays( competition );
       }
 
       // end the season?
-      if( leagueobj.isDone() ) {
-        leagueobj.endPostSeason();
-        leagueobj.end();
-        compobj.data = leagueobj.save();
+      if( compobj.isDone() ) {
+        compobj.endPostSeason();
+        compobj.end();
+        competition.data = compobj.save();
       }
     } else {
-      const conf = divobj.conferences.find( c => c.id === item.payload.confId );
-      const match = conf.groupObj.findMatch( item.payload.matchId );
-      const team1 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
+      conf = divobj.conferences.find( c => c.id === item.payload.confId );
+      match = conf.groupObj.findMatch( item.payload.matchId );
+      team1 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).id );
+      team2 = await Models.Team.findWithSquad( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).id );
       conf.groupObj.score( item.payload.matchId, Score( team1, team2, true ) );
-      compobj.data = leagueobj.save();
+      competition.data = compobj.save();
     }
 
     // matches scored; do we need to start the post-season?
-    if( leagueobj.isGroupStageDone() && leagueobj.startPostSeason() ) {
-      leagueobj.divisions.forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
-      compobj.data = leagueobj.save();
-      await genMatchdays( compobj );
+    if( compobj.isGroupStageDone() && compobj.startPostSeason() ) {
+      compobj.divisions.forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
+      competition.data = compobj.save();
+      await genMatchdays( competition );
     }
   } else if( iscup ) {
-    const cupobj = Cup.restore( compobj.data );
-    const match = cupobj.duelObj.findMatch( item.payload.matchId );
+    compobj = Cup.restore( competition.data );
+    match = compobj.duelObj.findMatch( item.payload.matchId );
 
     // can only score if it's not a BYE
-    if( !cupobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
-      const team1 = await Models.Team.findWithSquad( cupobj.getCompetitorBySeed( match.p[ 0 ] ).id );
-      const team2 = await Models.Team.findWithSquad( cupobj.getCompetitorBySeed( match.p[ 1 ] ).id );
-      cupobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
-      compobj.data = cupobj.save();
+    if( !compobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
+      team1 = await Models.Team.findWithSquad( compobj.getCompetitorBySeed( match.p[ 0 ] ).id );
+      team2 = await Models.Team.findWithSquad( compobj.getCompetitorBySeed( match.p[ 1 ] ).id );
+      compobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+      competition.data = compobj.save();
 
       // check to see if we need to gen more matchdays
-      if( cupobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        await genMatchdays( compobj );
+      if( compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+        await genMatchdays( competition );
       }
     }
   }
 
+  // record the match
+  const matchobj = await Models.Match.create({
+    payload: {
+      match,
+      confId: conf?.id,
+      is_postseason: is_postseason || false,
+    },
+    date: item.actionDate,
+  });
+
   // save changes to the db
-  return compobj.save();
+  return Promise.all([
+    matchobj.setCompetition( competition.id ),
+    matchobj.setTeams([ team1, team2 ]),
+    competition.save()
+  ]);
 }
 
 

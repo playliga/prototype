@@ -22,7 +22,7 @@ import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { parseCompType } from 'main/lib/util';
-import { Match, Tournament, MatchId } from 'main/lib/league/types';
+import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
 import { genMappool } from 'main/lib/worldgen/competition';
 
@@ -357,12 +357,14 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // these will be used later when launching/closing the game
   let compobj: League | Cup;
   let hostname_suffix: string;
+  let conf: Conference | PromotionConference;
   let match: Match;
   let allow_ot: boolean;
   let team1: Models.Team;
   let team2: Models.Team;
   let tourneyobj: Tournament;
   let allow_draw = false;
+  let is_postseason: boolean;
 
   // populate the above vars depending
   // on the competition type
@@ -375,14 +377,15 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
     // assigned vars will differ depending
     // on the current stage of the season
     if( postseason ) {
-      const [ conf ] = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id );
+      conf = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id )[ 0 ];
       allow_ot = true;
       tourneyobj = conf.duelObj;
       match = conf.duelObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
       team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).name );
+      is_postseason = true;
     } else {
-      const [ conf ] = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id );
+      conf = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id )[ 0 ];
       allow_ot = false;
       allow_draw = true;
       tourneyobj = conf.groupObj;
@@ -449,8 +452,22 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
       await Worldgen.Competition.genMatchdays( competition );
     }
 
-    await competition.save();
-    await queue.update({ completed: true });
+    // record the match
+    const matchobj = await Models.Match.create({
+      payload: {
+        match,
+        confId: conf?.id,
+        is_postseason: is_postseason || false,
+      },
+      date: profile.currentDate,
+    });
+
+    await Promise.all([
+      matchobj.setCompetition( competition.id ),
+      matchobj.setTeams([ team1, team2 ]),
+      queue.update({ completed: true }),
+      competition.save(),
+    ]);
     return evt.sender.send( request.responsechannel );
   }
 
@@ -559,8 +576,23 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
       await Worldgen.Competition.genMatchdays( competition );
     }
 
-    await competition.save();
-    await queue.update({ completed: true });
+    // record the match
+    const matchobj = await Models.Match.create({
+      payload: {
+        match,
+        confId: conf?.id,
+        is_postseason: is_postseason || false,
+      },
+      date: profile.currentDate,
+    });
+
+    await Promise.all([
+      matchobj.setCompetition( competition.id ),
+      matchobj.setTeams([ team1, team2 ]),
+      queue.update({ completed: true }),
+      competition.save(),
+    ]);
+
     evt.sender.send( request.responsechannel );
   });
 }

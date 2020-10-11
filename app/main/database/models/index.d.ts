@@ -167,4 +167,13 @@ declare module 'main/database/models' {
   }
 
 
+  export class Match extends BaseModel {
+    public payload: any;
+    public date: Date;
+    public setTeams: Sequelize.BelongsToManySetAssociationsMixin<Team, number>;
+    public addTeam: Sequelize.BelongsToManyAddAssociationMixin<Team, number>;
+    public setCompetition: Sequelize.BelongsToSetAssociationMixin<Competition, number>;
+  }
+
+
 }

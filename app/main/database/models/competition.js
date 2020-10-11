@@ -17,6 +17,7 @@ class Competition extends Model {
   }
 
   static associate( models ) {
+    this.hasMany( models.Match );
     this.belongsTo( models.Comptype );
     this.belongsTo( models.Compdef );
     this.belongsTo( models.Continent );
