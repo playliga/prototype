@@ -52,6 +52,7 @@ interface StandingsProps {
   size?: SizeType;
   sliceData?: number;
   rowKey?: string;
+  onClick?: ( id: number ) => void;
 }
 
 
@@ -71,6 +72,9 @@ export default function Standings( props: StandingsProps ) {
       rowClassName={( r, idx ) => getRowClass( r, idx + 1, props.highlightSeed )}
       rowKey={props.rowKey || 'id'}
       size={props.size || 'small'}
+      onRow={r  => ({
+        onClick: () => !!props.onClick && props.onClick( r.id )
+      })}
     >
       <Table.ColumnGroup title={props.title}>
         <Table.Column

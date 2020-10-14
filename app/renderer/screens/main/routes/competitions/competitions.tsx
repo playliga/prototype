@@ -6,9 +6,10 @@ import Application from 'main/constants/application';
 import MatchResults from 'renderer/screens/main/components/match-results';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
-import { parseCupRound } from 'shared/util';
+import { RouteComponentProps } from 'react-router';
 import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
+import { parseCupRound } from 'shared/util';
 import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
 
 
@@ -20,7 +21,7 @@ const NUM_STANDINGS = 10;
 const SQUAD_STARTERS_NUM = Application.SQUAD_MIN_LENGTH;
 
 
-interface Props extends ApplicationState {
+interface Props extends ApplicationState, RouteComponentProps {
   dispatch: Function;
 }
 
@@ -29,6 +30,7 @@ interface CompetitionProps {
   data: StandingsResponse;
   joining: boolean;
   onClick: () => void;
+  onTeamClick: ( id: number ) => void;
   team: any;
 }
 
@@ -103,6 +105,7 @@ function Competition( props: CompetitionProps ) {
               ...s,
             }))
           }
+          onClick={props.onTeamClick}
         />
       )}
 
@@ -165,6 +168,7 @@ function Competitions( props: Props ) {
               props.dispatch( profileActions.findFinish( newprofile ) );
               setJoining( false );
             }}
+            onTeamClick={id => props.history.push( `/competitions/team/${id}` )}
           />
         ))}
       </Row>

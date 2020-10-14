@@ -11,11 +11,13 @@ export interface ApplicationState {
 export interface RouteConfig {
   id: string;
   path: string;
-  title: string;
+  title?: string;
   component?: any;
   icon?: any;
   subroutes?: RouteConfig[];
   notifications?: number;
+  sidebar?: boolean;
+  exact?: boolean;
 }
 
 

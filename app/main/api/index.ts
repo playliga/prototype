@@ -4,3 +4,4 @@ export { default as Competition } from './competition';
 export { default as Email } from './email';
 export { default as Profile } from './profile';
 export { default as GSM } from './gsm';
+export { default as Team } from './team';

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, RouteComponentProps } from 'react-router-dom';
+import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { Layout } from 'antd';
 import { RouteConfig, ApplicationState } from 'renderer/screens/main/types';
 import {
@@ -21,14 +21,27 @@ import Inbox from './inbox';
 import Squad from './squad';
 import Transfers from './transfers';
 import Competitions from './competitions';
+import Team from './team';
 
 
 const routes: RouteConfig[] = [
-  { id: '/home', path: '/home', component: Home, title: 'Home', icon: HomeOutlined },
-  { id: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined },
-  { id: '/squad', path: '/squad', component: Squad, title: 'Squad', icon: UserOutlined },
-  { id: '/transfers', path: '/transfers', component: Transfers, title: 'Transfers', icon: PieChartOutlined },
-  { id: '/competitions', path: '/competitions', component: Competitions, title: 'Competitions', icon: TrophyOutlined },
+  {
+    id: '/home', path: '/home', title: 'Home', icon: HomeOutlined, sidebar: true,
+    subroutes: [
+      { id: '/home', path: '/home', component: Home, exact: true },
+      { id: '/home/team', path: '/home/team/:id', component: Team, exact: true },
+    ]
+  },
+  { id: '/inbox', path: '/inbox/:id?', component: Inbox, title: 'Inbox', icon: InboxOutlined, sidebar: true },
+  { id: '/squad', path: '/squad', component: Squad, title: 'Squad', icon: UserOutlined, sidebar: true },
+  { id: '/transfers', path: '/transfers', component: Transfers, title: 'Transfers', icon: PieChartOutlined, sidebar: true },
+  {
+    id: '/competitions', path: '/competitions', title: 'Competitions', icon: TrophyOutlined, sidebar: true,
+    subroutes: [
+      { id: '/competitions', path: '/competitions', component: Competitions, exact: true },
+      { id: '/competitions/team', path: '/competitions/team/:id', component: Team, exact: true },
+    ]
+  },
 ];
 
 
@@ -76,67 +89,76 @@ class Routes extends Component<Props, State> {
     return (
       <Layout id="main">
         {/* RENDER THE SIDEBAR */}
-        {routes.map( r => (
-          <Route
-            key={r.path}
-            path={r.path}
-            render={props => {
-              if( r.subroutes ) {
-                return r.subroutes.map( sr => (
-                  <Route
-                    key={sr.path}
-                    path={sr.path}
-                    render={srprops => (
-                      <Sidebar
-                        {...srprops}
-                        parentPath={props.match.path}
-                        config={routes}
-                        logourl={this.logourl}
-                        collapsed={this.state.collapsed}
-                        onCollapse={this.handleOnCollapse}
-                      />
-                    )}
-                  />
-                ));
-              }
-
-              return (
-                <Sidebar
-                  {...props}
-                  config={routes}
-                  logourl={this.logourl}
-                  collapsed={this.state.collapsed}
-                  onCollapse={this.handleOnCollapse}
-                />
-              );
-            }}
-          />
-        ))}
-
-        {/* RENDER THE CENTER CONTENT */}
-        <Layout.Content
-          id="route-container"
-          className={this.state.collapsed ? 'collapsed' : ''}
-        >
+        <Switch>
           {routes.map( r => (
             <Route
+              exact={r.exact}
               key={r.path}
               path={r.path}
               render={props => {
                 if( r.subroutes ) {
                   return r.subroutes.map( sr => (
                     <Route
+                      exact={sr.exact}
                       key={sr.path}
                       path={sr.path}
-                      component={sr.component}
+                      render={srprops => (
+                        <Sidebar
+                          {...srprops}
+                          parent={r.path}
+                          config={routes}
+                          logourl={this.logourl}
+                          collapsed={this.state.collapsed}
+                          onCollapse={this.handleOnCollapse}
+                        />
+                      )}
                     />
                   ));
                 }
 
-                return React.createElement( r.component, props );
+                return (
+                  <Sidebar
+                    {...props}
+                    parent={r.path}
+                    config={routes}
+                    logourl={this.logourl}
+                    collapsed={this.state.collapsed}
+                    onCollapse={this.handleOnCollapse}
+                  />
+                );
               }}
             />
           ))}
+        </Switch>
+
+        {/* RENDER THE CENTER CONTENT */}
+        <Layout.Content
+          id="route-container"
+          className={this.state.collapsed ? 'collapsed' : ''}
+        >
+          <Switch>
+            {routes.map( r => (
+              <Route
+                key={r.path}
+                path={r.path}
+                exact={r.exact}
+                render={props => {
+                  if( r.subroutes ) {
+                    return r.subroutes.map( sr => (
+                      <Route
+                        exact={sr.exact}
+                        key={sr.path}
+                        path={sr.path}
+                        component={sr.component}
+                      />
+                    ));
+                  }
+
+                  return React.createElement( r.component, props );
+                }}
+              />
+            ))}
+          </Switch>
         </Layout.Content>
       </Layout>
     );

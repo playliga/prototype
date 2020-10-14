@@ -21,3 +21,11 @@ export interface OfferReview {
   offerid: number;
   status: string;
 }
+
+
+export interface TeamInfoResponse {
+  id: number;
+  name: string;
+  Country: any;
+  matches: any[];
+}

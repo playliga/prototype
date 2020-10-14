@@ -266,6 +266,7 @@ function Home( props: Props ) {
                   title={hasStandings && (
                     `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`
                   )}
+                  onClick={id => props.history.push( `/home/team/${id}` )}
                 />
               )}
               {( iscup || ispostseason ) && (

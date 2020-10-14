@@ -12,7 +12,7 @@ import './sidebar.scss';
 
 interface Props {
   onCollapse: ( collapsed: boolean ) => void;
-  parentPath?: string;
+  parent?: string;
   collapsed: boolean;
   logourl: string;
   config: RouteConfig[];
@@ -26,7 +26,7 @@ function navigateTo( historyobj: any, target: string ) {
 
 export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
   const path = props.match?.path;
-  const parentpath = props.parentPath;
+  const parent = props.parent;
 
   return (
     <Layout.Sider
@@ -41,13 +41,16 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
       <Menu
         theme="dark"
         mode="inline"
-        selectedKeys={[ path || '' ]}
-        defaultOpenKeys={[ parentpath || '' ]}
+        selectedKeys={[ parent || path || '' ]}
+        defaultOpenKeys={[ parent || '' ]}
       >
         {props.config.map( r => {
           const hasbadge = r.notifications && r.notifications > 0;
 
-          if( r.subroutes ) {
+          // render sub-menu if there is at least one to render
+          const submenu = r.subroutes && r.subroutes.some( sr => sr.sidebar );
+
+          if( submenu ) {
             return (
               <Menu.SubMenu
                 key={r.path}

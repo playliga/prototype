@@ -26,6 +26,21 @@
 
 
 /**
+* ANTD LIB OVERRIDES
+*/
+
+.ant-page-header {
+  border-bottom: 1px solid gainsboro;
+}
+
+
+.ant-page-header-heading-title {
+  font-size: 1.5rem !important;
+  line-height: normal !important;
+}
+
+
+/**
 * INDIVIDUAL ROUTE STYLES
 */
 
