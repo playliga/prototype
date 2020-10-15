@@ -16,7 +16,7 @@ const SCORE_DRAW = 15;
 
 function getTeamSkillLevel( players: any[] ) {
   return players
-    .map( p => p.tier )
+    .map( p => Tiers[ p.tier ].multiplier )
     .reduce( ( a, b ) => a + b )
   ;
 }
