@@ -24,7 +24,9 @@
     ]
   },
   "exclude": [
-    "node_modules",
-    "babel.config.js"
+    "babel.config.js",
+    "dist",
+    "main.bundle.js",
+    "node_modules"
   ]
 }
