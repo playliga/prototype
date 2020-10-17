@@ -48,7 +48,7 @@ describe( 'cup', () => {
     cupobj = new Cup( CUP_NAME );
 
     for( let i = 0; i < NUM_COMPETITORS; i++ ) {
-      cupobj.addCompetitor( i, adjectiveAnimal.generateName() );
+      cupobj.addCompetitor( i, adjectiveAnimal.generateName(), 1 );
     }
 
     cupobj.start();
@@ -57,26 +57,26 @@ describe( 'cup', () => {
   it( 'adds a competitor', () => {
     const TEAM_NAME = 'compLexity Gaming';
     const cupobj = new Cup( CUP_NAME );
-    cupobj.addCompetitor( 1337, TEAM_NAME );
+    cupobj.addCompetitor( 1337, TEAM_NAME, 1 );
 
     expect( cupobj.competitors ).toEqual(
-      [{ id: 1337, name: TEAM_NAME }]
+      [{ id: 1337, name: TEAM_NAME, tier: 1 }]
     );
   });
 
   it( 'adds an array of competitors', () => {
     const TEAM_NAME = 'Rival';
     const TEAM_ARRAY = [
-      { id: 1, name: 'compLexity Gaming' },
-      { id: 2, name: 'Team 3D' },
-      { id: 3, name: 'Evil Geniuses' }
+      { id: 1, name: 'compLexity Gaming', tier: 4 },
+      { id: 2, name: 'Team 3D', tier: 4 },
+      { id: 3, name: 'Evil Geniuses', tier: 4 }
     ];
     const cupobj = new Cup( CUP_NAME );
-    cupobj.addCompetitor( 1337, TEAM_NAME );
+    cupobj.addCompetitor( 1337, TEAM_NAME, 1 );
     cupobj.addCompetitors( TEAM_ARRAY );
 
     expect( cupobj.competitors ).toEqual( [
-      { id: 1337, name: TEAM_NAME },
+      { id: 1337, name: TEAM_NAME, tier: 1 },
       ...TEAM_ARRAY
     ] );
   });
