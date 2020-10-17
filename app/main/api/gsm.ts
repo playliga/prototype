@@ -21,7 +21,7 @@ import { ping } from '@network-utils/tcp-ping';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { parseCompType } from 'main/lib/util';
+import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
 import { genMappool } from 'main/lib/worldgen/competition';
@@ -34,36 +34,40 @@ import { genMappool } from 'main/lib/worldgen/competition';
  */
 
 // general settings
-const BOT_CONFIG_LOCAL                    = 'botprofile.db';
-const BOT_VOICEPITCH_MIN                  = 80;
 const BOT_VOICEPITCH_MAX                  = 125;
+const BOT_VOICEPITCH_MIN                  = 80;
 const BOT_WEAPONPREFS_PROBABILITY_RIFLE   = 3;
 const BOT_WEAPONPREFS_PROBABILITY_SNIPER  = 1;
-const CS16_APPID                          = '10';
-const CS16_APPID_SERVER                   = 'cstrike';
+const GAMEFILES_BASEDIR                   = 'resources/gamefiles';
+const SQUAD_STARTERS_NUM                  = 5;
+
+
+// cs16 settings
+const CS16_APPID                          = 10;
 const CS16_BASEDIR                        = 'steamapps/common/Half-Life';
-const CS16_BOT_CONFIG                     = 'cstrike/botprofile.db';
-const CS16_BOT_CONFIG_BACKUP              = 'cstrike/botprofile.original.db';
-const CS16_CFGDIR                         = 'cstrike';
+const CS16_BOT_CONFIG                     = 'botprofile.db';
+const CS16_DLL_FILE                       = 'dlls/liga.dll';
+const CS16_GAMEDIR                        = 'cstrike';
 const CS16_HLDS_EXE                       = 'hlds.exe';
 const CS16_LOGFILE                        = 'qconsole.log';
 const CS16_SERVER_CONFIG_FILE             = 'liga.cfg';
+
+
+// csgo settings
 const CSGO_APPID                          = 730;
-const CSGO_BASEDIR                        = 'steamapps/common/Counter-Strike Global Offensive/csgo';
 const CSGO_BOT_CONFIG                     = 'botprofile.db';
-const CSGO_BOT_CONFIG_BACKUP              = 'botprofile.original.db';
-const CSGO_CFGDIR                         = 'cfg';
+const CSGO_BASEDIR                        = 'steamapps/common/Counter-Strike Global Offensive';
+const CSGO_GAMEDIR                        = 'csgo';
 const CSGO_GAMEMODES_FILE                 = 'gamemodes_liga.txt';
-const CSGO_LANGUAGE_FILE                  = 'csgo_english.txt';
-const CSGO_LANGUAGE_FILE_BACKUP           = 'csgo_english.original.txt';
+const CSGO_LANGUAGE_FILE                  = 'resource/csgo_english.txt';
 const CSGO_LOGFILE                        = 'logs/liga.log';
-const CSGO_RESOURCEDIR                    = 'resource';
-const CSGO_SERVER_CONFIG_FILE             = 'liga.cfg';
+const CSGO_SERVER_CONFIG_FILE             = 'cfg/liga.cfg';
+
+
+// rcon settings
 const RCON_MAX_ATTEMPTS                   = 15;
 const RCON_PASSWORD                       = 'liga';
 const RCON_PORT                           = 27015;
-const SERVER_CONFIG_FILE_LOCAL            = 'liga.cfg';
-const SQUAD_STARTERS_NUM                  = 5;
 
 
 // bot difficulty map
@@ -91,6 +95,13 @@ const TIER_TO_BOT_DIFFICULTY = [
 ];
 
 
+// set up bot weapon prefs probability table
+const weaponPrefsProbabilityTable = probable.createTableFromSizes([
+  [ BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],       // 3x more likely
+  [ BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]      // 1x more likely
+]);
+
+
 // local variables
 let steampath: string;
 let gameproc: ChildProcessWithoutNullStreams;
@@ -103,17 +114,9 @@ let scorebot: Scorebot.Scorebot;
 let cs16_enabled = false;
 let basedir = CSGO_BASEDIR;
 let botconfig = CSGO_BOT_CONFIG;
-let botconfigbackup = CSGO_BOT_CONFIG_BACKUP;
-let cfgdir = CSGO_CFGDIR;
+let gamedir = CSGO_GAMEDIR;
 let logfile = CSGO_LOGFILE;
 let servercfgfile = CSGO_SERVER_CONFIG_FILE;
-
-
-// set up bot weapon prefs probability table
-const weaponPrefsProbabilityTable = probable.createTableFromSizes([
-  [ BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],       // 3x more likely
-  [ BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]      // 1x more likely
-]);
 
 
 // set up the steam path
@@ -132,7 +135,7 @@ if( is.osx() ) {
 
 function isCS16Enabled(): Promise<boolean> {
   return new Promise( resolve => {
-    setTimeout( () => resolve( false ), 2000 );
+    setTimeout( () => resolve( true ), 2000 );
   });
 }
 
@@ -146,8 +149,7 @@ async function initAsyncVars() {
   if( cs16_enabled ) {
     basedir = CS16_BASEDIR;
     botconfig = CS16_BOT_CONFIG;
-    botconfigbackup = CS16_BOT_CONFIG_BACKUP;
-    cfgdir = CS16_CFGDIR;
+    gamedir = CS16_GAMEDIR;
     logfile = CS16_LOGFILE;
     servercfgfile = CS16_SERVER_CONFIG_FILE;
   }
@@ -267,36 +269,6 @@ function getSquads( team1: Models.Player[], team2: Models.Player[] ) {
 }
 
 
-/**
- * ------------------------------------
- * CONFIG FILE GENERATORS
- * ------------------------------------
- */
-
-async function generateGameModeConfig( data: any ) {
-  // generate file
-  const gmfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEMODES_FILE );
-  const gmfiletpl = await fs.promises.readFile(
-    path.join( __dirname, `resources/${CSGO_GAMEMODES_FILE}` ),
-    'utf8'
-  );
-
-  return fs.promises.writeFile( gmfile, Sqrl.render( gmfiletpl, data ) );
-}
-
-
-async function generateServerConfig( data: any ) {
-  // generate config file
-  const targetcfg = path.join( steampath, basedir, cfgdir, servercfgfile );
-  const configtpl = await fs.promises.readFile(
-    path.join( __dirname, `resources/${SERVER_CONFIG_FILE_LOCAL}` ),
-    'utf8'
-  );
-
-  return fs.promises.writeFile( targetcfg, Sqrl.render( configtpl, data ) );
-}
-
-
 function generateBotSkill( p: Models.Player ) {
   const difficulty = TIER_TO_BOT_DIFFICULTY[ p.tier ];
   const template = random( 0, difficulty.templates.length - 1 );
@@ -310,75 +282,77 @@ function generateBotSkill( p: Models.Player ) {
 }
 
 
-async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player[] ) {
-  // create a backup
-  const botcfg = path.join( steampath, basedir, botconfig );
-  const backupcfg = path.join( steampath, basedir, botconfigbackup );
+/**
+ * ------------------------------------
+ * CONFIG FILE HOUSEKEEPING
+ * ------------------------------------
+ */
 
-  if( !fs.existsSync( backupcfg ) ) {
-    fs.copyFileSync( botcfg, backupcfg );
-  }
-
-  // load up our bot config and write
-  // the bot profiles to disk
-  const configtpl = await fs.promises.readFile(
-    path.join( __dirname, 'resources', BOT_CONFIG_LOCAL ),
-    'utf8'
-  );
-
-  return fs.promises.writeFile(
-    botcfg,
-    Sqrl.render( configtpl, {
-      squad1: squad1.map( generateBotSkill ),
-      squad2: squad2.map( generateBotSkill )
-    })
-  );
-}
-
-
-async function generateScoreboardFile() {
-  // patch scoreboard the scoreboard file
-  // to remove the BOT prefixes
-  //
-  // create a backup
-  const scbfile = path.join( steampath, CSGO_BASEDIR, CSGO_RESOURCEDIR, CSGO_LANGUAGE_FILE );
-  const scbfile_backup = path.join( steampath, CSGO_BASEDIR, CSGO_RESOURCEDIR, CSGO_LANGUAGE_FILE_BACKUP );
-
-  if( !fs.existsSync( scbfile_backup ) ) {
-    fs.copyFileSync( scbfile, scbfile_backup );
-  }
-
-  // read/replace the BOT prefix
-  const content = await fs.promises.readFile( scbfile, 'utf16le' );
-  const newcontent = content
-    .replace( '"BOT %s1', '"%s1' )
-    .replace(
-      '"SFUI_scoreboard_lbl_bot"	"BOT"',
-      '"SFUI_scoreboard_lbl_bot"	"5"',
-    )
+// trims the first three dirs in order
+// to isolate just the files needed
+//
+// e.g.: [resources/gamefiles/game]/<...>
+function trimResourcesPath( item: string ) {
+  return item
+    .split( path.sep )
+    .slice( 3 )
+    .join( path.sep )
   ;
-  return fs.promises.writeFile( scbfile, newcontent, 'utf16le' );
 }
 
 
-function restoreBotConfig() {
-  const botcfg = path.join( steampath, basedir, botconfig );
-  const backupcfg = path.join( steampath, basedir, botconfigbackup );
+function backup( extra = [] as string[] ) {
+  let tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
 
-  // restore the backup file
-  if( fs.existsSync( backupcfg ) ) {
-    fs.copyFileSync( backupcfg, botcfg );
+  if( extra.length > 0 ) {
+    tree = [ ...tree, ...extra ];
   }
+
+  tree.forEach( item => {
+    const backupfilename = path.basename( item ) + '.original';
+    const backuppath = path.join( steampath, basedir, gamedir, path.dirname( item ), backupfilename );
+    const targetpath = path.join( steampath, basedir, gamedir, item );
+
+    if( fs.existsSync( targetpath ) && !fs.existsSync( backuppath ) ) {
+      fs.copyFileSync( targetpath, backuppath );
+    }
+  });
+
+  return Promise.resolve();
 }
 
 
-function restoreScoreboardFile() {
-  const scbfile = path.join( steampath, CSGO_BASEDIR, CSGO_RESOURCEDIR, CSGO_LANGUAGE_FILE );
-  const scbfile_backup = path.join( steampath, CSGO_BASEDIR, CSGO_RESOURCEDIR, CSGO_LANGUAGE_FILE_BACKUP );
+function restore( extra = [] as string[] ) {
+  let tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
 
-  if( fs.existsSync( scbfile_backup ) ) {
-    fs.copyFileSync( scbfile_backup, scbfile );
+  if( extra.length > 0 ) {
+    tree = [ ...tree, ...extra ];
   }
+
+  tree.forEach( item => {
+    const backupfilename = path.basename( item ) + '.original';
+    const backuppath = path.join( steampath, basedir, gamedir, path.dirname( item ), backupfilename );
+    const targetpath = path.join( steampath, basedir, gamedir, item );
+
+    if( fs.existsSync( targetpath ) && fs.existsSync( backuppath ) ) {
+      fs.copyFileSync( backuppath, targetpath );
+    }
+  });
+
+  return Promise.resolve();
+}
+
+
+function copy() {
+  const tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
+
+  tree.forEach( item => {
+    const sourcepath = path.join( __dirname, GAMEFILES_BASEDIR, gamedir, item );
+    const targetpath = path.join( steampath, basedir, gamedir, item );
+    fs.copyFileSync( sourcepath, targetpath );
+  });
+
+  return Promise.resolve();
 }
 
 
@@ -393,15 +367,73 @@ function cleanup() {
     gameproc_server.kill();
   }
 
-  // restore modified config files
-  // (csgo only)
+  // set up any extra files to restore
+  // based on the game that's enabled
+  const extrafiles = [];
+
   if( !cs16_enabled ) {
-    restoreBotConfig();
-    restoreScoreboardFile();
+    extrafiles.push( CSGO_LANGUAGE_FILE );
   }
 
+  // restore modified config files
+  restore( extrafiles );
+
   // clean up the log file
-  fs.unlinkSync( path.join( steampath, basedir, logfile ) );
+  fs.unlinkSync( path.join( steampath, basedir, gamedir, logfile ) );
+}
+
+
+/**
+ * ------------------------------------
+ * CONFIG FILE GENERATORS
+ * ------------------------------------
+ */
+
+async function generateGameModeConfig( data: any ) {
+  // generate file
+  const gmfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEDIR, CSGO_GAMEMODES_FILE );
+  const gmfiletpl = await fs.promises.readFile( gmfile, 'utf8' );
+  return fs.promises.writeFile( gmfile, Sqrl.render( gmfiletpl, data ) );
+}
+
+
+async function generateServerConfig( data: any ) {
+  // generate config file
+  const targetcfg = path.join( steampath, basedir, gamedir, servercfgfile );
+  const configtpl = await fs.promises.readFile( targetcfg, 'utf8' );
+  return fs.promises.writeFile( targetcfg, Sqrl.render( configtpl, data ) );
+}
+
+
+async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player[] ) {
+  const botcfg = path.join( steampath, basedir, gamedir, botconfig );
+  const configtpl = await fs.promises.readFile( botcfg, 'utf8' );
+
+  return fs.promises.writeFile(
+    botcfg,
+    Sqrl.render( configtpl, {
+      squad1: squad1.map( generateBotSkill ),
+      squad2: squad2.map( generateBotSkill )
+    })
+  );
+}
+
+
+async function generateScoreboardFile() {
+  // patch scoreboard the scoreboard file
+  // to remove the BOT prefixes
+  const scbfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEDIR, CSGO_LANGUAGE_FILE );
+
+  // read/replace the BOT prefix
+  const content = await fs.promises.readFile( scbfile, 'utf16le' );
+  const newcontent = content
+    .replace( '"BOT %s1', '"%s1' )
+    .replace(
+      '"SFUI_scoreboard_lbl_bot"	"BOT"',
+      '"SFUI_scoreboard_lbl_bot"	"5"',
+    )
+  ;
+  return fs.promises.writeFile( scbfile, newcontent, 'utf16le' );
 }
 
 
@@ -450,10 +482,10 @@ function launchCS16Server( map = 'de_dust2' ) {
     [
       '+map', map,
       '+maxplayers', '12',
-      '+servercfgfile', servercfgfile,
+      '+servercfgfile', path.basename( servercfgfile ),
       '+ip', getIP(),
-      '-game', CS16_APPID_SERVER,
-      '-dll', 'dlls/liga.dll',
+      '-game', CS16_GAMEDIR,
+      '-dll', CS16_DLL_FILE,
       '-console',
       '-beta',
       '-bots',
@@ -634,11 +666,23 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // SET UP CSGO CONFIG FILES
   // --------------------------------
 
+  // set up any extra files to backup
+  // based on the game that's enabled
+  const extrafiles = [];
+
+  if( !cs16_enabled ) {
+    extrafiles.push( CSGO_LANGUAGE_FILE );
+  }
+
+  // backup files and copy ours over
+  await backup( extrafiles );
+  await copy();
+
   // generate the gamemodes text file
   // (csgo only)
   if( !cs16_enabled ) {
     await generateGameModeConfig({
-      server_config_file: CSGO_SERVER_CONFIG_FILE
+      server_config_file: path.basename( CSGO_SERVER_CONFIG_FILE )
     });
   }
 
@@ -710,7 +754,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
 
   // start watching log file
-  scorebot = new Scorebot.Scorebot( path.join( steampath, basedir, logfile ) );
+  scorebot = new Scorebot.Scorebot( path.join( steampath, basedir, cs16_enabled ? '' : gamedir, logfile ) );
 
   scorebot.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
     switch( text ) {
