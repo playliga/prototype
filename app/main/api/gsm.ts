@@ -132,7 +132,7 @@ if( is.osx() ) {
 
 function isCS16Enabled(): Promise<boolean> {
   return new Promise( resolve => {
-    setTimeout( () => resolve( true ), 2000 );
+    setTimeout( () => resolve( false ), 2000 );
   });
 }
 
