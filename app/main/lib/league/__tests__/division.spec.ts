@@ -95,7 +95,7 @@ describe( 'division', () => {
     div.addCompetitor( 1337, COMP_NAME );
 
     expect( div.competitors ).toEqual(
-      [{ id: 1337, name: COMP_NAME }]
+      [{ id: 1337, name: COMP_NAME, tier: null }]
     );
   });
 
@@ -111,8 +111,8 @@ describe( 'division', () => {
     div.addCompetitors( COMP_ARRAY );
 
     expect( div.competitors ).toEqual( [
-      { id: 1337, name: COMP_NAME },
-      ...COMP_ARRAY
+      { id: 1337, name: COMP_NAME, tier: null },
+      ...COMP_ARRAY.map( c => ({ ...c, tier: null }) ),
     ] );
   });
 
