@@ -139,7 +139,6 @@
     "minimist": "1.2.5",
     "moment": "2.27.0",
     "probable": "2.1.4",
-    "rcon-client": "4.2.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-hot-loader": "4.12.21",

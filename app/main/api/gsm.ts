@@ -7,6 +7,7 @@ import dedent from 'dedent';
 import probable from 'probable';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
+import RconClient from 'main/lib/rconclient';
 import Worldgen from 'main/lib/worldgen';
 import Argparse from 'main/lib/argparse';
 import Application from 'main/constants/application';
@@ -17,7 +18,6 @@ import * as Models from 'main/database/models';
 
 import { random } from 'lodash';
 import { ping } from '@network-utils/tcp-ping';
-import { Rcon } from 'rcon-client';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
@@ -27,26 +27,46 @@ import { League, Cup, Division } from 'main/lib/league';
 import { genMappool } from 'main/lib/worldgen/competition';
 
 
+/**
+ * ------------------------------------
+ * CONSTANTS AND VARIABLES
+ * ------------------------------------
+ */
+
 // general settings
-const BOT_CONFIG = 'botprofile.db';
-const BOT_CONFIG_BACKUP = 'botprofile.original.db';
-const BOT_VOICEPITCH_MIN = 80;
-const BOT_VOICEPITCH_MAX = 125;
-const BOT_WEAPONPREFS_PROBABILITY_RIFLE = 3;
-const BOT_WEAPONPREFS_PROBABILITY_SNIPER = 1;
-const CSGO_APPID = 730;
-const CSGO_BASEDIR = 'steamapps/common/Counter-Strike Global Offensive/csgo';
-const CSGO_CFGDIR = 'cfg';
-const CSGO_GAMEMODES_FILE = 'gamemodes_liga.txt';
-const CSGO_LANGUAGE_FILE = 'csgo_english.txt';
-const CSGO_LANGUAGE_FILE_BACKUP = 'csgo_english.original.txt';
-const CSGO_LOGFILE = 'logs/liga.log';
-const CSGO_RESOURCEDIR = 'resource';
-const CSGO_SERVER_CONFIG_FILE = 'liga.cfg';
-const RCON_MAX_ATTEMPTS = 15;
-const RCON_PASSWORD = 'liga';
-const RCON_PORT = 27015;
-const SQUAD_STARTERS_NUM = 5;
+const BOT_CONFIG_LOCAL                    = 'botprofile.db';
+const BOT_VOICEPITCH_MIN                  = 80;
+const BOT_VOICEPITCH_MAX                  = 125;
+const BOT_WEAPONPREFS_PROBABILITY_RIFLE   = 3;
+const BOT_WEAPONPREFS_PROBABILITY_SNIPER  = 1;
+const CS16_APPID                          = '10';
+const CS16_APPID_SERVER                   = 'cstrike';
+const CS16_BASEDIR                        = 'steamapps/common/Half-Life';
+const CS16_BOT_CONFIG                     = 'cstrike/botprofile.db';
+const CS16_BOT_CONFIG_BACKUP              = 'cstrike/botprofile.original.db';
+const CS16_CFGDIR                         = 'cstrike';
+const CS16_HLDS_EXE                       = 'hlds.exe';
+const CS16_LOGFILE                        = 'qconsole.log';
+const CS16_SERVER_CONFIG_FILE             = 'liga.cfg';
+const CSGO_APPID                          = 730;
+const CSGO_BASEDIR                        = 'steamapps/common/Counter-Strike Global Offensive/csgo';
+const CSGO_BOT_CONFIG                     = 'botprofile.db';
+const CSGO_BOT_CONFIG_BACKUP              = 'botprofile.original.db';
+const CSGO_CFGDIR                         = 'cfg';
+const CSGO_GAMEMODES_FILE                 = 'gamemodes_liga.txt';
+const CSGO_LANGUAGE_FILE                  = 'csgo_english.txt';
+const CSGO_LANGUAGE_FILE_BACKUP           = 'csgo_english.original.txt';
+const CSGO_LOGFILE                        = 'logs/liga.log';
+const CSGO_RESOURCEDIR                    = 'resource';
+const CSGO_SERVER_CONFIG_FILE             = 'liga.cfg';
+const RCON_MAX_ATTEMPTS                   = 15;
+const RCON_PASSWORD                       = 'liga';
+const RCON_PORT                           = 27015;
+const SERVER_CONFIG_FILE_LOCAL            = 'liga.cfg';
+const SQUAD_STARTERS_NUM                  = 5;
+
+
+// bot difficulty map
 const TIER_TO_BOT_DIFFICULTY = [
   {
     difficulty: 3,
@@ -71,17 +91,28 @@ const TIER_TO_BOT_DIFFICULTY = [
 ];
 
 
-// variables
+// local variables
 let steampath: string;
 let gameproc: ChildProcessWithoutNullStreams;
-let rcon: Rcon;
+let gameproc_server: ChildProcessWithoutNullStreams;
+let rcon: any;
 let scorebot: Scorebot.Scorebot;
 
 
-// constants
+// these are populated async
+let cs16_enabled = false;
+let basedir = CSGO_BASEDIR;
+let botconfig = CSGO_BOT_CONFIG;
+let botconfigbackup = CSGO_BOT_CONFIG_BACKUP;
+let cfgdir = CSGO_CFGDIR;
+let logfile = CSGO_LOGFILE;
+let servercfgfile = CSGO_SERVER_CONFIG_FILE;
+
+
+// set up bot weapon prefs probability table
 const weaponPrefsProbabilityTable = probable.createTableFromSizes([
-  [ BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],     // 3x more likely
-  [ BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]     // 1x more likely
+  [ BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],       // 3x more likely
+  [ BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]      // 1x more likely
 ]);
 
 
@@ -94,11 +125,51 @@ if( is.osx() ) {
 
 
 /**
- * RCON helper functions
+ * ------------------------------------
+ * POPULATE ASYNC VARS
+ * ------------------------------------
+ */
+
+function isCS16Enabled(): Promise<boolean> {
+  return new Promise( resolve => {
+    setTimeout( () => resolve( true ), 2000 );
+  });
+}
+
+
+// this function must be called before launching the game!
+async function initAsyncVars() {
+  if( !cs16_enabled ) {
+    cs16_enabled = await isCS16Enabled();
+  }
+
+  if( cs16_enabled ) {
+    basedir = CS16_BASEDIR;
+    botconfig = CS16_BOT_CONFIG;
+    botconfigbackup = CS16_BOT_CONFIG_BACKUP;
+    cfgdir = CS16_CFGDIR;
+    logfile = CS16_LOGFILE;
+    servercfgfile = CS16_SERVER_CONFIG_FILE;
+  }
+
+  return Promise.resolve();
+}
+
+
+/**
+ * ------------------------------------
+ * RCON FUNCTIONALITY
+ * ------------------------------------
  */
 
 function delayedping( address: string, port: number, attempts = 1, delay = 5000 ) {
   return new Promise( ( resolve, reject ) => {
+    // if CS16, nothing to ping as RCON uses UDP.
+    // so just delay and return true...
+    if( cs16_enabled ) {
+      return setTimeout( () => resolve(), delay );
+    }
+
     setTimeout( () => {
       const cnx = ping({ address, port, attempts });
 
@@ -120,11 +191,20 @@ function delayedping( address: string, port: number, attempts = 1, delay = 5000 
 }
 
 
-async function initrcon( ip: string = null ): Promise<Rcon> {
+function rconconnect( opts: any ) {
+  return new Promise( ( resolve, reject ) => {
+    const cnx = new RconClient( opts.host, opts.port, opts.password, { tcp: !cs16_enabled });
+    cnx.on( 'auth', () => resolve( cnx ) );
+    cnx.on( 'error', ( err: any ) => reject( err ) );
+    cnx.connect();
+  });
+}
+
+
+async function initrcon( ip: string = null ): Promise<any> {
   // get our ip if it was not provided
   if( !ip ) {
-    const localips = getLocalIP();
-    [ ip ] = localips.filter( ip => ip !== '127.0.0.1' );
+    ip = getIP();
   }
 
   // try n-times before giving up
@@ -136,7 +216,7 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
     try {
       await delayedping( ip, RCON_PORT );
 
-      const rcon = await Rcon.connect({
+      const rcon = await rconconnect({
         host: ip,
         port: RCON_PORT,
         password: RCON_PASSWORD,
@@ -155,8 +235,16 @@ async function initrcon( ip: string = null ): Promise<Rcon> {
 
 
 /**
- * Misc. helper functions
+ * ------------------------------------
+ * MISC. HELPER FUNCTIONS
+ * ------------------------------------
  */
+
+function getIP() {
+  const localips = getLocalIP();
+  return localips.filter( ip => ip !== '127.0.0.1' )[ 0 ];
+}
+
 
 function getSquads( team1: Models.Player[], team2: Models.Player[] ) {
   // load up the whole squad
@@ -179,6 +267,12 @@ function getSquads( team1: Models.Player[], team2: Models.Player[] ) {
 }
 
 
+/**
+ * ------------------------------------
+ * CONFIG FILE GENERATORS
+ * ------------------------------------
+ */
+
 async function generateGameModeConfig( data: any ) {
   // generate file
   const gmfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEMODES_FILE );
@@ -193,9 +287,9 @@ async function generateGameModeConfig( data: any ) {
 
 async function generateServerConfig( data: any ) {
   // generate config file
-  const targetcfg = path.join( steampath, CSGO_BASEDIR, CSGO_CFGDIR, CSGO_SERVER_CONFIG_FILE );
+  const targetcfg = path.join( steampath, basedir, cfgdir, servercfgfile );
   const configtpl = await fs.promises.readFile(
-    path.join( __dirname, `resources/${CSGO_SERVER_CONFIG_FILE}` ),
+    path.join( __dirname, `resources/${SERVER_CONFIG_FILE_LOCAL}` ),
     'utf8'
   );
 
@@ -218,8 +312,8 @@ function generateBotSkill( p: Models.Player ) {
 
 async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player[] ) {
   // create a backup
-  const botcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG );
-  const backupcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG_BACKUP );
+  const botcfg = path.join( steampath, basedir, botconfig );
+  const backupcfg = path.join( steampath, basedir, botconfigbackup );
 
   if( !fs.existsSync( backupcfg ) ) {
     fs.copyFileSync( botcfg, backupcfg );
@@ -228,7 +322,7 @@ async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player
   // load up our bot config and write
   // the bot profiles to disk
   const configtpl = await fs.promises.readFile(
-    path.join( __dirname, 'resources', BOT_CONFIG ),
+    path.join( __dirname, 'resources', BOT_CONFIG_LOCAL ),
     'utf8'
   );
 
@@ -268,8 +362,8 @@ async function generateScoreboardFile() {
 
 
 function restoreBotConfig() {
-  const botcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG );
-  const backupcfg = path.join( steampath, CSGO_BASEDIR, BOT_CONFIG_BACKUP );
+  const botcfg = path.join( steampath, basedir, botconfig );
+  const backupcfg = path.join( steampath, basedir, botconfigbackup );
 
   // restore the backup file
   if( fs.existsSync( backupcfg ) ) {
@@ -295,14 +389,27 @@ function cleanup() {
   gameproc.kill();
   scorebot.unwatch();
 
+  if( cs16_enabled ) {
+    gameproc_server.kill();
+  }
+
   // restore modified config files
-  restoreBotConfig();
-  restoreScoreboardFile();
+  // (csgo only)
+  if( !cs16_enabled ) {
+    restoreBotConfig();
+    restoreScoreboardFile();
+  }
 
   // clean up the log file
-  fs.unlinkSync( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
+  fs.unlinkSync( path.join( steampath, basedir, logfile ) );
 }
 
+
+/**
+ * ------------------------------------
+ * GAME LAUNCHER FUNCTIONS
+ * ------------------------------------
+ */
 
 function launchCSGO( map = 'de_dust2' ) {
   const commonflags = [
@@ -331,8 +438,57 @@ function launchCSGO( map = 'de_dust2' ) {
 }
 
 
+function launchCS16Server( map = 'de_dust2' ) {
+  // @note: only works for win32
+  if( is.osx() ) {
+    return;
+  }
+
+  // launch the game
+  gameproc_server = spawn(
+    CS16_HLDS_EXE,
+    [
+      '+map', map,
+      '+maxplayers', '12',
+      '+servercfgfile', servercfgfile,
+      '+ip', getIP(),
+      '-game', CS16_APPID_SERVER,
+      '-dll', 'dlls/liga.dll',
+      '-console',
+      '-beta',
+      '-bots',
+      '-condebug',
+    ],
+    {
+      cwd: path.join( steampath, CS16_BASEDIR ),
+      shell: true
+    }
+  );
+}
+
+
+function launchCS16Client() {
+  // @note: only works for win32
+  if( is.osx() ) {
+    return;
+  }
+
+  // launch the game
+  gameproc = spawn(
+    'steam.exe',
+    [
+      '-applaunch', CS16_APPID.toString(),
+      '+connect', getIP(),
+    ],
+    { cwd: steampath }
+  );
+}
+
+
 /**
- * IPC handlers
+ * ------------------------------------
+ * THE MAIN IPC HANDLER
+ * ------------------------------------
  */
 
 interface PlayRequest {
@@ -347,6 +503,9 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
   // SET UP VARS
   // --------------------------------
+
+  // populate values for the async vars
+  await initAsyncVars();
 
   // load user's profile and the competition object
   const profile = await Models.Profile.getActiveProfile();
@@ -476,15 +635,18 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
 
   // generate the gamemodes text file
-  await generateGameModeConfig({
-    server_config_file: CSGO_SERVER_CONFIG_FILE
-  });
+  // (csgo only)
+  if( !cs16_enabled ) {
+    await generateGameModeConfig({
+      server_config_file: CSGO_SERVER_CONFIG_FILE
+    });
+  }
 
   // generate server config
   await generateServerConfig({
     demo: Application.DEMO_MODE,
     hostname: `${compobj.name}: ${competition.Continent.name} — ${hostname_suffix}`,
-    logfile: CSGO_LOGFILE,
+    logfile: logfile,
     ot: allow_ot,
     rcon_password: RCON_PASSWORD,
     teamflag_ct: team1.Country.code,
@@ -497,17 +659,30 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   await generateBotConfig( squads[ 0 ], squads[ 1 ] );
 
   // remove bot prefixes from scoreboard
-  await generateScoreboardFile();
+  // (csgo only)
+  if( !cs16_enabled ) {
+    await generateScoreboardFile();
+  }
 
   // --------------------------------
-  // CSGO + RCON SET UP
+  // GAME + RCON SET UP
   // --------------------------------
 
-  // launch csgo
-  launchCSGO( match.data.map );
+  // launch game server for CS16
+  // launch the game for CSGO
+  if( cs16_enabled ) {
+    launchCS16Server( match.data.map );
+  } else {
+    launchCSGO( match.data.map );
+  }
 
   // connect to rcon
   rcon = await initrcon();
+
+  // for CS16, we have to launch a client too
+  if( cs16_enabled ) {
+    launchCS16Client();
+  }
 
   // restore default config files once the rcon connection is closed
   rcon.on( 'end', cleanup );
@@ -517,6 +692,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
 
   // add this match's bots
+  // @todo: not working in CS16
   const botadd_cmd = squads.map( ( squad, idx ) => (
     squad
       .map( p => dedent`
@@ -534,12 +710,16 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // --------------------------------
 
   // start watching log file
-  scorebot = new Scorebot.Scorebot( path.join( steampath, CSGO_BASEDIR, CSGO_LOGFILE ) );
+  scorebot = new Scorebot.Scorebot( path.join( steampath, basedir, logfile ) );
 
   scorebot.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
     switch( text ) {
       case '.ready':
-        await rcon.send( 'mp_warmup_end' );
+        await rcon.send(
+          cs16_enabled
+            ? 'sv_restart 1'
+            : 'mp_warmup_end'
+        );
         break;
       default:
         break;
