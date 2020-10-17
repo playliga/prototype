@@ -16,7 +16,7 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
-import { random } from 'lodash';
+import { flatten, random } from 'lodash';
 import { ping } from '@network-utils/tcp-ping';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
@@ -135,7 +135,7 @@ if( is.osx() ) {
 
 function isCS16Enabled(): Promise<boolean> {
   return new Promise( resolve => {
-    setTimeout( () => resolve( true ), 2000 );
+    setTimeout( () => resolve( false ), 2000 );
   });
 }
 
@@ -279,6 +279,27 @@ function generateBotSkill( p: Models.Player ) {
       VoicePitch = ${random( BOT_VOICEPITCH_MIN, BOT_VOICEPITCH_MAX )}
     End\n
   `;
+}
+
+
+function addSquadsToServer( squads: Models.Player[][] ) {
+  const botadd_cmd = squads.map( ( squad, idx ) => (
+    squad
+      .map( p => dedent`
+        bot_difficulty ${TIER_TO_BOT_DIFFICULTY[ p.tier ].difficulty};
+        bot_add_${idx === 0 ? 'ct' : 't'} ${p.alias}
+      `)
+      .join( ';' )
+      .replace( /\n/g, '' )
+  ));
+
+  // for cs16 each rcon command much be run separately
+  if( cs16_enabled ) {
+    const cmds = flatten( botadd_cmd.map( c => c.split( ';' ) ) );
+    return Promise.all( cmds.map( c => rcon.send( c ) ) );
+  }
+
+  return Promise.all( botadd_cmd.map( c => rcon.send( c ) ) );
 }
 
 
@@ -712,42 +733,24 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // GAME + RCON SET UP
   // --------------------------------
 
-  // launch game server for CS16
-  // launch the game for CSGO
+  // launch the game (or server if cs16)
   if( cs16_enabled ) {
     launchCS16Server( match.data.map );
   } else {
     launchCSGO( match.data.map );
   }
 
-  // connect to rcon
+  // connect to rcon and add cleanup listener
   rcon = await initrcon();
+  rcon.on( 'end', cleanup );
+
+  // add this match's bots
+  await addSquadsToServer( squads );
 
   // for CS16, we have to launch a client too
   if( cs16_enabled ) {
     launchCS16Client();
   }
-
-  // restore default config files once the rcon connection is closed
-  rcon.on( 'end', cleanup );
-
-  // --------------------------------
-  // BOT SET UP
-  // --------------------------------
-
-  // add this match's bots
-  // @todo: not working in CS16
-  const botadd_cmd = squads.map( ( squad, idx ) => (
-    squad
-      .map( p => dedent`
-        bot_difficulty ${TIER_TO_BOT_DIFFICULTY[ p.tier ].difficulty};
-        bot_add_${idx === 0 ? 'ct' : 't'} ${p.alias}
-      `)
-      .join( ';' )
-      .replace( /\n/g, '' )
-  ));
-
-  await Promise.all( botadd_cmd.map( c => rcon.send( c ) ) );
 
   // --------------------------------
   // SCOREBOT SET UP + EVENT HANDLERS
