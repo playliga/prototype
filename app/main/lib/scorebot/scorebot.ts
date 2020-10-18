@@ -10,7 +10,7 @@ import { IterableObject } from 'shared/types';
  * - https://github.com/OpenSourceLAN/better-srcds-log-parser
  */
 
-export const Team: IterableObject<number> = {
+export const TeamEnum: IterableObject<number> = {
   CT: 0,
   Terrorist: 1,
 };
@@ -89,7 +89,7 @@ export class Scorebot extends events.EventEmitter {
 
     if( regexmatch ) {
       this.emit( GameEvents.ROUND_OVER, {
-        winner: Team[ regexmatch[ 1 ] ],              // can be: CT or T
+        winner: TeamEnum[ regexmatch[ 1 ] ],           // can be: CT or T
         score: regexmatch.slice( 2 )                  // e.g.: [ 0 (ct) , 1 (t) ]
       });
       return;

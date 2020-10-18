@@ -39,6 +39,7 @@ const BOT_VOICEPITCH_MIN                  = 80;
 const BOT_WEAPONPREFS_PROBABILITY_RIFLE   = 3;
 const BOT_WEAPONPREFS_PROBABILITY_SNIPER  = 1;
 const GAMEFILES_BASEDIR                   = 'resources/gamefiles';
+const SERVER_CVAR_MAXROUNDS               = Application.DEMO_MODE ? 6 : 30;
 const SQUAD_STARTERS_NUM                  = 5;
 
 
@@ -108,15 +109,32 @@ let gameproc: ChildProcessWithoutNullStreams;
 let gameproc_server: ChildProcessWithoutNullStreams;
 let rcon: any;
 let scorebot: Scorebot.Scorebot;
+let evt: IpcMainEvent;
+let request: IpcRequest<PlayRequest>;
 
 
-// these are populated async
+// these will be used later when launching/closing the game
 let cs16_enabled = false;
 let basedir = CSGO_BASEDIR;
 let botconfig = CSGO_BOT_CONFIG;
 let gamedir = CSGO_GAMEDIR;
 let logfile = CSGO_LOGFILE;
 let servercfgfile = CSGO_SERVER_CONFIG_FILE;
+let profile: Models.Profile;
+let competition: Models.Competition;
+let queue: Models.ActionQueue;
+let isleague: boolean;
+let iscup: boolean;
+let compobj: League | Cup;
+let hostname_suffix: string;
+let conf: Conference | PromotionConference;
+let match: Match;
+let allow_ot: boolean;
+let team1: Models.Team;
+let team2: Models.Team;
+let tourneyobj: Tournament;
+let allow_draw = false;
+let is_postseason: boolean;
 
 
 // set up the steam path
@@ -141,11 +159,19 @@ function isCS16Enabled(): Promise<boolean> {
 
 
 // this function must be called before launching the game!
-async function initAsyncVars() {
-  if( !cs16_enabled ) {
-    cs16_enabled = await isCS16Enabled();
-  }
+async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
+  // set up ipc vars
+  evt = ipcevt;
+  request = ipcreq;
 
+  // set up async vars
+  cs16_enabled = await isCS16Enabled();
+  profile = await Models.Profile.getActiveProfile();
+  competition = profile.Team.Competitions.find( c => c.id === ipcreq.params.compId );
+  queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
+  [ isleague, iscup ] = parseCompType( competition.Comptype.name );
+
+  // set up cs16-specific vars
   if( cs16_enabled ) {
     basedir = CS16_BASEDIR;
     botconfig = CS16_BOT_CONFIG;
@@ -540,6 +566,148 @@ function launchCS16Client() {
 
 /**
  * ------------------------------------
+ * SCOREBOT EVENT HANDLERS
+ * ------------------------------------
+ */
+
+
+const score = [ 0, 0 ];
+let gameislive = false;
+let halftime = false;
+
+
+async function sbEventHandler_Say( text: string ) {
+  switch( text ) {
+    case '.ready':
+      cs16_enabled
+        ? await sbEventHandler_CS16_ReadyUp()
+        : await rcon.send( 'mp_warmup_end' )
+      ;
+      break;
+    default:
+      break;
+  }
+}
+
+
+function sbEventHandler_CS16_ReadyUp() {
+  // bail if game is already live
+  if( gameislive ) {
+    return Promise.resolve( false );
+  }
+
+  gameislive = true;
+  return rcon.send( 'exec liga-lo3.cfg' );
+}
+
+
+async function sbEventHandler_Round_Over( result: { winner: number; score: number[] } ) {
+  // do not record anything if we're not live
+  if( !gameislive ) {
+    return Promise.resolve( false );
+  }
+
+  // invert the score if past half-time
+  // @todo: better explanation
+  if( halftime ) {
+    score[ 1 - result.winner ] += 1;
+  } else {
+    score[ result.winner ] += 1;
+  }
+
+  // set up vars
+  const totalrounds     = score.reduce( ( total, current ) => total + current );
+  const halftimerounds  = SERVER_CVAR_MAXROUNDS / 2;
+  const clinchrounds    = ( SERVER_CVAR_MAXROUNDS / 2 ) + 1;
+  let gameover = false;
+
+  // we've reached half-time
+  if( totalrounds === halftimerounds ) {
+    halftime = true;
+    gameislive = false;
+    await rcon.send( 'exec liga-halftime.cfg' );
+  }
+
+  if( totalrounds === SERVER_CVAR_MAXROUNDS ) {
+    // @todo: 16-14 or draw.
+    // @todo: figure it out
+    await rcon.send( `say draw or someone barely won: ${JSON.stringify( score )}` );
+    gameover = true;
+  }
+
+  if( score[ Scorebot.TeamEnum.CT ] === clinchrounds ) {
+    await rcon.send( `say "* * * ${team1.name} wins: ${JSON.stringify( score )} * * *"` );
+    gameover = true;
+  }
+
+  if( score[ Scorebot.TeamEnum.Terrorist ] === clinchrounds ) {
+    await rcon.send( `say "* * * ${team2.name} wins: ${JSON.stringify( score )} * * *"` );
+    gameover = true;
+  }
+
+  if( gameover ) {
+    return sbEventHandler_Game_Over({ map: '', score });
+  }
+
+  return Promise.resolve();
+}
+
+
+async function sbEventHandler_Game_Over( result: { map: string; score: number[] }) {
+  log.info( 'GAME IS OVER', result );
+  tourneyobj.score( match.id, result.score );
+  competition.data = compobj.save();
+
+  if( isleague && compobj.isGroupStageDone() ) {
+    const startps = compobj.startPostSeason();
+
+    if( startps ) {
+      (compobj.divisions as Division[]).forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
+    }
+
+    if( startps || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+      competition.data = compobj.save();
+      await Worldgen.Competition.genMatchdays( competition );
+    }
+  }
+
+  // end the season?
+  if( isleague && compobj.isDone() ) {
+    compobj.endPostSeason();
+    compobj.end();
+    competition.data = compobj.save();
+  }
+
+  // generate new round for tourney
+  if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
+    await Worldgen.Competition.genMatchdays( competition );
+  }
+
+  // record the match
+  const matchobj = await Models.Match.create({
+    payload: {
+      match,
+      confId: conf?.id,
+      is_postseason: is_postseason || false,
+    },
+    date: profile.currentDate,
+  });
+
+  await Promise.all([
+    matchobj.setCompetition( competition.id ),
+    matchobj.setTeams([ team1, team2 ]),
+    queue.update({ completed: true }),
+    competition.save(),
+  ]);
+
+  // let the front-end know the game is over
+  evt.sender.send( request.responsechannel );
+  return Promise.resolve();
+}
+
+
+/**
+ * ------------------------------------
  * THE MAIN IPC HANDLER
  * ------------------------------------
  */
@@ -552,31 +720,13 @@ interface PlayRequest {
 }
 
 
-async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
+async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // --------------------------------
   // SET UP VARS
   // --------------------------------
 
   // populate values for the async vars
-  await initAsyncVars();
-
-  // load user's profile and the competition object
-  const profile = await Models.Profile.getActiveProfile();
-  const competition = profile.Team.Competitions.find( c => c.id === request.params.compId );
-  const queue = await Models.ActionQueue.findByPk( request.params.quid );
-  const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
-
-  // these will be used later when launching/closing the game
-  let compobj: League | Cup;
-  let hostname_suffix: string;
-  let conf: Conference | PromotionConference;
-  let match: Match;
-  let allow_ot: boolean;
-  let team1: Models.Team;
-  let team2: Models.Team;
-  let tourneyobj: Tournament;
-  let allow_draw = false;
-  let is_postseason: boolean;
+  await initAsyncVars( ipcevt, ipcreq );
 
   // populate the above vars depending
   // on the competition type
@@ -710,6 +860,7 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // generate server config
   await generateServerConfig({
     demo: Application.DEMO_MODE,
+    maxrounds: SERVER_CVAR_MAXROUNDS,
     hostname: `${compobj.name}: ${competition.Continent.name} — ${hostname_suffix}`,
     logfile: logfile,
     ot: allow_ot,
@@ -747,8 +898,9 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // add this match's bots
   await addSquadsToServer( squads );
 
-  // for CS16, we have to launch a client too
+  // run CS16-specific logic
   if( cs16_enabled ) {
+    await rcon.send( 'exec liga-warmup.cfg' );
     launchCS16Client();
   }
 
@@ -759,69 +911,10 @@ async function play( evt: IpcMainEvent, request: IpcRequest<PlayRequest> ) {
   // start watching log file
   scorebot = new Scorebot.Scorebot( path.join( steampath, basedir, cs16_enabled ? '' : gamedir, logfile ) );
 
-  scorebot.on( Scorebot.GameEvents.SAY, async ( text: string ) => {
-    switch( text ) {
-      case '.ready':
-        await rcon.send(
-          cs16_enabled
-            ? 'sv_restart 1'
-            : 'mp_warmup_end'
-        );
-        break;
-      default:
-        break;
-    }
-  });
-
-  scorebot.on( Scorebot.GameEvents.GAME_OVER, async ( result: { map: string; score: number[] }) => {
-    log.info( 'GAME IS OVER', result );
-    tourneyobj.score( match.id, result.score );
-    competition.data = compobj.save();
-
-    if( isleague && compobj.isGroupStageDone() ) {
-      const startps = compobj.startPostSeason();
-
-      if( startps ) {
-        (compobj.divisions as Division[]).forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
-      }
-
-      if( startps || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        competition.data = compobj.save();
-        await Worldgen.Competition.genMatchdays( competition );
-      }
-    }
-
-    // end the season?
-    if( isleague && compobj.isDone() ) {
-      compobj.endPostSeason();
-      compobj.end();
-      competition.data = compobj.save();
-    }
-
-    // generate new round for tourney
-    if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-      await Worldgen.Competition.genMatchdays( competition );
-    }
-
-    // record the match
-    const matchobj = await Models.Match.create({
-      payload: {
-        match,
-        confId: conf?.id,
-        is_postseason: is_postseason || false,
-      },
-      date: profile.currentDate,
-    });
-
-    await Promise.all([
-      matchobj.setCompetition( competition.id ),
-      matchobj.setTeams([ team1, team2 ]),
-      queue.update({ completed: true }),
-      competition.save(),
-    ]);
-
-    evt.sender.send( request.responsechannel );
-  });
+  // event handlers
+  scorebot.on( Scorebot.GameEvents.SAY, sbEventHandler_Say );
+  scorebot.on( Scorebot.GameEvents.ROUND_OVER, sbEventHandler_Round_Over );
+  scorebot.on( Scorebot.GameEvents.GAME_OVER, sbEventHandler_Game_Over );
 }
 
 
