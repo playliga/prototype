@@ -1,6 +1,7 @@
 import events from 'events';
 import is from 'electron-is';
 import { Tail } from 'tail';
+import { IterableObject } from 'shared/types';
 
 
 /**
@@ -9,7 +10,14 @@ import { Tail } from 'tail';
  * - https://github.com/OpenSourceLAN/better-srcds-log-parser
  */
 
+export const Team: IterableObject<number> = {
+  CT: 0,
+  Terrorist: 1,
+};
+
+
 export const GameEvents = {
+  ROUND_OVER: 'roundover',
   GAME_OVER: 'gameover',
   SAY: 'say',
 };
@@ -17,6 +25,7 @@ export const GameEvents = {
 
 const RegexTypes = {
   GAME_OVER_REGEX: new RegExp( /(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2}):([\d]{1,2})/ ),
+  ROUND_OVER_REGEX: new RegExp( /(Terrorist|CT)s?_Win(?:.)+(\d)(?:.)+(\d)/ ),
   SAY_REGEX: new RegExp( /(?:.)+(?:say|say_team)(?:.)+"(.*)"$/ ),
   STEAM_REGEX: new RegExp( /<(STEAM_\d+:\d+:\d+|BOT|Console)>/ ),
   TEAM_REGEX: new RegExp( /["<]?(CT|TERRORIST|Spectator|Unassigned)[">]?/ ),
@@ -70,6 +79,18 @@ export class Scorebot extends events.EventEmitter {
           parseInt( regexmatch[ 3 ] ),         // csgo inverts the final result. e.g.: 16:1
           parseInt( regexmatch[ 2 ] )          // so 16(team2) and 1(team1)
         ]
+      });
+      return;
+    }
+
+    // round end events
+    // @note: regex only works for CS16
+    regexmatch = line.match( RegexTypes.ROUND_OVER_REGEX );
+
+    if( regexmatch ) {
+      this.emit( GameEvents.ROUND_OVER, {
+        winner: Team[ regexmatch[ 1 ] ],              // can be: CT or T
+        score: regexmatch.slice( 2 )                  // e.g.: [ 0 (ct) , 1 (t) ]
       });
       return;
     }
