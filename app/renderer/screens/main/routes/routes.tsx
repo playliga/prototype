@@ -7,7 +7,8 @@ import {
   UserOutlined,
   PieChartOutlined,
   InboxOutlined,
-  TrophyOutlined
+  TrophyOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 
 import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
@@ -22,6 +23,7 @@ import Squad from './squad';
 import Transfers from './transfers';
 import Competitions from './competitions';
 import Team from './team';
+import Settings from './settings';
 
 
 const routes: RouteConfig[] = [
@@ -42,6 +44,7 @@ const routes: RouteConfig[] = [
       { id: '/competitions/team', path: '/competitions/team/:id', component: Team, exact: true },
     ]
   },
+  { id: '/settings', path: '/settings', component: Settings, title: 'Settings', icon: SettingOutlined, sidebar: true },
 ];
 
 

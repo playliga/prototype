@@ -34,6 +34,14 @@ export function updateSquadMemberFinish( payload: any ): ProfileTypes.ProfileAct
 }
 
 
+export function updateSettings( payload: any ): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.UPDATE_SETTINGS,
+    payload
+  };
+}
+
+
 export function calendarFinish(): ProfileTypes.ProfileActionTypes {
   return {
     type: ProfileTypes.CALENDAR_FINISH

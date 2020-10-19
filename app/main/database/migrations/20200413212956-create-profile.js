@@ -16,6 +16,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.NUMBER,
       },
+      settings: {
+        allowNull: true,
+        defaultValue: {},
+        type: Sequelize.JSON,
+      },
 
       // timestamps
       createdAt: {

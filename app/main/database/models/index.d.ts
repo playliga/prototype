@@ -101,6 +101,7 @@ declare module 'main/database/models' {
   export class Profile extends BaseModel {
     public currentDate: Date;
     public currentSeason: number;
+    public settings: any;
     public readonly Team?: Team;
     public readonly Player?: Player;
 

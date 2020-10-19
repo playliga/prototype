@@ -19,7 +19,9 @@ function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
     params: {
       model: 'Player',
       args: {
+        // @ts-ignore
         id: action.payload.id,
+        // @ts-ignore
         data: action.payload
       }
     }
@@ -28,6 +30,25 @@ function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
   yield put(
     profileActions.updateSquadMemberFinish( payload )
   );
+}
+
+
+function* updateSettings( action: ProfileTypes.ProfileActionTypes ) {
+  // update the profile
+  yield IpcService.send( IPCRouting.Database.UPDATE, {
+    params: {
+      model: 'Profile',
+      args: {
+        // @ts-ignore
+        id: action.payload.id,
+        // @ts-ignore
+        data: { settings: action.payload }
+      }
+    }
+  });
+
+  // fetch the new data
+  yield find();
 }
 
 
@@ -40,5 +61,10 @@ export default function* watch() {
   yield takeEvery(
     ProfileTypes.UPDATE_SQUAD_MEMBER,
     updateSquadMember
+  );
+
+  yield takeEvery(
+    ProfileTypes.UPDATE_SETTINGS,
+    updateSettings
   );
 }

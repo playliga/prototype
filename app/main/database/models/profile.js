@@ -15,6 +15,11 @@ class Profile extends Model {
         allowNull: false,
         type: Sequelize.NUMBER,
       },
+      settings: {
+        allowNull: true,
+        defaultValue: {},
+        type: Sequelize.JSON,
+      },
     }, { sequelize, modelName: 'Profile' });
   }
 

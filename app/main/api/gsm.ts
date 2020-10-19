@@ -115,11 +115,11 @@ let request: IpcRequest<PlayRequest>;
 
 // these will be used later when launching/closing the game
 let cs16_enabled = false;
-let basedir = CSGO_BASEDIR;
-let botconfig = CSGO_BOT_CONFIG;
-let gamedir = CSGO_GAMEDIR;
-let logfile = CSGO_LOGFILE;
-let servercfgfile = CSGO_SERVER_CONFIG_FILE;
+let basedir: string;
+let botconfig: string;
+let gamedir: string;
+let logfile: string;
+let servercfgfile: string;
 let profile: Models.Profile;
 let competition: Models.Competition;
 let queue: Models.ActionQueue;
@@ -148,25 +148,20 @@ if( is.osx() ) {
 /**
  * ------------------------------------
  * POPULATE ASYNC VARS
+ *
+ * This function must be called
+ * before launching the game.
  * ------------------------------------
  */
 
-function isCS16Enabled(): Promise<boolean> {
-  return new Promise( resolve => {
-    setTimeout( () => resolve( false ), 2000 );
-  });
-}
-
-
-// this function must be called before launching the game!
 async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // set up ipc vars
   evt = ipcevt;
   request = ipcreq;
 
   // set up async vars
-  cs16_enabled = await isCS16Enabled();
   profile = await Models.Profile.getActiveProfile();
+  cs16_enabled = profile.settings.cs16_enabled;
   competition = profile.Team.Competitions.find( c => c.id === ipcreq.params.compId );
   queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
   [ isleague, iscup ] = parseCompType( competition.Comptype.name );
@@ -178,6 +173,12 @@ async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayReque
     gamedir = CS16_GAMEDIR;
     logfile = CS16_LOGFILE;
     servercfgfile = CS16_SERVER_CONFIG_FILE;
+  } else {
+    basedir = CSGO_BASEDIR;
+    botconfig = CSGO_BOT_CONFIG;
+    gamedir = CSGO_GAMEDIR;
+    logfile = CSGO_LOGFILE;
+    servercfgfile = CSGO_SERVER_CONFIG_FILE;
   }
 
   return Promise.resolve();
