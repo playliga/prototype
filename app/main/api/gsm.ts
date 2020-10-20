@@ -113,6 +113,12 @@ let evt: IpcMainEvent;
 let request: IpcRequest<PlayRequest>;
 
 
+// game-state vars
+let score = [ 0, 0 ];
+let gameislive = false;
+let halftime = false;
+
+
 // these will be used later when launching/closing the game
 let cs16_enabled = false;
 let basedir: string;
@@ -434,11 +440,14 @@ function cleanup() {
     ignorelist.push( path.basename( CS16_DLL_FILE ) );
   }
 
-  // restore modified config files
+  // restore modified config files and clean up the log file
   restore( extrafiles, ignorelist );
-
-  // clean up the log file
   fs.unlinkSync( path.join( steampath, basedir, cs16_enabled ? '' : gamedir, logfile ) );
+
+  // reset game-state vars
+  score = [ 0, 0 ];
+  gameislive = false;
+  halftime = false;
 }
 
 
@@ -589,12 +598,6 @@ function launchCS16Client() {
  * SCOREBOT EVENT HANDLERS
  * ------------------------------------
  */
-
-
-const score = [ 0, 0 ];
-let gameislive = false;
-let halftime = false;
-
 
 async function sbEventHandler_Say( text: string ) {
   switch( text ) {
