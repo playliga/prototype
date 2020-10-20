@@ -535,6 +535,14 @@ function launchCS16Server( map = 'de_dust2' ) {
     return;
   }
 
+  // check if `steam_appid.txt` file exists. write cstrike
+  // appid to it before launching the game
+  const txtpath = path.join( steampath, basedir, 'steam_appid.txt' );
+
+  if( !fs.existsSync( txtpath ) ) {
+    fs.writeFileSync( txtpath, CS16_APPID.toString() );
+  }
+
   // launch the game
   gameproc_server = spawn(
     CS16_HLDS_EXE,
@@ -543,11 +551,11 @@ function launchCS16Server( map = 'de_dust2' ) {
       '+maxplayers', '12',
       '+servercfgfile', path.basename( servercfgfile ),
       '+ip', getIP(),
-      '-game', CS16_GAMEDIR,
-      '-dll', CS16_DLL_FILE,
       '-console',
-      '-beta',
-      '-bots',
+      '-game', CS16_GAMEDIR,
+      '-dll', CS16_DLL_FILE,                                  // dll with bots
+      '-beta',                                                // enable mp_swapteams
+      '-bots',                                                // enable bots
       '-condebug',
     ],
     {
@@ -627,6 +635,8 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     score[ result.winner ] += 1;
   }
 
+  log.info( `Score: ${team1.name} [ ${score[ Scorebot.TeamEnum.CT ]} ] - [ ${score[ Scorebot.TeamEnum.Terrorist ]} ] ${team2.name}` );
+
   // set up vars
   const totalrounds     = score.reduce( ( total, current ) => total + current );
   const halftimerounds  = SERVER_CVAR_MAXROUNDS / 2;
@@ -658,6 +668,7 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   }
 
   if( gameover ) {
+    log.info( 'GAME IS OVER. Shutting down server...' );
     await rcon.send( 'exit' );
     rcon.disconnect();
     return sbEventHandler_Game_Over({ map: '', score });
