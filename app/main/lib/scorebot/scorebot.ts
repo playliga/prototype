@@ -12,7 +12,7 @@ import { IterableObject } from 'shared/types';
 
 export const TeamEnum: IterableObject<number> = {
   CT: 0,
-  Terrorist: 1,
+  TERRORIST: 1,
 };
 
 
@@ -25,7 +25,7 @@ export const GameEvents = {
 
 const RegexTypes = {
   GAME_OVER_REGEX: new RegExp( /(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2}):([\d]{1,2})/ ),
-  ROUND_OVER_REGEX: new RegExp( /(Terrorist|CT)s?_Win(?:.)+(\d)(?:.)+(\d)/ ),
+  ROUND_OVER_REGEX: new RegExp( /Team "(TERRORIST|CT)" triggered "(.+)" (?:.)+(\d)(?:.)+(\d)/ ),
   SAY_REGEX: new RegExp( /(?:.)+(?:say|say_team)(?:.)+"(.*)"$/ ),
   STEAM_REGEX: new RegExp( /<(STEAM_\d+:\d+:\d+|BOT|Console)>/ ),
   TEAM_REGEX: new RegExp( /["<]?(CT|TERRORIST|Spectator|Unassigned)[">]?/ ),
@@ -89,8 +89,9 @@ export class Scorebot extends events.EventEmitter {
 
     if( regexmatch ) {
       this.emit( GameEvents.ROUND_OVER, {
-        winner: TeamEnum[ regexmatch[ 1 ] ],           // can be: CT or T
-        score: regexmatch.slice( 2 )                  // e.g.: [ 0 (ct) , 1 (t) ]
+        winner: TeamEnum[ regexmatch[ 1 ] ],  // can be: CT or TERRORIST
+        event: regexmatch[ 2 ],               // e.g.: CTs_Win or Target_Bombed
+        score: regexmatch.slice( 3 )          // e.g.: [ 0 (ct) , 1 (t) ]
       });
       return;
     }

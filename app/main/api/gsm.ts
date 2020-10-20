@@ -638,7 +638,7 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     score[ result.winner ] += 1;
   }
 
-  log.info( `Score: ${team1.name} [ ${score[ Scorebot.TeamEnum.CT ]} ] - [ ${score[ Scorebot.TeamEnum.Terrorist ]} ] ${team2.name}` );
+  log.info( `Score: ${team1.name} [ ${score[ Scorebot.TeamEnum.CT ]} ] - [ ${score[ Scorebot.TeamEnum.TERRORIST ]} ] ${team2.name}` );
 
   // set up vars
   const totalrounds     = score.reduce( ( total, current ) => total + current );
@@ -665,7 +665,7 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     gameover = true;
   }
 
-  if( score[ Scorebot.TeamEnum.Terrorist ] === clinchrounds ) {
+  if( score[ Scorebot.TeamEnum.TERRORIST ] === clinchrounds ) {
     await rcon.send( `say "* * * ${team2.name} wins: ${JSON.stringify( score )} * * *"` );
     gameover = true;
   }
