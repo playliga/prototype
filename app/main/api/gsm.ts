@@ -370,7 +370,7 @@ function backup( extra = [] as string[] ) {
 }
 
 
-function restore( extra = [] as string[] ) {
+function restore( extra = [] as string[], ignorelist = [] as string[] ) {
   let tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
 
   if( extra.length > 0 ) {
@@ -381,6 +381,10 @@ function restore( extra = [] as string[] ) {
     const backupfilename = path.basename( item ) + '.original';
     const backuppath = path.join( steampath, basedir, gamedir, path.dirname( item ), backupfilename );
     const targetpath = path.join( steampath, basedir, gamedir, item );
+
+    if( ignorelist.includes( path.basename( item ) ) ) {
+      return;
+    }
 
     if( fs.existsSync( targetpath ) && fs.existsSync( backuppath ) ) {
       fs.copyFileSync( backuppath, targetpath );
@@ -423,11 +427,18 @@ function cleanup() {
     extrafiles.push( CSGO_LANGUAGE_FILE );
   }
 
+  // ignore dlls for cs16
+  const ignorelist = [];
+
+  if( cs16_enabled ) {
+    ignorelist.push( path.basename( CS16_DLL_FILE ) );
+  }
+
   // restore modified config files
-  restore( extrafiles );
+  restore( extrafiles, ignorelist );
 
   // clean up the log file
-  fs.unlinkSync( path.join( steampath, basedir, gamedir, logfile ) );
+  fs.unlinkSync( path.join( steampath, basedir, cs16_enabled ? '' : gamedir, logfile ) );
 }
 
 
@@ -647,6 +658,8 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   }
 
   if( gameover ) {
+    await rcon.send( 'exit' );
+    rcon.disconnect();
     return sbEventHandler_Game_Over({ map: '', score });
   }
 
