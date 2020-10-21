@@ -897,7 +897,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   await generateServerConfig({
     demo: Application.DEMO_MODE,
     maxrounds: SERVER_CVAR_MAXROUNDS,
-    hostname: `${compobj.name}: ${competition.Continent.name} — ${hostname_suffix}`,
+    hostname: `${compobj.name}: ${competition.Continent.name} | ${hostname_suffix}`,
     logfile: logfile,
     ot: allow_ot,
     rcon_password: RCON_PASSWORD,

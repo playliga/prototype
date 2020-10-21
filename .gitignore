@@ -9,3 +9,4 @@ scripts/out.json
 *.swp
 .DS_Store
 main.bundle.js
+Thumbs.db
