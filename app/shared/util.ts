@@ -20,3 +20,25 @@ export function parseCupRound( round: any[] ) {
       return `Round ${round[ 0 ].id.r}`;
   }
 }
+
+
+/**
+ * If CS16 is enabled this function will return the replacement map
+ * for those that do not exist in the game. Otherwise, it will
+ * return the map that was originally passed to the function.
+ */
+
+export function parseMapForMatch( map: string, cs16_enabled = false ) {
+  if( !cs16_enabled ) {
+    return map;
+  }
+
+  const disabled = [ 'de_vertigo', 'de_overpass' ];
+  const replacements = [ 'de_tuscan', 'de_cpl_mill' ];
+
+  if( disabled.includes( map ) ) {
+    return replacements[ disabled.findIndex( m => m === map ) ];
+  }
+
+  return map;
+}

@@ -4,11 +4,13 @@ import Tiers from 'shared/tiers';
 import { Typography, Space, Avatar, Empty } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { UpcomingMatchResponse } from 'renderer/screens/main/types';
+import { parseMapForMatch } from 'shared/util';
 import './match-preview.scss';
 
 
 interface Props {
   data: UpcomingMatchResponse;
+  cs16_enabled?: boolean;
 }
 
 
@@ -64,7 +66,7 @@ export default function MatchPreview( props: Props ) {
       <div className="match-preview-footer">
         <Typography.Text mark>
           {props.data.match.data
-            ? props.data.match.data.map
+            ? parseMapForMatch( props.data.match.data.map, props.cs16_enabled )
             : 'TBD'
           }
         </Typography.Text>

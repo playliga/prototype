@@ -1,0 +1,14 @@
+// overview description file for de_tuscan.bsp
+
+global 
+{
+	ZOOM	1.51
+	ORIGIN	-188 	     256	   320
+	ROTATED	0
+}
+
+layer 
+{
+	IMAGE	"overviews/de_tuscan.bmp"
+	HEIGHT	320
+}

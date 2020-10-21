@@ -25,6 +25,7 @@ import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
 import { genMappool } from 'main/lib/worldgen/competition';
+import { parseMapForMatch } from 'shared/util';
 
 
 /**
@@ -407,6 +408,13 @@ function copy() {
   tree.forEach( item => {
     const sourcepath = path.join( __dirname, GAMEFILES_BASEDIR, gamedir, item );
     const targetpath = path.join( steampath, basedir, gamedir, item );
+    const parents = path.dirname( targetpath );
+
+    // make the dirs if they don't already exist
+    if( !fs.existsSync( parents ) ) {
+      fs.mkdirSync( parents );
+    }
+
     fs.copyFileSync( sourcepath, targetpath );
   });
 
@@ -556,7 +564,7 @@ function launchCS16Server( map = 'de_dust2' ) {
   gameproc_server = spawn(
     CS16_HLDS_EXE,
     [
-      '+map', map,
+      '+map', parseMapForMatch( map, cs16_enabled ),
       '+maxplayers', '12',
       '+servercfgfile', path.basename( servercfgfile ),
       '+ip', getIP(),
