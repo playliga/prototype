@@ -343,21 +343,22 @@ function addSquadsToServer( squads: Models.Player[][] ) {
  * ------------------------------------
  */
 
-// trims the first three dirs in order
-// to isolate just the files needed
+// grab all game files.
 //
-// e.g.: [resources/gamefiles/game]/<...>
-function trimResourcesPath( item: string ) {
-  return item
-    .split( path.sep )
-    .slice( 3 )
-    .join( path.sep )
-  ;
+// e.g.: /some/long/path/resources/gamefiles/[cstrike|csgo]/<...>
+function getGameFiles( item: string ) {
+  // this is our dir tree
+  const tree = item.split( path.sep );
+
+  // isolate the current game's files and offset
+  // the index by 1 to omit the top-level dir
+  const idx = tree.indexOf( gamedir );
+  return tree.slice( idx + 1 ).join( path.sep );
 }
 
 
 function backup( extra = [] as string[] ) {
-  let tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
+  let tree: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) ).map( getGameFiles );
 
   if( extra.length > 0 ) {
     tree = [ ...tree, ...extra ];
@@ -378,7 +379,7 @@ function backup( extra = [] as string[] ) {
 
 
 function restore( extra = [] as string[], ignorelist = [] as string[] ) {
-  let tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
+  let tree: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) ).map( getGameFiles );
 
   if( extra.length > 0 ) {
     tree = [ ...tree, ...extra ];
@@ -403,7 +404,7 @@ function restore( extra = [] as string[], ignorelist = [] as string[] ) {
 
 
 function copy() {
-  const tree: string[] = walk( path.join( GAMEFILES_BASEDIR, gamedir ) ).map( trimResourcesPath );
+  const tree: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) ).map( getGameFiles );
 
   tree.forEach( item => {
     const sourcepath = path.join( __dirname, GAMEFILES_BASEDIR, gamedir, item );
