@@ -345,26 +345,29 @@ function addSquadsToServer( squads: Models.Player[][] ) {
 
 // grab all game files.
 //
-// e.g.: /some/long/path/resources/gamefiles/[cstrike|csgo]/<...>
-function getGameFiles( item: string ) {
-  // this is our dir tree
-  const tree = item.split( path.sep );
+// e.g.: /some/long/path/resources/gamefiles/[cstrike|csgo]/maps/de_cpl_mill.bsp
+function getGameFiles() {
+  const gamefiles: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) );
+  return gamefiles.map( item => {
+    // this is our dir tree
+    const tree = item.split( path.sep );
 
-  // isolate the current game's files and offset
-  // the index by 1 to omit the top-level dir
-  const idx = tree.indexOf( gamedir );
-  return tree.slice( idx + 1 ).join( path.sep );
+    // isolate the current game's files and offset
+    // the index by 1 to omit the top-level dir
+    const idx = tree.indexOf( gamedir );
+    return tree.slice( idx + 1 ).join( path.sep );
+  });
 }
 
 
 function backup( extra = [] as string[] ) {
-  let tree: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) ).map( getGameFiles );
+  let gamefiles = getGameFiles();
 
   if( extra.length > 0 ) {
-    tree = [ ...tree, ...extra ];
+    gamefiles = [ ...gamefiles, ...extra ];
   }
 
-  tree.forEach( item => {
+  gamefiles.forEach( item => {
     const backupfilename = path.basename( item ) + '.original';
     const backuppath = path.join( steampath, basedir, gamedir, path.dirname( item ), backupfilename );
     const targetpath = path.join( steampath, basedir, gamedir, item );
@@ -379,13 +382,13 @@ function backup( extra = [] as string[] ) {
 
 
 function restore( extra = [] as string[], ignorelist = [] as string[] ) {
-  let tree: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) ).map( getGameFiles );
+  let gamefiles = getGameFiles();
 
   if( extra.length > 0 ) {
-    tree = [ ...tree, ...extra ];
+    gamefiles = [ ...gamefiles, ...extra ];
   }
 
-  tree.forEach( item => {
+  gamefiles.forEach( item => {
     const backupfilename = path.basename( item ) + '.original';
     const backuppath = path.join( steampath, basedir, gamedir, path.dirname( item ), backupfilename );
     const targetpath = path.join( steampath, basedir, gamedir, item );
@@ -404,9 +407,9 @@ function restore( extra = [] as string[], ignorelist = [] as string[] ) {
 
 
 function copy() {
-  const tree: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) ).map( getGameFiles );
+  const gamefiles = getGameFiles();
 
-  tree.forEach( item => {
+  gamefiles.forEach( item => {
     const sourcepath = path.join( __dirname, GAMEFILES_BASEDIR, gamedir, item );
     const targetpath = path.join( steampath, basedir, gamedir, item );
     const parents = path.dirname( targetpath );
