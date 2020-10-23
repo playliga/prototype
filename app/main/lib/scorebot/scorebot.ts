@@ -26,7 +26,7 @@ export const GameEvents = {
 const RegexTypes = {
   GAME_OVER_REGEX: new RegExp( /(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2}):([\d]{1,2})/ ),
   ROUND_OVER_REGEX: new RegExp( /Team "(TERRORIST|CT)" triggered "(.+)" (?:.)+(\d)(?:.)+(\d)/ ),
-  SAY_REGEX: new RegExp( /(?:.)+(?:say|say_team)(?:.)+"(.*)"$/ ),
+  SAY_REGEX: new RegExp( /(?:.)+(?:say|say_team)(?:.)+"(.*)"/ ),
   STEAM_REGEX: new RegExp( /<(STEAM_\d+:\d+:\d+|BOT|Console)>/ ),
   TEAM_REGEX: new RegExp( /["<]?(CT|TERRORIST|Spectator|Unassigned)[">]?/ ),
 };
