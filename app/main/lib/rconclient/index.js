@@ -51,7 +51,7 @@ function RconClient(host, port, password, options) {
 
 util.inherits(RconClient, events.EventEmitter);
 
-RconClient.prototype.send = function(data, cmd, id) {
+RconClient.prototype.send = function(data, cmd, id, useAsync = true) {
   var sendBuf;
   if (this.tcp) {
     cmd = cmd || PacketType.COMMAND;
@@ -77,14 +77,21 @@ RconClient.prototype.send = function(data, cmd, id) {
     sendBuf.writeInt32LE(-1, 0);
     sendBuf.write(str, 4)
   }
-  this._sendSocket(sendBuf);
+
+  if( useAsync ) {
+    return new Promise( resolve => {
+      this._sendSocket(sendBuf, () => resolve() );
+    });
+  } else {
+    this._sendSocket(sendBuf);
+  }
 };
 
-RconClient.prototype._sendSocket = function(buf) {
+RconClient.prototype._sendSocket = function(buf, cb = null) {
   if (this._tcpSocket) {
-    this._tcpSocket.write(buf.toString('binary'), 'binary');
+    this._tcpSocket.write(buf.toString('binary'), 'binary', cb );
   } else if (this._udpSocket) {
-    this._udpSocket.send(buf, 0, buf.length, this.port, this.host);
+    this._udpSocket.send(buf, 0, buf.length, this.port, this.host, cb );
   }
 };
 
@@ -196,7 +203,7 @@ RconClient.prototype.socketOnConnect = function() {
   this.emit('connect');
 
   if (this.tcp) {
-    this.send(this.password, PacketType.AUTH);
+    this.send(this.password, PacketType.AUTH, false);
   } else if (this.challenge) {
     var str = "challenge rcon\n";
     var sendBuf = Buffer.alloc(str.length + 4);
