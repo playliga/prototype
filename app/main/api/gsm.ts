@@ -286,10 +286,10 @@ function getIP() {
 }
 
 
-function getSquads( team1: Models.Player[], team2: Models.Player[] ) {
-  // load up the whole squad
-  let squad1 = team1;
-  let squad2 = team2;
+function getSquads() {
+  // filter user from squads
+  let squad1 = team1.Players.filter( p => p.alias !== profile.Player.alias );
+  let squad2 = team2.Players.filter( p => p.alias !== profile.Player.alias );
 
   // replace squad with starters if enough are set
   const starters1 = squad1.filter( p => p.starter );
@@ -301,6 +301,15 @@ function getSquads( team1: Models.Player[], team2: Models.Player[] ) {
 
   if( starters2.length >= SQUAD_STARTERS_NUM ) {
     squad2 = starters2;
+  }
+
+  // trim the user's squad by one
+  if( team1.id === profile.Team.id ) {
+    squad1 = squad1.slice( 0, SQUAD_STARTERS_NUM - 1 );
+  }
+
+  if( team2.id === profile.Team.id ) {
+    squad2 = squad2.slice( 0, SQUAD_STARTERS_NUM - 1 );
   }
 
   return [ squad1, squad2 ];
@@ -845,10 +854,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   }
 
   // generate each team's squads
-  const squads = getSquads(
-    team1.Players.filter( p => p.alias !== profile.Player.alias ),
-    team2.Players.filter( p => p.alias !== profile.Player.alias )
-  );
+  const squads = getSquads();
 
   // --------------------------------
   // SIMULATE THE GAME?
