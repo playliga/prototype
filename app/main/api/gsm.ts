@@ -5,6 +5,8 @@ import is from 'electron-is';
 import log from 'electron-log';
 import dedent from 'dedent';
 import probable from 'probable';
+import glob from 'glob';
+import unzipper from 'unzipper';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 import RconClient from 'main/lib/rconclient';
@@ -16,6 +18,7 @@ import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
+import { promisify } from 'util';
 import { flatten, random } from 'lodash';
 import { ping } from '@network-utils/tcp-ping';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
@@ -48,7 +51,8 @@ const SQUAD_STARTERS_NUM                  = 5;
 const CS16_APPID                          = 10;
 const CS16_BASEDIR                        = 'steamapps/common/Half-Life';
 const CS16_BOT_CONFIG                     = 'botprofile.db';
-const CS16_DLL_FILE                       = 'dlls/liga.dll';
+const CS16_DLL_BOTS                       = 'dlls/liga.dll';
+const CS16_DLL_METAMOD                    = 'addons/metamod/dlls/metamod.dll';
 const CS16_GAMEDIR                        = 'cstrike';
 const CS16_HLDS_EXE                       = 'hlds.exe';
 const CS16_LOGFILE                        = 'qconsole.log';
@@ -347,8 +351,15 @@ function addSquadsToServer( squads: Models.Player[][] ) {
 //
 // e.g.: /some/long/path/resources/gamefiles/[cstrike|csgo]/maps/de_cpl_mill.bsp
 function getGameFiles() {
-  const gamefiles: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) );
-  return gamefiles.map( item => {
+  const allfiles: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) );
+  const gamefiles = allfiles.map( item => {
+    // skip zip files
+    const ext = path.extname( item );
+
+    if( ext === '.zip' ) {
+      return;
+    }
+
     // this is our dir tree
     const tree = item.split( path.sep );
 
@@ -357,6 +368,29 @@ function getGameFiles() {
     const idx = tree.indexOf( gamedir );
     return tree.slice( idx + 1 ).join( path.sep );
   });
+
+  return gamefiles.filter( g => g );
+}
+
+
+async function extract() {
+  const globAsync = promisify( glob );
+  const sourcedir = path.join( __dirname, GAMEFILES_BASEDIR, gamedir );
+  const targetdir = path.join( steampath, basedir, gamedir );
+  const files = await globAsync( '**/*.zip', { cwd: sourcedir });
+
+  // [ 'amxmodx.zip', 'maps.zip' ]
+  const unzipped = files.map( file => {
+    return new Promise( resolve => {
+      fs
+        .createReadStream( path.join( sourcedir, file ) )
+        .pipe( unzipper.Extract({ path: targetdir }) )
+        .on( 'close', () => resolve() )
+      ;
+    });
+  });
+
+  return Promise.all( unzipped );
 }
 
 
@@ -416,7 +450,7 @@ function copy() {
 
     // make the dirs if they don't already exist
     if( !fs.existsSync( parents ) ) {
-      fs.mkdirSync( parents );
+      fs.mkdirSync( parents, { recursive: true });
     }
 
     fs.copyFileSync( sourcepath, targetpath );
@@ -449,7 +483,7 @@ function cleanup() {
   const ignorelist = [];
 
   if( cs16_enabled ) {
-    ignorelist.push( path.basename( CS16_DLL_FILE ) );
+    ignorelist.push( path.basename( CS16_DLL_BOTS ) );
   }
 
   // restore modified config files and clean up the log file
@@ -568,16 +602,17 @@ function launchCS16Server( map = 'de_dust2' ) {
   gameproc_server = spawn(
     CS16_HLDS_EXE,
     [
-      '+map', parseMapForMatch( map, cs16_enabled ),
-      '+maxplayers', '12',
-      '+servercfgfile', path.basename( servercfgfile ),
-      '+ip', getIP(),
       '-console',
       '-game', CS16_GAMEDIR,
-      '-dll', CS16_DLL_FILE,                                  // dll with bots
+      '-dll', CS16_DLL_METAMOD,                               // metamod
       '-beta',                                                // enable mp_swapteams
       '-bots',                                                // enable bots
       '-condebug',
+      '+localinfo', 'mm_gamedll', CS16_DLL_BOTS,              // dll with bots
+      '+ip', getIP(),
+      '+servercfgfile', path.basename( servercfgfile ),
+      '+maxplayers', '12',
+      '+map', parseMapForMatch( map, cs16_enabled ),
     ],
     {
       cwd: path.join( steampath, CS16_BASEDIR ),
@@ -650,7 +685,8 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     score[ result.winner ] += 1;
   }
 
-  log.info( `Score: ${team1.name} [ ${score[ Scorebot.TeamEnum.CT ]} ] - [ ${score[ Scorebot.TeamEnum.TERRORIST ]} ] ${team2.name}` );
+  // report current score
+  await rcon.send( `say * * * ROUND OVER | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
 
   // set up vars
   const totalrounds     = score.reduce( ( total, current ) => total + current );
@@ -663,23 +699,18 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     halftime = true;
     gameislive = false;
     await rcon.send( 'exec liga-halftime.cfg' );
+    await rcon.send( `say * * * HALF-TIME | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
+    await rcon.send( 'say * * * TO START THE SECOND HALF TYPE: .ready * * *' );
   }
 
-  if( totalrounds === SERVER_CVAR_MAXROUNDS ) {
-    // @todo: 16-14 or draw.
-    // @todo: figure it out
-    await rcon.send( `say draw or someone barely won: ${JSON.stringify( score )}` );
+  // game is over
+  if(
+    totalrounds === SERVER_CVAR_MAXROUNDS
+    || score[ Scorebot.TeamEnum.CT ] === clinchrounds
+    || score[ Scorebot.TeamEnum.TERRORIST ] === clinchrounds
+  ) {
     gameover = true;
-  }
-
-  if( score[ Scorebot.TeamEnum.CT ] === clinchrounds ) {
-    await rcon.send( `say "* * * ${team1.name} wins: ${JSON.stringify( score )} * * *"` );
-    gameover = true;
-  }
-
-  if( score[ Scorebot.TeamEnum.TERRORIST ] === clinchrounds ) {
-    await rcon.send( `say "* * * ${team2.name} wins: ${JSON.stringify( score )} * * *"` );
-    gameover = true;
+    await rcon.send( `say * * * GAME OVER | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
   }
 
   if( gameover ) {
@@ -874,8 +905,11 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   }
 
   // --------------------------------
-  // SET UP CSGO CONFIG FILES
+  // SET UP CONFIG FILES
   // --------------------------------
+
+  // extract any zip files
+  await extract();
 
   // set up any extra files to backup
   // based on the game that's enabled
