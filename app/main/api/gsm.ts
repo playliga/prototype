@@ -24,11 +24,11 @@ import { ping } from '@network-utils/tcp-ping';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
+import { parseMapForMatch, snooze } from 'shared/util';
 import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
 import { genMappool } from 'main/lib/worldgen/competition';
-import { parseMapForMatch } from 'shared/util';
 
 
 /**
@@ -54,6 +54,7 @@ const CS16_BOT_CONFIG                     = 'botprofile.db';
 const CS16_DLL_BOTS                       = 'dlls/liga.dll';
 const CS16_DLL_METAMOD                    = 'addons/metamod/dlls/metamod.dll';
 const CS16_GAMEDIR                        = 'cstrike';
+const CS16_GAME_OVER_DELAY                = 10000;
 const CS16_HLDS_EXE                       = 'hlds.exe';
 const CS16_LOGFILE                        = 'qconsole.log';
 const CS16_SERVER_CONFIG_FILE             = 'liga.cfg';
@@ -469,7 +470,7 @@ function copy() {
 }
 
 
-function cleanup() {
+async function cleanup() {
   log.info( 'connection closed to gameserver. cleaning up...' );
 
   // clean up connections to processes and/or files
@@ -497,12 +498,19 @@ function cleanup() {
 
   // restore modified config files and clean up the log file
   restore( extrafiles, ignorelist );
-  fs.unlinkSync( path.join( steampath, basedir, cs16_enabled ? '' : gamedir, logfile ) );
+
+  try {
+    await fs.promises.unlink( path.join( steampath, basedir, cs16_enabled ? '' : gamedir, logfile ) );
+  } catch( error ) {
+    log.error( error );
+  }
 
   // reset game-state vars
   score = [ 0, 0 ];
   gameislive = false;
   halftime = false;
+
+  return Promise.resolve();
 }
 
 
@@ -709,7 +717,7 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     gameislive = false;
     await rcon.send( 'exec liga-halftime.cfg' );
     await rcon.send( `say * * * HALF-TIME | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
-    await rcon.send( 'say * * * TO START THE SECOND HALF TYPE: .ready * * *' );
+    await rcon.send( 'say * * * TO START THE SECOND-HALF TYPE: .ready * * *' );
   }
 
   // game is over
@@ -721,6 +729,9 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     gameover = true;
     await rcon.send( `say * * * GAME OVER | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
   }
+
+  // wait a few seconds before shutting down the server and saving the results
+  await snooze( CS16_GAME_OVER_DELAY );
 
   if( gameover ) {
     log.info( 'GAME IS OVER. Shutting down server...' );

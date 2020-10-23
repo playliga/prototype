@@ -42,3 +42,12 @@ export function parseMapForMatch( map: string, cs16_enabled = false ) {
 
   return map;
 }
+
+
+/**
+ * Implementation of sleep with promises.
+ */
+
+export function snooze( ms: number ) {
+  return new Promise( resolve => setTimeout( resolve, ms ) );
+}
