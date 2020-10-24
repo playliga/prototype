@@ -5,7 +5,7 @@ import Score from './score';
 import { random, flattenDeep, shuffle, flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Conference, Match, PromotionConference } from 'main/lib/league/types';
-import { League, Cup, Division } from 'main/lib/league';
+import { League, Cup } from 'main/lib/league';
 import { parseCompType } from 'main/lib/util';
 
 
