@@ -11,6 +11,7 @@ import './match-preview.scss';
 interface Props {
   data: UpcomingMatchResponse;
   cs16_enabled?: boolean;
+  onClick?: ( id: number ) => void;
 }
 
 
@@ -41,27 +42,31 @@ export default function MatchPreview( props: Props ) {
         </Typography.Text>
       </div>
       <div className="match-preview-body">
-        <Space direction="vertical" size={2}>
-          <Avatar size={100} icon={<UserOutlined />} />
-          <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
-          {typeof props.data.match.team1.tier === 'number'  && (
-            <Typography.Text className="tier-text">
-              {Tiers[ props.data.match.team1.tier ].name}
-            </Typography.Text>
-          )}
-        </Space>
+        <section onClick={() => !!props.onClick && props.onClick( props.data.match.team1.id )}>
+          <Space direction="vertical" size={2}>
+            <Avatar size={100} icon={<UserOutlined />} />
+            <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
+            {typeof props.data.match.team1.tier === 'number'  && (
+              <Typography.Text className="tier-text">
+                {Tiers[ props.data.match.team1.tier ].name}
+              </Typography.Text>
+            )}
+          </Space>
+        </section>
         <Typography.Text strong className="vs">
           {'VS'}
         </Typography.Text>
-        <Space direction="vertical" size={2}>
-          <Avatar size={100} icon={<UserOutlined />} />
-          <Typography.Text ellipsis>{props.data.match.team2.name}</Typography.Text>
-          {typeof props.data.match.team2.tier === 'number' && (
-            <Typography.Text className="tier-text">
-              {Tiers[ props.data.match.team2.tier ].name}
-            </Typography.Text>
-          )}
-        </Space>
+        <section onClick={() => !!props.onClick && props.onClick( props.data.match.team2.id )}>
+          <Space direction="vertical" size={2}>
+            <Avatar size={100} icon={<UserOutlined />} />
+            <Typography.Text ellipsis>{props.data.match.team2.name}</Typography.Text>
+            {typeof props.data.match.team2.tier === 'number' && (
+              <Typography.Text className="tier-text">
+                {Tiers[ props.data.match.team2.tier ].name}
+              </Typography.Text>
+            )}
+          </Space>
+        </section>
       </div>
       <div className="match-preview-footer">
         <Typography.Text mark>

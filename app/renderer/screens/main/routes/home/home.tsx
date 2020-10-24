@@ -211,6 +211,7 @@ function Home( props: Props ) {
               <MatchPreview
                 data={hasUpcoming && upcoming[ 0 ]}
                 cs16_enabled={!!props.profile.data && props.profile.data.settings.cs16_enabled}
+                onClick={id => props.history.push( `/home/team/${id}` )}
               />
             </Card>
           </Col>

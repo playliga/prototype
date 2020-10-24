@@ -126,7 +126,7 @@ function Team( props: RouteComponentProps ) {
         <Card className="ant-card-contain-grid" style={{ marginTop: 20 }}>
           {data.matches.map( match => (
             <MatchResult
-              key={JSON.stringify( match.match.id )}
+              key={match.id}
               {...match}
             />
           ))}

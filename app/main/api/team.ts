@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { parseCupRound } from 'shared/util';
@@ -53,6 +54,10 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
         ? divobj.promotionConferences.find( c => c.id === matchobj.payload.confId )
         : divobj.conferences.find( c => c.id === matchobj.payload.confId )
       ;
+      if( !conf ) {
+        log.warn( `Could not load match data for: ${matchobj.id}.` );
+        return Promise.resolve();
+      }
       description = `${leagueobj.name}: ${divobj.name}`;
       team1id = divobj.getCompetitorBySeed( conf, matchobj.payload.match.p[ 0 ] ).id;
       team2id = divobj.getCompetitorBySeed( conf, matchobj.payload.match.p[ 1 ] ).id;
@@ -72,6 +77,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
     const team2 = await Models.Team.findByPk( team2id, { include: [ 'Country' ] });
 
     return Promise.resolve({
+      id: matchobj.id,
       description,
       date: matchobj.date,
       match: {
@@ -91,7 +97,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
   // return the data
   evt.sender.send( req.responsechannel, JSON.stringify({
     ...teamobj.toJSON(),
-    matches: data
+    matches: data.filter( d => d !== undefined )
   }));
 }
 
