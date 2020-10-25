@@ -841,6 +841,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
       conf = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id )[ 0 ];
       allow_ot = false;
       allow_draw = true;
+      is_postseason = false;
       tourneyobj = conf.groupObj;
       match = conf.groupObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
