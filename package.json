@@ -1,6 +1,7 @@
 {
   "name": "liga",
-  "version": "2.0.0-beta.3",
+  "productName": "LIGA",
+  "version": "2.0.0-beta.4",
   "description": "A football manager-type game for e-sports",
   "main": "main.bundle.js",
   "author": "Steve Rivera",
@@ -33,6 +34,7 @@
   },
   "build": {
     "appId": "io.steverivera.liga",
+    "copyright": "Copyright © 2020 ${author}",
     "mac": {
       "category": "public.app.category.games",
       "identity": "null"
