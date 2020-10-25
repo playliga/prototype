@@ -1,6 +1,7 @@
 import React from 'react';
 import { SizeType } from 'antd/lib/config-provider/SizeContext';
-import { Table } from 'antd';
+import { Table, Typography } from 'antd';
+import { StarFilled } from '@ant-design/icons';
 import './standings.scss';
 
 
@@ -15,25 +16,37 @@ const PROMOTION_PLAYOFFS  = 6;
 const RELEGATION          = 18;
 
 
-function getRowClass( rowdata: any, pos: number, seed?: number ) {
+function getRowClass( pos: number ) {
+  const isauto = pos <= PROMOTION_AUTO;
+  const isplayoffs = pos > PROMOTION_AUTO && pos <= PROMOTION_PLAYOFFS;
+  const isrelegation = pos >= RELEGATION;
+
+  if( isauto ) {
+    return 'promotion-auto';
+  }
+
+  if( isplayoffs ) {
+    return 'promotion-playoffs';
+  }
+
+  if( isrelegation ) {
+    return 'relegation';
+  }
+
+  return '';
+}
+
+
+function NameColumn( props: { item: any; idx: number; highlightSeed: number }) {
   return (
-    // highlight user seed with their own color,
-    // unless they are in the relegation zone
-    seed === rowdata.seed
-      ? rowdata.realpos < RELEGATION
-        ? 'ant-table-row-selected'
-        : 'ant-table-row-selected relegation'
-
-      // highlight promotion
-      : pos <= PROMOTION_AUTO
-        ? 'promotion-auto'
-        : pos > PROMOTION_AUTO && pos <= PROMOTION_PLAYOFFS
-          ? 'promotion-playoffs'
-
-          // highlight relegation
-          : pos >= RELEGATION
-            ? 'relegation'
-            : ''
+    <>
+      <span>{props.item.realpos || props.idx + 1}. {props.item.name}</span>
+      {props.highlightSeed === props.item.seed && (
+        <Typography.Text type="warning">
+          <StarFilled />
+        </Typography.Text>
+      )}
+    </>
   );
 }
 
@@ -69,7 +82,7 @@ export default function Standings( props: StandingsProps ) {
     <Table
       dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
       pagination={!props.disablePagination && { pageSize: props.pageSize || 20, hideOnSinglePage: true }}
-      rowClassName={( r, idx ) => getRowClass( r, idx + 1, props.highlightSeed )}
+      rowClassName={( r, idx ) => getRowClass( idx + 1 )}
       rowKey={props.rowKey || 'id'}
       size={props.size || 'small'}
       onRow={r  => ({
@@ -81,7 +94,7 @@ export default function Standings( props: StandingsProps ) {
           ellipsis
           width="50%"
           title="Name"
-          render={( item, r, idx ) => `${item.realpos || idx + 1}. ${item.name}`}
+          render={( item, r, idx ) => <NameColumn highlightSeed={props.highlightSeed} item={item} idx={idx} />}
         />
         <Table.Column
           title="W/L/D"
