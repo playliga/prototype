@@ -87,7 +87,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
 
     return (
       <div id="firstrun">
-        <img src={this.imgdata} alt="La Liga" />
+        <img src={this.imgdata} alt="LIGA" />
 
         <section id="steps">
           <Steps

@@ -1,17 +1,17 @@
 {
-  "name": "la-liga",
+  "name": "liga",
   "version": "2.0.0-beta.2",
   "description": "A football manager-type game for e-sports",
   "main": "main.bundle.js",
   "author": "Steve Rivera",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/lemonpole/la-liga#readme",
+  "homepage": "https://github.com/lemonpole/liga#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lemonpole/la-liga.git"
+    "url": "git+https://github.com/lemonpole/liga.git"
   },
   "bugs": {
-    "url": "https://github.com/lemonpole/la-liga/issues"
+    "url": "https://github.com/lemonpole/liga/issues"
   },
   "keywords": [
     "manager",
@@ -32,7 +32,7 @@
     "test:coverage": "npm test -- --coverage"
   },
   "build": {
-    "appId": "io.steverivera.laliga",
+    "appId": "io.steverivera.liga",
     "mac": {
       "category": "public.app.category.games",
       "identity": "null"
