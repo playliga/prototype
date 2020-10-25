@@ -1,15 +1,26 @@
 import React from 'react';
 import moment from 'moment';
 import IpcService from 'renderer/lib/ipc-service';
+import Tiers from 'shared/tiers';
 import { useParams, RouteComponentProps } from 'react-router';
-import { Affix, Avatar, Card, PageHeader, Space, Spin, Typography } from 'antd';
-import { CaretLeftFilled, UserOutlined } from '@ant-design/icons';
+import { Affix, Card, PageHeader, Space, Spin, Typography } from 'antd';
+import { CaretLeftFilled } from '@ant-design/icons';
 import { TeamInfoResponse } from 'shared/types';
+import { Line } from 'react-chartjs-2';
 import * as IPCRouting from 'shared/ipc-routing';
 
 
 interface RouteParams {
   id?: string;
+}
+
+
+/**
+ * HELPER FUNCTIONS
+ */
+
+function getYAxisLabel( label: number ) {
+  return Tiers.find( t => t.order === label ).name;
 }
 
 
@@ -113,15 +124,53 @@ function Team( props: RouteComponentProps ) {
       </Affix>
 
       <section className="content">
-        <Space align="start">
-          <Avatar size={128} icon={<UserOutlined />} />
-          <Space direction="vertical">
-            <Typography.Title>
-              <span className={`fp ${data.Country.code.toLowerCase()}`} />
-              {data.name}
-            </Typography.Title>
-          </Space>
+        <Space direction="vertical">
+          <Typography.Title>
+            <span className={`fp ${data.Country.code.toLowerCase()}`} />
+            {data.name}
+          </Typography.Title>
         </Space>
+
+        <div style={{ position: 'relative', height: 250 }}>
+          <Line
+            data={{
+              labels: data.prevDivisions.map( d => `S${d.season}` ),
+              datasets: [{
+                data: data.prevDivisions.map( d => Tiers[ d.tier ].order ),
+                borderColor: 'salmon',
+                fill: false,
+              }],
+            }}
+            options={{
+              maintainAspectRatio: false,
+              legend: false,
+              tooltips: false,
+              scales: {
+                xAxes: [{
+                  offset: true,
+                  gridLines: {
+                    borderDash: [ 5, 5 ],
+                    drawBorder: false,
+                  },
+                }],
+                yAxes: [{
+                  offset: true,
+                  gridLines: {
+                    borderDash: [ 5, 5 ],
+                    drawBorder: false,
+                  },
+                  ticks: {
+                    beginAtZero: true,
+                    stepSize: 1,
+                    max: 4,
+                    padding: 10,
+                    callback: getYAxisLabel
+                  }
+                }]
+              }
+            }}
+          />
+        </div>
 
         <Card className="ant-card-contain-grid" style={{ marginTop: 20 }}>
           {data.matches.map( match => (

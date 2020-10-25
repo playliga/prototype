@@ -1,10 +1,11 @@
 import log from 'electron-log';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
+import { CompTypes } from 'shared/enums';
 import { parseCupRound } from 'shared/util';
 import { parseCompType } from 'main/lib/util';
 import { PromotionConference } from 'main/lib/league/types';
-import { Cup, League } from 'main/lib/league';
+import { Cup, Division, League } from 'main/lib/league';
 import * as Models from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
 
@@ -16,7 +17,12 @@ interface GetTeamRequest {
 
 async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
   // grab team's matches
-  const teamobj = await Models.Team.findByPk( req.params.id, { include: [ 'Country' ] });
+  const teamobj = await Models.Team.findByPk( req.params.id, {
+    include: [
+      { model: Models.Country },
+      { model: Models.Competition, include: [ 'Comptype' ] }
+    ]
+  });
   const matches = await Models.Match.findAll({
     include: [
       {
@@ -28,6 +34,14 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
         where: { id: req.params.id },
       }
     ]
+  });
+
+  // parse their division history
+  const prevcomps = teamobj.Competitions.filter( c => c.Comptype.name === CompTypes.LEAGUE );
+  const prevdivisions = prevcomps.map( comp => {
+    const idx = comp.data.divisions.findIndex( ( d: Division ) => d.competitors.some( c => c.id === teamobj.id ) );
+    const division = comp.data.divisions[ idx ];
+    return ({ name: division.name, tier: idx, season: comp.season });
   });
 
   // format the match data for the frontend
@@ -97,6 +111,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
   // return the data
   evt.sender.send( req.responsechannel, JSON.stringify({
     ...teamobj.toJSON(),
+    prevDivisions: prevdivisions,
     matches: data.filter( d => d !== undefined )
   }));
 }

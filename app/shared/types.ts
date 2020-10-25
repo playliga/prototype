@@ -28,4 +28,5 @@ export interface TeamInfoResponse {
   name: string;
   Country: any;
   matches: any[];
+  prevDivisions: any[];
 }
