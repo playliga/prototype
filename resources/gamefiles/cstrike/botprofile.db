@@ -51,9 +51,6 @@ End
 
 Template Sniper
 	WeaponPreference = awp
-	WeaponPreference = sg550
-	WeaponPreference = g3sg1
-	WeaponPreference = scout
 	WeaponPreference = famas
 	WeaponPreference = galil
 	WeaponPreference = mp5

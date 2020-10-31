@@ -77,9 +77,6 @@ End
 
 Template Sniper
 	WeaponPreference = awp
-	WeaponPreference = scar20
-	WeaponPreference = g3sg1
-	WeaponPreference = ssg08
 	WeaponPreference = famas
 	WeaponPreference = galilar
 	WeaponPreference = mp7
