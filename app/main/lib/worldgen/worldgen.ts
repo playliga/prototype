@@ -259,7 +259,10 @@ export async function scheduleEndSeasonReport() {
     where: {
       completed: false,
       type: ActionQueueTypes.START_SEASON
-    }
+    },
+    order: [
+      [ 'id', 'DESC' ]
+    ],
   });
 
   return Models.ActionQueue.create({
