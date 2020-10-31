@@ -47,9 +47,10 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
   // format the match data for the frontend
   const data = await Promise.all( matches.map( async matchobj => {
     // these will be reassigned later
-    let description;
-    let team1id;
-    let team2id;
+    let competition: string;
+    let description: string;
+    let team1id: number;
+    let team2id: number;
 
     // partial; useful when querying for the match
     const matchidpartial = {
@@ -72,16 +73,17 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
         log.warn( `Could not load match data for: ${matchobj.id}.` );
         return Promise.resolve();
       }
-      description = `${leagueobj.name}: ${divobj.name}`;
+      competition = `${leagueobj.name}: ${divobj.name}`;
       team1id = divobj.getCompetitorBySeed( conf, matchobj.payload.match.p[ 0 ] ).id;
       team2id = divobj.getCompetitorBySeed( conf, matchobj.payload.match.p[ 1 ] ).id;
 
       if( matchobj.payload.is_postseason ) {
-        description += ` (Promotion ${parseCupRound( ( conf as PromotionConference ).duelObj.findMatches( matchidpartial ) )})`;
+        description = `Promotion ${parseCupRound( ( conf as PromotionConference ).duelObj.findMatches( matchidpartial ) )}`;
       }
     } else if( iscup ) {
       const cupobj = Cup.restore( matchobj.Competition.data );
-      description = `${cupobj.name}: ${parseCupRound( cupobj.duelObj.findMatches( matchidpartial ) )}`;
+      competition = cupobj.name;
+      description = parseCupRound( cupobj.duelObj.findMatches( matchidpartial ) );
       team1id = cupobj.getCompetitorBySeed( matchobj.payload.match.p[ 0 ] ).id;
       team2id = cupobj.getCompetitorBySeed( matchobj.payload.match.p[ 1 ] ).id;
     }
@@ -92,8 +94,11 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
     return Promise.resolve({
       id: matchobj.id,
+      competition,
+      season: matchobj.Competition.season,
       description,
       date: matchobj.date,
+      type: [ isleague, iscup ],
       match: {
         ...matchobj.payload.match,
         team1: {
