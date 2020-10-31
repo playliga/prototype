@@ -51,10 +51,11 @@ const SQUAD_STARTERS_NUM                  = 5;
 const CS16_APPID                          = 10;
 const CS16_BASEDIR                        = 'steamapps/common/Half-Life';
 const CS16_BOT_CONFIG                     = 'botprofile.db';
+const CS16_DELAY_GAMEOVER                 = 10000;
+const CS16_DELAY_HALFTIME                 = 3000;
 const CS16_DLL_BOTS                       = 'dlls/liga.dll';
 const CS16_DLL_METAMOD                    = 'addons/metamod/dlls/metamod.dll';
 const CS16_GAMEDIR                        = 'cstrike';
-const CS16_GAME_OVER_DELAY                = 10000;
 const CS16_HLDS_EXE                       = 'hlds.exe';
 const CS16_LOGFILE                        = 'qconsole.log';
 const CS16_SERVER_CONFIG_FILE             = 'liga.cfg';
@@ -703,7 +704,8 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   }
 
   // report current score
-  await rcon.send( `say * * * ROUND OVER | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
+  const getCurrentScore = () => `${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name}`;
+  await rcon.send( `say * * * ROUND OVER | ${getCurrentScore()} * * *` );
 
   // set up vars
   const totalrounds     = score.reduce( ( total, current ) => total + current );
@@ -715,8 +717,9 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   if( totalrounds === halftimerounds ) {
     halftime = true;
     gameislive = false;
+    await rcon.send( `say * * * HALF-TIME | ${getCurrentScore()} * * *` );
+    await snooze( CS16_DELAY_HALFTIME );
     await rcon.send( 'exec liga-halftime.cfg' );
-    await rcon.send( `say * * * HALF-TIME | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
     await rcon.send( 'say * * * TO START THE SECOND-HALF TYPE: .ready * * *' );
   }
 
@@ -727,11 +730,13 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     || score[ Scorebot.TeamEnum.TERRORIST ] === clinchrounds
   ) {
     gameover = true;
-    await rcon.send( `say * * * GAME OVER | ${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name} * * *` );
+    await rcon.send( `say * * * GAME OVER | ${getCurrentScore()} * * *` );
+    await rcon.send( `say * * * SHUTTING DOWN SERVER IN ${CS16_DELAY_GAMEOVER / 1000}s * * *` );
+    await rcon.send( 'bot_quota 0' );
   }
 
   // wait a few seconds before shutting down the server and saving the results
-  await snooze( CS16_GAME_OVER_DELAY );
+  await snooze( CS16_DELAY_GAMEOVER );
 
   if( gameover ) {
     log.info( 'GAME IS OVER. Shutting down server...' );
