@@ -43,7 +43,8 @@ const BOT_VOICEPITCH_MIN                  = 80;
 const BOT_WEAPONPREFS_PROBABILITY_RIFLE   = 3;
 const BOT_WEAPONPREFS_PROBABILITY_SNIPER  = 1;
 const GAMEFILES_BASEDIR                   = 'resources/gamefiles';
-const SERVER_CVAR_MAXROUNDS               = Application.DEMO_MODE ? 6 : 30;
+const SERVER_CVAR_MAXROUNDS               = 30;
+const SERVER_CVAR_FREEZETIME              = 15;
 const SQUAD_STARTERS_NUM                  = 5;
 
 
@@ -148,6 +149,8 @@ let team2: Models.Team;
 let tourneyobj: Tournament;
 let allow_draw = false;
 let is_postseason: boolean;
+let cvar_maxrounds: number;
+let cvar_freezetime: number;
 
 
 // set up the steam path
@@ -175,6 +178,8 @@ async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayReque
   // set up async vars
   profile = await Models.Profile.getActiveProfile();
   cs16_enabled = profile.settings.cs16_enabled;
+  cvar_maxrounds = profile.settings.maxrounds || SERVER_CVAR_MAXROUNDS;
+  cvar_freezetime = profile.settings.freezetime || SERVER_CVAR_FREEZETIME;
   competition = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).find( c => c.id === ipcreq.params.compId );
   queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
   [ isleague, iscup ] = parseCompType( competition.Comptype.name );
@@ -709,8 +714,8 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
 
   // set up vars
   const totalrounds     = score.reduce( ( total, current ) => total + current );
-  const halftimerounds  = SERVER_CVAR_MAXROUNDS / 2;
-  const clinchrounds    = ( SERVER_CVAR_MAXROUNDS / 2 ) + 1;
+  const halftimerounds  = cvar_maxrounds / 2;
+  const clinchrounds    = ( cvar_maxrounds / 2 ) + 1;
   let gameover = false;
 
   // we've reached half-time
@@ -725,7 +730,7 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
 
   // game is over
   if(
-    totalrounds === SERVER_CVAR_MAXROUNDS
+    totalrounds === cvar_maxrounds
     || score[ Scorebot.TeamEnum.CT ] === clinchrounds
     || score[ Scorebot.TeamEnum.TERRORIST ] === clinchrounds
   ) {
@@ -957,9 +962,10 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // generate server config
   await generateServerConfig({
     demo: Application.DEMO_MODE,
-    maxrounds: SERVER_CVAR_MAXROUNDS,
+    freezetime: cvar_freezetime,
     hostname: `${compobj.name}: ${competition.Continent.name} | ${hostname_suffix}`,
     logfile: logfile,
+    maxrounds: cvar_maxrounds,
     ot: allow_ot,
     rcon_password: RCON_PASSWORD,
     teamflag_ct: team1.Country.code,

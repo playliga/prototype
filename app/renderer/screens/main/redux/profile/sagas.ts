@@ -34,6 +34,9 @@ function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
 
 
 function* updateSettings( action: ProfileTypes.ProfileActionTypes ) {
+  // grab existing profile to merge with updated settings
+  const data = yield IpcService.send( IPCRouting.Database.PROFILE_GET );
+
   // update the profile
   yield IpcService.send( IPCRouting.Database.UPDATE, {
     params: {
@@ -41,8 +44,10 @@ function* updateSettings( action: ProfileTypes.ProfileActionTypes ) {
       args: {
         // @ts-ignore
         id: action.payload.id,
-        // @ts-ignore
-        data: { settings: action.payload }
+        data: {
+          // @ts-ignore
+          settings: { ...data.settings, ...action.payload }
+        }
       }
     }
   });

@@ -1,0 +1,17 @@
+#settings {
+  section + section {
+    margin-top: 20px;
+  }
+
+  .ant-row + .ant-row {
+    margin-top: 20px;
+  }
+
+  .ant-select {
+    width: 100%;
+  }
+
+  .ant-card-grid {
+    width: 100%;
+  }
+}

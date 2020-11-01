@@ -49,7 +49,7 @@ function Competition( props: CompetitionProps ) {
 
   return (
     <Col key={props.data.competitionId} span={GRID_COL_WIDTH}>
-      <Typography.Title level={3}>
+      <Typography.Title level={2}>
         <Space>
           <Typography.Text ellipsis>
             {props.data.competition}: {props.data.regioncode}
