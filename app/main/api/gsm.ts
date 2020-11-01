@@ -175,7 +175,7 @@ async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayReque
   // set up async vars
   profile = await Models.Profile.getActiveProfile();
   cs16_enabled = profile.settings.cs16_enabled;
-  competition = profile.Team.Competitions.find( c => c.id === ipcreq.params.compId );
+  competition = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).find( c => c.id === ipcreq.params.compId );
   queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
   [ isleague, iscup ] = parseCompType( competition.Comptype.name );
 

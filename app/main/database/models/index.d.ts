@@ -63,6 +63,7 @@ declare module 'main/database/models' {
     public setTeams: Sequelize.BelongsToManySetAssociationsMixin<Team, number>;
     public addTeam: Sequelize.BelongsToManyAddAssociationMixin<Team, number>;
     public removeTeam: Sequelize.BelongsToManyRemoveAssociationMixin<Team, number>;
+    public static findAllByTeam( id: number ): Promise<Competition[]>;
   }
 
 

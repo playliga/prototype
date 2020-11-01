@@ -32,6 +32,7 @@ interface CompetitionProps {
   onClick: () => void;
   onTeamClick: ( id: number ) => void;
   team: any;
+  teamCompetitions: any;
 }
 
 
@@ -43,10 +44,7 @@ function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
   const sameregion = props.team.Country.ContinentId === props.data.regionId;
   const [ isleague, iscup ] = props.data.type;
-  const joined = props
-    .team
-    .Competitions
-    .findIndex( ( c: any ) => c.id === props.data.competitionId )
+  const joined = props.teamCompetitions.findIndex( ( c: any ) => c.id === props.data.competitionId )
   > -1;
 
   return (
@@ -129,6 +127,7 @@ function Competition( props: CompetitionProps ) {
 function Competitions( props: Props ) {
   const [ joining, setJoining ] = React.useState( false );
   const [ standings, setStandings ] = React.useState<StandingsResponse[][]>([]);
+  const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
 
   React.useEffect( () => {
     IpcService
@@ -140,6 +139,19 @@ function Competitions( props: Props ) {
       .then( res => setStandings( res ) )
     ;
   }, []);
+
+  React.useEffect( () => {
+    IpcService
+      .send( IPCRouting.Database.GENERIC, {
+        params: {
+          model: 'Competition',
+          method: 'findAllByTeam',
+          args: props.profile.data.Team.id
+        }
+      })
+      .then( res => setTeamCompetitions( res ) )
+    ;
+  }, [ props.profile.data ]);
 
   if( !standings || standings.length === 0 ) {
     return (
@@ -156,6 +168,7 @@ function Competitions( props: Props ) {
           <Competition
             key={comp.competitionId}
             team={props.profile.data.Team}
+            teamCompetitions={teamCompetitions}
             joining={joining}
             data={comp}
             onClick={async () => {

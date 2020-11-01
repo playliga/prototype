@@ -17,8 +17,8 @@ import { parseCompType } from 'main/lib/util';
  * Whether the team joined the specified competiton
  */
 
-function didJoin( team: Models.Team, comp: Models.Competition ) {
-  return team.Competitions.findIndex( c => c.id === comp.id ) > -1;
+function didJoin( teamcompetitions: Models.Competition[], comp: Models.Competition ) {
+  return teamcompetitions.findIndex( c => c.id === comp.id ) > -1;
 }
 
 
@@ -73,7 +73,8 @@ function getWeekday( type: string, date: moment.Moment ) {
 async function genLeagueMatchdays( comp: Models.Competition ) {
   // setup vars
   const profile = await Models.Profile.getActiveProfile();
-  const joined = didJoin( profile.Team, comp );
+  const competitions = await Models.Competition.findAllByTeam( profile.Team.id );
+  const joined = didJoin( competitions, comp );
   const leagueobj = League.restore( comp.data );
 
   // if the user joined, grab their conf+seed numbers
@@ -179,7 +180,8 @@ async function genLeagueMatchdays( comp: Models.Competition ) {
 async function genCupMatchdays( comp: Models.Competition ) {
   // setup vars
   const profile = await Models.Profile.getActiveProfile();
-  const joined = didJoin( profile.Team, comp );
+  const competitions = await Models.Competition.findAllByTeam( profile.Team.id );
+  const joined = didJoin( competitions, comp );
   const cupobj = Cup.restore( comp.data );
 
   // bail if tourney is finished

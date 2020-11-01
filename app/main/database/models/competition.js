@@ -1,6 +1,9 @@
 import Sequelize, { Model } from 'sequelize';
 
 
+let _models = null;
+
+
 class Competition extends Model {
   static autoinit( sequelize ) {
     return this.init({
@@ -17,11 +20,28 @@ class Competition extends Model {
   }
 
   static associate( models ) {
+    if( !_models ) {
+      _models = models;
+    }
     this.hasMany( models.Match );
     this.belongsTo( models.Comptype );
     this.belongsTo( models.Compdef );
     this.belongsTo( models.Continent );
     this.belongsToMany( models.Team, { through: 'CompetitionTeams' });
+  }
+
+  static findAllByTeam( id ) {
+    return Competition.findAll({
+      include: [
+        _models.Continent,
+        _models.Comptype,
+        _models.Compdef,
+        {
+          model: _models.Team,
+          where: { id }
+        },
+      ]
+    });
   }
 }
 

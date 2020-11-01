@@ -98,6 +98,7 @@ itemloop.register( ActionQueueTypes.ENDSEASON_REPORT, async () => {
   // grab the cup the user is in
   // did they make it far?
   const profile = await Models.Profile.getActiveProfile();
+  const competitions = await Models.Competition.findAllByTeam( profile.Team.id );
   const persona = await Models.Persona.findOne({
     where: { teamId: profile.Team.id },
     include: [{
@@ -110,11 +111,7 @@ itemloop.register( ActionQueueTypes.ENDSEASON_REPORT, async () => {
     to: profile.Player,
     sentAt: profile.currentDate
   };
-  const [ compobj ] = profile
-    .Team
-    .Competitions
-    .filter( c => c.season === c.Compdef.season && c.Comptype.name === CompTypes.LEAGUE )
-  ;
+  const [ compobj ] = competitions.filter( c => c.season === c.Compdef.season && c.Comptype.name === CompTypes.LEAGUE );
 
   if( compobj ) {
     const leagueobj = League.restore( compobj.data );
@@ -181,7 +178,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_COMP, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const today = moment( profile.currentDate );
   const tomorrow = today.add( 1, 'day' );
-  const joined = profile.Team.Competitions.length > 0;
+  const joined = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).length > 0;
 
   if( joined ) {
     return Promise.resolve();
@@ -298,7 +295,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_CHECK_COMP, async () => {
   const profile = await Models.Profile.getActiveProfile();
   const today = moment( profile.currentDate );
   const tomorrow = today.add( 1, 'day' );
-  const joined = profile.Team.Competitions.length > 0;
+  const joined = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).length > 0;
   const hassquad = profile.Team.Players.length >= Application.SQUAD_MIN_LENGTH;
 
   if( joined || !hassquad ) {
