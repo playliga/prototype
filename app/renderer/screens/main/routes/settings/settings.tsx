@@ -1,7 +1,7 @@
 import React from 'react';
 import Connector from 'renderer/screens/main/components/connector';
 import { RouteComponentProps } from 'react-router';
-import { Alert, Col, Row, Typography, Switch, Card, Select } from 'antd';
+import { Col, Row, Typography, Switch, Card, Select } from 'antd';
 import { ApplicationState } from 'renderer/screens/main/types';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import './settings.scss';
@@ -25,10 +25,14 @@ function Settings( props: Props ) {
   return (
     <div id="settings" className="content">
       <section>
+        <Typography.Title level={2}>
+          {'General'}
+        </Typography.Title>
         <Card>
           <Row>
             <Col span={20}>
               <Typography.Text>{'Classic Mode'}</Typography.Text>
+              <Typography.Text type="warning">{' (Experimental)'}</Typography.Text>
             </Col>
             <Col span={4} style={{ textAlign: 'right' }}>
               <Switch
@@ -41,10 +45,6 @@ function Settings( props: Props ) {
             {'This will launch CS 1.6 instead of CS:GO when playing matches.'}
           </Typography.Text>
         </Card>
-        <Alert
-          type="warning"
-          message="Warning: This feature is currently experimental. Use at your own risk!"
-        />
       </section>
       <section>
         <Typography.Title level={2}>
