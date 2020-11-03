@@ -1,45 +1,50 @@
 import Score from '../score';
 
 
-let team1: any;
-let team2: any;
+let teams: any[];
 
 
 describe( 'score simulator', () => {
   beforeAll( () => {
-    team1 = { tier: 1, id: 123 };
-    team2 = { tier: 2, id: 345 };
+    teams = [
+      { tier: 0, id: 'PREMIER' },
+      { tier: 1, id: 'ADVANCED' },
+      { tier: 2, id: 'MAIN' },
+      { tier: 3, id: 'INTERMEDIATE' },
+      { tier: 4, id: 'OPEN' },
+    ];
   });
 
   it( 'generates scores', () => {
-    const ITERATIONS = 50;
-
-    for( let i = 0; i < ITERATIONS; i++ ) {
-      const result = Score( team1, team2 );
-      expect( Array.isArray( result ) ).toBeTruthy();
-      expect( result ).toContain( 16 );
-    }
+    teams.forEach( team_a => {
+      const others = teams.filter( team_b => team_b.id !== team_a.id );
+      others.forEach( team_b => {
+        const result = Score( team_a, team_b );
+        expect( Array.isArray( result ) ).toBeTruthy();
+        expect( result ).toContain( 16 );
+      });
+    });
   });
 
   it( 'generates scores (allows draws)', () => {
-    const ITERATIONS = 50;
-
-    for( let i = 0; i < ITERATIONS; i++ ) {
-      const result = Score( team1, team2, true );
-      expect( Array.isArray( result ) ).toBeTruthy();
-    }
+    teams.forEach( team_a => {
+      const others = teams.filter( team_b => team_b.id !== team_a.id );
+      others.forEach( team_b => {
+        const result = Score( team_a, team_b, true );
+        expect( Array.isArray( result ) ).toBeTruthy();
+      });
+    });
   });
 
   it( 'considers player tier levels', () => {
-    const ITERATIONS = 50;
-
-    // append team
-    team1.Players = new Array( 5 ).fill({ tier: team1.tier });
-    team2.Players = new Array( 5 ).fill({ tier: team2.tier });
-
-    for( let i = 0; i < ITERATIONS; i++ ) {
-      const result = Score( team1, team2 );
-      expect( Array.isArray( result ) ).toBeTruthy();
-    }
+    teams.forEach( team_a => {
+      const others = teams.filter( team_b => team_b.id !== team_a.id );
+      team_a.Players = new Array( 5 ).fill({ tier: team_a.tier });
+      others.forEach( team_b => {
+        team_b.Players = new Array( 5 ).fill({ tier: team_b.tier });
+        const result = Score( team_a, team_b, true );
+        expect( Array.isArray( result ) ).toBeTruthy();
+      });
+    });
   });
 });

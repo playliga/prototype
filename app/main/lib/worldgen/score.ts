@@ -24,15 +24,19 @@ function getTeamSkillLevel( players: any[] ) {
 
 export default function( team1: any, team2: any, allowdraw = false ) {
   // calculate probability weight for teams
-  let w_team1 = Tiers[ team1.tier ].multiplier;
-  let w_team2 = Tiers[ team2.tier ].multiplier;
+  let w_team1 = 0;
+  let w_team2 = 0;
 
   if( team1.Players && team1.Players.length > 0 ) {
     w_team1 += getTeamSkillLevel( team1.Players );
+  } else {
+    w_team1 += 1;
   }
 
   if( team2.Players && team2.Players.length > 0 ) {
     w_team2 += getTeamSkillLevel( team2.Players );
+  } else {
+    w_team2 += 1;
   }
 
   // use probability to determine a winner
