@@ -24,7 +24,7 @@ import { ping } from '@network-utils/tcp-ping';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { parseMapForMatch, snooze } from 'shared/util';
+import { parseCupRound, parseMapForMatch, snooze } from 'shared/util';
 import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
@@ -847,6 +847,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
       team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).name );
       is_postseason = true;
+      hostname_suffix = `${divobj.name} | Promotion ${parseCupRound( conf.duelObj.currentRound() )}`;
     } else {
       conf = divobj.getCompetitorConferenceAndSeedNumById( profile.Team.id )[ 0 ];
       allow_ot = false;
@@ -856,11 +857,11 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
       match = conf.groupObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
       team2 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 1 ] ).name );
+      hostname_suffix = divobj.name;
     }
 
     // assign the remaining vars
     compobj = leagueobj;
-    hostname_suffix = divobj.name;
   } else if( iscup ) {
     // grab the match information
     const cupobj = Cup.restore( competition.data );
@@ -872,7 +873,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     match = cupobj.duelObj.findMatch( request.params.matchId );
     team1 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 0 ] ).name );
     team2 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 1 ] ).name );
-    hostname_suffix = `Round ${match.id.r}`;
+    hostname_suffix = parseCupRound( cupobj.duelObj.currentRound() );
   }
 
   // generate each team's squads
