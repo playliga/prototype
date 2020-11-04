@@ -278,6 +278,7 @@ function Home( props: Props ) {
                   pageSize={NUM_CUP_MATCHES}
                   dataSource={hasStandings && standings[ 0 ].round}
                   title={hasStandings && standings[ 0 ].round && parseCupRound( standings[ 0 ].round )}
+                  onClick={id => props.history.push( `/home/team/${id}` )}
                 />
               )}
             </Card>

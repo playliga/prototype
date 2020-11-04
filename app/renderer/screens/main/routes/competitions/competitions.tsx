@@ -113,6 +113,7 @@ function Competition( props: CompetitionProps ) {
           sliceData={NUM_CUP_MATCHES}
           title={parseCupRound( props.data.round )}
           dataSource={props.data.round}
+          onClick={props.onTeamClick}
         />
       )}
     </Col>

@@ -12,10 +12,15 @@ interface Props {
   size?: SizeType;
   sliceData?: number;
   rowKey?: string;
+  onClick?: ( id: number ) => void;
 }
 
 
 export default function MatchResults( props: Props ) {
+  const onClickHandler = ( id: number ) => (
+    !!props.onClick && props.onClick( id )
+  );
+
   return (
     <Table
       dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
@@ -33,12 +38,18 @@ export default function MatchResults( props: Props ) {
           title="Home"
           width="35%"
           render={value => value.team1.seed > -1 ? value.team1.name : 'BYE'}
+          onCell={( value: any ) => ({
+            onClick: () => value.team1.seed > -1 && onClickHandler( value.team1.id )
+          })}
         />
         <Table.Column
           ellipsis
           title="Away"
           width="35%"
           render={value => value.team2.seed > -1 ? value.team2.name : 'BYE'}
+          onCell={( value: any ) => ({
+            onClick: () => value.team2.seed > -1 && onClickHandler( value.team2.id )
+          })}
         />
         <Table.Column
           title="Score"
