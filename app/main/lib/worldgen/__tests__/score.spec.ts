@@ -26,6 +26,16 @@ describe( 'score simulator', () => {
     });
   });
 
+  it( 'does not allow draws', () => {
+    teams.forEach( team_a => {
+      const others = teams.filter( team_b => team_b.id !== team_a.id );
+      others.forEach( team_b => {
+        const result = Score( team_a, team_b );
+        expect( result[ 0 ] ).not.toBe( result[ 1 ] );
+      });
+    });
+  });
+
   it( 'generates scores (allows draws)', () => {
     teams.forEach( team_a => {
       const others = teams.filter( team_b => team_b.id !== team_a.id );
