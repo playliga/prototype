@@ -11,6 +11,7 @@ class Player extends Model {
       eligibleDate: { type: Sequelize.DATEONLY, allowNull: true },
       tier: Sequelize.INTEGER,
       starter: Sequelize.BOOLEAN,
+      stats: { type: Sequelize.JSON, allowNull: true },
     }, { sequelize, modelName: 'Player' });
   }
 

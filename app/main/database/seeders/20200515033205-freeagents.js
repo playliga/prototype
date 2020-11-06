@@ -28,6 +28,7 @@ module.exports = {
         updatedAt: new Date(),
         eligibleDate: null,
         starter: false,
+        stats: null,
       });
     });
 

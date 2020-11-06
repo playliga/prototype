@@ -1,6 +1,7 @@
+import log from 'electron-log';
 import probable from 'probable';
-import { random } from 'lodash';
 import Tiers from 'shared/tiers';
+import { random } from 'lodash';
 
 
 const DRAW_ID = 'draw';
@@ -16,7 +17,7 @@ const SCORE_DRAW = 15;
 
 function getTeamSkillLevel( players: any[] ) {
   return players
-    .map( p => Tiers[ p.tier ].multiplier )
+    .map( p => p.stats && Math.floor( p.stats.skill ) || Tiers[ p.tier ].stats.skill )
     .reduce( ( a, b ) => a + b )
   ;
 }
@@ -40,7 +41,7 @@ function genScore( avoidscore: number = null ): number {
 }
 
 
-export default function( team1: any, team2: any, allowdraw = false ) {
+export default function( team1: any, team2: any, allowdraw = false, debug = false ) {
   // calculate probability weight for teams
   let w_team1 = 0;
   let w_team2 = 0;
@@ -68,7 +69,11 @@ export default function( team1: any, team2: any, allowdraw = false ) {
   // draw is equal to the lower tier team
   if( allowdraw ) {
     const lowesttier = team1.tier > team2.tier ? team2.tier : team1.tier;
-    rawtable.push([ Tiers[ lowesttier ].multiplier, DRAW_ID ]);
+    rawtable.push([ Math.floor( Tiers[ lowesttier ].stats.skill ), DRAW_ID ]);
+  }
+
+  if( debug ) {
+    log.debug( 'Generating score with probability weights: ', rawtable );
   }
 
   // generate a score!

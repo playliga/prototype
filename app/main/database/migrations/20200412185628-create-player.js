@@ -10,6 +10,7 @@ module.exports = {
       eligibleDate: { type: Sequelize.DATEONLY, allowNull: true },
       tier: Sequelize.INTEGER,
       starter: Sequelize.BOOLEAN,
+      stats: { type: Sequelize.JSON, allowNull: true },
 
       // timestamps
       createdAt: {

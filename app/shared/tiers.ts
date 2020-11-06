@@ -13,27 +13,37 @@
 export default [
   {
     name: 'Premier',
-    multiplier: 23,
     order: 4,
+    stats: {
+      skill: 100,
+    },
   },
   {
     name: 'Advanced',
-    multiplier: 17,
     order: 3,
+    stats: {
+      skill: 75,
+    },
   },
   {
     name: 'Main',
-    multiplier: 11,
     order: 2,
+    stats: {
+      skill: 50,
+    }
   },
   {
     name: 'Intermediate',
-    multiplier: 5,
     order: 1,
+    stats: {
+      skill: 25,
+    },
   },
   {
     name: 'Open',
-    multiplier: 1,
     order: 0,
+    stats: {
+      skill: 1,
+    }
   }
 ];

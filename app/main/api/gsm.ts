@@ -87,11 +87,11 @@ const TIER_TO_BOT_DIFFICULTY = [
   },
   {
     difficulty: 2,
-    templates: [ 'Tough', 'Hard', 'VeryHard' ],
+    templates: [ 'VeryHard' ],
   },
   {
     difficulty: 2,
-    templates: [ 'Tough', 'Hard', 'VeryHard' ],
+    templates: [ 'Tough', 'Hard' ],
   },
   {
     difficulty: 1,
@@ -328,9 +328,22 @@ function generateBotSkill( p: Models.Player ) {
   const template = random( 0, difficulty.templates.length - 1 );
   const weaponpref = weaponPrefsProbabilityTable.roll();
 
+  const name = `${difficulty.templates[ template ]}+${weaponpref} ${p.alias}`;
+  const skill = p.stats && p.stats.skill;
+  const voicepitch = random( BOT_VOICEPITCH_MIN, BOT_VOICEPITCH_MAX );
+
+  if( skill ) {
+    return dedent`
+      ${name}
+        Skill = ${Math.floor( skill )}
+        VoicePitch = ${voicepitch}
+      End\n
+    `;
+  }
+
   return dedent`
-    ${difficulty.templates[ template ]}+${weaponpref} ${p.alias}
-      VoicePitch = ${random( BOT_VOICEPITCH_MIN, BOT_VOICEPITCH_MAX )}
+    ${name}
+      VoicePitch = ${voicepitch}
     End\n
   `;
 }
@@ -883,7 +896,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // SIMULATE THE GAME?
   // --------------------------------
   if( Argparse[ 'sim-games' ] || request.params.sim ) {
-    tourneyobj.score( match.id, Worldgen.Score( team1, team2, allow_draw ) );
+    tourneyobj.score( match.id, Worldgen.Score( team1, team2, allow_draw, true ) );
     // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 1 : 0, team2.id === profile.Team.id ? 1 : 0 ] );
     // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 0 : 1, team2.id === profile.Team.id ? 0 : 1 ] );
     competition.data = compobj.save();

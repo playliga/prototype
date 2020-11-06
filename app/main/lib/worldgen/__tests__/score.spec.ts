@@ -1,3 +1,4 @@
+import Tiers from 'shared/tiers';
 import Score from '../score';
 
 
@@ -20,6 +21,7 @@ describe( 'score simulator', () => {
       const others = teams.filter( team_b => team_b.id !== team_a.id );
       others.forEach( team_b => {
         const result = Score( team_a, team_b );
+        team_b.Players = new Array( 5 ).fill({ tier: team_b.tier });
         expect( Array.isArray( result ) ).toBeTruthy();
         expect( result ).toContain( 16 );
       });
@@ -39,20 +41,22 @@ describe( 'score simulator', () => {
   it( 'generates scores (allows draws)', () => {
     teams.forEach( team_a => {
       const others = teams.filter( team_b => team_b.id !== team_a.id );
+      team_a.Players = new Array( 5 ).fill({ tier: team_a.tier });
       others.forEach( team_b => {
         const result = Score( team_a, team_b, true );
+        team_b.Players = new Array( 5 ).fill({ tier: team_b.tier });
         expect( Array.isArray( result ) ).toBeTruthy();
       });
     });
   });
 
-  it( 'considers player tier levels', () => {
+  it( 'generates scores with player skills', () => {
     teams.forEach( team_a => {
       const others = teams.filter( team_b => team_b.id !== team_a.id );
-      team_a.Players = new Array( 5 ).fill({ tier: team_a.tier });
+      team_a.Players = new Array( 5 ).fill({ tier: team_a.tier, stats: { skill: Tiers[ team_a.tier ].stats.skill }});
       others.forEach( team_b => {
-        team_b.Players = new Array( 5 ).fill({ tier: team_b.tier });
         const result = Score( team_a, team_b, true );
+        team_b.Players = new Array( 5 ).fill({ tier: team_b.tier });
         expect( Array.isArray( result ) ).toBeTruthy();
       });
     });

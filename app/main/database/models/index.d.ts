@@ -92,6 +92,7 @@ declare module 'main/database/models' {
     public monthlyWages: number;
     public eligibleDate: Date | null;
     public starter: boolean;
+    public stats: any;
     public readonly Team?: Team;
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
