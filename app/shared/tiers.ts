@@ -15,14 +15,18 @@ export default [
     name: 'Premier',
     order: 4,
     difficulty: 3,
-    stats: [
+    templates: [
       {
         name: 'Expert',
-        skill: 90,
+        stats: {
+          skill: 90,
+        }
       },
       {
         name: 'Elite',
-        skill: 100,
+        stats: {
+          skill: 100,
+        }
       }
     ]
   },
@@ -30,23 +34,29 @@ export default [
     name: 'Advanced',
     order: 3,
     difficulty: 2,
-    stats: [{
+    templates: [{
       name: 'VeryHard',
-      skill: 75,
+      stats: {
+        skill: 75,
+      }
     }],
   },
   {
     name: 'Main',
     order: 2,
     difficulty: 2,
-    stats: [
+    templates: [
       {
         name: 'Tough',
-        skill: 60,
+        stats: {
+          skill: 60,
+        }
       },
       {
         name: 'Hard',
-        skill: 75,
+        stats: {
+          skill: 75,
+        }
       }
     ]
   },
@@ -54,14 +64,18 @@ export default [
     name: 'Intermediate',
     order: 1,
     difficulty: 1,
-    stats: [
+    templates: [
       {
         name: 'Fair',
-        skill: 25,
+        stats: {
+          skill: 25,
+        }
       },
       {
         name: 'Normal',
-        skill: 50,
+        stats: {
+          skill: 50,
+        }
       }
     ],
   },
@@ -69,9 +83,11 @@ export default [
     name: 'Open',
     order: 0,
     difficulty: 0,
-    stats: [{
+    templates: [{
       name: 'Easy',
-      skill: 1,
+      stats: {
+        skill: 1,
+      }
     }]
   }
 ];

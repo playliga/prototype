@@ -20,9 +20,9 @@ function getPlayerSkillLevel( player: any ) {
     return Math.floor( player.stats.skill );
   }
 
-  const stats = Tiers[ player.tier ].stats;
-  const idx = random( 0, stats.length - 1 );
-  return stats[ idx ].skill;
+  const templates = Tiers[ player.tier ].templates;
+  const idx = random( 0, templates.length - 1 );
+  return templates[ idx ].stats.skill;
 }
 
 
@@ -80,8 +80,8 @@ export default function( team1: any, team2: any, allowdraw = false, debug = fals
   // draw is equal to the lower tier team
   if( allowdraw ) {
     const lowesttier = team1.tier > team2.tier ? team2.tier : team1.tier;
-    const [ stat ] = Tiers[ lowesttier ].stats;
-    rawtable.push([ Math.floor( stat.skill ), DRAW_ID ]);
+    const [ template ] = Tiers[ lowesttier ].templates;
+    rawtable.push([ Math.floor( template.stats.skill ), DRAW_ID ]);
   }
 
   if( debug ) {

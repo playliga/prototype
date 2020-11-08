@@ -301,7 +301,7 @@ function getSquads() {
 
 function generateBotSkill( p: Models.Player ) {
   const tier = Tiers[ p.tier ];
-  const templates = tier.stats;
+  const templates = tier.templates;
   const idx = random( 0, templates.length - 1 );
   const weaponpref = weaponPrefsProbabilityTable.roll();
 

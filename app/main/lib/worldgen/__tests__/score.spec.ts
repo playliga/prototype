@@ -53,7 +53,7 @@ describe( 'score simulator', () => {
   it( 'generates scores with player skills', () => {
     teams.forEach( team_a => {
       const others = teams.filter( team_b => team_b.id !== team_a.id );
-      team_a.Players = new Array( 5 ).fill({ tier: team_a.tier, stats: { skill: Tiers[ team_a.tier ].stats[ 0 ].skill }});
+      team_a.Players = new Array( 5 ).fill({ tier: team_a.tier, stats: { skill: Tiers[ team_a.tier ].templates[ 0 ].stats.skill }});
       others.forEach( team_b => {
         const result = Score( team_a, team_b, true );
         team_b.Players = new Array( 5 ).fill({ tier: team_b.tier });
