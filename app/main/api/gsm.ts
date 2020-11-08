@@ -7,6 +7,7 @@ import dedent from 'dedent';
 import probable from 'probable';
 import glob from 'glob';
 import unzipper from 'unzipper';
+import Tiers from 'shared/tiers';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 import RconClient from 'main/lib/rconclient';
@@ -77,31 +78,6 @@ const CSGO_SERVER_CONFIG_FILE             = 'cfg/liga.cfg';
 const RCON_MAX_ATTEMPTS                   = 15;
 const RCON_PASSWORD                       = 'liga';
 const RCON_PORT                           = 27015;
-
-
-// bot difficulty map
-const TIER_TO_BOT_DIFFICULTY = [
-  {
-    difficulty: 3,
-    templates: [ 'Expert', 'Elite' ],
-  },
-  {
-    difficulty: 2,
-    templates: [ 'VeryHard' ],
-  },
-  {
-    difficulty: 2,
-    templates: [ 'Tough', 'Hard' ],
-  },
-  {
-    difficulty: 1,
-    templates: [ 'Fair', 'Normal' ],
-  },
-  {
-    difficulty: 0,
-    templates: [ 'Easy' ],
-  }
-];
 
 
 // set up bot weapon prefs probability table
@@ -324,14 +300,17 @@ function getSquads() {
 
 
 function generateBotSkill( p: Models.Player ) {
-  const difficulty = TIER_TO_BOT_DIFFICULTY[ p.tier ];
-  const template = random( 0, difficulty.templates.length - 1 );
+  const tier = Tiers[ p.tier ];
+  const templates = tier.stats;
+  const idx = random( 0, templates.length - 1 );
   const weaponpref = weaponPrefsProbabilityTable.roll();
 
-  const name = `${difficulty.templates[ template ]}+${weaponpref} ${p.alias}`;
+  // build the bot profile fields
+  const name = `${templates[ idx ].name}+${weaponpref} ${p.alias}`;
   const skill = p.stats && p.stats.skill;
   const voicepitch = random( BOT_VOICEPITCH_MIN, BOT_VOICEPITCH_MAX );
 
+  // if skill overrides exist, use them
   if( skill ) {
     return dedent`
       ${name}
@@ -353,7 +332,7 @@ function addSquadsToServer( squads: Models.Player[][] ) {
   const botadd_cmd = squads.map( ( squad, idx ) => (
     squad
       .map( p => dedent`
-        bot_difficulty ${TIER_TO_BOT_DIFFICULTY[ p.tier ].difficulty};
+        bot_difficulty ${Tiers[ p.tier ].difficulty};
         bot_add_${idx === 0 ? 'ct' : 't'} ${p.alias}
       `)
       .join( ';' )

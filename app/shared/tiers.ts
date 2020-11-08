@@ -14,36 +14,64 @@ export default [
   {
     name: 'Premier',
     order: 4,
-    stats: {
-      skill: 100,
-    },
+    difficulty: 3,
+    stats: [
+      {
+        name: 'Expert',
+        skill: 90,
+      },
+      {
+        name: 'Elite',
+        skill: 100,
+      }
+    ]
   },
   {
     name: 'Advanced',
     order: 3,
-    stats: {
+    difficulty: 2,
+    stats: [{
+      name: 'VeryHard',
       skill: 75,
-    },
+    }],
   },
   {
     name: 'Main',
     order: 2,
-    stats: {
-      skill: 50,
-    }
+    difficulty: 2,
+    stats: [
+      {
+        name: 'Tough',
+        skill: 60,
+      },
+      {
+        name: 'Hard',
+        skill: 75,
+      }
+    ]
   },
   {
     name: 'Intermediate',
     order: 1,
-    stats: {
-      skill: 25,
-    },
+    difficulty: 1,
+    stats: [
+      {
+        name: 'Fair',
+        skill: 25,
+      },
+      {
+        name: 'Normal',
+        skill: 50,
+      }
+    ],
   },
   {
     name: 'Open',
     order: 0,
-    stats: {
+    difficulty: 0,
+    stats: [{
+      name: 'Easy',
       skill: 1,
-    }
+    }]
   }
 ];
