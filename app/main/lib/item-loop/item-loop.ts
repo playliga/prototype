@@ -28,9 +28,11 @@ interface Middleware {
 
 export class ItemLoop {
   private middleware: Middleware[];
+  private bail: boolean;
 
   constructor() {
     this.middleware = [];
+    this.bail = false;
   }
 
   private async runMiddleware( item: any ) {
@@ -39,6 +41,9 @@ export class ItemLoop {
   }
 
   public async start( max: number ) {
+    // we're starting so set bail back to default
+    this.bail = false;
+
     // bail if no `init` middleware was defined
     const initm = this.middleware.find( m => m.type === MiddlewareType.INIT );
 
@@ -73,7 +78,7 @@ export class ItemLoop {
       // do we need to bail out early?
       const bail = flatten( results ).findIndex( r => r === false );
 
-      if( bail > -1 ) {
+      if( bail > -1 || this.bail ) {
         break;
       }
 
@@ -88,5 +93,9 @@ export class ItemLoop {
 
   public register( type: string, callback: MiddlewareCallback ) {
     this.middleware.push({ type, callback });
+  }
+
+  public stop() {
+    this.bail = true;
   }
 }

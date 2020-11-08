@@ -42,12 +42,13 @@ interface Props extends RouteComponentProps, ApplicationState {
  * Helper functions
  */
 
-async function handleOnNextDay( dispatch: Function, setLoading: Function ) {
+async function handleOnNextDay( dispatch: Function, setLoading: Function, setStopping: Function ) {
   setLoading( true );
   IpcService
     .send( IPCRouting.Worldgen.CALENDAR_LOOP )
     .then( () => dispatch( profileActions.calendarFinish() ) )
-    .then( () => Promise.resolve( setLoading( false )) )
+    .then( () => Promise.resolve( setLoading( false ) ) )
+    .then( () => Promise.resolve( setStopping( false ) ) )
   ;
 }
 
@@ -67,6 +68,12 @@ async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function
     .then( () => dispatch( profileActions.calendarFinish() ) )
     .then( () => Promise.resolve( setLoading( false )) )
   ;
+}
+
+
+function handleOnStop( setStopping: Function ) {
+  setStopping( true );
+  IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP_STOP );
 }
 
 
@@ -128,6 +135,7 @@ function Home( props: Props ) {
   const [ upcoming, setUpcoming ] = React.useState<UpcomingMatchResponse[]>();
   const [ standings, setStandings ] = React.useState<StandingsResponse[]>();
   const [ loading, setLoading ] = React.useState( false );
+  const [ stopping, setStopping ] = React.useState( false );
 
   // set up some loading bools
   const hasUpcoming = upcoming && upcoming.length > 0;
@@ -191,9 +199,11 @@ function Home( props: Props ) {
       <Affix>
         <Header
           isMatchday={isMatchday}
-          onNextDay={() => handleOnNextDay( props.dispatch, setLoading )}
+          onNextDay={() => handleOnNextDay( props.dispatch, setLoading, setStopping )}
           onPlay={sim => handleOnPlay( upcoming[ 0 ], props.dispatch, setLoading, sim )}
+          onStop={() => handleOnStop( setStopping )}
           loading={loading}
+          stopping={stopping}
           {...props}
         />
       </Affix>

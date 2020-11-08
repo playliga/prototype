@@ -10,8 +10,10 @@ import './header.scss';
 interface Props extends ApplicationState {
   isMatchday?: boolean;
   loading?: boolean;
+  stopping?: boolean;
   onNextDay: () => void;
   onPlay: ( sim?: boolean ) => void;
+  onStop: () => void;
 }
 
 
@@ -80,16 +82,26 @@ export default function Header( props: Props ) {
                   {'Sim'}
                 </Button>
               ])
-              : (
-                <Button
-                  disabled={props.loading}
-                  key="2a"
-                  onClick={props.onNextDay}
-                  type="primary"
-                >
-                  {'Next'}
-                </Button>
-              )
+              : props.loading
+                ? (
+                  <Button
+                    danger
+                    key="2ab"
+                    type="primary"
+                    disabled={props.stopping}
+                    onClick={props.onStop}
+                  >
+                    {'Stop'}
+                  </Button>
+                ) : (
+                  <Button
+                    key="2a"
+                    type="primary"
+                    onClick={props.onNextDay}
+                  >
+                    {'Next'}
+                  </Button>
+                )
             }
           </div>
         ]}

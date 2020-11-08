@@ -1,3 +1,4 @@
+import { snooze } from 'shared/util';
 import ItemLoop from '..';
 
 
@@ -55,5 +56,27 @@ describe( 'item loop', () => {
 
     await theloop.start( MAX_ITERATIONS );
     expect( someval ).toEqual( MAX_ITERATIONS );
+  });
+
+  it( 'stops execution if called', async () => {
+    // bump timeout since we're snoozing
+    // for a few secs during this test
+    jest.setTimeout( 10000 );
+
+    // stop the loop in 2s
+    setTimeout( () => theloop.stop(), 2000 );
+
+    // run the loop
+    let someval = 0;
+
+    theloop.register( 'foo', () => {
+      someval++;
+      return snooze( 500 );
+    });
+
+    await theloop.start( MAX_ITERATIONS );
+
+    // our tracked val should be less than the max iterations
+    expect( someval ).toBeLessThan( MAX_ITERATIONS );
   });
 });

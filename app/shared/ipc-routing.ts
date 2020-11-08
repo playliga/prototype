@@ -34,9 +34,10 @@ export const Offer = {
 
 
 export const Worldgen = {
-  CALENDAR_LOOP : '/worldgen/calendar/loop',
-  EMAIL_INTRO   : '/worldgen/email/intro',
-  EMAIL_NEW     : '/worldgen/email/new',
+  CALENDAR_LOOP       : '/worldgen/calendar/loop',
+  CALENDAR_LOOP_STOP  : '/worldgen/calendar/loop/stop',
+  EMAIL_INTRO         : '/worldgen/email/intro',
+  EMAIL_NEW           : '/worldgen/email/new',
 };
 
 

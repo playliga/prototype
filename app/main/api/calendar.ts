@@ -21,6 +21,12 @@ async function handler( evt: IpcMainEvent, request: IpcRequest<LoopParams> ) {
 }
 
 
+function stop() {
+  Worldgen.Calendar.loop_stop();
+}
+
+
 export default function() {
   ipcMain.on( IPCRouting.Worldgen.CALENDAR_LOOP, handler );
+  ipcMain.on( IPCRouting.Worldgen.CALENDAR_LOOP_STOP, stop );
 }

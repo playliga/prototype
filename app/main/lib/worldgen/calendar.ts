@@ -427,6 +427,11 @@ itemloop.register( ActionQueueTypes.TRANSFER_OFFER_RESPONSE, async item => {
  * and executes those action items.
  */
 
+export function loop_stop() {
+  itemloop.stop();
+}
+
+
 export function loop( max = Application.CALENDAR_LOOP_MAX_ITERATIONS ) {
   return itemloop.start( max );
 }
