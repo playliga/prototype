@@ -10,7 +10,7 @@ import unzipper from 'unzipper';
 import Tiers from 'shared/tiers';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
-import RconClient from 'main/lib/rconclient';
+import RconClient from 'main/lib/rcon-client';
 import Worldgen from 'main/lib/worldgen';
 import Argparse from 'main/lib/argparse';
 import Application from 'main/constants/application';
