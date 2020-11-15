@@ -17,15 +17,21 @@ export default [
     difficulty: 3,
     templates: [
       {
-        name: 'Expert',
-        stats: {
-          skill: 90,
-        }
-      },
-      {
         name: 'Elite',
         stats: {
           skill: 100,
+          aggression: 100,
+          reactionTime: 0.2,
+          attackDelay: 0,
+        }
+      },
+      {
+        name: 'Expert',
+        stats: {
+          skill: 90,
+          aggression: 90,
+          reactionTime: 0.2,
+          attackDelay: 0,
         }
       }
     ]
@@ -37,7 +43,10 @@ export default [
     templates: [{
       name: 'VeryHard',
       stats: {
-        skill: 75,
+        skill: 80,
+        aggression: 80,
+        reactionTime: 0.25,
+        attackDelay: 0
       }
     }],
   },
@@ -47,15 +56,21 @@ export default [
     difficulty: 2,
     templates: [
       {
-        name: 'Tough',
-        stats: {
-          skill: 60,
-        }
-      },
-      {
         name: 'Hard',
         stats: {
           skill: 75,
+          aggression: 75,
+          reactionTime: 0.25,
+          attackDelay: 0,
+        }
+      },
+      {
+        name: 'Tough',
+        stats: {
+          skill: 60,
+          aggression: 60,
+          reactionTime: 0.3,
+          attackDelay: 0.35,
         }
       }
     ]
@@ -66,15 +81,21 @@ export default [
     difficulty: 1,
     templates: [
       {
-        name: 'Fair',
-        stats: {
-          skill: 25,
-        }
-      },
-      {
         name: 'Normal',
         stats: {
           skill: 50,
+          aggression: 50,
+          reactionTime: 0.4,
+          attackDelay: 0.7,
+        }
+      },
+      {
+        name: 'Fair',
+        stats: {
+          skill: 25,
+          aggression: 30,
+          reactionTime: 0.4,
+          attackDelay: 1.0,
         }
       }
     ],
@@ -87,6 +108,9 @@ export default [
       name: 'Easy',
       stats: {
         skill: 1,
+        aggression: 20,
+        reactionTime: 0.5,
+        attackDelay: 1.5,
       }
     }]
   }
