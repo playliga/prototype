@@ -100,7 +100,7 @@ function PlayerCard( props: any ) {
     <Card hoverable actions={cardactions}>
 
       {/* PLAYER COUNTRY + ALIAS */}
-      <Typography.Title level={3}>
+      <Typography.Title level={3} className="alias">
         {player.alias}
       </Typography.Title>
 
