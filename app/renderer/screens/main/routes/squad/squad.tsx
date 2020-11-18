@@ -28,6 +28,7 @@ import {
 import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileSelectors from 'renderer/screens/main/redux/profile/selectors';
 import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
+import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 
 
@@ -166,7 +167,15 @@ function PlayerCard( props: any ) {
 
 // the route component
 function Squad( props: Props ) {
-  const { profile, squad } = props;
+  const { profile } = props;
+  const [ squad, setSquad ] = React.useState([]);
+
+  React.useEffect( () => {
+    IpcService
+      .send( IPCRouting.Database.PROFILE_SQUAD )
+      .then( data => setSquad( data ) )
+    ;
+  }, [ profile ] );
 
   // bail if profile hasn't loaded
   if( !profile.data || !squad ) {

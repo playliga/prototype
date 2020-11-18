@@ -21,6 +21,18 @@ async function get( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
 }
 
 
+async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
+  const profile = await Profile.getActiveProfile();
+  const squad = profile
+    .Team
+    .Players
+    .filter( p => p.id !== profile.Player.id )
+  ;
+  evt.sender.send( request.responsechannel, JSON.stringify( squad ) );
+}
+
+
 export default function() {
   ipcMain.on( IPCRouting.Database.PROFILE_GET, get );
+  ipcMain.on( IPCRouting.Database.PROFILE_SQUAD, getsquad );
 }
