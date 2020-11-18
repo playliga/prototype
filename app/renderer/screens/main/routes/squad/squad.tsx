@@ -26,7 +26,6 @@ import {
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
-import * as ProfileSelectors from 'renderer/screens/main/redux/profile/selectors';
 import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
