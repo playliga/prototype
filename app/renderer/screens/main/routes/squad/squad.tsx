@@ -34,7 +34,6 @@ import Connector from 'renderer/screens/main/components/connector';
 
 interface Props extends RouteComponentProps, ApplicationState {
   dispatch: Function;
-  squad: any[];
 }
 
 
@@ -218,7 +217,4 @@ function Squad( props: Props ) {
 }
 
 
-export default Connector.connect(
-  Squad,
-  { squad: ProfileSelectors.getSquad }
-);
+export default Connector.connect( Squad );
