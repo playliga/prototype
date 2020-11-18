@@ -55,7 +55,7 @@ export default class BotExp {
    * Calculates the sum of the stats passed in as args. This
    * is useful when finding which rank the stats are in.
    */
-  private static getSumOfStats( stats: Stats ) {
+  public static getSumOfStats( stats: Stats ) {
     return Object
       .keys( stats )
       .map( key => stats[ key ] )
@@ -66,7 +66,7 @@ export default class BotExp {
   /**
    * Returns the previous rank.
    */
-  private getPrevRank( id: [ number, number ] ): Rank {
+  public static getPrevRank( id: [ number, number ] ): Rank {
     const [ tdx, tpltdx ] = id;
     const tier = Tiers[ tdx ];
 
@@ -87,7 +87,7 @@ export default class BotExp {
   /**
    * Returns the next rank.
    */
-  private getNextRank( id: [ number, number ] ): Rank {
+  public static getNextRank( id: [ number, number ] ): Rank {
     const [ tdx, tpltdx ] = id;
     const tier = Tiers[ tdx ];
 
@@ -107,7 +107,7 @@ export default class BotExp {
 
   public train() {
     const id = this.getTierId();
-    const next = this.getNextRank( id );
+    const next = BotExp.getNextRank( id );
 
     // @note: the skill+aggression stats go up;
     //        reactiontime+attackdelay go down
@@ -151,7 +151,7 @@ export default class BotExp {
     Tiers.forEach( ( tier, tdx ) => {
       tier.templates.forEach( ( template, tpltdx ) => {
         const sum_current = BotExp.getSumOfStats( template.stats );
-        const hasprev = this.getPrevRank([ tdx, tpltdx ]);
+        const hasprev = BotExp.getPrevRank([ tdx, tpltdx ]);
         const sum_prev = hasprev ? BotExp.getSumOfStats( hasprev.stats ) : 0;
 
         // are our stats better than our prev and lt/eq to our next rank?
