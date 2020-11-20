@@ -7,7 +7,6 @@ import {
   StarFilled,
   FolderOpenFilled,
   StarOutlined,
-  CrownOutlined,
   ShoppingOutlined,
   ShoppingFilled
 } from '@ant-design/icons';
@@ -18,11 +17,10 @@ import {
   Typography,
   Spin,
   Statistic,
-  Space,
-  Tag,
   Divider,
   Tooltip,
-  Empty
+  Empty,
+  Progress
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
@@ -111,7 +109,7 @@ function PlayerCard( props: any ) {
       </Divider>
 
       {/* PLAYER STATS */}
-      <section className="stats">
+      <section className="wages">
         <Statistic
           title="Weekly Wages"
           prefix="$"
@@ -124,34 +122,13 @@ function PlayerCard( props: any ) {
         />
       </section>
 
-      {/* TAGS CONTAINER */}
-      <section className="tags">
-        {me && (
-          <Tag color="geekblue">
-            <Space>
-              <CrownOutlined />
-              {'You'}
-            </Space>
-          </Tag>
-        )}
-        {player.starter && (
-          <Tag color="orange">
-            <Space>
-              <StarFilled />
-              {'Starter'}
-            </Space>
-          </Tag>
-        )}
-        {!me && player.transferListed && (
-          <Tag color="red">
-            <Space>
-              <ShoppingFilled />
-              {'Transfer Listed'}
-            </Space>
-          </Tag>
-        )}
-      </section>
-
+      {/* PLAYER STATS */}
+      {player.xp && (
+        <Progress
+          percent={( player.xp.total / player.xp.totalnext ) * 100}
+          showInfo={false}
+        />
+      )}
     </Card>
   );
 }
