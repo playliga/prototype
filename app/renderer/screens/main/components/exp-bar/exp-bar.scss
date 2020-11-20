@@ -1,0 +1,20 @@
+#exp-bar > section.title {
+  font-weight: bold;
+  font-variant: small-caps;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+
+#exp-bar > section.bar {
+  display: flex;
+
+  & > span {
+    font-size: .8em;
+    line-height: 2em;
+  }
+
+  .ant-progress {
+    padding: 0 5px;
+  }
+}

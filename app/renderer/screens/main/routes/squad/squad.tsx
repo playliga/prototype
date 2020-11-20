@@ -27,6 +27,7 @@ import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
+import ExpBar from 'renderer/screens/main/components/exp-bar';
 
 
 interface Props extends RouteComponentProps, ApplicationState {
@@ -124,9 +125,10 @@ function PlayerCard( props: any ) {
 
       {/* PLAYER STATS */}
       {player.xp && (
-        <Progress
-          percent={( player.xp.total / player.xp.totalnext ) * 100}
-          showInfo={false}
+        <ExpBar
+          prev={Math.round( player.xp.totalprev )}
+          total={( props.total / props.totalnext ) * 100}
+          next={Math.round( player.xp.totalnext )}
         />
       )}
     </Card>
