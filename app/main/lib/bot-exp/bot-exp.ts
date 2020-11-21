@@ -24,20 +24,20 @@ export default class BotExp {
 
   private static probTables: IterableObject<any[][]> = {
     skill: [
-      [ 99, 5 ],
-      [ 1, 1 ],
+      [ 99, 1 ],
+      [ 1, 3 ],
     ],
     aggression: [
-      [ 99, 5 ],
-      [ 1, 1 ],
+      [ 99, 1 ],
+      [ 1, 3 ],
     ],
     reactionTime: [
-      [ 99, .05 ],
-      [ 1, .1 ],
+      [ 99, .01 ],
+      [ 1, .05 ],
     ],
     attackDelay: [
-      [ 99, .05 ],
-      [ 1, .1 ],
+      [ 99, .01 ],
+      [ 1, .05 ],
     ]
   };
 
