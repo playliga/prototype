@@ -102,8 +102,8 @@ export default class BotExp {
   }
 
   public train() {
-    const id = this.getTierId();
-    const next = BotExp.getNextRank( id );
+    const [ tdx, tpltdx ] = this.getTierId();
+    const current = Tiers[ tdx ].templates[ tpltdx ] as Rank;
 
     // @note: the skill+aggression stats go up;
     //        reactiontime+attackdelay go down
@@ -111,10 +111,10 @@ export default class BotExp {
       // if the modifier for this stat is to subtract it's not
       // maxxed out if its greater than the next stat value
       if( statModifiers.SUBTRACT.includes( key ) ) {
-        return this.stats[ key ] > next.stats[ key ];
+        return this.stats[ key ] >= current.stats[ key ];
       }
 
-      return this.stats[ key ] < next.stats[ key ];
+      return this.stats[ key ] <= current.stats[ key ];
     });
 
     // pick a random set of stats to train
