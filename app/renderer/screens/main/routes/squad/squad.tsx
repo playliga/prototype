@@ -17,7 +17,8 @@ import {
   Spin,
   Divider,
   Tooltip,
-  Empty
+  Empty,
+  Button
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
@@ -168,6 +169,13 @@ function Squad( props: Props ) {
 
   return (
     <div id="squad" className="content">
+      <Button
+        onClick={() => {
+          props.dispatch( ProfileActions.trainSquad( squad.map( s => s.id ) ) );
+        }}
+      >
+        {'Train'}
+      </Button>
       <Row gutter={[ GUTTER_H, GUTTER_V ]}>
         {squad.map( ( p: any ) =>
           <Col key={p.id} span={GRID_COL_WIDTH}>

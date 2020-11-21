@@ -1,6 +1,7 @@
 export const CALENDAR_FINISH = 'profile.calendar.finish';
 export const FIND = 'profile.find';
 export const FIND_FINISH = 'profile.find.finish';
+export const TRAINSQUAD = 'profile.trainsquad';
 export const UPDATE_SQUAD_MEMBER = 'profile.updatesqdm';
 export const UPDATE_SQUAD_MEMBER_FINISH = 'profile.updatesqdm.finish';
 export const UPDATE_SETTINGS = 'profile.updatesettings';
@@ -22,6 +23,12 @@ interface CalendarFinishAction {
 
 interface FindProfileAction {
   type: typeof FIND;
+}
+
+
+interface TrainSquadProfileAction {
+  type: typeof TRAINSQUAD;
+  payload: number[];
 }
 
 
@@ -53,6 +60,7 @@ export type ProfileActionTypes =
   | CalendarFinishAction
   | FindProfileAction
   | FindProfileFinishAction
+  | TrainSquadProfileAction
   | UpdateSquadMemberAction
   | UpdateSquadMemberFinishAction
   | UpdateSettingsAction

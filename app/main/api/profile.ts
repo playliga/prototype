@@ -2,6 +2,7 @@ import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
+import * as Models from 'main/database/models';
 import Tiers from 'shared/tiers';
 import BotExp from 'main/lib/bot-exp';
 
@@ -56,7 +57,25 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
 }
 
 
+async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
+  const players = await Models.Player.findAll({ where: { id: req.params.ids }});
+  await players.map( player => {
+    let stats = player.stats;
+    if( !stats ) {
+      const tier = Tiers[ Tiers.length - 1 ];
+      stats = tier.templates[ tier.templates.length - 1 ].stats;
+    }
+
+    const xp = new BotExp( stats );
+    xp.train();
+    return player.update({ stats: xp.stats });
+  });
+  evt.sender.send( req.responsechannel, true );
+}
+
+
 export default function() {
   ipcMain.on( IPCRouting.Database.PROFILE_GET, get );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD, getsquad );
+  ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN, trainsquad );
 }

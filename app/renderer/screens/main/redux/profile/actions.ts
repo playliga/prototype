@@ -18,6 +18,14 @@ export function findFinish( payload: ProfileTypes.Profile ): ProfileTypes.Profil
 }
 
 
+export function trainSquad( payload: number[] ): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.TRAINSQUAD,
+    payload
+  };
+}
+
+
 export function updateSquadMember( payload: any ): ProfileTypes.ProfileActionTypes {
   return {
     type: ProfileTypes.UPDATE_SQUAD_MEMBER,

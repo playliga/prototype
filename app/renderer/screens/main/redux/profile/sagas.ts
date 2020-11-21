@@ -14,6 +14,17 @@ function* find() {
 }
 
 
+function* trainSquad( action: ProfileTypes.ProfileActionTypes ) {
+  yield IpcService.send( IPCRouting.Database.PROFILE_SQUAD_TRAIN, {
+    // @ts-ignore
+    params: { ids: action.payload }
+  });
+
+  // fetch the new data
+  yield find();
+}
+
+
 function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
   const payload = yield IpcService.send( IPCRouting.Database.UPDATE, {
     params: {
@@ -61,6 +72,11 @@ export default function* watch() {
   yield takeEvery(
     [ ProfileTypes.FIND, ProfileTypes.CALENDAR_FINISH ],
     find
+  );
+
+  yield takeEvery(
+    ProfileTypes.TRAINSQUAD,
+    trainSquad
   );
 
   yield takeEvery(
