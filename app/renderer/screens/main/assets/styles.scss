@@ -59,5 +59,27 @@
 
 
 #squad {
-  // @todo
+  .training {
+    margin-bottom: 20px;
+  }
+
+  .training section > span {
+    display: block;
+  }
+
+  .training .ant-space {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .training .ant-space-item {
+    width: 25%;
+    max-width: 25%;
+    text-align: center;
+  }
+
+  .training .empty {
+    border: 1px dashed lightgray;
+    color: lightgray;
+  }
 }

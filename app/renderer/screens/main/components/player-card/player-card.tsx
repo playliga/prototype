@@ -1,6 +1,7 @@
 import React from 'react';
 import ExpBar from 'renderer/screens/main/components/exp-bar';
 import { StarFilled, FolderOpenFilled,StarOutlined, ShoppingOutlined,  ShoppingFilled } from '@ant-design/icons';
+import { blue } from '@ant-design/colors';
 import { Card,Typography, Divider,  Tooltip, } from 'antd';
 import { statModifiers } from 'shared/tiers';
 import './player-card.scss';
@@ -61,7 +62,12 @@ function PlayerCard( props: any ) {
   }
 
   return (
-    <Card hoverable actions={cardactions} id="player-card">
+    <Card
+      hoverable={!props.selected}
+      actions={cardactions} id="player-card"
+      onDoubleClick={() => props.onDoubleClick( player )}
+      style={props.selected ? { borderColor: blue.primary } : {}}
+    >
 
       {/* PLAYER ALIAS */}
       <Typography.Title ellipsis level={3} className="alias">
