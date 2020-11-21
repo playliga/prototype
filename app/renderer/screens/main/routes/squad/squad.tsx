@@ -117,10 +117,10 @@ function PlayerCard( props: any ) {
           prev={!!player.xp.prev && player.xp.prev.stats[ stat ]}
           total={(
             statModifiers.SUBTRACT.includes( stat )
-              ? ( player.xp.next.stats[ stat ] / props.player.stats[ stat ] ) * 100
-              : ( props.player.stats[ stat ] / player.xp.next.stats[ stat ] ) * 100
+              ? ( player.xp.current.stats[ stat ] / props.player.stats[ stat ] ) * 100
+              : ( props.player.stats[ stat ] / player.xp.current.stats[ stat ] ) * 100
           )}
-          next={!!player.xp.next && player.xp.next.stats[ stat ]}
+          next={!!player.xp.current && player.xp.current.stats[ stat ]}
         />
       ))}
     </Card>

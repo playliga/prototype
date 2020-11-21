@@ -38,6 +38,7 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
       }
       const xp = new BotExp( stats );
       const rankid = xp.getTierId();
+      const current = Tiers[ rankid[ 0 ] ].templates[ rankid[ 1 ] ];
       const prev = BotExp.getPrevRank( rankid );
       const next = BotExp.getNextRank( rankid );
       return {
@@ -45,9 +46,11 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
         stats,
         xp: {
           prev,
+          current,
           next,
           total: BotExp.getSumOfStats( stats ),
           totalprev: !!prev && BotExp.getSumOfStats( prev.stats ),
+          totalcurrent: !!current && BotExp.getSumOfStats( current.stats ),
           totalnext: !!next && BotExp.getSumOfStats( next.stats ),
         }
       };
