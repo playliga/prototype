@@ -93,7 +93,8 @@ export default class BotExp {
 
     // do we have a next tier?
     if( tdx > 0 ) {
-      return Tiers[ tdx - 1 ].templates[ 0 ];
+      const nexttier = Tiers[ tdx - 1 ];
+      return nexttier.templates[ nexttier.templates.length - 1 ];
     }
 
     // found nothing
