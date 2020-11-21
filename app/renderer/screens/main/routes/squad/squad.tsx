@@ -2,7 +2,6 @@ import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { ipcRenderer } from 'electron';
 import { ApplicationState } from 'renderer/screens/main/types';
-import { getWeeklyWages } from 'renderer/lib/util';
 import {
   StarFilled,
   FolderOpenFilled,
@@ -16,14 +15,13 @@ import {
   Col,
   Typography,
   Spin,
-  Statistic,
   Divider,
   Tooltip,
-  Empty,
-  Progress
+  Empty
 } from 'antd';
 
 import * as IPCRouting from 'shared/ipc-routing';
+import { statModifiers } from 'shared/tiers';
 import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
 import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
@@ -97,11 +95,12 @@ function PlayerCard( props: any ) {
   return (
     <Card hoverable actions={cardactions}>
 
-      {/* PLAYER COUNTRY + ALIAS */}
-      <Typography.Title level={3} className="alias">
+      {/* PLAYER ALIAS */}
+      <Typography.Title ellipsis level={3} className="alias">
         {player.alias}
       </Typography.Title>
 
+      {/* PLAYER COUNTRY */}
       <Divider orientation="center" className="flag-divider">
         <span className="flag-text">
           <span className={`fp ${player.Country.code.toLowerCase()}`} />
@@ -110,27 +109,19 @@ function PlayerCard( props: any ) {
       </Divider>
 
       {/* PLAYER STATS */}
-      <section className="wages">
-        <Statistic
-          title="Weekly Wages"
-          prefix="$"
-          value={getWeeklyWages( player.monthlyWages )}
-        />
-        <Statistic
-          title="Transfer Value"
-          prefix="$"
-          value={player.transferValue}
-        />
-      </section>
-
-      {/* PLAYER STATS */}
-      {player.xp && (
+      {Object.keys( props.player.stats ).map( stat => (
         <ExpBar
-          prev={Math.round( player.xp.totalprev )}
-          total={( props.total / props.totalnext ) * 100}
-          next={Math.round( player.xp.totalnext )}
+          key={stat}
+          title={stat}
+          prev={!!player.xp.prev && player.xp.prev.stats[ stat ]}
+          total={(
+            statModifiers.SUBTRACT.includes( stat )
+              ? ( player.xp.next.stats[ stat ] / props.player.stats[ stat ] ) * 100
+              : ( props.player.stats[ stat ] / player.xp.next.stats[ stat ] ) * 100
+          )}
+          next={!!player.xp.next && player.xp.next.stats[ stat ]}
         />
-      )}
+      ))}
     </Card>
   );
 }

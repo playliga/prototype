@@ -2,6 +2,7 @@ import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
+import Tiers from 'shared/tiers';
 import BotExp from 'main/lib/bot-exp';
 
 
@@ -29,19 +30,22 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
     .Players
     .filter( player => player.id !== profile.Player.id )
     .map( player => {
-      if( !player.stats ) {
-        return player.toJSON();
+      let stats = player.stats;
+      if( !stats ) {
+        const tier = Tiers[ Tiers.length - 1 ];
+        stats = tier.templates[ tier.templates.length - 1 ].stats;
       }
-      const xp = new BotExp( player.stats );
+      const xp = new BotExp( stats );
       const rankid = xp.getTierId();
       const prev = BotExp.getPrevRank( rankid );
       const next = BotExp.getNextRank( rankid );
       return {
         ...player.toJSON(),
+        stats,
         xp: {
           prev,
           next,
-          total: BotExp.getSumOfStats( player.stats ),
+          total: BotExp.getSumOfStats( stats ),
           totalprev: !!prev && BotExp.getSumOfStats( prev.stats ),
           totalnext: !!next && BotExp.getSumOfStats( next.stats ),
         }

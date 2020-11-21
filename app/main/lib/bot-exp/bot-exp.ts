@@ -1,7 +1,7 @@
 import { random, sampleSize } from 'lodash';
 import { IterableObject } from 'shared/types';
 import probable from 'probable';
-import Tiers from 'shared/tiers';
+import Tiers, { statModifiers } from 'shared/tiers';
 
 
 export interface Stats {
@@ -21,11 +21,6 @@ export interface Rank {
 
 export default class BotExp {
   public stats: Stats;
-
-  private static trainingModifiers = {
-    ADD: [ 'skill', 'aggression' ],
-    SUBTRACT: [ 'reactionTime', 'attackDelay' ],
-  }
 
   private static probTables: IterableObject<any[][]> = {
     skill: [
@@ -114,7 +109,7 @@ export default class BotExp {
     const unmaxxed = Object.keys( this.stats ).filter( key => {
       // if the modifier for this stat is to subtract it's not
       // maxxed out if its greater than the next stat value
-      if( BotExp.trainingModifiers.SUBTRACT.includes( key ) ) {
+      if( statModifiers.SUBTRACT.includes( key ) ) {
         return this.stats[ key ] > next.stats[ key ];
       }
 
@@ -128,7 +123,7 @@ export default class BotExp {
     drills.forEach( drill => {
       const probtable = probable.createTableFromSizes( BotExp.probTables[ drill ] );
 
-      if( BotExp.trainingModifiers.SUBTRACT.includes( drill ) ) {
+      if( statModifiers.SUBTRACT.includes( drill ) ) {
         return this.stats[ drill ] -= probtable.roll();
       }
 

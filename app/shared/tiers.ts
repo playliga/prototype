@@ -1,16 +1,18 @@
-// @note: multiplier: useful when generating scores
-//
-// @note: order: useful when rendering in graphs
-//        and lower divisions should come first.
+/**
+ * Certain stats are better when you
+ * subtract instead of add to them.
+ */
+export const statModifiers = {
+  SUBTRACT: [ 'reactionTime', 'attackDelay' ],
+};
+
 
 /**
- * Multipliers are every other prime number with
- * the exception of the bottom division:
- *
- * - 3, [5], 7, [11], 13, [17], 19, [23]
+ * @note: order: useful when rendering in graphs
+ *        and lower divisions should come first.
  */
 
-export default [
+const Tiers = [
   {
     name: 'Premier',
     order: 4,
@@ -115,3 +117,6 @@ export default [
     }]
   }
 ];
+
+
+export default Tiers;

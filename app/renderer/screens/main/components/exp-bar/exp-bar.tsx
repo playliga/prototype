@@ -17,7 +17,7 @@ function ExpBar( props: Props ) {
       {!!props.title && (
         <section className="title">
           <Typography.Text>
-            {'Total'}
+            {props.title}
           </Typography.Text>
         </section>
       )}
