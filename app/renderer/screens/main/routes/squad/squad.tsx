@@ -132,7 +132,10 @@ function Squad( props: Props ) {
           disabled={selection.length === 0 || profile.loading}
           onClick={() => props.dispatch( ProfileActions.trainSquad( selection ) )}
         >
-          {'Begin Training'}
+          {profile.loading
+            ? 'Training...'
+            : 'Begin Training'
+          }
         </Button>
       </Card>
 

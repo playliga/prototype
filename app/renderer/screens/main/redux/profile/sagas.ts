@@ -1,4 +1,5 @@
 import { put, takeEvery } from 'redux-saga/effects';
+import { snooze } from 'shared/util';
 import IpcService from 'renderer/lib/ipc-service';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileTypes from './types';
@@ -15,12 +16,15 @@ function* find() {
 
 
 function* trainSquad( action: ProfileTypes.ProfileActionTypes ) {
+  // @note: faux loading to reduce jarring loading indicator
+  yield snooze( 2000 );
+
+  // train the squad and fetch the new data
   yield IpcService.send( IPCRouting.Database.PROFILE_SQUAD_TRAIN, {
     // @ts-ignore
     params: { ids: action.payload }
   });
 
-  // fetch the new data
   yield find();
 }
 
