@@ -129,10 +129,8 @@ function Squad( props: Props ) {
         <Button
           block
           type="primary"
-          disabled={selection.length === 0}
-          onClick={() => {
-            props.dispatch( ProfileActions.trainSquad( selection ) );
-          }}
+          disabled={selection.length === 0 || profile.loading}
+          onClick={() => props.dispatch( ProfileActions.trainSquad( selection ) )}
         >
           {'Begin Training'}
         </Button>

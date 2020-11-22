@@ -13,6 +13,7 @@ export default function emailReducer(
 ): ProfileTypes.ProfileState {
   switch( action.type ) {
     case ProfileTypes.FIND:
+    case ProfileTypes.TRAINSQUAD:
       return {
         ...state,
         loading: true
