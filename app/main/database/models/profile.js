@@ -20,6 +20,10 @@ class Profile extends Model {
         defaultValue: {},
         type: Sequelize.JSON,
       },
+      trainedAt: {
+        allowNull: true,
+        type: Sequelize.DATEONLY,
+      },
     }, { sequelize, modelName: 'Profile' });
   }
 

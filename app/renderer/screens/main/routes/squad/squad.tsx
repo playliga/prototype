@@ -64,16 +64,29 @@ function Squad( props: Props ) {
   const { profile } = props;
   const [ squad, setSquad ] = React.useState([]);
   const [ selection, setSelection ] = React.useState([]);
+  const [ trained, setTrained ] = React.useState( true );
 
   React.useEffect( () => {
+    // fetch squad
     IpcService
       .send( IPCRouting.Database.PROFILE_SQUAD )
       .then( data => setSquad( data ) )
     ;
+
+    // do we have any training sessions left?
+    IpcService
+      .send( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ELIGIBLE )
+      .then( data => {
+        if( data ) {
+          setSelection([]);
+        }
+        setTrained( data );
+      })
+    ;
   }, [ profile ] );
 
-  // bail if profile hasn't loaded
-  if( !profile.data || !squad ) {
+  // bail if squad hasn't loaded
+  if( !squad ) {
     return (
       <div id="squad" className="loading-container">
         <Spin size="large" />
@@ -95,48 +108,63 @@ function Squad( props: Props ) {
 
   return (
     <div id="squad" className="content">
-      {/* TRAINING HEADER */}
+      {/* TRAINING CENTER */}
       <Card
         className="training"
         title="Training Center"
-        extra={<RemainingSessions num={1} />}
+        extra={<RemainingSessions num={+!trained} />}
       >
-        <section>
-          <Typography.Text type="secondary">
-            {`Double-click the player names below to select up to ${MAX_TRAINING} players per training session.`}
-          </Typography.Text>
-          <Typography.Text type="secondary">
-            {'Double-click again to remove the player from the training session.'}
-          </Typography.Text>
-        </section>
-        <Space direction="horizontal">
-          {Array.from( Array( MAX_TRAINING ) ).map( ( _, idx ) => {
-            const item = selection[ idx ];
-            return (
-              <Card
-                key={idx}
-                bordered={!!item}
-                className={!item && 'empty'}
+        {trained
+          ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description=" Sorry, no more training sessions left for this week."
+            />
+          ) : (
+            <section>
+              <ul>
+                <li>
+                  <Typography.Text type="secondary">
+                    {`Double-click the player names below to select up to ${MAX_TRAINING} players per training session.`}
+                  </Typography.Text>
+                </li>
+                <li>
+                  <Typography.Text type="secondary">
+                    {'Double-click again to remove the player from the training session.'}
+                  </Typography.Text>
+                </li>
+              </ul>
+              <Space direction="horizontal">
+                {Array.from( Array( MAX_TRAINING ) ).map( ( _, idx ) => {
+                  const item = selection[ idx ];
+                  return (
+                    <Card
+                      key={idx}
+                      bordered={!!item}
+                      className={!item && 'empty'}
+                    >
+                      {item
+                        ? squad.find( s => s.id === selection[ idx ]).alias
+                        : <PlusOutlined />
+                      }
+                    </Card>
+                  );
+                })}
+              </Space>
+              <Button
+                block
+                type="primary"
+                disabled={selection.length === 0 || profile.loading}
+                onClick={() => props.dispatch( ProfileActions.trainSquad( selection ) )}
               >
-                {item
-                  ? squad.find( s => s.id === selection[ idx ]).alias
-                  : <PlusOutlined />
+                {profile.loading
+                  ? 'Training...'
+                  : 'Begin Training'
                 }
-              </Card>
-            );
-          })}
-        </Space>
-        <Button
-          block
-          type="primary"
-          disabled={selection.length === 0 || profile.loading}
-          onClick={() => props.dispatch( ProfileActions.trainSquad( selection ) )}
-        >
-          {profile.loading
-            ? 'Training...'
-            : 'Begin Training'
-          }
-        </Button>
+              </Button>
+            </section>
+          )
+        }
       </Card>
 
       {/* PLAYER CARDS */}
@@ -147,7 +175,7 @@ function Squad( props: Props ) {
               player={p}
               me={profile.data.Player.id === p.id}
               selected={selection.includes( p.id )}
-              onDoubleClick={( p: any ) => toggleSelection( selection, setSelection, p.id )}
+              onDoubleClick={( p: any ) => !trained && toggleSelection( selection, setSelection, p.id )}
               onSetStarter={( p: any ) => props.dispatch( ProfileActions.updateSquadMember({ id: p.id, starter: !p.starter }) )}
               onTransferList={( p: any ) => props.dispatch( ProfileActions.updateSquadMember({ id: p.id, transferListed: !p.transferListed }) )}
               onClickDetails={(p: any ) => ipcRenderer.send( IPCRouting.Offer.OPEN, p.id )}

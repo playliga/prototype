@@ -3,8 +3,10 @@ import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
+import moment from 'moment';
 import Tiers from 'shared/tiers';
 import BotExp from 'main/lib/bot-exp';
+import Application from 'main/constants/application';
 
 
 interface IpcRequestParams {
@@ -61,8 +63,12 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
 
 
 async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
+  // gather details for training session
+  const profile = await Models.Profile.getActiveProfile();
   const players = await Models.Player.findAll({ where: { id: req.params.ids }});
-  await players.map( player => {
+
+  // start the training session
+  const trainingsession = players.map( player => {
     let stats = player.stats;
     if( !stats ) {
       const tier = Tiers[ Tiers.length - 1 ];
@@ -73,7 +79,20 @@ async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
     xp.train();
     return player.update({ stats: xp.stats });
   });
+
+  // save the changes
+  await Promise.all( trainingsession );
+  await profile.update({ trainedAt: profile.currentDate });
   evt.sender.send( req.responsechannel, true );
+}
+
+
+async function isEligible( evt: IpcMainEvent, req: IpcRequest<any> ) {
+  const profile = await Models.Profile.getActiveProfile();
+  const trainedAt = moment( profile.trainedAt );
+  const today = moment( profile.currentDate );
+  const trained = today.diff( trainedAt, 'days' ) < Application.TRAINING_ELIGIBLE_BUFFER_DAYS;
+  evt.sender.send( req.responsechannel, trained );
 }
 
 
@@ -81,4 +100,5 @@ export default function() {
   ipcMain.on( IPCRouting.Database.PROFILE_GET, get );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD, getsquad );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN, trainsquad );
+  ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ELIGIBLE, isEligible );
 }

@@ -50,10 +50,11 @@ export const Competition = {
 
 
 export const Database = {
-  GENERIC             : '/database/',
-  PROFILE_GET         : '/database/profile/get',
-  PROFILE_SQUAD       : '/database/profile/squad',
-  PROFILE_SQUAD_TRAIN : '/database/profile/squad/train',
-  TEAM_GET            : '/database/team/get',
-  UPDATE              : '/database/update',
+  GENERIC                         : '/database/',
+  PROFILE_GET                     : '/database/profile/get',
+  PROFILE_SQUAD                   : '/database/profile/squad',
+  PROFILE_SQUAD_TRAIN             : '/database/profile/squad/train',
+  PROFILE_SQUAD_TRAIN_ELIGIBLE    : '/database/profile/squad/train/eligible',
+  TEAM_GET                        : '/database/team/get',
+  UPDATE                          : '/database/update',
 };

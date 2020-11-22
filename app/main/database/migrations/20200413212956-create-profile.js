@@ -21,6 +21,10 @@ module.exports = {
         defaultValue: {},
         type: Sequelize.JSON,
       },
+      trainedAt: {
+        allowNull: true,
+        type: Sequelize.DATEONLY,
+      },
 
       // timestamps
       createdAt: {

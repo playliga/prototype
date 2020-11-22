@@ -104,6 +104,7 @@ declare module 'main/database/models' {
     public currentDate: Date;
     public currentSeason: number;
     public settings: any;
+    public trainedAt?: Date;
     public readonly Team?: Team;
     public readonly Player?: Player;
 

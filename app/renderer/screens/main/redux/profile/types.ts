@@ -11,6 +11,7 @@ export interface Profile {
   id: number;
   currentDate: string;
   settings: any;
+  trainedAt: string;
   Player: any;
   Team: any;
 }

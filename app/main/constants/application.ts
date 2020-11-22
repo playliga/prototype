@@ -22,6 +22,7 @@ const Application = {
   PRESEASON_START_DAY               : 1,                  // pre-season start day
   PRESEASON_START_MONTH             : 6,                  // pre-season start month
   SQUAD_MIN_LENGTH                  : 5,
+  TRAINING_ELIGIBLE_BUFFER_DAYS     : 7,                  // default: can only train every 7 days
 };
 
 
