@@ -105,8 +105,8 @@ function PlayerCard( props: any ) {
             // inverse the formula if the stat is
             // improved by subtracting from it
             statModifiers.SUBTRACT.includes( stat )
-              ? ( ( player.xp.current.stats[ stat ] - player.xp.prev.stats[ stat ] ) / ( props.player.stats[ stat ] - player.xp.prev.stats[ stat ] ) ) * 100
-              : ( ( props.player.stats[ stat ] - player.xp.prev.stats[ stat ] ) / ( player.xp.current.stats[ stat ] - player.xp.prev.stats[ stat ] ) ) * 100
+              ? ( ( player.xp.current.stats[ stat ] - player.xp.prev?.stats[ stat ] ) / ( props.player.stats[ stat ] - player.xp.prev?.stats[ stat ] ) ) * 100
+              : ( ( props.player.stats[ stat ] - player.xp.prev?.stats[ stat ] ) / ( player.xp.current.stats[ stat ] - player.xp.prev?.stats[ stat ] ) ) * 100
           )}
           next={!!player.xp.current && player.xp.current.stats[ stat ]}
         />
