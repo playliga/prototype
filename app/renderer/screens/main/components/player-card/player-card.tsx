@@ -74,6 +74,14 @@ function PlayerCard( props: any ) {
         {player.alias}
       </Typography.Title>
 
+      {/* TOTAL XP */}
+      <ExpBar
+        title={`${Math.floor( player.xp.total )} XP`}
+        prev={Math.floor( player.xp.totalprev )}
+        next={Math.ceil( player.xp.totalcurrent )}
+        total={( player.xp.total / player.xp.totalcurrent ) * 100}
+      />
+
       {/* PLAYER COUNTRY */}
       <Divider orientation="center" className="flag-divider">
         <span className="flag-text">
