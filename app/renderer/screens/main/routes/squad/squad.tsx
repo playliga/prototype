@@ -23,6 +23,29 @@ const GRID_COL_WIDTH = 8;
 const MAX_TRAINING = 4;
 
 
+/**
+ * CARD: EXTRA COMPONENT
+ *
+ * Renders the contents of the "extra"
+ * prop for the Card component.
+ */
+
+function RemainingSessions( props: any ) {
+  return (
+    <Typography.Text type="secondary" code>
+      {'Sessions Remaining:'} {props.num}
+    </Typography.Text>
+  );
+}
+
+
+/**
+ * Squad Route Component
+ *
+ * Enables user to interact with their squad.
+ */
+
+// toggle training selection
 function toggleSelection( selection: number[], setSelection: Function, id: number ) {
   if( selection.includes( id ) ) {
     return setSelection( selection.filter( sel => sel !== id ) );
@@ -35,12 +58,6 @@ function toggleSelection( selection: number[], setSelection: Function, id: numbe
   setSelection( uniq([ ...selection, id ]) );
 }
 
-
-/**
- * Squad Route Component
- *
- * Enables user to interact with their squad.
- */
 
 // the route component
 function Squad( props: Props ) {
@@ -79,7 +96,11 @@ function Squad( props: Props ) {
   return (
     <div id="squad" className="content">
       {/* TRAINING HEADER */}
-      <Card className="training" title="Training Center">
+      <Card
+        className="training"
+        title="Training Center"
+        extra={<RemainingSessions num={1} />}
+      >
         <section>
           <Typography.Text type="secondary">
             {`Double-click the player names below to select up to ${MAX_TRAINING} players per training session.`}
