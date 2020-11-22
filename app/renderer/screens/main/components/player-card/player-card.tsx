@@ -79,7 +79,12 @@ function PlayerCard( props: any ) {
         title={`${Math.floor( player.xp.total )} XP`}
         prev={Math.floor( player.xp.totalprev )}
         next={Math.ceil( player.xp.totalcurrent )}
-        total={( player.xp.total / player.xp.totalcurrent ) * 100}
+        total={(
+          // to get a meaningful percentage of the stat progress
+          // total  - totalprev =       /   totalcurrent  - totalprev =
+          // 126    - 120       = 6     /   151           - 120       = 6 / 31 = 19.35%
+          (( player.xp.total - player.xp.totalprev ) / ( player.xp.totalcurrent - player.xp.totalprev ) ) * 100
+        )}
       />
 
       {/* PLAYER COUNTRY */}
@@ -97,9 +102,11 @@ function PlayerCard( props: any ) {
           title={stat}
           prev={!!player.xp.prev && player.xp.prev.stats[ stat ]}
           total={(
+            // inverse the formula if the stat is
+            // improved by subtracting from it
             statModifiers.SUBTRACT.includes( stat )
-              ? ( player.xp.current.stats[ stat ] / props.player.stats[ stat ] ) * 100
-              : ( props.player.stats[ stat ] / player.xp.current.stats[ stat ] ) * 100
+              ? ( ( player.xp.current.stats[ stat ] - player.xp.prev.stats[ stat ] ) / ( props.player.stats[ stat ] - player.xp.prev.stats[ stat ] ) ) * 100
+              : ( ( props.player.stats[ stat ] - player.xp.prev.stats[ stat ] ) / ( player.xp.current.stats[ stat ] - player.xp.prev.stats[ stat ] ) ) * 100
           )}
           next={!!player.xp.current && player.xp.current.stats[ stat ]}
         />
