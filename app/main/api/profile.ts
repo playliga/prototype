@@ -77,7 +77,7 @@ async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
     const xp = new BotExp( stats );
     xp.train();
-    return player.update({ stats: xp.stats });
+    return player.update({ stats: xp.stats, tier: xp.getTierId()[ 0 ] });
   });
 
   // save the changes

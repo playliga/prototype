@@ -2,6 +2,7 @@
  * Certain stats are better when you
  * subtract instead of add to them.
  */
+
 export const statModifiers = {
   SUBTRACT: [ 'reactionTime', 'attackDelay' ],
 };
@@ -10,6 +11,10 @@ export const statModifiers = {
 /**
  * @note: order: useful when rendering in graphs
  *        and lower divisions should come first.
+ *
+ * @note: multiplier: used when simming games and
+ *        calculating prob-weights for the team.
+ *        this number is x5 (or squad size).
  */
 
 const Tiers = [
@@ -20,6 +25,7 @@ const Tiers = [
     templates: [
       {
         name: 'Elite',
+        multiplier: 20,         // 20x5=100
         stats: {
           skill: 100,
           aggression: 100,
@@ -29,6 +35,7 @@ const Tiers = [
       },
       {
         name: 'Expert',
+        multiplier: 18,
         stats: {
           skill: 90,
           aggression: 90,
@@ -44,6 +51,7 @@ const Tiers = [
     difficulty: 2,
     templates: [{
       name: 'VeryHard',
+      multiplier: 10,           // 10x5=50
       stats: {
         skill: 80,
         aggression: 80,
@@ -59,6 +67,7 @@ const Tiers = [
     templates: [
       {
         name: 'Hard',
+        multiplier: 5,          // 5x5=25
         stats: {
           skill: 75,
           aggression: 75,
@@ -68,6 +77,7 @@ const Tiers = [
       },
       {
         name: 'Tough',
+        multiplier: 4,
         stats: {
           skill: 60,
           aggression: 60,
@@ -84,6 +94,7 @@ const Tiers = [
     templates: [
       {
         name: 'Normal',
+        multiplier: 2,          // 2x5=10
         stats: {
           skill: 50,
           aggression: 50,
@@ -93,6 +104,7 @@ const Tiers = [
       },
       {
         name: 'Fair',
+        multiplier: 2,
         stats: {
           skill: 25,
           aggression: 30,
@@ -108,6 +120,7 @@ const Tiers = [
     difficulty: 0,
     templates: [{
       name: 'Easy',
+      multiplier: 1,
       stats: {
         skill: 1,
         aggression: 20,

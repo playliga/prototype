@@ -9,6 +9,7 @@ module.exports = {
     "^.+\\.(css|scss)$": "identity-obj-proxy",
     "^.+\\.(gif|ttf|eot|svg|jpg|png)$": "<rootDir>/__test__/fileMock.js",
     "^shared(.*)$": "<rootDir>/app/shared$1",
+    "^main(.*)$": "<rootDir>/app/main$1",
   },
   "moduleDirectories": [
     "node_modules",
