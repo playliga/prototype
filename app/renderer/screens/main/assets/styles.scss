@@ -53,7 +53,11 @@
   }
 
   section.email {
-    width: 65%;
+    position: fixed;
+    right: 0;
+    // fixed breaks us out of the flex container,
+    // so this is relative to the window size
+    width: 50%;
   }
 }
 
