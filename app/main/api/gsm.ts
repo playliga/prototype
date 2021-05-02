@@ -834,6 +834,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     if( postseason ) {
       conf = divobj.getCompetitorPromotionConferenceAndSeedNumById( profile.Team.id )[ 0 ];
       allow_ot = true;
+      allow_draw = false;
       tourneyobj = conf.duelObj;
       match = conf.duelObj.findMatch( request.params.matchId );
       team1 = await Models.Team.findByName( divobj.getCompetitorBySeed( conf, match.p[ 0 ] ).name );
@@ -860,6 +861,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
 
     // assign to the respective vars
     allow_ot = true;
+    allow_draw = false;
     compobj = cupobj;
     tourneyobj = cupobj.duelObj;
     match = cupobj.duelObj.findMatch( request.params.matchId );
