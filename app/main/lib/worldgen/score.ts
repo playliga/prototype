@@ -49,24 +49,6 @@ function getTeamSkillLevel( team: any ) {
 }
 
 
-/**
- * Generate a team's score. In the event that no
- * draws are allowed, an optional param can
- * be passed specifying the score to avoid.
- */
-
-function genScore( avoidscore: number = null ): number {
-  // generate the score
-  const score = random( SCORE_LOSER_LOW, SCORE_LOSER_HIGH );
-
-  if( avoidscore && score === avoidscore ) {
-    return genScore( avoidscore );
-  }
-
-  return score;
-}
-
-
 export default function( team1: any, team2: any, allowdraw = false, debug = false ) {
   // calculate probability weight for teams
   let w_team1 = 0;
@@ -114,7 +96,7 @@ export default function( team1: any, team2: any, allowdraw = false, debug = fals
 
   // return the winner.
   const score_winner = 16;
-  const score_loser = genScore( allowdraw ? null : score_winner );
+  const score_loser = random( SCORE_LOSER_LOW, SCORE_LOSER_HIGH );
   return [
     winner === team1.id ? score_winner : score_loser,
     winner === team2.id ? score_winner : score_loser,
