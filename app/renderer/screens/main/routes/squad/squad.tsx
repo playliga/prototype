@@ -136,7 +136,7 @@ function Squad( props: Props ) {
               </ul>
               <Space direction="horizontal">
                 {Array.from( Array( MAX_TRAINING ) ).map( ( _, idx ) => {
-                  const item = selection[ idx ];
+                  const item = squad.find( s => s.id === selection[ idx ]);
                   return (
                     <Card
                       key={idx}
@@ -144,7 +144,7 @@ function Squad( props: Props ) {
                       className={!item && 'empty'}
                     >
                       {item
-                        ? squad.find( s => s.id === selection[ idx ]).alias
+                        ? <><span className={`fp ${item.Country.code.toLowerCase()}`} /> {item.alias}</>
                         : <PlusOutlined />
                       }
                     </Card>
