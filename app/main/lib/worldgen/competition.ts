@@ -7,6 +7,7 @@ import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Conference, Match, PromotionConference } from 'main/lib/league/types';
 import { League, Cup } from 'main/lib/league';
 import { parseCompType } from 'main/lib/util';
+import log from 'electron-log';
 
 
 // ------------------------
@@ -460,7 +461,17 @@ export async function simNPCMatchday( item: any ) {
     if( !compobj.duelObj.unscorable( item.payload.matchId, [ 0, 1 ] ) ) {
       team1 = await Models.Team.findWithSquad( compobj.getCompetitorBySeed( match.p[ 0 ] ).id );
       team2 = await Models.Team.findWithSquad( compobj.getCompetitorBySeed( match.p[ 1 ] ).id );
-      compobj.duelObj.score( item.payload.matchId, Score( team1, team2 ) );
+
+      // sim the match
+      const matchresults = Score( team1, team2 );
+      if( !compobj.duelObj.unscorable( item.payload.matchId, matchresults ) ) {
+        compobj.duelObj.score( item.payload.matchId, matchresults );
+      } else {
+        log.error( '>> COULD NOT SCORE.', matchresults, team1.name, team2.name );
+        log.error(` >> GENERATING A NEW ONE WHERE ${team2.name} ALWAYS WINS...` );
+        compobj.duelObj.score( item.payload.matchId, [ random( 0, 14 ), 16 ] );
+      }
+
       competition.data = compobj.save();
 
       // check to see if we need to gen more matchdays
