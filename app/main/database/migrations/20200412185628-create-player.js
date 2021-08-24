@@ -11,6 +11,7 @@ module.exports = {
       tier: Sequelize.INTEGER,
       starter: Sequelize.BOOLEAN,
       stats: { type: Sequelize.JSON, allowNull: true },
+      gains: { type: Sequelize.JSON, allowNull: true },
 
       // timestamps
       createdAt: {

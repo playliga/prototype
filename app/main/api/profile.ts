@@ -65,10 +65,15 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
 async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
   // gather details for training session
   const profile = await Models.Profile.getActiveProfile();
-  const players = await Models.Player.findAll({ where: { id: req.params.ids }});
+  const players = profile.Team.Players;
 
   // start the training session
   const trainingsession = players.map( player => {
+    // if this player is not training, reset their gains
+    if( !req.params.ids.includes( player.id ) ) {
+      return player.update({ gains: null });
+    }
+
     let stats = player.stats;
     if( !stats ) {
       const tier = Tiers[ Tiers.length - 1 ];
@@ -77,7 +82,7 @@ async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
     const xp = new BotExp( stats );
     xp.train();
-    return player.update({ stats: xp.stats, tier: xp.getTierId()[ 0 ] });
+    return player.update({ stats: xp.stats, gains: xp.gains, tier: xp.getTierId()[ 0 ] });
   });
 
   // save the changes

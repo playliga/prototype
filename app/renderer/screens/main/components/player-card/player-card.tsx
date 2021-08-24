@@ -96,21 +96,24 @@ function PlayerCard( props: any ) {
       </Divider>
 
       {/* PLAYER STATS */}
-      {Object.keys( props.player.stats ).map( stat => (
-        <ExpBar
-          key={stat}
-          title={stat}
-          prev={!!player.xp.prev && player.xp.prev.stats[ stat ]}
-          total={(
-            // inverse the formula if the stat is
-            // improved by subtracting from it
-            statModifiers.SUBTRACT.includes( stat )
-              ? ( ( player.xp.prev?.stats[ stat ] - props.player.stats[ stat ] ) / ( player.xp.prev?.stats[ stat ] - player.xp.current.stats[ stat ] ) ) * 100
-              : ( ( props.player.stats[ stat ] - player.xp.prev?.stats[ stat ] ) / ( player.xp.current.stats[ stat ] - player.xp.prev?.stats[ stat ] ) ) * 100
-          )}
-          next={!!player.xp.current && player.xp.current.stats[ stat ]}
-        />
-      ))}
+      {Object.keys( props.player.stats ).map( stat => {
+        // inverse the formula if the stat is
+        // improved by subtracting from it
+        const total = statModifiers.SUBTRACT.includes( stat )
+          ? ( ( player.xp.prev?.stats[ stat ] - props.player.stats[ stat ] ) / ( player.xp.prev?.stats[ stat ] - player.xp.current.stats[ stat ] ) ) * 100
+          : ( ( props.player.stats[ stat ] - player.xp.prev?.stats[ stat ] ) / ( player.xp.current.stats[ stat ] - player.xp.prev?.stats[ stat ] ) ) * 100
+        ;
+        return (
+          <ExpBar
+            key={stat}
+            title={stat}
+            prev={!!player.xp.prev && player.xp.prev.stats[ stat ]}
+            success={player.gains && player.gains[ stat ] ? total - player.gains[ stat ] : 0}
+            total={total}
+            next={!!player.xp.current && player.xp.current.stats[ stat ]}
+          />
+        );
+      })}
     </Card>
   );
 }

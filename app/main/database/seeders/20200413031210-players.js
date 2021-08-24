@@ -41,6 +41,7 @@ module.exports = {
           eligibleDate: null,
           starter: false,
           stats: null,
+          gains: null,
         });
       });
     });

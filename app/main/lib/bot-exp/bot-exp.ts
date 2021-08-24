@@ -21,6 +21,7 @@ export interface Rank {
 
 export default class BotExp {
   public stats: Stats;
+  public gains: Stats | Record<string, number> = {};
 
   private static probTables: IterableObject<any[][]> = {
     skill: [
@@ -128,7 +129,9 @@ export default class BotExp {
         return this.stats[ drill ] -= probtable.roll();
       }
 
-      this.stats[ drill ] += probtable.roll();
+      const gains = probtable.roll();
+      this.stats[ drill ] += gains; // our gains add to our overall stats
+      this.gains[ drill ] = gains;  // record our gains for historial purposes
     });
   }
 
