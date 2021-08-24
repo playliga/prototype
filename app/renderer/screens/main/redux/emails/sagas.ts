@@ -5,8 +5,8 @@ import * as EmailTypes from './types';
 import * as emailActions from './actions';
 
 
-function* findAll() {
-  const payload = yield IpcService.send( IPCRouting.Database.GENERIC, {
+function* findAll(): Generator<any> {
+  const payload: any = yield IpcService.send( IPCRouting.Database.GENERIC, {
     params: {
       model: 'Email',
       method: 'findAll',

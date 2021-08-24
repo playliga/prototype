@@ -6,8 +6,8 @@ import * as ProfileTypes from './types';
 import * as profileActions from './actions';
 
 
-function* find() {
-  const payload = yield IpcService.send( IPCRouting.Database.PROFILE_GET, {} );
+function* find(): Generator<any> {
+  const payload: any = yield IpcService.send( IPCRouting.Database.PROFILE_GET, {} );
 
   yield put(
     profileActions.findFinish( payload )
@@ -29,7 +29,7 @@ function* trainSquad( action: ProfileTypes.ProfileActionTypes ) {
 }
 
 
-function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
+function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ): Generator<any> {
   const payload = yield IpcService.send( IPCRouting.Database.UPDATE, {
     params: {
       model: 'Player',
@@ -48,7 +48,7 @@ function* updateSquadMember( action: ProfileTypes.ProfileActionTypes ) {
 }
 
 
-function* updateSettings( action: ProfileTypes.ProfileActionTypes ) {
+function* updateSettings( action: ProfileTypes.ProfileActionTypes ): Generator<any> {
   // grab existing profile to merge with updated settings
   const data = yield IpcService.send( IPCRouting.Database.PROFILE_GET );
 
