@@ -6,7 +6,7 @@ import { RouteComponentProps } from 'react-router';
 import { ipcRenderer } from 'electron';
 import { dropRight, uniq } from 'lodash';
 import { Row, Col, Spin, Empty, Button, Card, Typography, Space } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import { ApplicationState } from 'renderer/screens/main/types';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as ProfileActions from 'renderer/screens/main/redux/profile/actions';
@@ -106,6 +106,12 @@ function Squad( props: Props ) {
     );
   }
 
+  // did we have a previous training session?
+  const prevsquad = squad
+    .filter( s => s.gains && Object.keys( s.gains ).length > 0 )
+    .map( s => s.id )
+  ;
+
   return (
     <div id="squad" className="content">
       {/* TRAINING CENTER */}
@@ -161,6 +167,15 @@ function Squad( props: Props ) {
                   ? 'Training...'
                   : 'Begin Training'
                 }
+              </Button>
+              <Button
+                block
+                type="link"
+                disabled={selection.length > 0 || profile.loading || prevsquad.length === 0}
+                onClick={() => setSelection( prevsquad )}
+              >
+                <UsergroupAddOutlined />
+                {'Quick Add'}
               </Button>
             </section>
           )

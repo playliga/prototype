@@ -75,7 +75,7 @@ function PlayerCard( props: any ) {
   // calculate total xp gained from a previous training session?
   let totalgains = 0;
 
-  if( Object.keys( player.gains ).length > 0 ) {
+  if( player.gains && Object.keys( player.gains ).length > 0 ) {
     totalgains = Object
       .keys( player.gains )
       .map( key => player.gains[ key ] )
