@@ -61,6 +61,28 @@ function PlayerCard( props: any ) {
     cardactions = [ cardactions[ cardactions.length - 1 ] ];
   }
 
+  // calculate total xp
+  //
+  // @note: to get a meaningful percentage of the stat progress
+  //        total  - totalprev =       /   totalcurrent  - totalprev =
+  //        126    - 120       = 6     /   151           - 120       = 6 / 31 = 19.35%
+  let totalxp = 0;
+
+  if( !me ) {
+    totalxp = (( player.xp.total - player.xp.totalprev ) / ( player.xp.totalcurrent - player.xp.totalprev ) ) * 100;
+  }
+
+  // calculate total xp gained from a previous training session?
+  let totalgains = 0;
+
+  if( Object.keys( player.gains ).length > 0 ) {
+    totalgains = Object
+      .keys( player.gains )
+      .map( key => player.gains[ key ] )
+      .reduce( ( total, current ) => total + current )
+    ;
+  }
+
   return (
     <Card
       hoverable={!props.selected}
@@ -79,12 +101,8 @@ function PlayerCard( props: any ) {
         title={`${Math.floor( player.xp.total )} XP`}
         prev={Math.floor( player.xp.totalprev )}
         next={Math.ceil( player.xp.totalcurrent )}
-        total={(
-          // to get a meaningful percentage of the stat progress
-          // total  - totalprev =       /   totalcurrent  - totalprev =
-          // 126    - 120       = 6     /   151           - 120       = 6 / 31 = 19.35%
-          (( player.xp.total - player.xp.totalprev ) / ( player.xp.totalcurrent - player.xp.totalprev ) ) * 100
-        )}
+        success={totalxp - totalgains}
+        total={totalxp}
       />
 
       {/* PLAYER COUNTRY */}
