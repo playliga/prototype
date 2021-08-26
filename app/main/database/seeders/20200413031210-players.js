@@ -23,7 +23,12 @@ module.exports = {
     // parse each team's roster
     teams.forEach( team => {
       // find the teamid
-      const { id: teamid } = teamrows.find( t => t.name === team.name );
+      const teamresult = teamrows.find( t => t.name === team.name );
+
+      // bail if this team in not in our db
+      if( !teamresult ) {
+        return;
+      }
 
       team.players.forEach( player => {
         // find the countryid
@@ -34,7 +39,7 @@ module.exports = {
         output.push({
           alias: player.alias,
           tier: team.tier,
-          teamId: teamid,
+          teamId: teamresult.id,
           countryId: countryid,
           createdAt: new Date(),
           updatedAt: new Date(),

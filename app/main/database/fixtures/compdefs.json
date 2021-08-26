@@ -34,7 +34,7 @@
       },
       {
         "name":"Open",
-        "minlen":100,
+        "minlen":60,
         "confsize":20
       }
     ]
