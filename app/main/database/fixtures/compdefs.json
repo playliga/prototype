@@ -29,12 +29,12 @@
       },
       {
         "name":"Intermediate",
-        "minlen":60,
+        "minlen":40,
         "confsize":20
       },
       {
         "name":"Open",
-        "minlen":60,
+        "minlen":40,
         "confsize":20
       }
     ]
