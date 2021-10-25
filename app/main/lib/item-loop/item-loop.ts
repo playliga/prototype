@@ -52,7 +52,7 @@ export class ItemLoop {
     }
 
     // grab the end middleware
-    const endm = this.middleware.find( m => m.type === MiddlewareType.END );
+    const endm = this.middleware.filter( m => m.type === MiddlewareType.END );
 
     // grab the generic middleware
     const genericm = this.middleware.filter( m => !m.type );
@@ -60,20 +60,10 @@ export class ItemLoop {
     // run the middleware loop
     for( let i = 0; i < max; i++ ) {
       const items = await initm.callback();
-      const results = [];
-
-      // run the items sequentially to
-      // avoid race conditions
-      for( let j = 0; j < items.length; j++ ) {
-        const item = items[ j ];
-        results.push( await this.runMiddleware( item ) );
-      }
-
-      // run the generic middleware (also sequentially)
-      for( let j = 0; j < genericm.length; j++ ) {
-        const item = genericm[ j ];
-        results.push( await item.callback( items ) );
-      }
+      const results = [
+        ...await Promise.all( items.map( this.runMiddleware.bind( this ) ) ),
+        ...await Promise.all( genericm.map( m => m.callback( items ) ) )
+      ];
 
       // do we need to bail out early?
       const bail = flatten( results ).findIndex( r => r === false );
@@ -84,7 +74,7 @@ export class ItemLoop {
 
       // run end-loop middleware
       if( endm ) {
-        await endm.callback();
+        await Promise.all( endm.map( item => item.callback() ) );
       }
     }
 

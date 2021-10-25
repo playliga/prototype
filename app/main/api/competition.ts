@@ -47,11 +47,11 @@ function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Compe
 
   if( leagueobj.isGroupStageDone() ) {
     conf = divobj.promotionConferences.find( c => c.id === queue.payload.confId );
-    match = conf.duelObj.findMatch( queue.payload.matchId );
+    match = conf.duelObj.findMatch( queue.payload.match.id );
     postseason = parseCupRound( conf.duelObj.currentRound() );
   } else {
     conf = divobj.conferences.find( c => c.id === queue.payload.confId );
-    match = conf.groupObj.findMatch( queue.payload.matchId );
+    match = conf.groupObj.findMatch( queue.payload.match.id );
   }
 
   return ({
@@ -75,7 +75,7 @@ function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Compe
 
 function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competition ) {
   const cupobj = Cup.restore( compobj.data );
-  const match = cupobj.duelObj.findMatch( queue.payload.matchId );
+  const match = cupobj.duelObj.findMatch( queue.payload.match.id );
 
   return ({
     match: {

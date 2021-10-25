@@ -50,6 +50,12 @@ itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
 });
 
 
+// record matchday results
+itemloop.register( ItemLoop.MiddlewareType.END, () => {
+  return WGCompetition.recordTodaysMatchResults();
+});
+
+
 // bumps the current date
 itemloop.register( ItemLoop.MiddlewareType.END, () => {
   return bumpDate();
@@ -268,7 +274,7 @@ itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_SQUAD, async () => {
     p.setTeam( profile.Team )
   ]);
 
-  await Promise.all( flatten( res ) as Promise<any>[] );
+  await Promise.all( flatten( res ) as any );
 
   // let the user know we've added some squad members
   const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );

@@ -29,7 +29,6 @@ import { parseCupRound, parseMapForMatch, snooze } from 'shared/util';
 import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
-import { genMappool } from 'main/lib/worldgen/competition';
 
 
 /**
@@ -118,6 +117,7 @@ let iscup: boolean;
 let compobj: League | Cup;
 let hostname_suffix: string;
 let conf: Conference | PromotionConference;
+let divobj: Division;
 let match: Match;
 let allow_ot: boolean;
 let team1: Models.Team;
@@ -190,7 +190,7 @@ function delayedping( address: string, port: number, attempts = 1, delay = 5000 
     // if CS16, nothing to ping as RCON uses UDP.
     // so just delay and return true...
     if( cs16_enabled ) {
-      return setTimeout( () => resolve(), delay );
+      return setTimeout( () => resolve( true ), delay );
     }
 
     setTimeout( () => {
@@ -393,7 +393,7 @@ async function extract() {
       fs
         .createReadStream( path.join( sourcedir, file ) )
         .pipe( unzipper.Extract({ path: targetdir }) )
-        .on( 'close', () => resolve() )
+        .on( 'close', () => resolve( true ) )
       ;
     });
   });
@@ -751,36 +751,12 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
   tourneyobj.score( match.id, result.score );
   competition.data = compobj.save();
 
-  if( isleague && compobj.isGroupStageDone() ) {
-    const startps = compobj.startPostSeason();
-
-    if( startps ) {
-      (compobj.divisions as Division[]).forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
-    }
-
-    if( startps || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-      competition.data = compobj.save();
-      await Worldgen.Competition.genMatchdays( competition );
-    }
-  }
-
-  // end the season?
-  if( isleague && compobj.isDone() ) {
-    compobj.endPostSeason();
-    compobj.end();
-    competition.data = compobj.save();
-  }
-
-  // generate new round for tourney
-  if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-    await Worldgen.Competition.genMatchdays( competition );
-  }
-
   // record the match
   const matchobj = await Models.Match.create({
     payload: {
       match,
       confId: conf?.id,
+      divId: divobj?.name,
       is_postseason: is_postseason || false,
     },
     date: profile.currentDate,
@@ -790,7 +766,6 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
     matchobj.setCompetition( competition.id ),
     matchobj.setTeams([ team1, team2 ]),
     queue.update({ completed: true }),
-    competition.save(),
   ]);
 
   // let the front-end know the game is over
@@ -826,8 +801,8 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   if( isleague ) {
     // grab the match information
     const leagueobj = League.restore( competition.data );
-    const divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
     const postseason = leagueobj.isGroupStageDone();
+    divobj = leagueobj.getDivisionByCompetitorId( profile.Team.id );
 
     // assigned vars will differ depending
     // on the current stage of the season
@@ -882,37 +857,12 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 0 : 1, team2.id === profile.Team.id ? 0 : 1 ] );
     competition.data = compobj.save();
 
-    // generate new round for league postseason
-    if( isleague && compobj.isGroupStageDone() ) {
-      const startps = compobj.startPostSeason();
-
-      if( startps ) {
-        (compobj.divisions as Division[]).forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
-      }
-
-      if( startps || compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-        competition.data = compobj.save();
-        await Worldgen.Competition.genMatchdays( competition );
-      }
-    }
-
-    // end the season?
-    if( isleague && compobj.isDone() ) {
-      compobj.endPostSeason();
-      compobj.end();
-      competition.data = compobj.save();
-    }
-
-    // generate new round for tourney
-    if( iscup && compobj.matchesDone({ s: match.id.s, r: match.id.r }) ) {
-      await Worldgen.Competition.genMatchdays( competition );
-    }
-
     // record the match
     const matchobj = await Models.Match.create({
       payload: {
         match,
         confId: conf?.id,
+        divId: divobj.name,
         is_postseason: is_postseason || false,
       },
       date: profile.currentDate,
@@ -922,7 +872,6 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
       matchobj.setCompetition( competition.id ),
       matchobj.setTeams([ team1, team2 ]),
       queue.update({ completed: true }),
-      competition.save(),
     ]);
     return evt.sender.send( request.responsechannel );
   }
