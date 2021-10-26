@@ -50,6 +50,13 @@ export function updateSettings( payload: any ): ProfileTypes.ProfileActionTypes 
 }
 
 
+export function calendarStart(): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.CALENDAR_START
+  };
+}
+
+
 export function calendarFinish(): ProfileTypes.ProfileActionTypes {
   return {
     type: ProfileTypes.CALENDAR_FINISH

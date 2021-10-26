@@ -3,15 +3,26 @@ import * as ProfileTypes from './types';
 
 const initialState: ProfileTypes.ProfileState = {
   loading: false,
+  calendarRunning: false,
   data: null
 };
 
 
-export default function emailReducer(
+export default function profileReducer(
   state = initialState,
   action: ProfileTypes.ProfileActionTypes
 ): ProfileTypes.ProfileState {
   switch( action.type ) {
+    case ProfileTypes.CALENDAR_START:
+      return {
+        ...state,
+        calendarRunning: true,
+      };
+    case ProfileTypes.CALENDAR_FINISH:
+      return {
+        ...state,
+        calendarRunning: false,
+      };
     case ProfileTypes.FIND:
     case ProfileTypes.TRAINSQUAD:
       return {

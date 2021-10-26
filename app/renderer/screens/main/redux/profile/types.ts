@@ -1,3 +1,4 @@
+export const CALENDAR_START = 'profile.calendar.start';
 export const CALENDAR_FINISH = 'profile.calendar.finish';
 export const FIND = 'profile.find';
 export const FIND_FINISH = 'profile.find.finish';
@@ -14,6 +15,11 @@ export interface Profile {
   trainedAt: string;
   Player: any;
   Team: any;
+}
+
+
+interface CalendarStartAction {
+  type: typeof CALENDAR_START;
 }
 
 
@@ -58,6 +64,7 @@ interface UpdateSettingsAction {
 
 
 export type ProfileActionTypes =
+  | CalendarStartAction
   | CalendarFinishAction
   | FindProfileAction
   | FindProfileFinishAction
@@ -70,5 +77,6 @@ export type ProfileActionTypes =
 
 export interface ProfileState {
   loading: boolean;
+  calendarRunning: boolean;
   data: Profile | null;
 }

@@ -42,12 +42,11 @@ interface Props extends RouteComponentProps, ApplicationState {
  * Helper functions
  */
 
-async function handleOnNextDay( dispatch: Function, setLoading: Function, setStopping: Function ) {
-  setLoading( true );
+async function handleOnNextDay( dispatch: Function, setStopping: Function ) {
+  dispatch( profileActions.calendarStart() );
   IpcService
     .send( IPCRouting.Worldgen.CALENDAR_LOOP )
     .then( () => dispatch( profileActions.calendarFinish() ) )
-    .then( () => Promise.resolve( setLoading( false ) ) )
     .then( () => Promise.resolve( setStopping( false ) ) )
   ;
 }
@@ -199,10 +198,10 @@ function Home( props: Props ) {
       <Affix>
         <Header
           isMatchday={isMatchday}
-          onNextDay={() => handleOnNextDay( props.dispatch, setLoading, setStopping )}
+          onNextDay={() => handleOnNextDay( props.dispatch, setStopping )}
           onPlay={sim => handleOnPlay( upcoming[ 0 ], props.dispatch, setLoading, sim )}
           onStop={() => handleOnStop( setStopping )}
-          loading={loading}
+          loading={profile.calendarRunning || loading}
           stopping={stopping}
           {...props}
         />
