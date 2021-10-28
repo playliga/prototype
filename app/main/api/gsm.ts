@@ -44,6 +44,7 @@ const BOT_WEAPONPREFS_PROBABILITY_RIFLE   = 3;
 const BOT_WEAPONPREFS_PROBABILITY_SNIPER  = 1;
 const GAMEFILES_BASEDIR                   = 'resources/gamefiles';
 const SERVER_CVAR_MAXROUNDS               = 30;
+const SERVER_CVAR_MAXROUNDS_OT            = 6;
 const SERVER_CVAR_FREEZETIME              = 15;
 const SQUAD_STARTERS_NUM                  = 5;
 
@@ -98,8 +99,10 @@ let request: IpcRequest<PlayRequest>;
 
 // game-state vars
 let score = [ 0, 0 ];
+let otscore = [ 0, 0 ];
 let gameislive = false;
 let halftime = false;
+let is_ot = false;
 
 
 // these will be used later when launching/closing the game
@@ -505,8 +508,10 @@ async function cleanup() {
 
   // reset game-state vars
   score = [ 0, 0 ];
+  otscore = [ 0, 0 ];
   gameislive = false;
   halftime = false;
+  is_ot = false;
 
   return Promise.resolve();
 }
@@ -692,20 +697,25 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     return Promise.resolve( false );
   }
 
+  // scoped util functions
+  const getCurrentScore = () => `${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name}`;
+  const getTotalRounds  = ( total: number, current: number ) => total + current;
+  const getTeamScore    = ( teamid: number ) => is_ot ? otscore[ teamid ] : score[ teamid ];
+
   // invert the score if past half-time
-  // @todo: better explanation
   if( halftime ) {
     score[ 1 - result.winner ] += 1;
+    otscore[ 1 - result.winner ] += +is_ot;
   } else {
     score[ result.winner ] += 1;
+    otscore[ result.winner ] += +is_ot;
   }
 
   // report current score
-  const getCurrentScore = () => `${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name}`;
   await rcon.send( `say * * * ROUND OVER | ${getCurrentScore()} * * *` );
 
   // set up vars
-  const totalrounds     = score.reduce( ( total, current ) => total + current );
+  const totalrounds     = is_ot ? otscore.reduce( getTotalRounds ) : score.reduce( getTotalRounds );
   const halftimerounds  = cvar_maxrounds / 2;
   const clinchrounds    = ( cvar_maxrounds / 2 ) + 1;
   let gameover = false;
@@ -718,13 +728,32 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     await snooze( CS16_DELAY_HALFTIME );
     await rcon.send( 'exec liga-halftime.cfg' );
     await rcon.send( 'say * * * TO START THE SECOND-HALF TYPE: .ready * * *' );
+    return Promise.resolve();
+  }
+
+  // do we have to start overtime?
+  if(
+    totalrounds === cvar_maxrounds
+    && !allow_draw
+    && getTeamScore( Scorebot.TeamEnum.CT ) === getTeamScore( Scorebot.TeamEnum.TERRORIST )
+  ) {
+    halftime = false;
+    gameislive = false;
+    cvar_maxrounds = SERVER_CVAR_MAXROUNDS_OT;
+    is_ot = true;
+    otscore = [ 0, 0 ];
+    await rcon.send( `say * * * OVERTIME | ${getCurrentScore()} * * *` );
+    await snooze( CS16_DELAY_HALFTIME );
+    await rcon.send( 'exec liga-halftime.cfg' );
+    await rcon.send( 'say * * * TO START THE OVERTIME TYPE: .ready * * *' );
+    return Promise.resolve();
   }
 
   // game is over
   if(
     totalrounds === cvar_maxrounds
-    || score[ Scorebot.TeamEnum.CT ] === clinchrounds
-    || score[ Scorebot.TeamEnum.TERRORIST ] === clinchrounds
+    || getTeamScore( Scorebot.TeamEnum.CT ) === clinchrounds
+    || getTeamScore( Scorebot.TeamEnum.TERRORIST ) === clinchrounds
   ) {
     gameover = true;
     await rcon.send( `say * * * GAME OVER | ${getCurrentScore()} * * *` );
