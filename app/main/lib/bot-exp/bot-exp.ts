@@ -126,7 +126,10 @@ export default class BotExp {
       const probtable = probable.createTableFromSizes( BotExp.probTables[ drill ] );
 
       if( statModifiers.SUBTRACT.includes( drill ) ) {
-        return this.stats[ drill ] -= probtable.roll();
+        const gains = probtable.roll();
+        this.stats[ drill ] -= gains;
+        this.gains[ drill ] = gains;
+        return;
       }
 
       const gains = probtable.roll();
