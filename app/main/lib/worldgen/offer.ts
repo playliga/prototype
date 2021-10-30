@@ -1,4 +1,5 @@
 import moment from 'moment';
+import probable from 'probable';
 import { random } from 'lodash';
 import * as Sqrl from 'squirrelly';
 import * as Models from 'main/database/models';
@@ -11,6 +12,16 @@ import EmailDialogue from 'main/constants/emaildialogue';
 // module-level private vars
 let _profile: Models.Profile;
 let _target: Models.Player | null;
+
+
+// how likely is the target to move to a different region
+const TARGET_REGION_PROBABILITY_YES   = 10;
+const TARGET_REGION_PROBABILITY_NO    = 90;
+
+const targetRegionProbabilityTable = probable.createTableFromSizes([
+  [ TARGET_REGION_PROBABILITY_YES, true ],
+  [ TARGET_REGION_PROBABILITY_NO, false ]
+]);
 
 
 /**
@@ -142,7 +153,13 @@ async function playerRespondOffer(
 export async function parse( offerdetails: OfferRequest ) {
   // load related data
   _profile = await Models.Profile.getActiveProfile();
-  _target = await Models.Player.findByPk( offerdetails.playerid, { include: [ 'Team' ] });
+  _target = await Models.Player.findByPk( offerdetails.playerid, { include: [{
+    model: Models.Team,
+    include: [{
+      model: Models.Country,
+      include: [ Models.Continent ]
+    }]
+  }]});
 
   // team's response will offset the player's decision time
   let teamresponseoffset = 0;
@@ -193,6 +210,12 @@ export async function parse( offerdetails: OfferRequest ) {
   // @note: Advanced  — 1
   if( _target.tier < ( offerdetails.teamdata?.tier || _profile.Team.tier ) ) {
     return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_TIER, teamresponseoffset );
+  }
+
+  // not in their region but the tier is higher. player will consider it...
+  // a false roll means the player decided on staying in their own region.
+  if( _target.Team.Country.Continent.id !== _profile.Team.Country.Continent.id && !targetRegionProbabilityTable.roll() ) {
+    return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_REGION, teamresponseoffset );
   }
 
   // offer accepted — move the player to the target team

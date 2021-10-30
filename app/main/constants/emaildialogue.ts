@@ -50,6 +50,17 @@ The player has accepted the offer. Let's use him in our squad!
 `;
 
 
+const PLAYER_REJECT_REASON_REGION = `
+Hi, {{it.player.alias}},
+
+{{@if(it.team)}}
+Talks between the player and {{it.team.name}} have broken down because they are not willing to move to our region.
+{{#else}}
+The player has rejected your offer because they are not willing to move to our region.
+{{/if}}
+`;
+
+
 const PLAYER_REJECT_REASON_TIER = `
 Hi, {{it.player.alias}},
 
@@ -149,6 +160,7 @@ export default {
   INTRO,
   INTRO_HOW_TO_PLAY,
   PLAYER_ACCEPT,
+  PLAYER_REJECT_REASON_REGION,
   PLAYER_REJECT_REASON_TIER,
   PLAYER_REJECT_REASON_WAGES,
   PRESEASON_AUTOADD_COMP,
