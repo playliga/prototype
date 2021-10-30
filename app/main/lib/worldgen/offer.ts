@@ -182,7 +182,7 @@ export async function parse( offerdetails: OfferRequest ) {
 
   if( !teamaccepted && _target.Team ) {
     // is the player transfer listed?
-    if( offerdetails.fee && !_target.transferListed ) {
+    if( !_target.transferListed ) {
       return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_NOTFORSALE );
     }
 
