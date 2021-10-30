@@ -28,6 +28,7 @@ function Title( props: ApplicationState ) {
       <section className="teamname-container">
         <span className={`fp ${data.Team.Country.code.toLowerCase()}`} />
         <span>{data.Team.name}</span>
+        <span style={{ paddingLeft: 5, textDecoration: 'underline' }}>{`$${data.Team.earnings}`}</span>
       </section>
     </div>
   );

@@ -70,6 +70,7 @@ declare module 'main/database/models' {
   export class Team extends BaseModel {
     public name: string;
     public tier: number;
+    public earnings: number;
     public Country?: Country;
     public Competitions?: Competition[];
     public Players?: Player[];

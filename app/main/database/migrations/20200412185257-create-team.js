@@ -20,6 +20,10 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: '',
       },
+      earnings: {
+        type: Sequelize.NUMBER,
+        defaultValue: 0,
+      },
       tier: Sequelize.INTEGER,
 
       // timestamps

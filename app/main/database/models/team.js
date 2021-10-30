@@ -10,7 +10,8 @@ class Team extends Model {
       name: { type: Sequelize.STRING, unique: true },
       tag: { type: Sequelize.STRING, defaultValue: '' },
       tier: Sequelize.INTEGER,
-      logo: { type: Sequelize.STRING, defaultValue: '' }
+      logo: { type: Sequelize.STRING, defaultValue: '' },
+      earnings: { type: Sequelize.NUMBER, defaultValue: 0 },
     }, { sequelize, modelName: 'Team' });
   }
 

@@ -66,6 +66,7 @@ module.exports = {
         tag: team.tag,
         logo: team.logourl,
         tier: team.tier,
+        earnings: 0,
         countryId: country.id,
         createdAt: new Date(),
         updatedAt: new Date()
