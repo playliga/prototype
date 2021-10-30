@@ -153,6 +153,13 @@ The offer is too low. You cheap idiot.
 `;
 
 
+const TEAM_REJECT_REASON_SQUAD_DEPTH = `
+Hi, {{it.player.alias}}.
+
+We are not open to selling this player as they are a crucial to our squad.
+`;
+
+
 export default {
   ENDSEASON_PROMOTION_AUTO,
   ENDSEASON_PROMOTION_PLAYOFFS,
@@ -171,4 +178,5 @@ export default {
   TEAM_ACCEPT,
   TEAM_REJECT_REASON_NOTFORSALE,
   TEAM_REJECT_REASON_FEE,
+  TEAM_REJECT_REASON_SQUAD_DEPTH
 };

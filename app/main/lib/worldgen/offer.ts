@@ -155,10 +155,13 @@ export async function parse( offerdetails: OfferRequest ) {
   _profile = await Models.Profile.getActiveProfile();
   _target = await Models.Player.findByPk( offerdetails.playerid, { include: [{
     model: Models.Team,
-    include: [{
-      model: Models.Country,
-      include: [ Models.Continent ]
-    }]
+    include: [
+      { model: Models.Player },
+      {
+        model: Models.Country,
+        include: [ Models.Continent ]
+      }
+    ]
   }]});
 
   // team's response will offset the player's decision time
@@ -186,6 +189,11 @@ export async function parse( offerdetails: OfferRequest ) {
     // does it match asking price?
     if( offerdetails.fee && offerdetails.fee < _target.transferValue ) {
       return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_FEE );
+    }
+
+    // can they afford to sell the player?
+    if( _target.Team.Players.length <= Application.SQUAD_MIN_LENGTH ) {
+      return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_SQUAD_DEPTH );
     }
 
     // offer accepted — offset the player's response time
