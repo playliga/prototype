@@ -163,17 +163,21 @@ async function playerRespondOffer(
 
 export async function parse( offerdetails: OfferRequest ) {
   // load related data
+  const region_query = {
+    model: Models.Country,
+    include: [ Models.Continent ]
+  };
   _profile = await Models.Profile.getActiveProfile();
-  _target = await Models.Player.findByPk( offerdetails.playerid, { include: [{
-    model: Models.Team,
-    include: [
-      { model: Models.Player },
-      {
-        model: Models.Country,
-        include: [ Models.Continent ]
-      }
-    ]
-  }]});
+  _target = await Models.Player.findByPk( offerdetails.playerid, { include: [
+    { ...region_query },
+    {
+      model: Models.Team,
+      include: [
+        { model: Models.Player },
+        { ...region_query },
+      ]
+    }
+  ]});
 
   // team's response will offset the player's decision time
   let teamresponseoffset = 0;
@@ -234,7 +238,10 @@ export async function parse( offerdetails: OfferRequest ) {
 
   // not in their region but the tier is higher. player will consider it...
   // a false roll means the player decided on staying in their own region.
-  if( _target.Team.Country.Continent.id !== _profile.Team.Country.Continent.id && !targetRegionProbabilityTable.roll() ) {
+  if(
+    ( ( _target.Team && _target.Team.Country.Continent.id !== _profile.Team.Country.Continent.id ) || _target.Country.Continent.id !== _profile.Team.Country.Continent.id )
+    && !targetRegionProbabilityTable.roll()
+  ) {
     return playerRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.PLAYER_REJECT_REASON_REGION, teamresponseoffset );
   }
 

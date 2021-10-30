@@ -87,6 +87,7 @@ declare module 'main/database/models' {
   export class Player extends BaseModel {
     public alias: string;
     public tier: number;
+    public Country?: Country;
     public transferListed: boolean;
     public transferValue: number;
     public monthlyWages: number;
