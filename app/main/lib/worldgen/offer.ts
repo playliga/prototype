@@ -24,6 +24,17 @@ const targetRegionProbabilityTable = probable.createTableFromSizes([
 ]);
 
 
+// how likely is the team willing to sell
+// their non-transfer-listed player
+const TEAM_UNLISTED_PROBABILITY_YES = 10;
+const TEAM_UNLISTED_PROBABILITY_NO  = 90;
+
+const teamUnlistedProbabilityTable = probable.createTableFromSizes([
+  [ TEAM_UNLISTED_PROBABILITY_YES, true ],
+  [ TEAM_UNLISTED_PROBABILITY_NO, false ]
+]);
+
+
 /**
  * Handle offer responses from
  * team and/or the target
@@ -181,8 +192,9 @@ export async function parse( offerdetails: OfferRequest ) {
   // -----------------------------------
 
   if( !teamaccepted && _target.Team ) {
-    // is the player transfer listed?
-    if( !_target.transferListed ) {
+    // is the player transfer listed? if not, the team will
+    // consider selling but the chances are not high
+    if( !_target.transferListed && !teamUnlistedProbabilityTable.roll() ) {
       return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_NOTFORSALE );
     }
 
