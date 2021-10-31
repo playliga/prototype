@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import { ipcRenderer } from 'electron';
 import { UserOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { red } from '@ant-design/colors';
 import {
   Typography,
   Statistic,
@@ -121,6 +122,10 @@ function BuyTabs( props: any ) {
   const teamaccepted = teamAcceptedOffer( props.offers );
   const iseligible = isEligibleForNegotiations( props.profile?.currentDate, props.player?.eligibleDate );
 
+  const { earnings } = props.profile.Team;
+  const totalcost = ( wages || props.player.monthlyWages ) + ( fee || props.player.monthlyWages );
+  const cannotafford = totalcost > earnings;
+
   return (
     <Tabs
       defaultActiveKey="make"
@@ -137,11 +142,12 @@ function BuyTabs( props: any ) {
             />
           )}
           {iseligible && !freeagent && !teamaccepted && (
-            <Form.Item label="Transfer Fee">
+            <Form.Item label="Transfer Fee" validateStatus={cannotafford && 'error'} help={cannotafford && 'You cannot afford this player\'s transfer fee.'}>
               <InputNumber
                 disabled={haspending}
                 value={fee}
                 step={500}
+                min={0}
                 style={{ width: '100%' }}
                 formatter={val => formatCurrency( val as number )}
                 parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
@@ -150,11 +156,12 @@ function BuyTabs( props: any ) {
             </Form.Item>
           )}
           {iseligible && (
-            <Form.Item label="Player Wage">
+            <Form.Item label="Player Wage" validateStatus={cannotafford && 'error'} help={cannotafford && 'You cannot afford this player\'s wages.'}>
               <InputNumber
                 disabled={haspending}
                 value={wages}
                 step={500}
+                min={0}
                 style={{ width: '100%' }}
                 formatter={val => formatCurrency( val as number )}
                 parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
@@ -165,7 +172,7 @@ function BuyTabs( props: any ) {
           <Form.Item>
             <div className="button-container">
               <Button
-                disabled={haspending || !iseligible}
+                disabled={haspending || !iseligible || cannotafford}
                 type="primary"
                 size="middle"
                 htmlType="submit"
@@ -338,6 +345,7 @@ function Offer() {
   // set up bools
   const freeagent = !player.Team;
   const ismine = !freeagent && profile.Team.id === player.Team.id;
+  const totalcost = player.monthlyWages + player.transferValue;
 
   return (
     <div id="offer-root">
@@ -378,7 +386,7 @@ function Offer() {
         bordered
         layout="vertical"
         size="small"
-        column={3}
+        column={4}
         style={{ marginTop: 20, marginBottom: 20 }}
       >
         <Descriptions.Item label="Wage">
@@ -386,6 +394,9 @@ function Offer() {
         </Descriptions.Item>
         <Descriptions.Item label="Transfer Value">
           {formatCurrency( player.transferValue )}
+        </Descriptions.Item>
+        <Descriptions.Item label="Your Earnings">
+          <span style={profile.Team.earnings < totalcost ? { color: red.primary } : {}}>{formatCurrency( profile.Team.earnings )}</span>
         </Descriptions.Item>
         <Descriptions.Item label="Transfer Status">
           {player.transferList || freeagent ? 'Listed' : 'Not Listed'}
