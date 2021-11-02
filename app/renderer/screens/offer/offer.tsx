@@ -172,12 +172,13 @@ function BuyTabs( props: any ) {
           <Form.Item>
             <div className="button-container">
               <Button
-                disabled={haspending || !iseligible || cannotafford}
+                disabled={haspending || !iseligible || cannotafford || props.loading}
                 type="primary"
                 size="middle"
                 htmlType="submit"
                 style={{ marginBottom: 10 }}
               >
+                {props.loading && <Spin size="small" style={{ marginRight: 5 }}/>}
                 {haspending
                   ? 'Pending Offer'
                   : 'Send offer'
@@ -320,6 +321,7 @@ function Offer() {
   const [ profile, setProfile ] = React.useState( null as any );
   const [ fee, setFee ] = React.useState( 0 );
   const [ wages, setWages ] = React.useState( 0 );
+  const [ loading, setLoading ] = React.useState( false );
 
   // grab the player data
   React.useEffect( () => {
@@ -409,8 +411,9 @@ function Offer() {
           {...{ player, profile, offers }}
           initialFee={fee}
           initialWages={wages}
+          loading={loading}
           onCancel={handleCancel}
-          onFinish={handleSendFinish}
+          onFinish={( fee: number, weeklywages: number, player: any ) => { setLoading( true ); handleSendFinish( fee, weeklywages, player ); }}
         />
       )}
 
