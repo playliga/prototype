@@ -21,6 +21,7 @@ class Player extends Model {
     this.belongsTo( models.Country );
     this.hasOne( models.Profile );
     this.hasMany( models.Email );
+    this.hasMany( models.TransferOffer );
   }
 }
 

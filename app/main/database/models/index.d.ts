@@ -98,6 +98,7 @@ declare module 'main/database/models' {
     public stats: any;
     public gains: any;
     public readonly Team?: Team;
+    public TransferOffer?: TransferOffer[];
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;

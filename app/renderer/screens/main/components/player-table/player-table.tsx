@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table, Typography } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Badge, Table, Typography } from 'antd';
+import { CheckOutlined, ClockCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
 import Tiers from 'shared/tiers';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
@@ -48,7 +48,21 @@ export default function PlayerTable( props: any ) {
           { text: 'North America', value: 5 },
         ]}
         onFilter={( v: any, r: any ) => r.Country.ContinentId === v}
-        render={( alias: any, r: any ) => <><span className={`fp ${r.Country.code.toLowerCase()}`} /> {alias}</>}
+        render={( alias: any, r: any ) => {
+          const haspendingoffer =  (r.TransferOffers as any[]).some( item => item.status === 'pending' && item.TeamId === props.teamId );
+
+          if( haspendingoffer ) {
+            return (
+              <Badge count={<ClockCircleOutlined style={{ paddingLeft: 20, color: red.primary }}/>}>
+                <span className={`fp ${r.Country.code.toLowerCase()}`} /> {alias}
+              </Badge>
+            );
+          }
+
+          return (
+            <><span className={`fp ${r.Country.code.toLowerCase()}`} /> {alias}</>
+          );
+        }}
       />
       <Table.Column
         ellipsis

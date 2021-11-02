@@ -1,9 +1,14 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
+import { ApplicationState } from 'renderer/screens/main/types';
 import * as IPCRouting from 'shared/ipc-routing';
+import Connector from 'renderer/screens/main/components/connector';
 import IpcService from 'renderer/lib/ipc-service';
 import PlayerTable from 'renderer/screens/main/components/player-table';
+
+
+interface Props extends RouteComponentProps, ApplicationState {}
 
 
 interface State {
@@ -11,7 +16,7 @@ interface State {
 }
 
 
-class Transfers extends React.Component<RouteComponentProps, State> {
+class Transfers extends React.Component<Props, State> {
   public state = {
     data: [] as any[]
   }
@@ -38,6 +43,7 @@ class Transfers extends React.Component<RouteComponentProps, State> {
       <div className="content">
         <PlayerTable
           loading={this.state.data.length <= 0}
+          teamId={this.props.profile.data.Team.id}
           dataSource={this.state.data}
           onRowClick={this.handleRowClick}
         />
@@ -47,4 +53,4 @@ class Transfers extends React.Component<RouteComponentProps, State> {
 }
 
 
-export default Transfers;
+export default Connector.connect( Transfers );
