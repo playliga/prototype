@@ -122,6 +122,9 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     // set a start date for the next season
     .then( Worldgen.Competition.nextSeasonStartDate )
 
+    // schedule the end of season prize money distribution
+    .then( Worldgen.schedulePrizeMoneyDistribution )
+
     // schedule the end of season report
     .then( Worldgen.scheduleEndSeasonReport )
 

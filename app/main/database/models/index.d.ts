@@ -44,6 +44,7 @@ declare module 'main/database/models' {
     public isOpen: boolean;
     public startOffset: number;
     public meetTwice: boolean;
+    public prizePool: { total: number; distribution: number[] };
     public readonly Continents?: Continent[];
     public readonly Comptype?: Comptype;
   }

@@ -7,6 +7,10 @@
     "season":32,
     "startoffset": 60,
     "type": "league",
+    "prizePool": {
+      "total": 1000000,
+      "distribution": [ 50, 20, 15, 10, 5 ]
+    },
     "regions":[
       "eu",
       "na"
@@ -47,6 +51,10 @@
     "season":12,
     "startoffset": 60,
     "type": "championsleague",
+    "prizePool": {
+      "total": 500000,
+      "distribution": [ 50, 20, 15, 10, 5 ]
+    },
     "regions":[
       "eu"
     ],
@@ -64,6 +72,10 @@
     "season": 1,
     "startoffset": 90,
     "type": "leaguecup",
+    "prizePool": {
+      "total": 500000,
+      "distribution": [ 50, 20, 15, 10, 5 ]
+    },
     "regions": [
       "eu",
       "na"

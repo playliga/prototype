@@ -24,6 +24,10 @@ class Compdef extends Model {
         type: Sequelize.JSON,
         allowNull: true
       },
+      prizePool: {
+        type: Sequelize.JSON,
+        allowNull: true,
+      },
     }, { sequelize, modelName: 'Compdef' });
   }
 

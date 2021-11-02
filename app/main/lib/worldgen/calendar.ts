@@ -10,8 +10,8 @@ import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
 import { flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { League } from 'main/lib/league';
-import { sendEmailAndEmit } from 'main/lib/util';
+import { Cup, League } from 'main/lib/league';
+import { parseCompType, sendEmailAndEmit } from 'main/lib/util';
 
 
 /**
@@ -94,6 +94,60 @@ itemloop.register( null, async ( items: Models.ActionQueue[] ) => {
 /**
  * the types of jobs that can run on every tick
  */
+
+itemloop.register( ActionQueueTypes.ENDSEASON_PRIZE_MONEY, async () => {
+  const allcompetitions = await Models.Competition.findAll({ include: [ 'Comptype', 'Compdef' ] });
+  const competitions = allcompetitions.filter( c => c.season === c.Compdef.season );
+
+  // grab the competition winners
+  // @todo: handle championsleague
+  const all_winners = flatten( competitions.map( competition => {
+    const [ isleague, iscup, ischampionsleague ] = parseCompType( competition.Comptype.name );
+    const prizepool_config = competition.Compdef.prizePool;
+    const winners: any[] = [];
+
+    if( iscup ) {
+      const cupobj = Cup.restore( competition.data );
+      const [ champion, runner_up, ...ro16 ] =  cupobj.duelObj.results();
+      const prizemoney_champion = Math.floor( prizepool_config.total * ( prizepool_config.distribution[ 0 ] / 100 ) );
+      const prizemoney_runner_up = Math.floor( prizepool_config.total * ( prizepool_config.distribution[ 1 ] / 100 ) );
+      const prizemoney_top_four = Math.floor( prizepool_config.total * ( prizepool_config.distribution[ 2 ] / 100 ) );
+      const prizemoney_top_eight = Math.floor( prizepool_config.total * ( prizepool_config.distribution[ 3 ] / 100 ) );
+      const prizemoney_top_sixteen = Math.floor( prizepool_config.total * ( prizepool_config.distribution[ 4 ] / 100 ) );
+      winners.push([ cupobj.getCompetitorBySeed( champion.seed ).id, prizemoney_champion ]);
+      winners.push([ cupobj.getCompetitorBySeed( runner_up.seed ).id, prizemoney_runner_up ]);
+      ro16.slice( 2, 4 ).forEach( item => winners.push([ cupobj.getCompetitorBySeed( item.seed ).id, prizemoney_top_four ]));
+      ro16.slice( 4, 8 ).forEach( item => winners.push([ cupobj.getCompetitorBySeed( item.seed ).id, prizemoney_top_eight ]));
+      ro16.slice( 8, 16 ).forEach( item => winners.push([ cupobj.getCompetitorBySeed( item.seed ).id, prizemoney_top_sixteen ]));
+    }
+
+    if( isleague && !ischampionsleague ) {
+      const leagueobj = League.restore( competition.data );
+      const conf_distribution = [ 75, 20, 5 ];
+      leagueobj.divisions.forEach( ( division, tierid ) => {
+        const prizepool_amount = prizepool_config.total * ( prizepool_config.distribution[ tierid ] / 100 );
+        const prizepool_per_conference = Math.floor( prizepool_amount / division.conferences.length );
+
+        // split conference prize pool up between the regular season and playoff winners
+        const prizemoney_champions = Math.floor( prizepool_per_conference * ( conf_distribution[ 0 ] / 100 ) / division.conferenceWinners.length );
+        const prizemoney_runners_up = Math.floor( prizepool_per_conference * ( conf_distribution[ 1 ] / 100 ) / division.conferenceWinners.length );
+        const prizemoney_promotion_winners = Math.floor( prizepool_per_conference * ( conf_distribution[ 2 ] / 100 ) / division.promotionWinners.length );
+        division.conferenceWinners.filter( ( c, idx ) => idx % 2 === 0 ).forEach( c => winners.push([ c.id, prizemoney_champions ]));
+        division.conferenceWinners.filter( ( c, idx ) => idx % 2 !== 0 ).forEach( c => winners.push([ c.id, prizemoney_runners_up ]));
+        division.promotionWinners.forEach( competitor => winners.push([ competitor.id, prizemoney_promotion_winners ]));
+      });
+    }
+
+    return winners;
+  }));
+
+  return Promise.all( all_winners.filter( item => item.length > 0 ).map( async winner => {
+    const [ winner_id, winner_amt ] = winner;
+    const team = await Models.Team.findByPk( winner_id );
+    return team.increment( 'earnings', { by: winner_amt } );
+  }));
+});
+
 
 itemloop.register( ActionQueueTypes.ENDSEASON_REPORT, async () => {
   // grab the league the user is in
@@ -371,6 +425,7 @@ itemloop.register( ActionQueueTypes.START_SEASON, () => {
   return Promise.resolve()
     .then( Worldgen.trimActionQueue )
     .then( WGCompetition.nextSeasonStartDate )
+    .then( Worldgen.schedulePrizeMoneyDistribution )
     .then( Worldgen.scheduleEndSeasonReport )
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )

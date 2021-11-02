@@ -271,3 +271,28 @@ export async function scheduleEndSeasonReport() {
     payload: null,
   });
 }
+
+
+/**
+ * Schedule distribution of competition prize money
+ */
+
+export async function schedulePrizeMoneyDistribution() {
+  // get the date for the start of the next season
+  // subtract a week to schedule the report
+  const action = await Models.ActionQueue.findOne({
+    where: {
+      completed: false,
+      type: ActionQueueTypes.START_SEASON
+    },
+    order: [
+      [ 'id', 'DESC' ]
+    ],
+  });
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.ENDSEASON_PRIZE_MONEY,
+    actionDate: moment( action.actionDate ).subtract( 1, 'week' ),
+    payload: null,
+  });
+}

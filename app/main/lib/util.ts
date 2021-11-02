@@ -11,12 +11,14 @@ import * as IPCRouting from 'shared/ipc-routing';
 // ------------------------
 
 export function parseCompType( type: string ) {
+  const championsleague = [ CompTypes.CHAMPIONS_LEAGUE ];
   const leagues = [ CompTypes.CHAMPIONS_LEAGUE, CompTypes.LEAGUE ];
   const cups = [ CompTypes.LEAGUE_CUP ];
 
   return [
     leagues.includes( type ),
     cups.includes( type ),
+    championsleague.includes( type )
   ];
 }
 
