@@ -163,6 +163,6 @@
     "squirrelly": "8.0.3",
     "tail": "2.0.4",
     "unzipper": "0.10.11",
-    "validator": "11.1.0"
+    "validator": "13.7.0"
   }
 }
