@@ -24,7 +24,7 @@ const args = minimist( process.argv.slice( 2 ), {
 
 
 const REGIONS = [
-  { id: 1, name: 'North_America', players: [] },
+  { id: 1, name: 'North_America', players: [] as any[] },
   { id: 2, name: 'Europe', players: [] },
 ];
 
