@@ -1,4 +1,4 @@
-const players = require( '../fixtures/20200516133922-freeagents.json' );
+const players = require( '../fixtures/20211109163433-freeagents.json' );
 
 
 module.exports = {

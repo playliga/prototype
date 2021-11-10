@@ -3,16 +3,16 @@ import fs from 'fs';
 import minimist from 'minimist';
 import dedent from 'dedent';
 import ctable from 'console.table';
-import { flatten, uniqBy } from 'lodash';
+import { flatten, random, uniqBy } from 'lodash';
 import { ScraperFactory } from 'main/lib/scraper-factory';
 
 
 // module variables
 const THISPATH        = __dirname;
 const DEFAULT_OUT     = 'fa-out.json';
-const DEFAULT_PLAYERS = 100;
+const DEFAULT_PLAYERS = 500;
 const STARTPAGE       = 30;                 // which page to start on
-const MAXPAGE         = 31;                 // how many pages to try before giving up
+const MAXPAGE         = 40;                 // how many pages to try before giving up
 
 
 // configure command line args
@@ -33,6 +33,54 @@ class Region {
   public id = 1;
   public name = ''
   public players: any[] = []
+}
+
+
+/**
+ *
+ * Utility functions
+ *
+ */
+
+function normalizeregion( region: Region ) {
+  return region.players.map( p => {
+    // delete the unused "id" prop
+    delete p.id;
+
+    // push the formatted team to the teams array
+    return {
+      ...p,
+      tier: 4,
+      region_id: region.id
+    };
+  });
+}
+
+
+// the scraper stopped working and the region_id param is no longer
+// working either. so the cache for EU is actually data for NA.
+// this functions converts some NA free agents to EU.
+function patch_na_to_eu( region: Region, players: any[] ) {
+  const na_countries = [ 'US', 'CA', 'MX' ];
+  const eu_countries = [ 'FR', 'DE', 'GB', 'NL', 'SE' ];
+
+  return players.map( player => {
+    if( region.id === 1 || !player ) {
+      return player;
+    }
+
+    if( na_countries.includes( player.countrycode ) ) {
+      // pick a random eu country
+      const cid = eu_countries[ random( 0, eu_countries.length - 1 ) ];
+      return {
+        ...player,
+        countryurl: `/global/images/flags/${cid}.gif`,
+        countrycode: cid,
+      };
+    }
+
+    return player;
+  });
 }
 
 
@@ -75,7 +123,7 @@ async function genESEAregion(
 
   // merge and dedupe the results
   const players = uniqBy([ ...playerdata, ...newplayerdata ], 'alias' );
-  let result = players;
+  let result = patch_na_to_eu( region, players );
 
   // print status message
   console.log(
@@ -120,21 +168,6 @@ async function genESEAregions( regions: Region[] ): Promise<Region[]> {
  * Main scraper function
  *
  */
-
-// utility functions
-function normalizeregion( region: Region ) {
-  return region.players.map( p => {
-    // delete the unused "id" prop
-    delete p.id;
-
-    // push the formatted team to the teams array
-    return {
-      ...p,
-      tier: 4,
-      region_id: region.id
-    };
-  });
-}
 
 // main
 async function run() {
