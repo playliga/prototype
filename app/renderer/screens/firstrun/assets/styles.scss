@@ -1,6 +1,11 @@
 @import '~renderer/assets/shared';
 
 
+html {
+  overflow-x: hidden;
+}
+
+
 #firstrun {
   width: 100%;
   padding-top: 20px;
