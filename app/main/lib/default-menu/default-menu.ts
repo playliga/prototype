@@ -14,7 +14,8 @@ export const MenuItems = {
   HELP: is.osx() ? 4 : 3
 };
 
-export const RawDefaultMenuTemplate = [
+
+export const RawDefaultMenuTemplate: Record<string, any>[] = [
   {
     label: 'File',
     submenu: [
@@ -23,30 +24,14 @@ export const RawDefaultMenuTemplate = [
   },
   {
     label: 'Edit',
-    submenu: [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
-      { role: 'pasteandmatchstyle' },
-      { role: 'delete' },
-      { role: 'selectall' }
-    ]
+    submenu: [],
   },
   {
     label: 'View',
     submenu: [
       { role: 'reload' },
       { role: 'forcereload' },
-      { role: 'toggledevtools' },
-      { type: 'separator' },
-      { role: 'resetzoom' },
-      { role: 'zoomin' },
-      { role: 'zoomout' },
-      { type: 'separator' },
-      { role: 'togglefullscreen' }
+      { role: 'toggledevtools' }
     ]
   },
   {
@@ -69,14 +54,13 @@ export const RawDefaultMenuTemplate = [
   }
 ];
 
+
+// osx-specific menu items
 if( is.osx() ) {
   RawDefaultMenuTemplate.unshift({
     label: app.name,
     submenu: [
       { role: 'about' },
-      { type: 'separator' },
-      // @ts-ignore
-      { role: 'services', submenu: []},
       { type: 'separator' },
       { role: 'hide' },
       { role: 'hideothers' },
@@ -89,12 +73,18 @@ if( is.osx() ) {
   RawDefaultMenuTemplate[ MenuItems.WINDOW ].submenu = [
     { role: 'close' },
     { role: 'minimize' },
-    { role: 'zoom' },
     { type: 'separator' },
     { role: 'front' }
   ];
 }
 
+
+// hide debugging items in production
+if( is.production() ) {
+  RawDefaultMenuTemplate[ MenuItems.VIEW ] = null;
+}
+
+
 // @ts-ignore
-const DefaultMenuTemplate = Menu.buildFromTemplate( RawDefaultMenuTemplate );
+const DefaultMenuTemplate = Menu.buildFromTemplate( RawDefaultMenuTemplate.filter( item => item !== null && item.submenu.length > 0 ) );
 export default DefaultMenuTemplate;
