@@ -8,7 +8,7 @@ import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
 import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
-import { flatten } from 'lodash';
+import { flatten, shuffle } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Cup, League } from 'main/lib/league';
 import { parseCompType, sendEmailAndEmit } from 'main/lib/util';
@@ -313,14 +313,15 @@ itemloop.register( ActionQueueTypes.PRESEASON_AUTOADD_SQUAD, async () => {
 
   // grab players from the same region as user's team
   const region = profile.Team.Country.Continent;
-  const players = await Models.Player.findAll({
-    limit: Application.SQUAD_MIN_LENGTH,
-    where: { tier: profile.Team.tier },
+  const allplayers = await Models.Player.findAll({
+    // limit: Application.SQUAD_MIN_LENGTH,
+    where: { tier: profile.Team.tier, transferListed: true },
     include: [{
       model: Models.Country,
       where: { continentId: region.id }
     }]
   });
+  const players = shuffle( allplayers ).slice( 0, Application.SQUAD_MIN_LENGTH );
 
   // add the players to the user's squad
   const res = players.map( p => [
