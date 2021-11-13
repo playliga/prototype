@@ -35,7 +35,7 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
     .map( player => {
       let stats = player.stats;
       if( !stats ) {
-        const tier = Tiers[ Tiers.length - 1 ];
+        const tier = Tiers[ player.tier ];
         stats = tier.templates[ tier.templates.length - 1 ].stats;
       }
       const xp = new BotExp( stats );
