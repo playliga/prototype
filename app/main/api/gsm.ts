@@ -14,6 +14,7 @@ import RconClient from 'main/lib/rcon-client';
 import Worldgen from 'main/lib/worldgen';
 import Argparse from 'main/lib/argparse';
 import Application from 'main/constants/application';
+import GameSettings from 'main/constants/gamesettings';
 
 import * as Sqrl from 'squirrelly';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -37,53 +38,10 @@ import { League, Cup, Division } from 'main/lib/league';
  * ------------------------------------
  */
 
-// general settings
-const BOT_VOICEPITCH_MAX                  = 125;
-const BOT_VOICEPITCH_MIN                  = 80;
-const BOT_WEAPONPREFS_PROBABILITY_RIFLE   = 3;
-const BOT_WEAPONPREFS_PROBABILITY_SNIPER  = 1;
-const GAMEFILES_BASEDIR                   = 'resources/gamefiles';
-const SERVER_CVAR_MAXROUNDS               = 30;
-const SERVER_CVAR_MAXROUNDS_OT            = 6;
-const SERVER_CVAR_FREEZETIME              = 15;
-const SQUAD_STARTERS_NUM                  = 5;
-
-
-// cs16 settings
-const CS16_APPID                          = 10;
-const CS16_BASEDIR                        = 'steamapps/common/Half-Life';
-const CS16_BOT_CONFIG                     = 'botprofile.db';
-const CS16_DELAY_GAMEOVER                 = 10000;
-const CS16_DELAY_HALFTIME                 = 3000;
-const CS16_DLL_BOTS                       = 'dlls/liga.dll';
-const CS16_DLL_METAMOD                    = 'addons/metamod/dlls/metamod.dll';
-const CS16_GAMEDIR                        = 'cstrike';
-const CS16_HLDS_EXE                       = 'hlds.exe';
-const CS16_LOGFILE                        = 'qconsole.log';
-const CS16_SERVER_CONFIG_FILE             = 'liga.cfg';
-
-
-// csgo settings
-const CSGO_APPID                          = 730;
-const CSGO_BOT_CONFIG                     = 'botprofile.db';
-const CSGO_BASEDIR                        = 'steamapps/common/Counter-Strike Global Offensive';
-const CSGO_GAMEDIR                        = 'csgo';
-const CSGO_GAMEMODES_FILE                 = 'gamemodes_liga.txt';
-const CSGO_LANGUAGE_FILE                  = 'resource/csgo_english.txt';
-const CSGO_LOGFILE                        = 'logs/liga.log';
-const CSGO_SERVER_CONFIG_FILE             = 'cfg/liga.cfg';
-
-
-// rcon settings
-const RCON_MAX_ATTEMPTS                   = 15;
-const RCON_PASSWORD                       = 'liga';
-const RCON_PORT                           = 27015;
-
-
 // set up bot weapon prefs probability table
 const weaponPrefsProbabilityTable = probable.createTableFromSizes([
-  [ BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],       // 3x more likely
-  [ BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]      // 1x more likely
+  [ GameSettings.BOT_WEAPONPREFS_PROBABILITY_RIFLE, 'Rifle' ],       // 3x more likely
+  [ GameSettings.BOT_WEAPONPREFS_PROBABILITY_SNIPER, 'Sniper' ]      // 1x more likely
 ]);
 
 
@@ -157,25 +115,25 @@ async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayReque
   // set up async vars
   profile = await Models.Profile.getActiveProfile();
   cs16_enabled = profile.settings.cs16_enabled;
-  cvar_maxrounds = profile.settings.maxrounds || SERVER_CVAR_MAXROUNDS;
-  cvar_freezetime = profile.settings.freezetime || SERVER_CVAR_FREEZETIME;
+  cvar_maxrounds = profile.settings.maxrounds || GameSettings.SERVER_CVAR_MAXROUNDS;
+  cvar_freezetime = profile.settings.freezetime || GameSettings.SERVER_CVAR_FREEZETIME;
   competition = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).find( c => c.id === ipcreq.params.compId );
   queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
   [ isleague, iscup ] = parseCompType( competition.Comptype.name );
 
   // set up cs16-specific vars
   if( cs16_enabled ) {
-    basedir = CS16_BASEDIR;
-    botconfig = CS16_BOT_CONFIG;
-    gamedir = CS16_GAMEDIR;
-    logfile = CS16_LOGFILE;
-    servercfgfile = CS16_SERVER_CONFIG_FILE;
+    basedir = GameSettings.CS16_BASEDIR;
+    botconfig = GameSettings.CS16_BOT_CONFIG;
+    gamedir = GameSettings.CS16_GAMEDIR;
+    logfile = GameSettings.CS16_LOGFILE;
+    servercfgfile = GameSettings.CS16_SERVER_CONFIG_FILE;
   } else {
-    basedir = CSGO_BASEDIR;
-    botconfig = CSGO_BOT_CONFIG;
-    gamedir = CSGO_GAMEDIR;
-    logfile = CSGO_LOGFILE;
-    servercfgfile = CSGO_SERVER_CONFIG_FILE;
+    basedir = GameSettings.CSGO_BASEDIR;
+    botconfig = GameSettings.CSGO_BOT_CONFIG;
+    gamedir = GameSettings.CSGO_GAMEDIR;
+    logfile = GameSettings.CSGO_LOGFILE;
+    servercfgfile = GameSettings.CSGO_SERVER_CONFIG_FILE;
   }
 
   return Promise.resolve();
@@ -234,18 +192,18 @@ async function initrcon( ip: string = null ): Promise<any> {
   }
 
   // try n-times before giving up
-  for( let i = 1; i <= RCON_MAX_ATTEMPTS; i++ ) {
+  for( let i = 1; i <= GameSettings.RCON_MAX_ATTEMPTS; i++ ) {
     log.info( `waiting for rcon to open. attempt #${i}...` );
 
     // wait for ip:port to be open then
     // attempt to connect to rcon
     try {
-      await delayedping( ip, RCON_PORT );
+      await delayedping( ip, GameSettings.RCON_PORT );
 
       const rcon = await rconconnect({
         host: ip,
-        port: RCON_PORT,
-        password: RCON_PASSWORD,
+        port: GameSettings.RCON_PORT,
+        password: GameSettings.RCON_PASSWORD,
       });
 
       log.info( 'connection to server established.' );
@@ -281,21 +239,21 @@ function getSquads() {
   const starters1 = squad1.filter( p => p.starter );
   const starters2 = squad2.filter( p => p.starter );
 
-  if( starters1.length >= SQUAD_STARTERS_NUM ) {
+  if( starters1.length >= GameSettings.SQUAD_STARTERS_NUM ) {
     squad1 = starters1;
   }
 
-  if( starters2.length >= SQUAD_STARTERS_NUM ) {
+  if( starters2.length >= GameSettings.SQUAD_STARTERS_NUM ) {
     squad2 = starters2;
   }
 
   // trim the user's squad by one
   if( team1.id === profile.Team.id ) {
-    squad1 = squad1.slice( 0, SQUAD_STARTERS_NUM - 1 );
+    squad1 = squad1.slice( 0, GameSettings.SQUAD_STARTERS_NUM - 1 );
   }
 
   if( team2.id === profile.Team.id ) {
-    squad2 = squad2.slice( 0, SQUAD_STARTERS_NUM - 1 );
+    squad2 = squad2.slice( 0, GameSettings.SQUAD_STARTERS_NUM - 1 );
   }
 
   return [ squad1, squad2 ];
@@ -311,7 +269,7 @@ function generateBotSkill( p: Models.Player ) {
   // build the bot profile fields
   const name = `${templates[ idx ].name}+${weaponpref} ${p.alias}`;
   const skill = p.stats && p.stats.skill;
-  const voicepitch = random( BOT_VOICEPITCH_MIN, BOT_VOICEPITCH_MAX );
+  const voicepitch = random( GameSettings.BOT_VOICEPITCH_MIN, GameSettings.BOT_VOICEPITCH_MAX );
 
   // if skill overrides exist, use them
   if( skill ) {
@@ -362,7 +320,7 @@ function addSquadsToServer( squads: Models.Player[][] ) {
 //
 // e.g.: /some/long/path/resources/gamefiles/[cstrike|csgo]/maps/de_cpl_mill.bsp
 function getGameFiles() {
-  const allfiles: string[] = walk( path.join( __dirname, GAMEFILES_BASEDIR, gamedir ) );
+  const allfiles: string[] = walk( path.join( __dirname, GameSettings.GAMEFILES_BASEDIR, gamedir ) );
   const gamefiles = allfiles.map( item => {
     // skip zip files
     const ext = path.extname( item );
@@ -386,7 +344,7 @@ function getGameFiles() {
 
 async function extract() {
   const globAsync = promisify( glob );
-  const sourcedir = path.join( __dirname, GAMEFILES_BASEDIR, gamedir );
+  const sourcedir = path.join( __dirname, GameSettings.GAMEFILES_BASEDIR, gamedir );
   const targetdir = path.join( steampath, basedir, gamedir );
   const files = await globAsync( '**/*.zip', { cwd: sourcedir });
 
@@ -455,7 +413,7 @@ function copy() {
   const gamefiles = getGameFiles();
 
   gamefiles.forEach( item => {
-    const sourcepath = path.join( __dirname, GAMEFILES_BASEDIR, gamedir, item );
+    const sourcepath = path.join( __dirname, GameSettings.GAMEFILES_BASEDIR, gamedir, item );
     const targetpath = path.join( steampath, basedir, gamedir, item );
     const parents = path.dirname( targetpath );
 
@@ -487,14 +445,14 @@ async function cleanup() {
   const extrafiles = [];
 
   if( !cs16_enabled ) {
-    extrafiles.push( CSGO_LANGUAGE_FILE );
+    extrafiles.push( GameSettings.CSGO_LANGUAGE_FILE );
   }
 
   // ignore dlls for cs16
   const ignorelist = [];
 
   if( cs16_enabled ) {
-    ignorelist.push( path.basename( CS16_DLL_BOTS ) );
+    ignorelist.push( path.basename( GameSettings.CS16_DLL_BOTS ) );
   }
 
   // restore modified config files and clean up the log file
@@ -525,7 +483,7 @@ async function cleanup() {
 
 async function generateGameModeConfig( data: any ) {
   // generate file
-  const gmfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEDIR, CSGO_GAMEMODES_FILE );
+  const gmfile = path.join( steampath, GameSettings.CSGO_BASEDIR, GameSettings.CSGO_GAMEDIR, GameSettings.CSGO_GAMEMODES_FILE );
   const gmfiletpl = await fs.promises.readFile( gmfile, 'utf8' );
   return fs.promises.writeFile( gmfile, Sqrl.render( gmfiletpl, data ) );
 }
@@ -556,7 +514,7 @@ async function generateBotConfig( squad1: Models.Player[], squad2: Models.Player
 async function generateScoreboardFile() {
   // patch scoreboard the scoreboard file
   // to remove the BOT prefixes
-  const scbfile = path.join( steampath, CSGO_BASEDIR, CSGO_GAMEDIR, CSGO_LANGUAGE_FILE );
+  const scbfile = path.join( steampath, GameSettings.CSGO_BASEDIR, GameSettings.CSGO_GAMEDIR, GameSettings.CSGO_LANGUAGE_FILE );
 
   // read/replace the BOT prefix
   const content = await fs.promises.readFile( scbfile, 'utf16le' );
@@ -582,20 +540,20 @@ function launchCSGO( map = 'de_dust2' ) {
     '+map', map,
     '+game_mode', '1',
     '-usercon',
-    '-gamemodes_serverfile', CSGO_GAMEMODES_FILE
+    '-gamemodes_serverfile', GameSettings.CSGO_GAMEMODES_FILE
   ];
 
   if( is.osx() ) {
     gameproc = spawn(
       'open',
-      [ `steam://rungameid/${CSGO_APPID}//'${commonflags.join( ' ' )}'` ],
+      [ `steam://rungameid/${GameSettings.CSGO_APPID}//'${commonflags.join( ' ' )}'` ],
       { shell: true }
     );
   } else {
     gameproc = spawn(
       'steam.exe',
       [
-        '-applaunch', CSGO_APPID.toString(),
+        '-applaunch', GameSettings.CSGO_APPID.toString(),
         ...commonflags
       ],
       { cwd: steampath }
@@ -615,27 +573,27 @@ function launchCS16Server( map = 'de_dust2' ) {
   const txtpath = path.join( steampath, basedir, 'steam_appid.txt' );
 
   if( !fs.existsSync( txtpath ) ) {
-    fs.writeFileSync( txtpath, CS16_APPID.toString() );
+    fs.writeFileSync( txtpath, GameSettings.CS16_APPID.toString() );
   }
 
   // launch the game
   gameproc_server = spawn(
-    CS16_HLDS_EXE,
+    GameSettings.CS16_HLDS_EXE,
     [
       '-console',
-      '-game', CS16_GAMEDIR,
-      '-dll', CS16_DLL_METAMOD,                               // metamod
-      '-beta',                                                // enable mp_swapteams
-      '-bots',                                                // enable bots
+      '-game', GameSettings.CS16_GAMEDIR,
+      '-dll', GameSettings.CS16_DLL_METAMOD,                                // metamod
+      '-beta',                                                              // enable mp_swapteams
+      '-bots',                                                              // enable bots
       '-condebug',
-      '+localinfo', 'mm_gamedll', CS16_DLL_BOTS,              // dll with bots
+      '+localinfo', 'mm_gamedll', GameSettings.CS16_DLL_BOTS,               // dll with bots
       '+ip', getIP(),
       '+servercfgfile', path.basename( servercfgfile ),
       '+maxplayers', '12',
       '+map', parseMapForMatch( map, cs16_enabled ),
     ],
     {
-      cwd: path.join( steampath, CS16_BASEDIR ),
+      cwd: path.join( steampath, GameSettings.CS16_BASEDIR ),
       shell: true
     }
   );
@@ -652,7 +610,7 @@ function launchCS16Client() {
   gameproc = spawn(
     'steam.exe',
     [
-      '-applaunch', CS16_APPID.toString(),
+      '-applaunch', GameSettings.CS16_APPID.toString(),
       '+connect', getIP(),
     ],
     { cwd: steampath }
@@ -725,7 +683,7 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     halftime = true;
     gameislive = false;
     await rcon.send( `say * * * HALF-TIME | ${getCurrentScore()} * * *` );
-    await snooze( CS16_DELAY_HALFTIME );
+    await snooze( GameSettings.CS16_DELAY_HALFTIME );
     await rcon.send( 'exec liga-halftime.cfg' );
     await rcon.send( 'say * * * TO START THE SECOND-HALF TYPE: .ready * * *' );
     return Promise.resolve();
@@ -739,11 +697,11 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   ) {
     halftime = false;
     gameislive = false;
-    cvar_maxrounds = SERVER_CVAR_MAXROUNDS_OT;
+    cvar_maxrounds = GameSettings.SERVER_CVAR_MAXROUNDS_OT;
     is_ot = true;
     otscore = [ 0, 0 ];
     await rcon.send( `say * * * OVERTIME | ${getCurrentScore()} * * *` );
-    await snooze( CS16_DELAY_HALFTIME );
+    await snooze( GameSettings.CS16_DELAY_HALFTIME );
     await rcon.send( 'exec liga-halftime.cfg' );
     await rcon.send( 'say * * * TO START THE OVERTIME TYPE: .ready * * *' );
     return Promise.resolve();
@@ -757,12 +715,12 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   ) {
     gameover = true;
     await rcon.send( `say * * * GAME OVER | ${getCurrentScore()} * * *` );
-    await rcon.send( `say * * * SHUTTING DOWN SERVER IN ${CS16_DELAY_GAMEOVER / 1000}s * * *` );
+    await rcon.send( `say * * * SHUTTING DOWN SERVER IN ${GameSettings.CS16_DELAY_GAMEOVER / 1000}s * * *` );
     await rcon.send( 'bot_quota 0' );
   }
 
   // wait a few seconds before shutting down the server and saving the results
-  await snooze( CS16_DELAY_GAMEOVER );
+  await snooze( GameSettings.CS16_DELAY_GAMEOVER );
 
   if( gameover ) {
     log.info( 'GAME IS OVER. Shutting down server...' );
@@ -917,7 +875,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   const extrafiles = [];
 
   if( !cs16_enabled ) {
-    extrafiles.push( CSGO_LANGUAGE_FILE );
+    extrafiles.push( GameSettings.CSGO_LANGUAGE_FILE );
   }
 
   // backup files and copy ours over
@@ -928,7 +886,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // (csgo only)
   if( !cs16_enabled ) {
     await generateGameModeConfig({
-      server_config_file: path.basename( CSGO_SERVER_CONFIG_FILE )
+      server_config_file: path.basename( GameSettings.CSGO_SERVER_CONFIG_FILE )
     });
   }
 
@@ -940,7 +898,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     logfile: logfile,
     maxrounds: cvar_maxrounds,
     ot: allow_ot,
-    rcon_password: RCON_PASSWORD,
+    rcon_password: GameSettings.RCON_PASSWORD,
     teamflag_ct: team1.Country.code,
     teamflag_t: team2.Country.code,
     teamname_ct: team1.name,

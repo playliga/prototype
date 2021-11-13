@@ -1,5 +1,6 @@
 import React from 'react';
 import Connector from 'renderer/screens/main/components/connector';
+import GameSettings from 'main/constants/gamesettings';
 import { RouteComponentProps } from 'react-router';
 import { Col, Row, Typography, Switch, Card, Select } from 'antd';
 import { ApplicationState } from 'renderer/screens/main/types';
@@ -58,7 +59,7 @@ function Settings( props: Props ) {
               </Col>
               <Col span={4}>
                 <Select
-                  defaultValue={settings.maxrounds || 6}
+                  defaultValue={settings.maxrounds || GameSettings.SERVER_CVAR_MAXROUNDS}
                   onChange={value => handleOnChange({ maxrounds: value })}
                 >
                   <Select.Option value={6}>{'6'}</Select.Option>
@@ -75,7 +76,7 @@ function Settings( props: Props ) {
               </Col>
               <Col span={4}>
                 <Select
-                  defaultValue={settings.freezetime || 7}
+                  defaultValue={settings.freezetime || GameSettings.SERVER_CVAR_FREEZETIME}
                   onChange={value => handleOnChange({ freezetime: value })}
                 >
                   <Select.Option value={7}>{'7s'}</Select.Option>
