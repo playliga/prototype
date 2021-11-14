@@ -21,6 +21,7 @@ const GameSettings = {
   CS16_GAMEDIR                        : 'cstrike',
   CS16_HLDS_EXE                       : 'hlds.exe',
   CS16_LOGFILE                        : 'qconsole.log',
+  CS16_MOTD_FILE                      : 'motd.txt',
   CS16_SERVER_CONFIG_FILE             : 'liga.cfg',
 
   // csgo settings

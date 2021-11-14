@@ -26,7 +26,7 @@ import { ping } from '@network-utils/tcp-ping';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
-import { parseCupRound, parseMapForMatch, snooze } from 'shared/util';
+import { parseCupRound, parseMapForMatch, snooze, toOrdinalSuffix } from 'shared/util';
 import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
@@ -529,6 +529,17 @@ async function generateScoreboardFile() {
 }
 
 
+async function generateMotdFile( data: any ) {
+  const motdcfg = path.join( steampath, basedir, gamedir, GameSettings.CS16_MOTD_FILE );
+  const motdtpl = await fs.promises.readFile( motdcfg, 'utf8' );
+
+  return fs.promises.writeFile(
+    motdcfg,
+    Sqrl.render( motdtpl, data ).replace(/\s{2,}/gm, '')
+  );
+}
+
+
 /**
  * ------------------------------------
  * GAME LAUNCHER FUNCTIONS
@@ -780,6 +791,9 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // SET UP VARS
   // --------------------------------
 
+  let motd_team1_subtitle: any = '';
+  let motd_team2_subtitle: any = '';
+
   // populate values for the async vars
   await initAsyncVars( ipcevt, ipcreq );
 
@@ -817,6 +831,8 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
 
     // assign the remaining vars
     compobj = leagueobj;
+    motd_team1_subtitle = toOrdinalSuffix( divobj.getCompetitorStandingsById( team1.id ).gpos );
+    motd_team2_subtitle = toOrdinalSuffix( divobj.getCompetitorStandingsById( team2.id ).gpos );
   } else if( iscup ) {
     // grab the match information
     const cupobj = Cup.restore( competition.data );
@@ -830,6 +846,8 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     team1 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 0 ] ).name );
     team2 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 1 ] ).name );
     hostname_suffix = parseCupRound( cupobj.duelObj.currentRound() );
+    motd_team1_subtitle = Tiers[ team1.tier ].name;
+    motd_team2_subtitle = Tiers[ team2.tier ].name;
   }
 
   // generate each team's squads
@@ -867,6 +885,8 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // SET UP CONFIG FILES
   // --------------------------------
 
+  const server_hostname = `${compobj.name}: ${competition.Continent.name} | ${hostname_suffix}`;
+
   // extract any zip files
   await extract();
 
@@ -890,11 +910,23 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     });
   }
 
+  // generate motd
+  await generateMotdFile({
+    compobj,
+    competition,
+    team1,
+    team2,
+    title: server_hostname,
+    hostname_suffix: hostname_suffix,
+    team1_subtitle: motd_team1_subtitle,
+    team2_subtitle: motd_team2_subtitle,
+  });
+
   // generate server config
   await generateServerConfig({
     demo: Application.DEMO_MODE,
     freezetime: cvar_freezetime,
-    hostname: `${compobj.name}: ${competition.Continent.name} | ${hostname_suffix}`,
+    hostname: server_hostname,
     logfile: logfile,
     maxrounds: cvar_maxrounds,
     ot: allow_ot,

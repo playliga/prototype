@@ -51,3 +51,20 @@ export function parseMapForMatch( map: string, cs16_enabled = false ) {
 export function snooze( ms: number ) {
   return new Promise( resolve => setTimeout( resolve, ms ) );
 }
+
+
+/**
+ * Returns the ordinal suffix of the provided number.
+ */
+
+export function toOrdinalSuffix( num: string | number ) {
+  const int = parseInt( num as string );
+  const digits = [ int % 10, int % 100 ];
+  const ordinals = [ 'st', 'nd', 'rd', 'th' ];
+  const oPattern = [ 1, 2, 3, 4 ];
+  const tPattern = [ 11, 12, 13, 14, 15, 16, 17, 18, 19 ];
+  return oPattern.includes( digits[ 0 ] ) && !tPattern.includes( digits[ 1 ] )
+    ? int + ordinals[ digits[ 0 ] - 1 ]
+    : int + ordinals[ 3 ]
+  ;
+}
