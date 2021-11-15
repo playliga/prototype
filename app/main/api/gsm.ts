@@ -235,7 +235,7 @@ function getSquads() {
   let squad1 = team1.Players.filter( p => p.alias !== profile.Player.alias );
   let squad2 = team2.Players.filter( p => p.alias !== profile.Player.alias );
 
-  // replace squad with starters if enough are set
+  // replace squad with starters
   const starters1 = squad1.filter( p => p.starter );
   const starters2 = squad2.filter( p => p.starter );
 
@@ -247,7 +247,11 @@ function getSquads() {
     squad2 = starters2;
   }
 
-  // trim the user's squad by one
+  // make sure each squad has enough players
+  squad1 = squad1.slice( 0, Application.SQUAD_MIN_LENGTH );
+  squad2 = squad2.slice( 0, Application.SQUAD_MIN_LENGTH );
+
+  // now trim the user's squad by one
   if( team1.id === profile.Team.id ) {
     squad1 = squad1.slice( 0, GameSettings.SQUAD_STARTERS_NUM - 1 );
   }
@@ -256,6 +260,7 @@ function getSquads() {
     squad2 = squad2.slice( 0, GameSettings.SQUAD_STARTERS_NUM - 1 );
   }
 
+  // we have our squads
   return [ squad1, squad2 ];
 }
 
