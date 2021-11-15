@@ -7,11 +7,29 @@ let _models = null;
 class Team extends Model {
   static autoinit( sequelize ) {
     return this.init({
-      name: { type: Sequelize.STRING, unique: true },
-      tag: { type: Sequelize.STRING, defaultValue: '' },
-      tier: Sequelize.INTEGER,
-      logo: { type: Sequelize.STRING, defaultValue: '' },
-      earnings: { type: Sequelize.NUMBER, defaultValue: 0 },
+      name: {
+        type: Sequelize.STRING,
+        unique: true
+      },
+      shortname: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      tag: {
+        type: Sequelize.STRING,
+        defaultValue: ''
+      },
+      logo: {
+        type: Sequelize.STRING,
+        defaultValue: '',
+      },
+      earnings: {
+        type: Sequelize.NUMBER,
+        defaultValue: 0,
+      },
+      tier: {
+        type: Sequelize.INTEGER,
+      },
     }, { sequelize, modelName: 'Team' });
   }
 

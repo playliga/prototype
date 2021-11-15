@@ -12,6 +12,10 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
+      shortname: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       tag: {
         type: Sequelize.STRING,
         defaultValue: ''
@@ -24,7 +28,9 @@ module.exports = {
         type: Sequelize.NUMBER,
         defaultValue: 0,
       },
-      tier: Sequelize.INTEGER,
+      tier: {
+        type: Sequelize.INTEGER,
+      },
 
       // timestamps
       createdAt: {
