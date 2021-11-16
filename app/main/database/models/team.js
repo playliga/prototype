@@ -11,7 +11,7 @@ class Team extends Model {
         type: Sequelize.STRING,
         unique: true
       },
-      shortname: {
+      shortName: {
         type: Sequelize.STRING,
         allowNull: true,
       },

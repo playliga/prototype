@@ -63,7 +63,7 @@ module.exports = {
       // build the record to insert
       return ({
         name: team.name,
-        shortname: team?.shortname,
+        shortName: team?.shortname,
         tag: team.tag,
         logo: team.logourl,
         tier: team.tier,

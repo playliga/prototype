@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
-      shortname: {
+      shortName: {
         type: Sequelize.STRING,
         allowNull: true,
       },
