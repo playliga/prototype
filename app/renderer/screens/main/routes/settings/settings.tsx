@@ -1,5 +1,6 @@
 import React from 'react';
 import Connector from 'renderer/screens/main/components/connector';
+import Application from 'main/constants/application';
 import GameSettings from 'main/constants/gamesettings';
 import { RouteComponentProps } from 'react-router';
 import { Col, Row, Typography, Switch, Card, Select } from 'antd';
@@ -30,21 +31,40 @@ function Settings( props: Props ) {
           {'General'}
         </Typography.Title>
         <Card>
-          <Row>
-            <Col span={20}>
-              <Typography.Text>{'Classic Mode'}</Typography.Text>
-              <Typography.Text type="warning">{' (Experimental)'}</Typography.Text>
-            </Col>
-            <Col span={4} style={{ textAlign: 'right' }}>
-              <Switch
-                checked={settings.cs16_enabled}
-                onChange={checked => handleOnChange({ cs16_enabled: checked })}
-              />
-            </Col>
-          </Row>
-          <Typography.Text type="secondary">
-            {'This will launch CS 1.6 instead of CS:GO when playing matches.'}
-          </Typography.Text>
+          <Card.Grid hoverable={false}>
+            <Row>
+              <Col span={20}>
+                <Typography.Text>{'Classic Mode'}</Typography.Text>
+                <Typography.Text type="warning">{' (Experimental)'}</Typography.Text>
+              </Col>
+              <Col span={4} style={{ textAlign: 'right' }}>
+                <Switch
+                  checked={settings.cs16_enabled}
+                  onChange={checked => handleOnChange({ cs16_enabled: checked })}
+                />
+              </Col>
+            </Row>
+            <Typography.Text type="secondary">
+              {'This will launch CS 1.6 instead of CS:GO when playing matches.'}
+            </Typography.Text>
+          </Card.Grid>
+          <Card.Grid hoverable={false}>
+            <Row>
+              <Col span={20}>
+                <Typography.Text>{'Simulation Modes'}</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Select
+                  defaultValue={settings.sim_mode || Application.SIM_MODE_DEFAULT}
+                  onChange={value => handleOnChange({ sim_mode: value })}
+                >
+                  <Select.Option value={Application.SIM_MODE_DEFAULT}>{'Default'}</Select.Option>
+                  <Select.Option value={Application.SIM_MODE_ALWAYS_WIN}>{'Always Win'}</Select.Option>
+                  <Select.Option value={Application.SIM_MODE_ALWAYS_LOSE}>{'Always Lose'}</Select.Option>
+                </Select>
+              </Col>
+            </Row>
+          </Card.Grid>
         </Card>
       </section>
       <section>

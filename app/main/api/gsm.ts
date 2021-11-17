@@ -862,9 +862,16 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // SIMULATE THE GAME?
   // --------------------------------
   if( Argparse[ 'sim-games' ] || request.params.sim ) {
-    tourneyobj.score( match.id, Worldgen.Score( team1, team2, allow_draw, true ) );
-    // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 1 : 0, team2.id === profile.Team.id ? 1 : 0 ] );
-    // tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 0 : 1, team2.id === profile.Team.id ? 0 : 1 ] );
+    switch( profile.settings.sim_mode ) {
+      case Application.SIM_MODE_ALWAYS_WIN:
+        tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 1 : 0, team2.id === profile.Team.id ? 1 : 0 ] );
+        break;
+      case Application.SIM_MODE_ALWAYS_LOSE:
+        tourneyobj.score( match.id, [ team1.id === profile.Team.id ? 0 : 1, team2.id === profile.Team.id ? 0 : 1 ] );
+        break;
+      default:
+        tourneyobj.score( match.id, Worldgen.Score( team1, team2, allow_draw, true ) );
+    }
     competition.data = compobj.save();
 
     // record the match
