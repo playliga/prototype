@@ -37,10 +37,18 @@ function getRowClass( pos: number ) {
 }
 
 
-function NameColumn( props: { item: any; idx: number; highlightSeed: number }) {
+function NameColumn( props: { item: any; idx: number; highlightSeed: number; rowData: any }) {
+  const hasLogo = !!props.rowData.competitorInfo.logo;
   return (
     <>
-      <span>{props.item.realpos || props.idx + 1}. {props.item.name}</span>
+      <span>
+        {props.item.realpos || props.idx + 1}
+        {hasLogo
+          ? <img src={props.rowData.competitorInfo.logo} width="16" height="16" />
+          : '. '
+        }
+        {props.item.name}
+      </span>
       {props.highlightSeed === props.item.seed && (
         <Typography.Text type="warning">
           <StarFilled />
@@ -94,7 +102,7 @@ export default function Standings( props: StandingsProps ) {
           ellipsis
           width="50%"
           title="Name"
-          render={( item, r, idx ) => <NameColumn highlightSeed={props.highlightSeed} item={item} idx={idx} />}
+          render={( item, r, idx ) => <NameColumn highlightSeed={props.highlightSeed} item={item} idx={idx} rowData={r} /> }
         />
         <Table.Column
           title="W/L/D"

@@ -16,6 +16,16 @@ interface Props {
 }
 
 
+function NameColumn( props: { data: any }) {
+  return (
+    <>
+      {props.data.logo && <img src={props.data.logo} width="16" height="16" />}
+      {props.data.seed > -1 ? props.data.name : 'BYE'}
+    </>
+  );
+}
+
+
 export default function MatchResults( props: Props ) {
   const onClickHandler = ( id: number ) => (
     !!props.onClick && props.onClick( id )
@@ -37,7 +47,7 @@ export default function MatchResults( props: Props ) {
           ellipsis
           title="Home"
           width="35%"
-          render={value => value.team1.seed > -1 ? value.team1.name : 'BYE'}
+          render={item => <NameColumn data={item.team1} />}
           onCell={( value: any ) => ({
             onClick: () => value.team1.seed > -1 && onClickHandler( value.team1.id )
           })}
@@ -46,7 +56,7 @@ export default function MatchResults( props: Props ) {
           ellipsis
           title="Away"
           width="35%"
-          render={value => value.team2.seed > -1 ? value.team2.name : 'BYE'}
+          render={item => <NameColumn data={item.team2} />}
           onCell={( value: any ) => ({
             onClick: () => value.team2.seed > -1 && onClickHandler( value.team2.id )
           })}

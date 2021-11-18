@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
@@ -37,7 +39,7 @@ interface UpcomingParams {
  * MATCH FORMATTERS
  */
 
-function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Competition ) {
+function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Competition, teams: Models.Team[] ) {
   const leagueobj = League.restore( compobj.data );
   const divobj = leagueobj.getDivision( queue.payload.divId );
 
@@ -54,6 +56,11 @@ function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Compe
     match = conf.groupObj.findMatch( queue.payload.match.id );
   }
 
+  const team1 = divobj.getCompetitorBySeed( conf, match.p[ 0 ] );
+  const team2 = divobj.getCompetitorBySeed( conf, match.p[ 1 ] );
+  const team1data = teams.find( team => team.id === team1.id );
+  const team2data = teams.find( team => team.id === team2.id );
+
   return ({
     confId: conf.id,
     division: divobj.name,
@@ -62,38 +69,47 @@ function formatLeagueMatchdata( queue: Models.ActionQueue, compobj: Models.Compe
       ...match,
       team1: {
         seed: match.p[ 0 ],
-        ...divobj.getCompetitorBySeed( conf, match.p[ 0 ] )
+        logo: getTeamLogo( team1data ),
+        ...team1,
       },
       team2: {
         seed: match.p[ 1 ],
-        ...divobj.getCompetitorBySeed( conf, match.p[ 1 ] )
+        logo: getTeamLogo( team2data ),
+        ...team2
       },
     }
   });
 }
 
 
-function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competition ) {
+function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competition, teams: Models.Team[] ) {
   const cupobj = Cup.restore( compobj.data );
   const match = cupobj.duelObj.findMatch( queue.payload.match.id );
+
+  const team1 = cupobj.getCompetitorBySeed( match.p[ 0 ] );
+  const team2 = cupobj.getCompetitorBySeed( match.p[ 1 ] );
+  const team1data = teams.find( team => team.id === team1.id );
+  const team2data = teams.find( team => team.id === team2.id );
 
   return ({
     match: {
       ...match,
       team1: {
         seed: match.p[ 0 ],
-        ...cupobj.getCompetitorBySeed( match.p[ 0 ] )
+        logo: getTeamLogo( team1data ),
+        ...team1,
       },
       team2: {
         seed: match.p[ 1 ],
-        ...cupobj.getCompetitorBySeed( match.p[ 1 ] )
+        logo: getTeamLogo( team2data ),
+        ...team2,
       },
     }
   });
 }
 
 
-export async function formatMatchdata( queue: Models.ActionQueue ) {
+export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.Team[] ) {
   // load the competition
   const compobj = await Models.Competition.findByPk( queue.payload.compId, {
     include: [ 'Continent', 'Comptype' ]
@@ -110,9 +126,9 @@ export async function formatMatchdata( queue: Models.ActionQueue ) {
   const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
 
   if( isleague ) {
-    output = formatLeagueMatchdata( queue, compobj );
+    output = formatLeagueMatchdata( queue, compobj, teams );
   } else if( iscup ) {
-    output = formatCupMatchdata( queue, compobj );
+    output = formatCupMatchdata( queue, compobj, teams );
   }
 
   // append the comptype for this match
@@ -132,7 +148,26 @@ export async function formatMatchdata( queue: Models.ActionQueue ) {
  * Helper functions
  */
 
-function getLeagueStandings( compobj: Models.Competition, divId: string | number, confId: string | null ) {
+const logoscache: Record<string, string> = {};
+
+function getTeamLogo( teamdata: Models.Team | null ) {
+  if( !teamdata || !teamdata.shortName ) {
+    return null;
+  }
+
+  const logos_basedir = path.join( __dirname, 'resources/teamlogos' );
+  const logo_filename = `${teamdata.shortName}.png`;
+  const logo_path = path.join( logos_basedir, logo_filename );
+
+  if( !logoscache[ logo_path ] ) {
+    logoscache[ logo_path ] = fs.readFileSync( logo_path ).toString( 'base64' );
+  }
+
+  return `data:image/png;base64,${logoscache[ logo_path ]}`;
+}
+
+
+function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], divId: string | number, confId: string | null ) {
   // bail if comptype is not a league
   const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
 
@@ -198,17 +233,25 @@ function getLeagueStandings( compobj: Models.Competition, divId: string | number
 
       return {
         ...baseobj,
-        round: matches.map( match => ({
-          ...match,
-          team1: {
-            seed: match.p[ 0 ],
-            ...divobj.getCompetitorBySeed( conf, match.p[ 0 ] )
-          },
-          team2: {
-            seed: match.p[ 1 ],
-            ...divobj.getCompetitorBySeed( conf, match.p[ 1 ] )
-          }
-        }))
+        round: matches.map( match => {
+          const team1 = divobj.getCompetitorBySeed( conf, match.p[ 0 ] );
+          const team2 = divobj.getCompetitorBySeed( conf, match.p[ 1 ] );
+          const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
+          const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
+          return ({
+            ...match,
+            team1: {
+              seed: match.p[ 0 ],
+              logo: getTeamLogo( team1data ),
+              ...team1,
+            },
+            team2: {
+              seed: match.p[ 1 ],
+              logo: getTeamLogo( team2data ),
+              ...team2
+            },
+          });
+        })
       };
     });
   }
@@ -224,15 +267,22 @@ function getLeagueStandings( compobj: Models.Competition, divId: string | number
 
   return conferences.map( conf => ({
     ...baseobj,
-    standings: conf.groupObj.results().map( item => ({
-      ...item,
-      competitorInfo: divobj.getCompetitorBySeed( conf, item.seed )
-    })),
+    standings: conf.groupObj.results().map( item => {
+      const competitor = divobj.getCompetitorBySeed( conf, item.seed );
+      const teamdata = teams.find( team => team.id === competitor.id );
+      return ({
+        ...item,
+        competitorInfo: {
+          ...competitor,
+          logo: getTeamLogo( teamdata )
+        }
+      });
+    })
   }));
 }
 
 
-function getCupStandings( compobj: Models.Competition ) {
+function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
   // bail if comptype is not a league
   const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
 
@@ -273,17 +323,25 @@ function getCupStandings( compobj: Models.Competition ) {
 
   return [{
     ...baseobj,
-    round: matches.map( match => ({
-      ...match,
-      team1: {
-        seed: match.p[ 0 ],
-        ...cupobj.getCompetitorBySeed( match.p[ 0 ] )
-      },
-      team2: {
-        seed: match.p[ 1 ],
-        ...cupobj.getCompetitorBySeed( match.p[ 1 ] )
-      },
-    }))
+    round: matches.map( match => {
+      const team1 = cupobj.getCompetitorBySeed( match.p[ 0 ] );
+      const team2 = cupobj.getCompetitorBySeed( match.p[ 1 ] );
+      const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
+      const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
+      return ({
+        ...match,
+        team1: {
+          seed: match.p[ 0 ],
+          logo: getTeamLogo( team1data ),
+          ...team1,
+        },
+        team2: {
+          seed: match.p[ 1 ],
+          logo: getTeamLogo( team2data ),
+          ...team2
+        },
+      });
+    })
   }];
 }
 
@@ -364,14 +422,22 @@ async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
     return evt.sender.send( req.responsechannel, null );
   }
 
+  // get team logos separately to improve performance.
+  // sequelize many-to-many queries are really slow
+  const teams = await Models.Team.findAll();
+
   // format the matchdays and send it back to the renderer
-  const res = await Promise.all( queue.map( formatMatchdata ) );
+  const res = await Promise.all( queue.map( q => formatMatchdata( q, teams ) ) );
   evt.sender.send( req.responsechannel, JSON.stringify( res ) );
 }
 
 
 async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) {
   let comps: Models.Competition[] = [];
+
+  // get team logos separately to improve performance.
+  // sequelize many-to-many queries are really slow
+  const teams = await Models.Team.findAll();
 
   // get all competitions if no id was provided
   if( req.params.compId ) {
@@ -392,13 +458,13 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
 
   // get the standings for league types
   const leaguedata = leagues
-    .map( c => getLeagueStandings( c, req.params.divName || req.params.divIdx, req.params.confId ) )
+    .map( c => getLeagueStandings( c, teams, req.params.divName || req.params.divIdx, req.params.confId ) )
     .filter( c => c.length > 0 )
   ;
 
   // get the current round for cup types
   const cupdata = cups
-    .map( c => getCupStandings( c ) )
+    .map( c => getCupStandings( c, teams ) )
     .filter( c => c.length > 0 )
   ;
 

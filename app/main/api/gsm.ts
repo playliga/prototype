@@ -879,7 +879,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
       payload: {
         match,
         confId: conf?.id,
-        divId: divobj.name,
+        divId: divobj ? divobj.name : null,
         is_postseason: is_postseason || false,
       },
       date: profile.currentDate,

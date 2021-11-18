@@ -9,10 +9,7 @@
 
   img {
     display: inline-block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 100px;
+    object-fit: contain;
   }
 
   .ant-space-item > span {

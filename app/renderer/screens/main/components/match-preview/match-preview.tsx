@@ -44,7 +44,10 @@ export default function MatchPreview( props: Props ) {
       <div className="match-preview-body">
         <section onClick={() => !!props.onClick && props.onClick( props.data.match.team1.id )}>
           <Space direction="vertical" size={2}>
-            <Avatar size={100} icon={<UserOutlined />} />
+            {props.data.match.team1.logo
+              ? <Avatar size={100} src={props.data.match.team1.logo} shape="square" />
+              : <Avatar size={100} icon={<UserOutlined />} />
+            }
             <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
             {typeof props.data.match.team1.tier === 'number'  && (
               <Typography.Text className="tier-text">
@@ -58,7 +61,10 @@ export default function MatchPreview( props: Props ) {
         </Typography.Text>
         <section onClick={() => !!props.onClick && props.onClick( props.data.match.team2.id )}>
           <Space direction="vertical" size={2}>
-            <Avatar size={100} icon={<UserOutlined />} />
+            {props.data.match.team2.logo
+              ? <Avatar size={100} src={props.data.match.team2.logo} shape="square" />
+              : <Avatar size={100} icon={<UserOutlined />} />
+            }
             <Typography.Text ellipsis>{props.data.match.team2.name}</Typography.Text>
             {typeof props.data.match.team2.tier === 'number' && (
               <Typography.Text className="tier-text">

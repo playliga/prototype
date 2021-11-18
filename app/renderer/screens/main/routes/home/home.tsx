@@ -80,6 +80,20 @@ function handleOnStop( setStopping: Function ) {
  * Helper components
  */
 
+function NameColumn( props: { data: any; userteamid: number }) {
+  const opponent = props.data.match.team1.id === props.userteamid
+    ? props.data.match.team2
+    : props.data.match.team1
+  ;
+  return (
+    <>
+      {opponent.logo && <img src={opponent.logo} width="16" height="16" />}
+      {opponent.name}
+    </>
+  );
+}
+
+
 function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: number }) {
   if( !props.data || props.data.length === 0 ) {
     return (
@@ -114,11 +128,7 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: nu
       />
       <Table.Column
         ellipsis
-        render={value => (
-          value.match.team1.id === props.userteamid
-            ? value.match.team2.name
-            : value.match.team1.name
-        )}
+        render={value => <NameColumn data={value} userteamid={props.userteamid} />}
       />
     </Table>
   );
