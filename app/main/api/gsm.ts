@@ -947,6 +947,8 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     teamflag_t: team2.Country.code,
     teamname_ct: team1.name,
     teamname_t: team2.name,
+    shortname_ct: team1.shortName || null,
+    shortname_t: team2?.shortName || null,
   });
 
   // generate bot config
