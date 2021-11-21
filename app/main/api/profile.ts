@@ -76,7 +76,7 @@ async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
     let stats = player.stats;
     if( !stats ) {
-      const tier = Tiers[ Tiers.length - 1 ];
+      const tier = Tiers[ player.tier ];
       stats = tier.templates[ tier.templates.length - 1 ].stats;
     }
 
