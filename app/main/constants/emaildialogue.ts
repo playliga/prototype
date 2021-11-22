@@ -43,6 +43,13 @@ GL HF!
 `;
 
 
+const OFFER_SENT = `
+Hey, {{it.player.alias}}.
+
+We've gotten a transfer offer from {{it.team.name}} for {{it.target.alias}}.
+`;
+
+
 const PLAYER_ACCEPT = `
 Hi, {{it.player.alias}}.
 
@@ -166,6 +173,7 @@ export default {
   ENDSEASON_RELEGATION,
   INTRO,
   INTRO_HOW_TO_PLAY,
+  OFFER_SENT,
   PLAYER_ACCEPT,
   PLAYER_REJECT_REASON_REGION,
   PLAYER_REJECT_REASON_TIER,

@@ -3,6 +3,7 @@ const Application = {
   DEMO_MODE                         : true,
   DB_CNX_LIMIT                      : 10000,
   DB_NAME                           : 'save0.sqlite',
+  LOGGING_LEVEL                     : 'error',
   MAP_POOL                          : [ 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_overpass', 'de_train', 'de_vertigo' ],
   MATCHDAYS_LEAGUE                  : [ 5, 6, 7 ],        // fri, sat, sun
   MATCHDAYS_LEAGUECUP               : [ 1, 2 ],           // mon, tues
@@ -12,6 +13,12 @@ const Application = {
   OFFER_PLAYER_ELIGIBLE_BUFFER_DAYS : 60,
   OFFER_PLAYER_RESPONSE_MINDAYS     : 1,
   OFFER_PLAYER_RESPONSE_MAXDAYS     : 1,
+  OFFER_USER_BASE_PROBABILITY       : 5,                  // chance of sending the user a transfer offer
+  OFFER_USER_SELLING_MODIFIER       : 5,                  // affects chances of an offer if the user is selling their player
+  OFFER_USER_SAME_TIER_MODIFIER     : 5,                  // affects chances of an offer if the user's player is the same tier
+  OFFER_USER_HIGH_TIER_MODIFIER     : 10,                 // affects chances of an offer if the user's player is a higher tier
+  OFFER_USER_SQUAD_MODIFIER         : -10,                // affects chances of an offer if the buying team already has enough players in their squad
+  OFFER_USER_TOP_TALENT_MODIFIER    : 60,                 // chance of looking for the user's highest skilled player
   PRESEASON_AUTOADD_COMP            : 3,                  // when to auto-add the user to a competition
   PRESEASON_AUTOADD_SQUAD           : 5,                  // when to auto-add players to user's team
   PRESEASON_COMP_DEADLINE_DAYS      : [ 14, 7 ],          // when to start asking to join a competition

@@ -23,6 +23,19 @@ if( is.dev() ) {
 
 
 /**
+ * Control logging level via environment variable.
+ */
+
+if( process.env.LOG_LEVEL ) {
+  log.transports.console.level = process.env.LOG_LEVEL as log.LevelOption;
+  log.transports.file.level = process.env.LOG_LEVEL as log.LevelOption;
+} else if ( is.production() ) {
+  log.transports.console.level = Application.LOGGING_LEVEL as log.LevelOption;
+  log.transports.file.level = Application.LOGGING_LEVEL as log.LevelOption;
+}
+
+
+/**
  * Set-up the application database
  */
 
@@ -45,13 +58,6 @@ function setupDB() {
     }
   }
 
-  // turn off logging in production
-  // to improve performance
-  const loggingfunc = is.production()
-    ? false
-    : ( msg: string ) => log.debug( msg )
-  ;
-
   // configure the connection pool
   const poolconfig = is.production()
     ? {
@@ -64,7 +70,7 @@ function setupDB() {
   const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: targetpath,
-    logging: loggingfunc,
+    logging: ( msg: string ) => log.debug( msg ),
     pool: poolconfig
   });
 

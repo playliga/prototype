@@ -1,6 +1,8 @@
 import moment from 'moment';
 import probable from 'probable';
+import log from 'electron-log';
 import { random } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
 import * as Sqrl from 'squirrelly';
 import * as Models from 'main/database/models';
 import { OfferRequest } from 'shared/types';
@@ -265,4 +267,108 @@ export async function parse( offerdetails: OfferRequest ) {
       eligible: eligibledate,
     }
   });
+}
+
+
+/**
+ * Send an offer to the user
+ */
+
+export async function generate() {
+  const profile = await Models.Profile.getActiveProfile();
+
+  // send an offer to the user today?
+  const firstOfferCheck = probable.createTableFromSizes([
+    [ Application.OFFER_USER_BASE_PROBABILITY, true ],
+    [ 100 - Application.OFFER_USER_BASE_PROBABILITY, false ],
+  ]);
+
+  if( !firstOfferCheck.roll() ) {
+    return Promise.resolve();
+  }
+
+  // this will keep track of the final probability
+  // value to send this dude an offer
+  let send_offer_probability = Application.OFFER_USER_BASE_PROBABILITY;
+
+  // is anybody transfer listed?
+  let selectionpool = profile.Team.Players.filter( player => player.alias !== profile.Player.alias );
+  const forsale = selectionpool.filter( player => player.transferListed );
+
+  if( forsale.length > 0 ) {
+    selectionpool = forsale;
+    send_offer_probability += Application.OFFER_USER_SELLING_MODIFIER;
+  }
+
+  // pick a random player from the user's squad
+  let target = selectionpool[ random( selectionpool.length - 1 ) ];
+
+  // are we aiming for the top talent instead?
+  const topTalentProbabilityTable = probable.createTableFromSizes([
+    [ Application.OFFER_USER_TOP_TALENT_MODIFIER, true ],
+    [ 100 - Application.OFFER_USER_TOP_TALENT_MODIFIER, false ],
+  ]);
+
+  if( topTalentProbabilityTable.roll() ) {
+    log.info( 'CHOOSING TOP TALENT INSTEAD OF ' + target.alias );
+    [ target ] = selectionpool.sort( ( a, b ) => a.tier - b.tier );
+    log.info( 'CHOSE: ' + target.alias );
+  }
+
+  // randomly pick a team to make the offer.
+  const team = await Models.Team.findOne({
+    where: { tier: {[ Op.lte ]: target.tier }},
+    order: Sequelize.fn( 'RANDOM' ),
+  });
+  log.info( team.name + ' WILL BE SENDING THE OFFER' );
+
+  // is our target a higher tier than us?
+  if( target.tier > team.tier ) {
+    send_offer_probability += Application.OFFER_USER_HIGH_TIER_MODIFIER;
+  } else {
+    send_offer_probability += Application.OFFER_USER_SAME_TIER_MODIFIER;
+  }
+
+  // is this player worth sending an offer to?
+  const sendOfferProbabilityTable = probable.createTableFromSizes([
+    [ send_offer_probability, true ],
+    [ 100 - send_offer_probability, false ],
+  ]);
+
+  log.info( 'FINAL OFFER PROBABILITY VALUE: ' + send_offer_probability );
+  if( !sendOfferProbabilityTable.roll() ) {
+    log.info( 'DECIDED TO NOT SEND AN OFFER.' );
+    return Promise.resolve();
+  }
+
+  // send an e-mail
+  const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
+  const msg = Sqrl.render( EmailDialogue.OFFER_SENT, { player: profile.Player, target: target, team });
+  const targetdate = moment( profile.currentDate ).add( Application.OFFER_TEAM_RESPONSE_MINDAYS, 'days' );
+
+  await Models.ActionQueue.create({
+    type: ActionQueueTypes.SEND_EMAIL,
+    actionDate: targetdate,
+    payload: {
+      from: persona.id,
+      to: profile.Player.id,
+      subject: `Transfer offer for ${target.alias}`,
+      content: msg,
+      sentAt: targetdate,
+    }
+  });
+
+  // send the offer
+  log.info( 'SENDING AN OFFER TO ' + target.alias );
+  const transferoffer = await Models.TransferOffer.create({
+    status: OfferStatus.PENDING,
+    fee: target.transferValue,
+    wages: target.monthlyWages,
+    msg,
+  });
+
+  return Promise.all([
+    transferoffer.setTeam( team ),
+    transferoffer.setPlayer( target )
+  ]);
 }

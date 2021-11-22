@@ -3,6 +3,7 @@ import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import * as WGCompetition from './competition';
 import * as Worldgen from './worldgen';
+import * as Offer from './offer';
 import moment from 'moment';
 import ItemLoop from 'main/lib/item-loop';
 import ScreenManager from 'main/lib/screen-manager';
@@ -12,7 +13,6 @@ import { flatten, shuffle } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Cup, League } from 'main/lib/league';
 import { parseCompType, sendEmailAndEmit } from 'main/lib/util';
-
 
 /**
  * Helper functions
@@ -59,6 +59,12 @@ itemloop.register( ItemLoop.MiddlewareType.END, () => {
 // bumps the current date
 itemloop.register( ItemLoop.MiddlewareType.END, () => {
   return bumpDate();
+});
+
+
+// send a transfer offer to user?
+itemloop.register( ItemLoop.MiddlewareType.END, () => {
+  return Offer.generate();
 });
 
 
