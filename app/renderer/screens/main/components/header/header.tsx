@@ -4,6 +4,7 @@ import { PageHeader, Button, Spin, Typography } from 'antd';
 import { UserOutlined, SlidersOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { green } from '@ant-design/colors';
 import { ApplicationState } from 'renderer/screens/main/types';
+import { formatCurrency } from 'renderer/lib/util';
 import './header.scss';
 
 
@@ -33,7 +34,7 @@ function Title( props: ApplicationState ) {
           paddingLeft: 5,
           color: data.Team.earnings > 0 ? green.primary : 'inherit'
         }}>
-          {`$${data.Team.earnings}`}
+          {formatCurrency( data.Team.earnings )}
         </span>
       </section>
     </div>
