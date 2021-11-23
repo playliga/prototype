@@ -1,9 +1,10 @@
 import React from 'react';
+import Tiers from 'shared/tiers';
 import { isEqual } from 'lodash';
 import { Badge, Button, Space, Table, Typography } from 'antd';
+import { TablePaginationConfig } from 'antd/lib/table';
 import { CheckOutlined, ClockCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
-import Tiers from 'shared/tiers';
 import { OfferStatus } from 'shared/enums';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
 import './player-table.scss';
@@ -28,8 +29,10 @@ function TeamColumn( props: any ) {
 
 
 export default function PlayerTable( props: any ) {
-  const originaldata = JSON.parse( localStorage.getItem( 'filters' ) ) || {};
-  const [ filters, setFilters ] = React.useState<Record<string, React.Key[]>>( originaldata );
+  const original_filters = JSON.parse( localStorage.getItem( 'filters' ) ) || {};
+  const original_pagination = JSON.parse( localStorage.getItem( 'pagination' ) ) || { position: [ 'topLeft' ]};
+  const [ pagination, setPagination ] = React.useState<TablePaginationConfig>( original_pagination );
+  const [ filters, setFilters ] = React.useState<Record<string, React.Key[]>>( original_filters );
 
   return (
     <div id="player-table">
@@ -42,8 +45,8 @@ export default function PlayerTable( props: any ) {
         </Button>
         <Button
           type="primary"
-          onClick={() => localStorage.setItem( 'filters', JSON.stringify( filters ) )}
-          disabled={isEqual( originaldata, filters )}
+          onClick={() => { localStorage.setItem( 'filters', JSON.stringify( filters ) ); localStorage.setItem( 'pagination', JSON.stringify( pagination ) ); }}
+          disabled={isEqual( original_filters, filters ) && isEqual( original_pagination, pagination )}
         >
           {'Save Filters'}
         </Button>
@@ -53,8 +56,8 @@ export default function PlayerTable( props: any ) {
         size={props.size || 'middle'}
         loading={props.loading}
         dataSource={props.dataSource}
-        pagination={{ position: [ 'topLeft' ] }}
-        onChange={( p, f ) => setFilters( f )}
+        pagination={pagination}
+        onChange={( p, f ) => { setFilters( f ); setPagination( p ); }}
         onRow={( record, idx ) => ({
           idx,
           onClick: () => props.onRowClick( record ),
