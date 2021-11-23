@@ -53,7 +53,11 @@ We've gotten a transfer offer from {{it.team.name}} for {{it.target.alias}}.
 const PLAYER_ACCEPT = `
 Hi, {{it.player.alias}}.
 
+{{@if(it.team)}}
+The player has been sold to {{it.team.name}}.
+{{#else}}
 The player has accepted the offer. Let's use him in our squad!
+{{/if}}
 `;
 
 
@@ -61,7 +65,7 @@ const PLAYER_REJECT_REASON_REGION = `
 Hi, {{it.player.alias}},
 
 {{@if(it.team)}}
-Talks between the player and {{it.team.name}} have broken down because they are not willing to move to our region.
+Talks between the player and {{it.team.name}} have broken down because they are not willing to move regions.
 {{#else}}
 The player has rejected your offer because they are not willing to move to our region.
 {{/if}}

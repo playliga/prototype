@@ -1,5 +1,6 @@
 import React from 'react';
 import ExpBar from 'renderer/screens/main/components/exp-bar';
+import EmailDialogue from 'main/constants/emaildialogue';
 import { StarFilled, FolderOpenFilled,StarOutlined, ShoppingOutlined,  ShoppingFilled } from '@ant-design/icons';
 import { blue } from '@ant-design/colors';
 import { Card, Typography, Divider,  Tooltip, Badge } from 'antd';
@@ -53,7 +54,7 @@ function PlayerCard( props: any ) {
       <TransferIcon transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />
     </Tooltip>,
     <Tooltip title="View offers" key="offers">
-      {player.TransferOffers.length > 0 && player.TransferOffers.some( ( item: any ) => item.status === OfferStatus.PENDING )
+      {player.TransferOffers.length > 0 && player.TransferOffers.some( ( item: any ) => item.status === OfferStatus.PENDING && item.msg === EmailDialogue.OFFER_SENT )
         ? <Badge dot><FolderOpenFilled onClick={() => props.onClickDetails( player )} /></Badge>
         : <FolderOpenFilled onClick={() => props.onClickDetails( player )} />
       }

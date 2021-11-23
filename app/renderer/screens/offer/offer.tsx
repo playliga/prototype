@@ -24,6 +24,7 @@ import { OfferRequest, OfferReview } from 'shared/types';
 import { OfferStatus } from 'shared/enums';
 import { formatCurrency, getWeeklyWages, getMonthlyWages } from 'renderer/lib/util';
 import IpcService from 'renderer/lib/ipc-service';
+import EmailDialogue from 'main/constants/emaildialogue';
 
 
 /**
@@ -44,7 +45,7 @@ function handleSendFinish( fee: number, weeklywages: number, player: any ) {
 
 function handleReviewFinish( offerdata: any, status: string ) {
   const params: OfferReview = { offerid: offerdata.id, status };
-  IpcService.send( IPCRouting.Offer.REVIEW, { params });
+  return IpcService.send( IPCRouting.Offer.REVIEW, { params });
 }
 
 
@@ -53,12 +54,12 @@ function handleCancel() {
 }
 
 
-function getPendingOffers( items: any[] ) {
+function getPendingOffers( items: any[], extraConditions: Function = null ) {
   if( !items ) {
     return [];
   }
 
-  return items.filter( i => i.status === OfferStatus.PENDING );
+  return items.filter( i => i.status === OfferStatus.PENDING && ( extraConditions ? extraConditions( i ) : true ) );
 }
 
 
@@ -252,7 +253,7 @@ function ReviewActions( props: any ) {
 
 function ReviewTabs( props: any ) {
   // set up bools
-  const pending = getPendingOffers( props.offers );
+  const pending = getPendingOffers( props.offers, ( item: any ) => item.msg === EmailDialogue.OFFER_SENT );
 
   return (
     <Tabs
@@ -334,7 +335,7 @@ function Offer() {
         setProfile( profiledata );
         setPlayer( playerdata );
       });
-  }, []);
+  }, [ loading ]);
 
   if( !player || !profile ) {
     return (
@@ -422,7 +423,11 @@ function Offer() {
         <ReviewTabs
           {...{ player, profile, offers }}
           onCancel={handleCancel}
-          onFinish={handleReviewFinish}
+          onFinish={async ( offerdata: any, status: string ) => {
+            setLoading( true );
+            await handleReviewFinish( offerdata, status );
+            setLoading( false );
+          }}
         />
       )}
     </div>

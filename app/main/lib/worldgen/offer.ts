@@ -139,7 +139,10 @@ async function playerRespondOffer(
         from: persona.id,
         to: _profile.Player.id,
         subject: `re: Transfer offer for ${_target.alias}`,
-        content: Sqrl.render( msg, { player: _profile.Player, team: offerdetails.teamdata }),
+        content: Sqrl.render( msg, {
+          player: _profile.Player,
+          team: offerdetails.teamdata,
+        }),
         sentAt: targetdate,
       }
     }),
@@ -343,7 +346,6 @@ export async function generate() {
 
   // send an e-mail
   const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
-  const msg = Sqrl.render( EmailDialogue.OFFER_SENT, { player: profile.Player, target: target, team });
   const targetdate = moment( profile.currentDate ).add( Application.OFFER_TEAM_RESPONSE_MINDAYS, 'days' );
 
   await Models.ActionQueue.create({
@@ -353,7 +355,7 @@ export async function generate() {
       from: persona.id,
       to: profile.Player.id,
       subject: `Transfer offer for ${target.alias}`,
-      content: msg,
+      content: Sqrl.render( EmailDialogue.OFFER_SENT, { player: profile.Player, target: target, team }),
       sentAt: targetdate,
     }
   });
@@ -364,7 +366,7 @@ export async function generate() {
     status: OfferStatus.PENDING,
     fee: target.transferValue,
     wages: target.monthlyWages,
-    msg,
+    msg: EmailDialogue.OFFER_SENT,
   });
 
   return Promise.all([
