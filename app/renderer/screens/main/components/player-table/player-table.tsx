@@ -4,6 +4,7 @@ import { Badge, Button, Space, Table, Typography } from 'antd';
 import { CheckOutlined, ClockCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import { green, red } from '@ant-design/colors';
 import Tiers from 'shared/tiers';
+import { OfferStatus } from 'shared/enums';
 import { formatCurrency, getWeeklyWages } from 'renderer/lib/util';
 import './player-table.scss';
 
@@ -70,7 +71,7 @@ export default function PlayerTable( props: any ) {
           filteredValue={filters.alias || null}
           onFilter={( v: any, r: any ) => r.Country.ContinentId === v}
           render={( alias: any, r: any ) => {
-            const haspendingoffer =  (r.TransferOffers as any[]).some( item => item.status === 'pending' && item.TeamId === props.teamId );
+            const haspendingoffer =  (r.TransferOffers as any[]).some( item => item.status === OfferStatus.PENDING && item.TeamId === props.teamId );
             if( haspendingoffer ) {
               return (
                 <Badge count={<ClockCircleOutlined style={{ paddingLeft: 20, color: red.primary }}/>}>

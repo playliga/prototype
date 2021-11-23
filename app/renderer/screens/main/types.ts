@@ -15,7 +15,7 @@ export interface RouteConfig {
   component?: any;
   icon?: any;
   subroutes?: RouteConfig[];
-  notifications?: number;
+  notifications?: number | boolean;
   sidebar?: boolean;
   exact?: boolean;
 }

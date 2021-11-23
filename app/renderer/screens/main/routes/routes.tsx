@@ -13,6 +13,7 @@ import {
 
 import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
+import * as profileSelectors from 'renderer/screens/main/redux/profile/selectors';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 
 import Sidebar from 'renderer/screens/main/components/sidebar';
@@ -55,6 +56,7 @@ const routes: RouteConfig[] = [
 interface Props extends RouteComponentProps, ApplicationState {
   dispatch: Function;
   unread: number;
+  offers: number;
 }
 
 
@@ -87,7 +89,9 @@ class Routes extends Component<Props, State> {
   public render() {
     // add unread e-mail notifications
     const emailidx = routes.findIndex( r => r.id === '/inbox' );
+    const squadidx = routes.findIndex( r => r.id === '/squad' );
     routes[emailidx].notifications = this.props.unread;
+    routes[squadidx].notifications = this.props.offers;
 
     return (
       <Layout id="main">
@@ -171,7 +175,10 @@ class Routes extends Component<Props, State> {
 
 const connector = Connector.connect(
   Routes,
-  { unread: emailSelectors.getUnread }
+  {
+    unread: emailSelectors.getUnread,
+    offers: profileSelectors.getOffers,
+  }
 );
 
 

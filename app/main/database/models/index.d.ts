@@ -103,6 +103,7 @@ declare module 'main/database/models' {
 
     public setTeam: Sequelize.BelongsToSetAssociationMixin<Team, number>;
     public setCountry: Sequelize.BelongsToSetAssociationMixin<Country, number>;
+    public getTransferOffers: Sequelize.HasManyGetAssociationsMixin<TransferOffer>;
   }
 
 

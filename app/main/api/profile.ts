@@ -28,11 +28,11 @@ async function get( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
 
 async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
   const profile = await Profile.getActiveProfile();
-  const squad = profile
+  const squad = await Promise.all( profile
     .Team
     .Players
     .filter( player => player.id !== profile.Player.id )
-    .map( player => {
+    .map( async player => {
       let stats = player.stats;
       if( !stats ) {
         const tier = Tiers[ player.tier ];
@@ -45,6 +45,7 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
       const next = BotExp.getNextRank( rankid );
       return {
         ...player.toJSON(),
+        TransferOffers: await player.getTransferOffers(),
         stats,
         xp: {
           prev,
@@ -57,7 +58,7 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
         }
       };
     })
-  ;
+  );
   evt.sender.send( request.responsechannel, JSON.stringify( squad ) );
 }
 

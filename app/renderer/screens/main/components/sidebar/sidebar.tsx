@@ -45,7 +45,11 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
         defaultOpenKeys={[ parent || '' ]}
       >
         {props.config.map( r => {
-          const hasbadge = r.notifications && r.notifications > 0;
+          const hasbadge = r.notifications;
+          const badgeProps = {
+            dot: typeof r.notifications === 'boolean',
+            count: typeof r.notifications === 'number' ? r.notifications : null,
+          };
 
           // render sub-menu if there is at least one to render
           const submenu = r.subroutes && r.subroutes.some( sr => sr.sidebar );
@@ -86,7 +90,7 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
             >
               {r.title}
               {hasbadge
-                ? !props.collapsed && <Badge count={r.notifications} />
+                ? !props.collapsed && <Badge {...badgeProps} />
                 : null
               }
             </Menu.Item>

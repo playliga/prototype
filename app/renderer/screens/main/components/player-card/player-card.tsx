@@ -2,8 +2,9 @@ import React from 'react';
 import ExpBar from 'renderer/screens/main/components/exp-bar';
 import { StarFilled, FolderOpenFilled,StarOutlined, ShoppingOutlined,  ShoppingFilled } from '@ant-design/icons';
 import { blue } from '@ant-design/colors';
-import { Card,Typography, Divider,  Tooltip, } from 'antd';
+import { Card, Typography, Divider,  Tooltip, Badge } from 'antd';
 import { statModifiers } from 'shared/tiers';
+import { OfferStatus } from 'shared/enums';
 import './player-card.scss';
 
 
@@ -52,7 +53,10 @@ function PlayerCard( props: any ) {
       <TransferIcon transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />
     </Tooltip>,
     <Tooltip title="View offers" key="offers">
-      <FolderOpenFilled onClick={() => props.onClickDetails( player )} />
+      {player.TransferOffers.length > 0 && player.TransferOffers.some( ( item: any ) => item.status === OfferStatus.PENDING )
+        ? <Badge dot><FolderOpenFilled onClick={() => props.onClickDetails( player )} /></Badge>
+        : <FolderOpenFilled onClick={() => props.onClickDetails( player )} />
+      }
     </Tooltip>,
   ];
 
@@ -86,7 +90,8 @@ function PlayerCard( props: any ) {
   return (
     <Card
       hoverable={!props.selected}
-      actions={cardactions} id="player-card"
+      actions={cardactions}
+      id="player-card"
       onDoubleClick={() => props.onDoubleClick( player )}
       style={props.selected ? { borderColor: blue.primary } : {}}
     >

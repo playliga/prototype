@@ -13,4 +13,10 @@
     font-weight: 100;
     font-size: .8em;
   }
+
+  .ant-badge {
+    // fixes a bug when using an icon with a badge
+    // where the icon's font-size is reset
+    font-size: 1rem;
+  }
 }

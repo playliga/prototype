@@ -50,10 +50,13 @@ class Profile extends Model {
           include: [
             {
               model: _models.Player,
-              include: [{
-                model: _models.Country,
-                include: [ _models.Continent ]
-              }]
+              include: [
+                _models.TransferOffer,
+                {
+                  model: _models.Country,
+                  include: [ _models.Continent ]
+                }
+              ]
             },
             {
               model: _models.Country,
