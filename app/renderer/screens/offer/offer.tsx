@@ -113,6 +113,42 @@ function OfferStatusTag( props: any ) {
 }
 
 
+function PastOffers( props: any ) {
+  return (
+    <>
+      {!props.offers || props.offers.length <= 0 && (
+        <Empty description="No past offers" />
+      )}
+
+      {props.offers && props.offers.length > 0 && (
+        <Table
+          rowKey="id"
+          size="small"
+          dataSource={props.offers}
+          pagination={{ pageSize: 3, hideOnSinglePage: true }}
+        >
+          <Table.Column
+            title="Fee"
+            dataIndex="fee"
+            render={f => formatCurrency( f )}
+          />
+          <Table.Column
+            title="Wage"
+            dataIndex="wages"
+            render={w => formatCurrency( w )}
+          />
+          <Table.Column
+            title="Status"
+            dataIndex="status"
+            render={s => <OfferStatusTag status={s} />}
+          />
+        </Table>
+      )}
+    </>
+  );
+}
+
+
 function BuyTabs( props: any ) {
   const [ fee, setFee ] = React.useState( props.initialFee );
   const [ wages, setWages ] = React.useState( props.initialWages );
@@ -195,34 +231,7 @@ function BuyTabs( props: any ) {
 
       {/* VIEW PAST OFFERS */}
       <Tabs.TabPane tab="Past Offers" key="past">
-        {!props.offers || props.offers.length <= 0 && (
-          <Empty description="No past offers" />
-        )}
-
-        {props.offers && props.offers.length > 0 && (
-          <Table
-            rowKey="id"
-            size="small"
-            dataSource={props.offers}
-            pagination={{ pageSize: 3, hideOnSinglePage: true }}
-          >
-            <Table.Column
-              title="Fee"
-              dataIndex="fee"
-              render={f => formatCurrency( f )}
-            />
-            <Table.Column
-              title="Wage"
-              dataIndex="wages"
-              render={w => formatCurrency( w )}
-            />
-            <Table.Column
-              title="Status"
-              dataIndex="status"
-              render={s => <OfferStatusTag status={s} />}
-            />
-          </Table>
-        )}
+        <PastOffers offers={props.offers} />
       </Tabs.TabPane>
     </Tabs>
   );
@@ -261,6 +270,7 @@ function ReviewTabs( props: any ) {
       type="card"
       size="small"
     >
+      {/* REVIEW OFFERS */}
       <Tabs.TabPane tab="Review Offers" key="review">
         <Form>
           {pending.length <= 0 && (
@@ -310,6 +320,11 @@ function ReviewTabs( props: any ) {
             {'Cancel'}
           </Button>
         </div>
+      </Tabs.TabPane>
+
+      {/* VIEW PAST OFFERS */}
+      <Tabs.TabPane tab="Past Offers" key="past">
+        <PastOffers offers={props.offers} />
       </Tabs.TabPane>
     </Tabs>
   );
