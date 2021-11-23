@@ -320,7 +320,10 @@ export async function generate() {
 
   // randomly pick a team to make the offer.
   const team = await Models.Team.findOne({
-    where: { tier: {[ Op.lte ]: target.tier }},
+    where: {
+      tier: {[ Op.lte ]: target.tier },
+      id: {[ Op.ne ]: profile.Team.id },
+    },
     order: Sequelize.fn( 'RANDOM' ),
   });
   log.info( team.name + ' WILL BE SENDING THE OFFER' );
