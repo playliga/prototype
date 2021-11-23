@@ -24,7 +24,9 @@ module.exports = {
     const updates = selectionpool.map( player => {
       return queryInterface.sequelize.query(`
         UPDATE Players
-        SET teamId = "${player.teamId}"
+        SET
+          teamId = "${player.teamId}",
+          transferListed = true
         WHERE id = ${player.id}
       `);
     });
