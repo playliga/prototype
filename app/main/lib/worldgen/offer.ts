@@ -280,6 +280,11 @@ export async function parse( offerdetails: OfferRequest ) {
 export async function generate() {
   const profile = await Models.Profile.getActiveProfile();
 
+  // bail early if the user does not meet the minimum squad depth
+  if( profile.Team.Players.length < Application.SQUAD_MIN_LENGTH ) {
+    return Promise.resolve();
+  }
+
   // send an offer to the user today?
   const firstOfferCheck = probable.createTableFromSizes([
     [ Application.OFFER_USER_BASE_PROBABILITY, true ],
