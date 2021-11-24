@@ -135,9 +135,9 @@ itemloop.register( ActionQueueTypes.ENDSEASON_PRIZE_MONEY, async () => {
         const prizepool_per_conference = Math.floor( prizepool_amount / division.conferences.length );
 
         // split conference prize pool up between the regular season and playoff winners
-        const prizemoney_champions = Math.floor( prizepool_per_conference * ( conf_distribution[ 0 ] / 100 ) / division.conferenceWinners.length );
-        const prizemoney_runners_up = Math.floor( prizepool_per_conference * ( conf_distribution[ 1 ] / 100 ) / division.conferenceWinners.length );
-        const prizemoney_promotion_winners = Math.floor( prizepool_per_conference * ( conf_distribution[ 2 ] / 100 ) / division.promotionWinners.length );
+        const prizemoney_champions = Math.floor( prizepool_per_conference * ( conf_distribution[ 0 ] / 100 ) );
+        const prizemoney_runners_up = Math.floor( prizepool_per_conference * ( conf_distribution[ 1 ] / 100 ) );
+        const prizemoney_promotion_winners = Math.floor( prizepool_per_conference * ( conf_distribution[ 2 ] / 100 ) );
         division.conferenceWinners.filter( ( c, idx ) => idx % 2 === 0 ).forEach( c => winners.push([ c.id, prizemoney_champions ]));
         division.conferenceWinners.filter( ( c, idx ) => idx % 2 !== 0 ).forEach( c => winners.push([ c.id, prizemoney_runners_up ]));
         division.promotionWinners.forEach( competitor => winners.push([ competitor.id, prizemoney_promotion_winners ]));
