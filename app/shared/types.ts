@@ -20,6 +20,7 @@ export interface OfferRequest {
 export interface OfferReview {
   offerid: number;
   status: string;
+  fee?: number;
 }
 
 

@@ -150,6 +150,13 @@ That offer works for us. It is now up to the player on whether they choose to ac
 `;
 
 
+const TEAM_REJECT_REASON_ADJUSTED_FEE = `
+Hi, {{it.player.alias}}.
+
+The fee you suggested is too high for us. We will not be pursuing further with this offer.
+`;
+
+
 const TEAM_REJECT_REASON_NOTFORSALE = `
 Hi, {{it.player.alias}}.
 
@@ -171,6 +178,13 @@ We are not open to selling this player as they are a crucial to our squad.
 `;
 
 
+const USER_PENDING_REASON_FEE_ADJUSTMENT = `
+Hello,
+
+I'm willing to sell this player for an adjusted fee.
+`;
+
+
 export default {
   ENDSEASON_PROMOTION_AUTO,
   ENDSEASON_PROMOTION_PLAYOFFS,
@@ -188,7 +202,9 @@ export default {
   PRESEASON_SQUAD_COMPLETE,
   PRESEASON_SQUAD_DEADLINE,
   TEAM_ACCEPT,
+  TEAM_REJECT_REASON_ADJUSTED_FEE,
   TEAM_REJECT_REASON_NOTFORSALE,
   TEAM_REJECT_REASON_FEE,
-  TEAM_REJECT_REASON_SQUAD_DEPTH
+  TEAM_REJECT_REASON_SQUAD_DEPTH,
+  USER_PENDING_REASON_FEE_ADJUSTMENT
 };

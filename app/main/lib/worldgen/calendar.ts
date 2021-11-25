@@ -442,6 +442,7 @@ itemloop.register( ActionQueueTypes.START_SEASON, () => {
 
 
 itemloop.register( ActionQueueTypes.TRANSFER_MOVE, async item => {
+  // update the player's team
   const player = await Models.Player.findByPk( item.payload.targetid );
 
   await Promise.all([
@@ -455,10 +456,16 @@ itemloop.register( ActionQueueTypes.TRANSFER_MOVE, async item => {
     player?.setTeam( item.payload.teamid )
   ]);
 
-  // if user has reached the minimum squad,
-  // then we send a next-steps e-mail
+  // if the user was selling, add the
+  // transfer fee to their earnings
   const profile = await Models.Profile.getActiveProfile();
 
+  if( item.payload.is_selling && item.payload.fee > 0 ) {
+    await profile.Team.increment( 'earnings', { by: item.payload.fee } );
+  }
+
+  // if user has reached the minimum squad,
+  // then we send a next-steps e-mail
   if( profile.Team.Players.length === Application.SQUAD_MIN_LENGTH ) {
     const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
     const tomorrow = moment( profile.currentDate ).add( 1, 'day' );

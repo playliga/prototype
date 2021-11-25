@@ -37,12 +37,23 @@ const teamUnlistedProbabilityTable = probable.createTableFromSizes([
 ]);
 
 
+// how likely is the team willing to buy
+// the player for the adjusted fee?
+const TEAM_ADJUSTED_FEE_YES = 20;
+const TEAM_ADJUSTED_FEE_NO = 80;
+
+const teamAdjustedFeeProbabilityTable = probable.createTableFromSizes([
+  [ TEAM_ADJUSTED_FEE_YES, true ],
+  [ TEAM_ADJUSTED_FEE_NO, false ],
+]);
+
+
 /**
  * Handle offer responses from
  * team and/or the target
  */
 
-async function teamRespondOffer( offerdetails: OfferRequest, response: string, reason: string ) {
+async function teamRespondOffer( offerdetails: OfferRequest, response: string, reason: string, existingoffer: Models.TransferOffer = null ) {
   // load the team's manager
   const persona = await Models.Persona.getManagerByTeamId( _target.Team.id );
 
@@ -59,15 +70,19 @@ async function teamRespondOffer( offerdetails: OfferRequest, response: string, r
   const targetdate = moment( _profile.currentDate ).add( daysoffset, 'days' );
 
   // record their response
-  const transferoffer = await Models.TransferOffer.create({
-    status: OfferStatus.PENDING,
-    fee: offerdetails.fee,
-    wages: offerdetails.wages,
-    msg: reason,
-  });
+  let transferoffer = existingoffer;
 
-  await transferoffer.setTeam( _profile.Team );
-  await transferoffer.setPlayer( _target );
+  if( !existingoffer ) {
+    transferoffer = await Models.TransferOffer.create({
+      status: OfferStatus.PENDING,
+      fee: offerdetails.fee,
+      wages: offerdetails.wages,
+      msg: reason,
+    });
+
+    await transferoffer.setTeam( _profile.Team );
+    await transferoffer.setPlayer( _target );
+  }
 
   // add it to the queue
   await Promise.all([
@@ -195,12 +210,36 @@ export async function parse( offerdetails: OfferRequest ) {
     }
   }) > 0;
 
+  // check the status of the most recent offer
+  const recentoffer = await Models.TransferOffer.findOne({
+    where: { playerId: _target.id },
+    order: [ [ 'id', 'DESC' ] ],
+  });
+
+  // is the user selling their player?
+  const selling = (
+    recentoffer
+    && recentoffer.status === OfferStatus.PENDING
+    && ( offerdetails.fee && recentoffer.fee !== offerdetails.fee )
+  );
+
   // -----------------------------------
   // first, the team will decide if they
   // want to accept the transfer offer
   // -----------------------------------
 
-  if( !teamaccepted && _target.Team ) {
+  // is this in response to a price adjustment? then they already want the
+  // player and are simply deciding on whether the new fee is good.
+  if( selling ) {
+    // is the team willing to pay the new fee?
+    if( !teamAdjustedFeeProbabilityTable.roll() ) {
+      return teamRespondOffer( offerdetails, OfferStatus.REJECTED, EmailDialogue.TEAM_REJECT_REASON_ADJUSTED_FEE, recentoffer );
+    }
+
+    // offer accepted — offset the player's response time
+    // with however long the team took to respond
+    teamresponseoffset = await teamRespondOffer( offerdetails, OfferStatus.ACCEPTED, EmailDialogue.TEAM_ACCEPT, recentoffer );
+  } else if( !teamaccepted && _target.Team ) {
     // is the player transfer listed? if not, the team will
     // consider selling but the chances are not high
     if( !_target.transferListed && !teamUnlistedProbabilityTable.roll() ) {
@@ -268,6 +307,7 @@ export async function parse( offerdetails: OfferRequest ) {
       fee: offerdetails.fee,
       tier: offerdetails.teamdata?.tier || _profile.Team.tier,
       eligible: eligibledate,
+      is_selling: selling,
     }
   });
 }

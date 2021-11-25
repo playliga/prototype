@@ -43,8 +43,8 @@ function handleSendFinish( fee: number, weeklywages: number, player: any ) {
 }
 
 
-function handleReviewFinish( offerdata: any, status: string ) {
-  const params: OfferReview = { offerid: offerdata.id, status };
+function handleReviewFinish( offerdata: any, status: string, priceAdjustment: number = null ) {
+  const params: OfferReview = { offerid: offerdata.id, status, fee: priceAdjustment };
   return IpcService.send( IPCRouting.Offer.REVIEW, { params });
 }
 
@@ -263,6 +263,7 @@ function ReviewActions( props: any ) {
 function ReviewTabs( props: any ) {
   // set up bools
   const pending = getPendingOffers( props.offers, ( item: any ) => item.msg === EmailDialogue.OFFER_SENT );
+  const [ priceAdjustment, setPriceAdjustment ] = React.useState<Record<string, number>>({});
 
   return (
     <Tabs
@@ -296,16 +297,30 @@ function ReviewTabs( props: any ) {
                   render={t => t.name}
                 />
                 <Table.Column
-                  title="Fee"
+                  title="Proposed Fee"
                   dataIndex="fee"
                   render={f => formatCurrency( f )}
+                />
+                <Table.Column
+                  title="Set New Price"
+                  dataIndex="fee"
+                  render={( f, r: any ) => (
+                    <InputNumber
+                      value={priceAdjustment[ r.id ] || f}
+                      step={500}
+                      min={0}
+                      formatter={val => formatCurrency( val as number )}
+                      parser={val => val?.replace( /\$\s?|(,*)/g, '' ) || 0 }
+                      onChange={val => setPriceAdjustment({ ...priceAdjustment, [ r.id ]: val })}
+                    />
+                  )}
                 />
                 <Table.Column
                   title="Actions"
                   key="actions"
                   render={item => (
                     <ReviewActions
-                      onAccept={() => props.onFinish( item, OfferStatus.ACCEPTED )}
+                      onAccept={() => props.onFinish( item, OfferStatus.ACCEPTED, priceAdjustment[ item.id ] )}
                       onReject={() => props.onFinish( item, OfferStatus.REJECTED )}
                     />
                   )}
@@ -438,9 +453,9 @@ function Offer() {
         <ReviewTabs
           {...{ player, profile, offers }}
           onCancel={handleCancel}
-          onFinish={async ( offerdata: any, status: string ) => {
+          onFinish={async ( offerdata: any, status: string, priceAdjustment?: number ) => {
             setLoading( true );
-            await handleReviewFinish( offerdata, status );
+            await handleReviewFinish( offerdata, status, priceAdjustment );
             setLoading( false );
           }}
         />

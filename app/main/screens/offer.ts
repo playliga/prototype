@@ -11,6 +11,7 @@ import { OfferStatus } from 'shared/enums';
 import ScreenManager from 'main/lib/screen-manager';
 import Worldgen from 'main/lib/worldgen';
 import DefaultMenuTemplate from 'main/lib/default-menu';
+import EmailDialogue from 'main/constants/emaildialogue';
 
 
 /**
@@ -124,9 +125,17 @@ async function reviewOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferR
     return;
   }
 
-  // update the offer
+  // grab offer data
   const offerdata = await TransferOffer.findByPk( params.offerid, { include: [{ all: true }]} );
   offerdata.status = params.status;
+
+  // is there a price adjustment?
+  if( params.fee && params.fee !== offerdata.fee ) {
+    offerdata.status = OfferStatus.PENDING;
+    offerdata.msg = EmailDialogue.USER_PENDING_REASON_FEE_ADJUSTMENT;
+  }
+
+  // update the offer
   await offerdata.save();
 
   // if rejected, bail now
@@ -134,13 +143,13 @@ async function reviewOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferR
     return sendresponse();
   }
 
-  // otherwise, let the player decide now
+  // otherwise, pass it on for worldgen to parse
   Worldgen
     .Offer
     .parse({
       teamdata: offerdata.Team,
       playerid: offerdata.Player.id,
-      fee: offerdata.fee,
+      fee: params.fee || offerdata.fee,
       wages: offerdata.wages,
     })
     .then( () => sendresponse() )
