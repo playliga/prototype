@@ -117,11 +117,23 @@ function sendOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferRequest> 
 
 async function reviewOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferReview> ) {
   const { responsechannel, params } = request;
-  const sendresponse = () => evt.sender.send( responsechannel || '', null );
+
+  // update the main screen with the new profile data before
+  // returning the response to the calling screen
+  const sendresponse = async () => {
+    ScreenManager
+      .getScreenById( IPCRouting.Main._ID )
+      .handle
+      .webContents
+      .send( IPCRouting.Database.PROFILE_GET, JSON.stringify( await Profile.getActiveProfile() ) )
+    ;
+    evt.sender.send( responsechannel || '', null );
+    return Promise.resolve();
+  };
 
   // bail if no params found
   if( !params ) {
-    sendresponse();
+    await sendresponse();
     return;
   }
 
@@ -140,7 +152,8 @@ async function reviewOfferHandler( evt: IpcMainEvent, request: IpcRequest<OfferR
 
   // if rejected, bail now
   if( offerdata.status === OfferStatus.REJECTED ) {
-    return sendresponse();
+    await sendresponse();
+    return;
   }
 
   // otherwise, pass it on for worldgen to parse
