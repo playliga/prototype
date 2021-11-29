@@ -1,14 +1,15 @@
 import path from 'path';
-import { ipcMain, Menu } from 'electron';
-import is from 'electron-is';
-import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-
-import * as IPCRouting from 'shared/ipc-routing';
-import { Profile } from 'main/database/models';
+import is from 'electron-is';
 import ScreenManager from 'main/lib/screen-manager';
-import { Screen } from 'main/lib/screen-manager/types';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
+import packageinfo from '../../../package.json';
+import { ipcMain, Menu } from 'electron';
+import { NsisUpdater, MacUpdater, AppUpdater } from 'electron-updater';
+import { CustomPublishOptions } from 'builder-util-runtime/out/publishOptions';
+import { Profile } from 'main/database/models';
+import { Screen } from 'main/lib/screen-manager/types';
+import * as IPCRouting from 'shared/ipc-routing';
 
 
 // module-level variables and constants
@@ -53,7 +54,7 @@ function checkuserdata() {
           ? IPCRouting.Main.OPEN
           : IPCRouting.FirstRun.OPEN
         ;
-        resolve();
+        resolve( true );
       })
       .catch( err => {
         log.error([ err ]);
@@ -66,6 +67,27 @@ function checkuserdata() {
 /**
  * Auto updater logic.
  */
+
+// configure auto updater to use the public releases
+// repo rather than the default which is private
+const repoinfo = packageinfo.homepage.match(/github\.com\/(?<owner>\w+)\/(?<repo>.+)/);
+
+const options = {
+  ...packageinfo.build.publish,
+  repo: repoinfo.groups.repo + '-public',
+  owner: repoinfo.groups.owner,
+};
+
+
+// configure auto updater for the current platform
+let autoUpdater: AppUpdater;
+
+if( process.platform === 'darwin' ) {
+  autoUpdater = new MacUpdater( options as CustomPublishOptions );
+} else {
+  autoUpdater = new NsisUpdater( options as CustomPublishOptions );
+}
+
 
 // configure electron-updater logger
 autoUpdater.autoDownload = false;

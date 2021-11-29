@@ -2,23 +2,24 @@
   "name": "liga",
   "productName": "LIGA",
   "version": "2.0.0-beta.17",
-  "description": "A football manager-type game for e-sports",
+  "description": "A FIFA clone for CS:GO",
   "main": "main.bundle.js",
   "author": "Steve Rivera",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/lemonpole/liga#readme",
+  "homepage": "https://github.com/lemonpole/LIGA",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lemonpole/liga.git"
+    "url": "git+https://github.com/lemonpole/LIGA.git"
   },
   "bugs": {
-    "url": "https://github.com/lemonpole/liga/issues"
+    "url": "https://github.com/lemonpole/LIGA/issues"
   },
   "keywords": [
     "manager",
     "e-sports",
-    "e-sport",
-    "simulator"
+    "esports",
+    "simulator",
+    "csgo"
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=production node -r @babel/register ./webpack/compiler.js",
