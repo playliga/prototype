@@ -18,8 +18,9 @@ export const FirstRun = {
 
 
 export const Main = {
-  _ID   : '/screens/main',
-  OPEN  : '/screens/main/open',
+  _ID           : '/screens/main',
+  OPEN          : '/screens/main/open',
+  GET_APP_LOGO  : '/screens/logo',
 };
 
 

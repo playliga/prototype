@@ -10,10 +10,15 @@ html {
   width: 100%;
   padding-top: 20px;
 
+  .logocontainer {
+    display: flex;
+    justify-content: center;
+  }
+
   img {
     display: block;
-    width: 20%;
-    margin: 0 auto;
+    width: auto;
+    height: 150px;
   }
 }
 

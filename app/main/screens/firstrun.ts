@@ -10,6 +10,7 @@ import Worldgen from 'main/lib/worldgen';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 import Application from 'main/constants/application';
+import AppLogo from 'main/lib/applogo';
 
 
 // module-level variables and constants
@@ -30,7 +31,7 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
-    icon: path.join( __dirname, 'resources/icon.png' )
+    icon: AppLogo.getPath()
   }
 };
 

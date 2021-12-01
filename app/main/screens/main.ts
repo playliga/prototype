@@ -1,9 +1,11 @@
 import path from 'path';
-import { ipcMain, Menu } from 'electron';
+import { ipcMain, IpcMainEvent, Menu } from 'electron';
+import { IpcRequest } from 'shared/types';
 import is from 'electron-is';
 import * as IPCRouting from 'shared/ipc-routing';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
+import AppLogo from 'main/lib/applogo';
 
 
 // module-level variables and constants
@@ -20,7 +22,7 @@ const CONFIG = {
     height: HEIGHT,
     minWidth: WIDTH,
     minHeight: HEIGHT,
-    icon: path.join( __dirname, 'resources/icon.png' )
+    icon: AppLogo.getPath()
   }
 };
 
@@ -41,7 +43,15 @@ async function openWindowHandler() {
 }
 
 
+async function getAppLogoHandler( evt: IpcMainEvent, request: IpcRequest<any> ) {
+  evt.sender.send(
+    request.responsechannel,
+    JSON.stringify({ logo: AppLogo.getBase64() })
+  );
+}
+
+
 export default () => {
-  // ipc listeners
   ipcMain.on( IPCRouting.Main.OPEN, openWindowHandler );
+  ipcMain.on( IPCRouting.Main.GET_APP_LOGO, getAppLogoHandler );
 };

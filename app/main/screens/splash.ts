@@ -3,6 +3,7 @@ import log from 'electron-log';
 import is from 'electron-is';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
+import AppLogo from 'main/lib/applogo';
 import packageinfo from '../../../package.json';
 import { ipcMain, Menu } from 'electron';
 import { NsisUpdater, MacUpdater, AppUpdater } from 'electron-updater';
@@ -29,7 +30,7 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
-    icon: path.join( __dirname, 'resources/icon.png' )
+    icon: AppLogo.getPath()
   }
 };
 

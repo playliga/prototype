@@ -1,6 +1,7 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Menu, Layout, Badge } from 'antd';
+import { Menu, Layout, Badge, Avatar } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { RouteConfig } from 'renderer/screens/main/types';
 import './sidebar.scss';
 
@@ -14,7 +15,7 @@ interface Props {
   onCollapse: ( collapsed: boolean ) => void;
   parent?: string;
   collapsed: boolean;
-  logourl: string;
+  logourl?: string;
   config: RouteConfig[];
 }
 
@@ -36,7 +37,10 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
       onCollapse={props.onCollapse}
     >
       <section className="logocontainer">
-        <img src={props.logourl} alt="LIGA Esports Manager" />
+        {props.logourl
+          ? <img src={props.logourl} alt="LIGA Esports Manager" />
+          : <Avatar size={100} icon={<LoadingOutlined />} style={{ background: 'none' }} />
+        }
       </section>
       <Menu
         theme="dark"

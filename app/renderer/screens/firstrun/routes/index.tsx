@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Steps } from 'antd';
-import { UserOutlined, TeamOutlined, FileDoneOutlined } from '@ant-design/icons';
+import { Avatar, Steps } from 'antd';
+import { UserOutlined, TeamOutlined, FileDoneOutlined, LoadingOutlined } from '@ant-design/icons';
 
 import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
-import AppLogo from 'renderer/assets/logo.png';
 import { FormContext } from '../common';
 import One from './01_userinfo';
 import Two from './02_teaminfo';
@@ -17,6 +16,7 @@ import Finish from './03_finish';
 interface State {
   continents: any[];
   formdata: Array<unknown>;
+  logo?: string;
 }
 
 
@@ -27,12 +27,13 @@ export default class Routes extends Component<RouteComponentProps, State> {
     { path: '/firstrun/finish', component: Finish, title: 'Finish', icon: <FileDoneOutlined /> },
   ];
 
-  public state = {
+  public state: State = {
     continents: [] as any[],
     formdata: [] as any[],
   }
 
   public async componentDidMount() {
+    const { logo } = await IpcService.send( IPCRouting.Main.GET_APP_LOGO, {} );
     const data = await IpcService.send( IPCRouting.Database.GENERIC, {
       params: {
         model: 'Continent',
@@ -43,7 +44,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
         }
       }
     });
-    this.setState({ continents: data });
+    this.setState({ continents: data, logo });
   }
 
   private handleSubmit = ( data: never, next = '' ) => {
@@ -81,12 +82,17 @@ export default class Routes extends Component<RouteComponentProps, State> {
   }
 
   public render() {
-    const { props, routes } = this;
+    const { state, props, routes } = this;
     const active = routes.findIndex( r => r.path === props.location.pathname );
 
     return (
       <div id="firstrun">
-        <img src={AppLogo} alt="LIGA Esports Manager" />
+        <section className="logocontainer">
+          {state.logo
+            ? <img src={state.logo} alt="LIGA Esports Manager" />
+            : <Avatar size={150} icon={<LoadingOutlined />} style={{ background: 'none' }} />
+          }
+        </section>
 
         <section id="steps">
           <Steps

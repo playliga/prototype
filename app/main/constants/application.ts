@@ -1,4 +1,5 @@
 const Application = {
+  APP_LOGO_FILENAME                 : 'icon.png',
   CALENDAR_LOOP_MAX_ITERATIONS      : 15,
   DEMO_MODE                         : true,
   DB_CNX_LIMIT                      : 10000,

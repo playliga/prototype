@@ -12,6 +12,7 @@ import ScreenManager from 'main/lib/screen-manager';
 import Worldgen from 'main/lib/worldgen';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 import EmailDialogue from 'main/constants/emaildialogue';
+import AppLogo from 'main/lib/applogo';
 
 
 /**
@@ -41,7 +42,7 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
-    icon: path.join( __dirname, 'resources/logo.png' ),
+    icon: AppLogo.getPath(),
   }
 };
 

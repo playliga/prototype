@@ -15,10 +15,10 @@ import * as emailSelectors from 'renderer/screens/main/redux/emails/selectors';
 import * as emailActions from 'renderer/screens/main/redux/emails/actions';
 import * as profileSelectors from 'renderer/screens/main/redux/profile/selectors';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
+import * as IPCRouting from 'shared/ipc-routing';
 
 import Sidebar from 'renderer/screens/main/components/sidebar';
 import Connector from 'renderer/screens/main/components/connector';
-import AppLogo from 'renderer/assets/logo.png';
 import Home from './home';
 import Inbox from './inbox';
 import Squad from './squad';
@@ -26,6 +26,7 @@ import Transfers from './transfers';
 import Competitions from './competitions';
 import Team from './team';
 import Settings from './settings';
+import IpcService from 'renderer/lib/ipc-service';
 
 
 const routes: RouteConfig[] = [
@@ -63,11 +64,12 @@ interface Props extends RouteComponentProps, ApplicationState {
 
 interface State {
   collapsed: boolean;
+  logo?: string;
 }
 
 
 class Routes extends Component<Props, State> {
-  public state = {
+  public state: State = {
     collapsed: false,
   }
 
@@ -79,6 +81,10 @@ class Routes extends Component<Props, State> {
     // get initial data
     this.props.dispatch( emailActions.findAll() );
     this.props.dispatch( profileActions.find() );
+
+    // get logo
+    const { logo } = await IpcService.send( IPCRouting.Main.GET_APP_LOGO, {} );
+    this.setState({ logo });
   }
 
   private handleOnCollapse = ( collapsed: boolean ) => {
@@ -113,7 +119,7 @@ class Routes extends Component<Props, State> {
                           {...srprops}
                           parent={r.path}
                           config={routes}
-                          logourl={AppLogo}
+                          logourl={this.state.logo}
                           collapsed={this.state.collapsed}
                           onCollapse={this.handleOnCollapse}
                         />
@@ -127,7 +133,7 @@ class Routes extends Component<Props, State> {
                     {...props}
                     parent={r.path}
                     config={routes}
-                    logourl={AppLogo}
+                    logourl={this.state.logo}
                     collapsed={this.state.collapsed}
                     onCollapse={this.handleOnCollapse}
                   />
