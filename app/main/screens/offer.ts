@@ -40,7 +40,8 @@ const CONFIG = {
     maximizable: false,
     resizable: false,
     movable: false,
-    minimizable: false
+    minimizable: false,
+    icon: path.join( __dirname, 'resources/logo.png' ),
   }
 };
 

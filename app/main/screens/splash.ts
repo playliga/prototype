@@ -28,7 +28,8 @@ const CONFIG = {
     maximizable: false,
     resizable: false,
     movable: false,
-    minimizable: false
+    minimizable: false,
+    icon: path.join( __dirname, 'resources/icon.png' )
   }
 };
 
@@ -82,7 +83,7 @@ const options = {
 // configure auto updater for the current platform
 let autoUpdater: AppUpdater;
 
-if( process.platform === 'darwin' ) {
+if( is.osx() ) {
   autoUpdater = new MacUpdater( options as CustomPublishOptions );
 } else {
   autoUpdater = new NsisUpdater( options as CustomPublishOptions );

@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { app } from 'electron';
+import { app, nativeImage } from 'electron';
 import log from 'electron-log';
 import is from 'electron-is';
 import { Sequelize } from 'sequelize';
@@ -98,6 +98,12 @@ function setupIPCListeners() {
 
 
 function handleOnReady() {
+  // set the dock icon for osx
+  if( is.osx() ) {
+    const logopath = path.join( __dirname, 'resources/icon.png' );
+    app.dock.setIcon( nativeImage.createFromPath( logopath ) );
+  }
+
   // setup source-controlled snapshots
   setupDB()
     .then( () => {

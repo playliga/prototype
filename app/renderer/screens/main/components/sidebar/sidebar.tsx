@@ -36,7 +36,7 @@ export default function Sidebar( props: Partial<RouteComponentProps> & Props ) {
       onCollapse={props.onCollapse}
     >
       <section className="logocontainer">
-        <img src={props.logourl} alt="LIGA" />
+        <img src={props.logourl} alt="LIGA Esports Manager" />
       </section>
       <Menu
         theme="dark"

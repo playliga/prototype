@@ -7,6 +7,7 @@ import { UserOutlined, TeamOutlined, FileDoneOutlined } from '@ant-design/icons'
 
 import * as IPCRouting from 'shared/ipc-routing';
 import IpcService from 'renderer/lib/ipc-service';
+import AppLogo from 'renderer/assets/logo.png';
 import { FormContext } from '../common';
 import One from './01_userinfo';
 import Two from './02_teaminfo';
@@ -20,8 +21,6 @@ interface State {
 
 
 export default class Routes extends Component<RouteComponentProps, State> {
-  private imgdata = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
-
   private routes = [
     { path: '/', component: One, title: 'Player', icon: <UserOutlined /> },
     { path: '/firstrun/two', component: Two, title: 'Team', icon: <TeamOutlined /> },
@@ -29,8 +28,8 @@ export default class Routes extends Component<RouteComponentProps, State> {
   ];
 
   public state = {
-    continents: [],
-    formdata: []
+    continents: [] as any[],
+    formdata: [] as any[],
   }
 
   public async componentDidMount() {
@@ -87,7 +86,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
 
     return (
       <div id="firstrun">
-        <img src={this.imgdata} alt="LIGA" />
+        <img src={AppLogo} alt="LIGA Esports Manager" />
 
         <section id="steps">
           <Steps

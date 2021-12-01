@@ -18,6 +18,7 @@ import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 
 import Sidebar from 'renderer/screens/main/components/sidebar';
 import Connector from 'renderer/screens/main/components/connector';
+import AppLogo from 'renderer/assets/logo.png';
 import Home from './home';
 import Inbox from './inbox';
 import Squad from './squad';
@@ -70,8 +71,6 @@ class Routes extends Component<Props, State> {
     collapsed: false,
   }
 
-  private logourl = 'https://upload.wikimedia.org/wikipedia/en/1/13/Real_betis_logo.svg';
-
   public async componentDidMount() {
     // sign up for ipc events
     this.props.dispatch( emailActions.register() );
@@ -114,7 +113,7 @@ class Routes extends Component<Props, State> {
                           {...srprops}
                           parent={r.path}
                           config={routes}
-                          logourl={this.logourl}
+                          logourl={AppLogo}
                           collapsed={this.state.collapsed}
                           onCollapse={this.handleOnCollapse}
                         />
@@ -128,7 +127,7 @@ class Routes extends Component<Props, State> {
                     {...props}
                     parent={r.path}
                     config={routes}
-                    logourl={this.logourl}
+                    logourl={AppLogo}
                     collapsed={this.state.collapsed}
                     onCollapse={this.handleOnCollapse}
                   />

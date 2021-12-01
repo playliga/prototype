@@ -30,6 +30,7 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
+    icon: path.join( __dirname, 'resources/icon.png' )
   }
 };
 

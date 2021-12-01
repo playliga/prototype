@@ -3,14 +3,21 @@
   left: 0;
   height: 100vh;
 
+  &[class*="collapsed"] img {
+    max-width: 60px;
+    max-height: auto;
+  }
+
   img {
-    width: 100%;
+    width: auto;
     height: auto;
     max-height: 100px;
   }
 
   .logocontainer {
     margin: 20px 0;
+    display: flex;
+    justify-content: center;
   }
 
   .ant-badge-count, .ant-badge-dot {

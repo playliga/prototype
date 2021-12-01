@@ -1,6 +1,6 @@
 {
   "name": "liga",
-  "productName": "LIGA",
+  "productName": "LIGA Esports Manager",
   "version": "2.0.0-beta.18",
   "description": "A FIFA clone for CS:GO",
   "main": "main.bundle.js",
@@ -35,7 +35,7 @@
   },
   "build": {
     "appId": "io.steverivera.liga",
-    "copyright": "Copyright © 2020 ${author}",
+    "copyright": "Copyright © 2021 ${author}",
     "mac": {
       "category": "public.app.category.games",
       "identity": "null"

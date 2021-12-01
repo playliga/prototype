@@ -1,5 +1,7 @@
 # LIGA ESPORTS MANAGER
 
+![](./resources/logo.png)
+
 ## Creating a release
 
 This project uses [`electron-builder`](https://www.electron.build/configuration/publish) to publish releases. Once a release is published a pipeline is kicked off which downloads the release artifacts and uploads them to the [public releases repo](https://github.com/lemonpole/LIGA-public).

@@ -19,7 +19,8 @@ const CONFIG = {
     width: WIDTH,
     height: HEIGHT,
     minWidth: WIDTH,
-    minHeight: HEIGHT
+    minHeight: HEIGHT,
+    icon: path.join( __dirname, 'resources/icon.png' )
   }
 };
 
