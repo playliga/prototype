@@ -1,6 +1,6 @@
 # LIGA ESPORTS MANAGER
 
-![](./resources/logo.png)
+<img src="./resources/icon.png" alt="LIGA Esports Manager" width="300" height="300" />
 
 ## Creating a release
 
