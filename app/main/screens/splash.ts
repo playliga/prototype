@@ -2,7 +2,7 @@ import path from 'path';
 import log from 'electron-log';
 import is from 'electron-is';
 import ScreenManager from 'main/lib/screen-manager';
-import DefaultMenuTemplate, { RawDefaultMenuTemplate, MenuItems } from 'main/lib/default-menu';
+import DefaultMenuTemplate from 'main/lib/default-menu';
 import AppLogo from 'main/lib/applogo';
 import packageinfo from '../../../package.json';
 import { ipcMain, Menu } from 'electron';
@@ -229,20 +229,10 @@ function setupscreen() {
     screen.handle.setMenu( null );
   }
 
-  // on osx it's enforced to show the Application Menu item
-  // and in addition, the `setMenu` function doesn't work
+  // the `setMenu` function above doesn't work on
+  // osx so we'll have to accomodate for that
   if( is.osx() ) {
-    // in prod only add the application menu item
-    if( is.production() ) {
-      // @ts-ignore
-      const m = Menu.buildFromTemplate( [ RawDefaultMenuTemplate[ MenuItems.APPNAME ] ] );
-      Menu.setApplicationMenu( m );
-
-    // otherwise, add the default menu since the `setMenu` function
-    // does not work in osx
-    } else {
-      Menu.setApplicationMenu( DefaultMenuTemplate );
-    }
+    Menu.setApplicationMenu( DefaultMenuTemplate );
   }
 }
 

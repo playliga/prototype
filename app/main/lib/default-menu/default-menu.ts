@@ -79,12 +79,23 @@ if( is.osx() ) {
 }
 
 
-// hide debugging items in production
+// build the default menu template
+let DefaultMenuTemplate = Menu.buildFromTemplate( RawDefaultMenuTemplate.filter( item => item !== null && item.submenu.length > 0 ) );
+
+
+// production-specific menu alterations
 if( is.production() ) {
-  RawDefaultMenuTemplate[ MenuItems.VIEW ] = null;
+  // on windows we hide the menu entirely
+  if( is.windows() ) {
+    DefaultMenuTemplate = Menu.buildFromTemplate( [] );
+  }
+
+  // on osx we show the application menu item
+  if( is.osx() && is.production() ) {
+    DefaultMenuTemplate = Menu.buildFromTemplate( [ RawDefaultMenuTemplate[ MenuItems.APPNAME ] ] );
+  }
 }
 
 
-// @ts-ignore
-const DefaultMenuTemplate = Menu.buildFromTemplate( RawDefaultMenuTemplate.filter( item => item !== null && item.submenu.length > 0 ) );
+// finally, export the menu
 export default DefaultMenuTemplate;
