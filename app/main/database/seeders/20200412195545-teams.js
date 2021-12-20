@@ -22,7 +22,7 @@ module.exports = {
 
     // keep track of our total team
     // count to limit things later
-    const esea = compdefs.find( c => c.id === 'esea' );
+    const comp = compdefs.find( c => c.id === 'lesm' );
     const total_teams = {};
 
     // @note: some teams get trimmed along the way, either
@@ -40,7 +40,7 @@ module.exports = {
       // skip this team if we have reached the
       // team limit for this region and tier.
       if( total_teams[ teamregion ] ) {
-        if( total_teams[ teamregion ][ team.tier ] >= esea.tiers[ team.tier ].minlen + MAX_TEAMS_BUFFER ) {
+        if( total_teams[ teamregion ][ team.tier ] >= comp.tiers[ team.tier ].minlen + MAX_TEAMS_BUFFER ) {
           return;
         }
       } else {

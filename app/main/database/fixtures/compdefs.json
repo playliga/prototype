@@ -1,9 +1,9 @@
 [
   {
-    "id":"esea",
+    "id":"lesm",
     "isopen": true,
     "meetTwice": false,
-    "name":"ESEA",
+    "name":"LESM",
     "season":32,
     "startoffset": 60,
     "type": "league",
@@ -42,27 +42,6 @@
         "confsize":20
       }
     ]
-  },
-  {
-    "id":"eslpro",
-    "isopen": false,
-    "meetTwice": false,
-    "name":"ESL Pro",
-    "season":12,
-    "startoffset": 60,
-    "type": "championsleague",
-    "prizePool": {
-      "total": 10000,
-      "distribution": [ 50, 20, 15, 10, 5 ]
-    },
-    "regions":[
-      "eu"
-    ],
-    "tiers":[{
-      "name":"Professional",
-      "minlen":20,
-      "confsize":20
-    }]
   },
   {
     "id": "csgocup",
