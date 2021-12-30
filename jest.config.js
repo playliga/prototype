@@ -26,7 +26,7 @@ module.exports = {
   "globals": {
     "__DEV__": true
   },
-  "notify": true,
+  "notify": false,
   "collectCoverageFrom": [
     "app/main/lib/**/*.{ts,tsx}"
   ],

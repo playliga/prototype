@@ -40,6 +40,7 @@ export interface Tournament {
   resultsFor: ( seed: number ) => Result;
   rounds: () => Match[][];
   score: ( matchId: object, mapScore: any[] ) => boolean;
+  sections: ( round?: number ) => Match[][];
   standings?: Result[];
   state: any[];
   unscorable: ( matchId: object, mapScore: any[], allowPast?: boolean ) => string | null;
