@@ -37,7 +37,7 @@ export default class Stage {
       : null
     ;
     ins.duelObj = args.duelObj
-      ? Duel.restore( args.competitors.length, { short: true }, args.duelObj.state, args.duelObj.metadata )
+      ? Duel.restore( args.playoffCompetitors.length, { short: true }, args.duelObj.state, args.duelObj.metadata )
       : null
     ;
     return ins;
