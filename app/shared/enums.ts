@@ -26,4 +26,11 @@ export const CompTypes = {
   CHAMPIONS_LEAGUE  : 'championsleague',
   LEAGUE            : 'league',
   LEAGUE_CUP        : 'leaguecup',
+  MINOR             : 'circuit:minor',
+};
+
+
+export const AutofillAction = {
+  OPEN    : 'open',
+  INVITE  : 'invite',
 };

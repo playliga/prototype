@@ -9,6 +9,7 @@ const Application = {
   MATCHDAYS_LEAGUE                  : [ 5, 6, 7 ],        // fri, sat, sun
   MATCHDAYS_LEAGUECUP               : [ 1, 2 ],           // mon, tues
   MATCHDAYS_CHAMPLEAGUE             : [ 3, 4 ],           // wed, thurs
+  MATCHDAYS_MINOR                   : [ 3, 4 ],           // wed, thurs
   OFFER_TEAM_RESPONSE_MINDAYS       : 1,
   OFFER_TEAM_RESPONSE_MAXDAYS       : 2,
   OFFER_PLAYER_ELIGIBLE_BUFFER_DAYS : 60,
@@ -29,6 +30,7 @@ const Application = {
   PRESEASON_SQUAD_DEADLINE_DAYS     : [ 30, 14, 7 ],      // when to start enforcing minimum squad depth
   PRESEASON_START_DAY               : 1,                  // pre-season start day
   PRESEASON_START_MONTH             : 6,                  // pre-season start month
+  REGEX_AUTOFILL                    : /(?<autofill_action>\w+):(?<autofill_target>\d+),(?<autofill_start>\d+)-(?<autofill_end>\d+)/,
   SIM_MODE_DEFAULT                  : 'default',
   SIM_MODE_ALWAYS_WIN               : 'always_win',
   SIM_MODE_ALWAYS_LOSE              : 'always_lose',

@@ -14,11 +14,13 @@ export function parseCompType( type: string ) {
   const championsleague = [ CompTypes.CHAMPIONS_LEAGUE ];
   const leagues = [ CompTypes.CHAMPIONS_LEAGUE, CompTypes.LEAGUE ];
   const cups = [ CompTypes.LEAGUE_CUP ];
+  const minor = [ CompTypes.MINOR ];
 
   return [
     leagues.includes( type ),
     cups.includes( type ),
-    championsleague.includes( type )
+    championsleague.includes( type ),
+    minor.includes( type ),
   ];
 }
 

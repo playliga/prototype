@@ -3,9 +3,10 @@ import moment from 'moment';
 import Application from 'main/constants/application';
 import Score from './score';
 import { random, flattenDeep, shuffle, flatten, groupBy } from 'lodash';
-import { ActionQueueTypes, CompTypes } from 'shared/enums';
+import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
-import { League, Cup, Division } from 'main/lib/league';
+import { League, Cup, Division, Competitor } from 'main/lib/league';
+import { Minor } from 'main/lib/circuit';
 import { parseCompType } from 'main/lib/util';
 import log from 'electron-log';
 
@@ -60,6 +61,10 @@ function getWeekday( type: string, date: moment.Moment ) {
     case CompTypes.LEAGUE_CUP: {
       const day = random( 0, Application.MATCHDAYS_LEAGUECUP.length - 1 );
       return date.weekday( Application.MATCHDAYS_LEAGUECUP[ day ] );
+    }
+    case CompTypes.MINOR: {
+      const day = random( 0, Application.MATCHDAYS_MINOR.length - 1 );
+      return date.weekday( Application.MATCHDAYS_MINOR[ day ] );
     }
     default:
       return;
@@ -230,6 +235,57 @@ async function genCupMatchdays( comp: Models.Competition ) {
 
 
 /**
+ * Generate match days for a minor
+ */
+
+async function genMinorMatchdays( comp: Models.Competition ) {
+  // setup vars
+  const profile = await Models.Profile.getActiveProfile();
+  const competitions = await Models.Competition.findAllByTeam( profile.Team.id );
+  const joined = didJoin( competitions, comp );
+  const minorObj = Minor.restore( comp.data );
+  const currStage = minorObj.getCurrentStage();
+  const tourneyObj = currStage.duelObj || currStage.groupObj;
+
+  // bail if tourney is finished
+  if( minorObj.isDone() ) {
+    return Promise.resolve([]);
+  }
+
+  // if user joined, grab their seed num
+  let userseed: number;
+
+  if( joined ) {
+    userseed = currStage.getCompetitorSeedNumById( profile.Team.id );
+  }
+
+  // @todo: handle playoffs
+  const matches = tourneyObj.rounds().map( ( rnd, idx ) => {
+    return rnd.map( m => ({
+      type: m.p.includes( userseed )
+        ? ActionQueueTypes.MATCHDAY
+        : ActionQueueTypes.MATCHDAY_NPC
+      ,
+      actionDate: getWeekday(
+        comp.Comptype.name,
+        moment( profile.currentDate ).add( idx + 1, 'weeks' )
+      ),
+      payload: {
+        compId: comp.id,
+        match: m,
+        stageName: currStage.name,
+        team1Id: currStage.getCompetitorBySeed( m.p[ 0 ] ).id,
+        team2Id: currStage.getCompetitorBySeed( m.p[ 1 ] ).id,
+      }
+    }));
+  });
+
+  // save as a single matchday
+  return Promise.resolve([ matches ]);
+}
+
+
+/**
  * Generate a single competition based
  * off of the definition schema
  */
@@ -258,21 +314,25 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     }
 
     // was there a prev season?
-    let prevcomp: Models.Competition;
-    let prevleague: League;
+    let prevtourney: League | Minor;
 
-    if( compdef.Comptype.name === CompTypes.LEAGUE ) {
-      prevcomp = await Models.Competition.findOne({
-        where: {
-          continentId: region.id,
-          compdefId: compdef.id,
-          season: compdef.season - 1,
-        }
-      });
-    }
+    const prevcomp = await Models.Competition.findOne({
+      where: {
+        continentId: region.id,
+        compdefId: compdef.id,
+        season: compdef.season - 1,
+      }
+    });
 
     if( prevcomp ) {
-      prevleague = League.restore( prevcomp.data );
+      switch( compdef.Comptype.name ) {
+        case CompTypes.LEAGUE:
+          prevtourney = League.restore( prevcomp.data );
+          break;
+        case CompTypes.MINOR:
+          prevtourney = Minor.restore( prevcomp.data );
+          break;
+      }
     }
 
     // build the competition's eligible teams. we're going to
@@ -285,19 +345,19 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     }
 
     // build the league or cup object
-    const [ isleague, iscup ] = parseCompType( compdef.Comptype.name );
-    let data: League | Cup;
+    const [ isleague, iscup,, isminor ] = parseCompType( compdef.Comptype.name );
+    let data: League | Cup | Minor;
 
     if( isleague ) {
       data = new League( compdef.name );
 
       compdef.tiers.forEach( ( tier, tdx ) => {
         const div = data.addDivision( tier.name, tier.minlen, tier.confsize );
-        const tierteams = prevleague
-          ? prevleague.postSeasonDivisions[ tdx ].competitors
+        const tierteams = prevtourney
+          ? prevtourney.postSeasonDivisions[ tdx ].competitors
           : allteams.filter( t => t.tier === tdx ).map( t => ({ id: t.id, name: t.name }))
         ;
-        const competitors = prevleague
+        const competitors: Competitor[] = prevtourney
           ? tierteams
           : tierteams.slice( 0, tier.minlen )
         ;
@@ -316,6 +376,42 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
         data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
         compteams = allteams;
       }
+    } else if( isminor ) {
+      data = new Minor( compdef.name );
+
+      compdef.tiers.forEach( tier => {
+        const stage = data.addStage( tier.name, tier.size, tier.groupSize, tier.playoffs || false );
+
+        // autofill logic
+        let competitors: Models.Team[] = [];
+
+        if( tier.autofill && Array.isArray( tier.autofill ) ) {
+          competitors = tier.autofill.map( ( autofill: string ) => {
+            const pattern = autofill.match( Application.REGEX_AUTOFILL );
+            const { autofill_action, autofill_target, autofill_end, autofill_start } = pattern.groups;
+
+            // handle the different autofill actions
+            switch( autofill_action ) {
+              // @todo: this should be topx from prev season league
+              case AutofillAction.INVITE:
+                return allteams
+                  .filter( t => t.tier === parseInt( autofill_target ) )
+                  .slice( parseInt( autofill_start ), parseInt( autofill_end ) )
+                ;
+              case AutofillAction.OPEN:
+                return allteams
+                  .filter( t => t.tier === parseInt( autofill_target ) )
+                  .slice( parseInt( autofill_start ), parseInt( autofill_end ) )
+                ;
+            }
+          });
+        }
+
+        // add teams to the current stage and the competition model
+        competitors = shuffle( flatten( competitors ).slice( 0, tier.size ) );
+        stage.addCompetitors( competitors.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
+        compteams = [ ...compteams, ...competitors ];
+      });
     }
 
     // build the competition
@@ -474,8 +570,8 @@ export function genMappool( rounds: Match[][] ) {
  */
 
 export function start( comp: Models.Competition ) {
-  const [ isleague, iscup ] = parseCompType( comp.Comptype.name );
-  let data: League | Cup;
+  const [ isleague, iscup,, isminor ] = parseCompType( comp.Comptype.name );
+  let data: League | Cup | Minor;
 
   if( isleague ) {
     data = League.restore( comp.data );
@@ -491,6 +587,11 @@ export function start( comp: Models.Competition ) {
     data = Cup.restore( comp.data );
     data.start();
     genMappool( data.duelObj.rounds() );
+  } else if( isminor ) {
+    data = Minor.restore( comp.data );
+    data.start();
+    // @todo: handle playoffs
+    genMappool( data.getCurrentStage().groupObj.rounds() );
   }
 
   return comp.update({ data: data.save() });
@@ -502,13 +603,15 @@ export function start( comp: Models.Competition ) {
  */
 
 export async function genMatchdays( comp: Models.Competition ) {
-  const [ isleague, iscup ] = parseCompType( comp.Comptype.name );
+  const [ isleague, iscup,, isminor ] = parseCompType( comp.Comptype.name );
   let matchdays: any[];
 
   if( isleague ) {
     matchdays = await genLeagueMatchdays( comp );
   } else if( iscup ) {
     matchdays = await genCupMatchdays( comp );
+  } else if( isminor ) {
+    matchdays = await genMinorMatchdays( comp );
   }
 
   // generate matchdays if any were found
@@ -525,9 +628,9 @@ export async function genMatchdays( comp: Models.Competition ) {
  * respective Competition objects.
  */
 
-function recordMatchItem( match: Models.Match, compobj: League | Cup, compinfo: boolean[] ) {
+function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, compinfo: boolean[] ) {
   const payload = JSON.parse( match.payload );
-  const [ isleague, iscup ] = compinfo;
+  const [ isleague, iscup,, isminor ] = compinfo;
   let tourneyobj: Tournament;
 
   if( isleague ) {
@@ -541,8 +644,11 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup, compinfo: 
       const conf = divobj.promotionConferences.find( c => c.id === payload.confId );
       tourneyobj = conf.duelObj;
     }
-  } else {
+  } else if( iscup ) {
     tourneyobj = compobj.duelObj;
+  } else if( isminor ) {
+    // @todo: handle playoffs
+    tourneyobj = compobj.getCurrentStage().groupObj;
   }
 
   // record the score
@@ -551,6 +657,7 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup, compinfo: 
   }
 
   // if it's post-season or a cup, will we need to gen new match days?
+  // @todo: handle next stage for minors
   const matchuuid = { s: payload.match.id.s, r: payload.match.id.r };
   return (
     ( ( isleague && compobj.isGroupStageDone() ) || iscup )
@@ -575,15 +682,21 @@ export async function recordTodaysMatchResults() {
   return Promise.all( competitionIds.map( async competitionId => {
     // load competition details
     const competition = await Models.Competition.findByPk( competitionId, { include: [ 'Comptype' ] });
-    const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
-    const compobj = isleague
-      ? League.restore( competition.data )
-      : Cup.restore( competition.data )
-    ;
+    const [ isleague, iscup, ischampionsleague, isminor ] = parseCompType( competition.Comptype.name );
+
+    let compobj: League | Cup | Minor;
+
+    if( isleague ) {
+      compobj = League.restore( competition.data );
+    } else if( iscup ) {
+      compobj = Cup.restore( competition.data );
+    } else if( isminor ) {
+      compobj = Minor.restore( competition.data );
+    }
 
     // record match results
     const matches = groupedMatches[ competitionId ];
-    const matchresults = matches.map( match => recordMatchItem( match, compobj, [ isleague, iscup ] ) );
+    const matchresults = matches.map( match => recordMatchItem( match, compobj, [ isleague, iscup, ischampionsleague, isminor ] ) );
     const genNewMatches = matchresults.includes( true );
 
     // do we need to generate new matchdays?

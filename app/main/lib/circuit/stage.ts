@@ -78,7 +78,18 @@ export default class Stage {
   }
 
   public getCompetitorBySeed( seed: number ) {
+    // @todo: handle playoffs
     return this.competitors[ seed - 1 ];
+  }
+
+  public getCompetitorSeedNumById( id: number ) {
+    // @todo: handle playoffs
+    const idx = this.competitors.findIndex( c => c.id === id );
+
+    // found! seeds start at 1 so bump if 0
+    return idx > - 1
+      ? idx + 1
+      : -1;
   }
 
   public start() {

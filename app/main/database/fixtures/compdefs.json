@@ -60,5 +60,54 @@
       "na"
     ],
     "tiers": null
+  },
+  {
+    "id": "minor",
+    "isopen": true,
+    "meetTwice": false,
+    "name": "Global Circuit: Minor",
+    "season": 1,
+    "startoffset": 15,
+    "type": "circuit:minor",
+    "prizePool": {
+      "total": 1000000,
+      "distribution": [ 30, 20, 15, 11, 9, 7, 5, 3 ]
+    },
+    "regions": [
+      "eu",
+      "na"
+    ],
+    "tiers": [
+      {
+        "name": "Open Qualifiers",
+        "meetTwice": false,
+        "size": 96,
+        "groupSize": 12,
+        "groupQualifyNum": 2,
+        "autofill": [
+          "open:4,0-50",
+          "open:3,0-50",
+          "open:2,0-20"
+        ]
+      },
+      {
+        "name": "Closed Qualifiers",
+        "meetTwice": false,
+        "size": 32,
+        "groupSize": 4,
+        "groupQualifyNum": 2,
+        "autofill": [
+          "invite:1,0-15"
+        ]
+      },
+      {
+        "name": "Finals",
+        "meetTwice": false,
+        "size": 16,
+        "groupSize": 4,
+        "groupQualifyNum": 2,
+        "playoffs": true
+      }
+    ]
   }
 ]

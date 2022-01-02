@@ -106,7 +106,6 @@ itemloop.register( ActionQueueTypes.ENDSEASON_PRIZE_MONEY, async () => {
   const competitions = allcompetitions.filter( c => c.season === c.Compdef.season );
 
   // grab the competition winners
-  // @todo: handle championsleague
   const all_winners = flatten( competitions.map( competition => {
     const [ isleague, iscup, ischampionsleague ] = parseCompType( competition.Comptype.name );
     const prizepool_config = competition.Compdef.prizePool;
