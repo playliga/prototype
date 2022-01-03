@@ -198,8 +198,9 @@ function Home( props: Props ) {
   }, [ upcoming ]);
 
   // for minors, override standings to user's group
+  // @note: only override if standings is a nested array
   // @todo: handle playoffs for minors
-  if( hasStandings && isminor && standings[ 0 ].standings ) {
+  if( hasStandings && isminor && standings[ 0 ].standings && Array.isArray( standings[ 0 ].standings[ 0 ] ) ) {
     standings[ 0 ].standings.every( group => {
       if( group.findIndex( ( s: any ) => s.competitorInfo.id === profile.data.Team.id ) >= 0 ) {
         standings[ 0 ].standings = group;
