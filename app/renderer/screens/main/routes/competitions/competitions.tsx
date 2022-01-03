@@ -51,6 +51,16 @@ function Competition( props: CompetitionProps ) {
     isminor && props.data.standings.length === 0, // @todo: handle playoffs
   ];
 
+  // for minors, just render the first group
+  // @todo: handle playoffs for minors
+  const [ standings, setStandings ] = React.useState<any[]>([]);
+
+  React.useEffect( () => {
+    if( isminor && props.data.standings.length > 0 ) {
+      setStandings( props.data.standings[ 0 ] );
+    }
+  }, [ props.data.standings ]);
+
   return (
     <Col key={props.data.competitionId} span={GRID_COL_WIDTH}>
       <Typography.Title level={2}>
@@ -94,20 +104,16 @@ function Competition( props: CompetitionProps ) {
 
       {/* LEAGUE/MINOR STARTED: SHOW STANDINGS */}
       {/* @todo: handle playoffs for minors */}
-      {( isleague || isminor ) && props.data.standings.length > 0 && (
+      {( isleague || isminor ) && standings.length > 0 && (
         <Standings
           disablePagination
           sliceData={NUM_STANDINGS}
           title={isleague ? props.data.division : props.data.stageName}
-          dataSource={props
-            .data
-            .standings
-            .map( ( s: any ) => ({
-              id: s.competitorInfo.id,
-              name: s.competitorInfo.name,
-              ...s,
-            }))
-          }
+          dataSource={standings.map( ( s: any ) => ({
+            id: s.competitorInfo.id,
+            name: s.competitorInfo.name,
+            ...s,
+          }))}
           onClick={props.onTeamClick}
         />
       )}

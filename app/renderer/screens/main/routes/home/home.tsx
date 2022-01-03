@@ -197,8 +197,20 @@ function Home( props: Props ) {
     ;
   }, [ upcoming ]);
 
-  // find our team's seed number
+  // for minors, override standings to user's group
   // @todo: handle playoffs for minors
+  if( hasStandings && isminor && standings[ 0 ].standings ) {
+    standings[ 0 ].standings.every( group => {
+      if( group.findIndex( ( s: any ) => s.competitorInfo.id === profile.data.Team.id ) >= 0 ) {
+        standings[ 0 ].standings = group;
+        return false; // breaks us out of the loop
+      } else {
+        return true;
+      }
+    });
+  }
+
+  // find our team's seed number (or group number if applicable)
   let seednum: number;
 
   if( hasStandings && ( isleague || isminor ) && standings[ 0 ].standings ) {

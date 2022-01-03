@@ -416,7 +416,7 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
   return [{
     ...baseobj,
     stageName: currstage.name,
-    standings: currstage.groupObj.results().map( item => {
+    standings: currstage.getGroupResults().map( group => group.map( item => {
       const competitor = currstage.getCompetitorBySeed( item.seed );
       const teamdata = teams.find( team => team.id === competitor.id );
       return ({
@@ -426,7 +426,7 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
           logo: getTeamLogo( teamdata )
         }
       });
-    })
+    }))
   }];
 }
 
