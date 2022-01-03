@@ -120,7 +120,12 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: nu
       <Table.Column
         width="20%"
         dataIndex="type"
-        render={value => value[ 0 ] ? 'League' : 'Cup' }
+        render={value => value[ 0 ]
+          ? 'League'
+          : value[ 1 ]
+            ? 'Cup'
+            : 'Minor'
+        }
       />
       <Table.Column
         width="10%"
@@ -153,6 +158,7 @@ function Home( props: Props ) {
   const refreshUpcoming = hasUpcoming && moment( profile.data.currentDate ).isAfter( upcoming[ 0 ].date );
   const isleague = hasUpcoming && upcoming[ 0 ].type[ 0 ];
   const iscup = hasUpcoming && upcoming[ 0 ].type[ 1 ];
+  const isminor = hasUpcoming && upcoming[ 0 ].type[ 3 ];
   const ispostseason = isleague && !!upcoming[ 0 ].postseason;
 
   // get upcoming matches
@@ -192,9 +198,10 @@ function Home( props: Props ) {
   }, [ upcoming ]);
 
   // find our team's seed number
+  // @todo: handle playoffs for minors
   let seednum: number;
 
-  if( hasStandings && isleague && standings[ 0 ].standings ) {
+  if( hasStandings && ( isleague || isminor ) && standings[ 0 ].standings ) {
     seednum = standings[ 0 ]
       .standings
       .find( s => s.competitorInfo.id === profile.data.Team.id )
@@ -266,13 +273,14 @@ function Home( props: Props ) {
           </Col>
 
           {/* STANDINGS PREVIEW */}
+          {/* @todo: handle playoffs for minors */}
           <Col span={COLSIZE_STANDINGS}>
             <Card
               title={iscup ? 'Cup Matches' :'League Table'}
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
-              {isleague && !ispostseason && (
+              {( ( isleague && !ispostseason ) || isminor ) && (
                 <Standings
                   disablePagination
                   highlightSeed={seednum}
@@ -287,7 +295,7 @@ function Home( props: Props ) {
                       }))
                   )}
                   title={hasStandings && (
-                    `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division}`
+                    `${standings[ 0 ].competition}: ${standings[ 0 ].region} | ${standings[ 0 ].division || standings[ 0 ].stageName}`
                   )}
                   onClick={id => props.history.push( `/home/team/${id}` )}
                 />

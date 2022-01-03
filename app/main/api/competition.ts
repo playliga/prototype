@@ -110,6 +110,36 @@ function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competit
 }
 
 
+function formatMinorMatchdata( queue: Models.ActionQueue, compobj: Models.Competition, teams: Models.Team[] ) {
+  const minorObj = Minor.restore( compobj.data );
+  const currStage = minorObj.getCurrentStage();
+
+  // @todo: handle playoffs
+  const match = currStage.groupObj.findMatch( queue.payload.match.id );
+  const team1 = currStage.getCompetitorBySeed( match.p[ 0 ] );
+  const team2 = currStage.getCompetitorBySeed( match.p[ 1 ] );
+  const team1data = teams.find( team => team.id === team1.id );
+  const team2data = teams.find( team => team.id === team2.id );
+
+  return ({
+    stageName: currStage.name,
+    match: {
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        logo: getTeamLogo( team1data ),
+        ...team1,
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        logo: getTeamLogo( team2data ),
+        ...team2,
+      },
+    }
+  });
+}
+
+
 export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.Team[] ) {
   // load the competition
   const compobj = await Models.Competition.findByPk( queue.payload.compId, {
@@ -124,12 +154,14 @@ export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.
   let output;
 
   // format the match data
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+  const [ isleague, iscup,, isminor ] = parseCompType( compobj.Comptype.name );
 
   if( isleague ) {
     output = formatLeagueMatchdata( queue, compobj, teams );
   } else if( iscup ) {
     output = formatCupMatchdata( queue, compobj, teams );
+  } else if( isminor ) {
+    output = formatMinorMatchdata( queue, compobj, teams );
   }
 
   // append the comptype for this match

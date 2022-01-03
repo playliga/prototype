@@ -30,6 +30,7 @@ export interface UpcomingMatchResponse {
   division?: string;
   postseason?: string;
   region: string;
+  stageName?: string;
   match: any;
   type: string[];
 }

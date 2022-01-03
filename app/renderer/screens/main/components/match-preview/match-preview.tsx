@@ -35,7 +35,7 @@ export default function MatchPreview( props: Props ) {
           {props.data.competition}: {props.data.region}
         </Typography.Title>
         <Typography.Text>
-          {props.data.division}
+          {props.data.division || props.data.stageName}
           {props.data.postseason && `
             (Promotion ${props.data.postseason})
           `}
@@ -49,7 +49,7 @@ export default function MatchPreview( props: Props ) {
               : <Avatar size={100} icon={<UserOutlined />} />
             }
             <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
-            {typeof props.data.match.team1.tier === 'number'  && (
+            {typeof props.data.match.team1.tier === 'number' && (
               <Typography.Text className="tier-text">
                 {Tiers[ props.data.match.team1.tier ].name}
               </Typography.Text>
