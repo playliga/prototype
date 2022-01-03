@@ -405,7 +405,7 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
 
 async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
   const compobj = await Models.Competition.findByPk( request.params.id, { include: [{ all: true }] });
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+  const [ isleague, iscup,, isminor ] = parseCompType( compobj.Comptype.name );
 
   let teamid = request.params.teamid;
 
@@ -444,6 +444,22 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
     const cupobj = Cup.restore( compobj.data );
     cupobj.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
     compobj.data = cupobj.save();
+  } else if( isminor ) {
+    // build minor obj
+    const minorObj = Minor.restore( compobj.data );
+    const currStage = minorObj.getCurrentStage() || minorObj.stages[ 0 ];
+
+    // if the current stage is already maxxed out then
+    // remove the last team to make room for the user
+    if( currStage.size === currStage.competitors.length ) {
+      const lastteam = currStage.competitors[ currStage.competitors.length - 1 ];
+      currStage.removeCompetitor( lastteam.id );
+      await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ) );
+    }
+
+    // save changes to the db
+    currStage.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
+    compobj.data = minorObj.save();
   }
 
   await compobj.save();
