@@ -43,9 +43,13 @@ interface CompetitionProps {
 function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
   const sameregion = props.team.Country.ContinentId === props.data.regionId;
-  const [ isleague, iscup ] = props.data.type;
-  const joined = props.teamCompetitions.findIndex( ( c: any ) => c.id === props.data.competitionId )
-  > -1;
+  const [ isleague, iscup,, isminor ] = props.data.type;
+  const joined = props.teamCompetitions.findIndex( ( c: any ) => c.id === props.data.competitionId ) > -1;
+  const notstarted = [
+    isleague && props.data.standings.length === 0,
+    iscup && props.data.round.length === 0,
+    isminor && props.data.standings.length === 0, // @todo: handle playoffs
+  ];
 
   return (
     <Col key={props.data.competitionId} span={GRID_COL_WIDTH}>
@@ -61,7 +65,7 @@ function Competition( props: CompetitionProps ) {
       </Typography.Title>
 
       {/* COMPETITION NOT STARTED */}
-      {( ( isleague && props.data.standings.length === 0 ) || ( iscup && props.data.round.length === 0 ) ) && (
+      {notstarted.some( val => val ) && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <em>{'Not started.'}</em>
           {nosquad && sameregion && props.data.isOpen && (
@@ -88,12 +92,13 @@ function Competition( props: CompetitionProps ) {
         </Space>
       )}
 
-      {/* LEAGUE STARTED: SHOW GROUPS FOR FIRST CONFERENCE */}
-      {isleague && props.data.standings.length > 0 && (
+      {/* LEAGUE/MINOR STARTED: SHOW STANDINGS */}
+      {/* @todo: handle playoffs for minors */}
+      {( isleague || isminor ) && props.data.standings.length > 0 && (
         <Standings
           disablePagination
           sliceData={NUM_STANDINGS}
-          title={props.data.division}
+          title={isleague ? props.data.division : props.data.stageName}
           dataSource={props
             .data
             .standings

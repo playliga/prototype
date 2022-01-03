@@ -3,10 +3,11 @@ import fs from 'fs';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
-import { ActionQueueTypes } from 'shared/enums';
+import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { parseCupRound } from 'shared/util';
 import { parseCompType } from 'main/lib/util';
 import { League, Division, Cup } from 'main/lib/league';
+import { Minor } from 'main/lib/circuit';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
@@ -139,7 +140,7 @@ export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.
     date: queue.actionDate,
     quid: queue.id,
     region: compobj.Continent.name,
-    type: [ isleague, iscup ],
+    type: parseCompType( compobj.Comptype.name ),
   });
 }
 
@@ -169,7 +170,7 @@ function getTeamLogo( teamdata: Models.Team | null ) {
 
 function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], divId: string | number, confId: string | null ) {
   // bail if comptype is not a league
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+  const [ isleague ] = parseCompType( compobj.Comptype.name );
 
   if( !isleague ) {
     return [];
@@ -201,7 +202,7 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
     region: compobj.Continent.name,
     regioncode: compobj.Continent.code,
     regionId: compobj.Continent.id,
-    type: [ isleague, iscup ]
+    type: parseCompType( compobj.Comptype.name )
   };
 
   // bail if tournament not started
@@ -284,7 +285,7 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
 
 function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
   // bail if comptype is not a league
-  const [ isleague, iscup ] = parseCompType( compobj.Comptype.name );
+  const [ , iscup ] = parseCompType( compobj.Comptype.name );
 
   if( !iscup ) {
     return [];
@@ -301,7 +302,7 @@ function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
     region: compobj.Continent.name,
     regioncode: compobj.Continent.code,
     regionId: compobj.Continent.id,
-    type: [ isleague, iscup ]
+    type: parseCompType( compobj.Comptype.name )
   };
 
   // bail if tournament not started
@@ -340,6 +341,58 @@ function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
           logo: getTeamLogo( team2data ),
           ...team2
         },
+      });
+    })
+  }];
+}
+
+
+function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) {
+  // bail if comptype is not a league
+  const [ ,,, isminor ] = parseCompType( compobj.Comptype.name );
+
+  if( !isminor ) {
+    return [];
+  }
+
+  // load the minor object
+  const minorObj = Minor.restore( compobj.data );
+
+  // build base response object
+  const baseobj = {
+    competition: compobj.data.name,
+    competitionId: compobj.id,
+    isOpen: compobj.Compdef.isOpen,
+    region: compobj.Continent.name,
+    regioncode: compobj.Continent.code,
+    regionId: compobj.Continent.id,
+    type: parseCompType( compobj.Comptype.name )
+  };
+
+  // bail if tournament not started
+  if( !minorObj.started ) {
+    return [{
+      ...baseobj,
+      standings: [] as any[]
+    }];
+  }
+
+  // otherwise return the match data
+  // @todo: handle playoffs
+  const currstage = minorObj.getCurrentStage();
+
+  return [{
+    ...baseobj,
+    stageName: currstage.name,
+    standings: currstage.groupObj.results().map( item => {
+      const competitor = currstage.getCompetitorBySeed( item.seed );
+      const teamdata = teams.find( team => team.id === competitor.id );
+      return ({
+        ...item,
+        competitorInfo: {
+          ...competitor,
+          logo: getTeamLogo( teamdata )
+        }
       });
     })
   }];
@@ -453,8 +506,9 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
   }
 
   // get standings for the league types
-  const leagues = comps.filter( c => parseCompType( c.Comptype.name )[ 0 ] );
-  const cups = comps.filter( c => parseCompType( c.Comptype.name )[ 1 ] );
+  const leagues = comps.filter( c => c.Comptype.name === CompTypes.LEAGUE );
+  const cups = comps.filter( c => c.Comptype.name === CompTypes.LEAGUE_CUP );
+  const minors = comps.filter( c => c.Comptype.name === CompTypes.MINOR );
 
   // get the standings for league types
   const leaguedata = leagues
@@ -468,7 +522,13 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
     .filter( c => c.length > 0 )
   ;
 
-  evt.sender.send( req.responsechannel, JSON.stringify([ ...leaguedata, ...cupdata ]) );
+  // get the current stage standings/round for minors
+  const minordata = minors
+    .map( c => getMinorStageInfo( c, teams ) )
+    .filter( c => c.length > 0 )
+  ;
+
+  evt.sender.send( req.responsechannel, JSON.stringify([ ...leaguedata, ...cupdata, ...minordata ]) );
 }
 
 

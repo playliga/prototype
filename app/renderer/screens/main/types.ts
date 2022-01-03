@@ -43,6 +43,7 @@ export interface StandingsResponse {
   region: string;
   regioncode: string;
   regionId: number;
+  stageName?: string;
   standings?: any[];
   round?: any[];
   type: string[];
