@@ -6,6 +6,7 @@ import { parseCupRound } from 'shared/util';
 import { parseCompType } from 'main/lib/util';
 import { PromotionConference } from 'main/lib/league/types';
 import { Cup, Division, League } from 'main/lib/league';
+import { Minor } from 'main/lib/circuit';
 import * as Models from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
 
@@ -60,7 +61,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
     // populate the above vars depending
     // on the competition type
-    const [ isleague, iscup ] = parseCompType( matchobj.Competition.Comptype.name );
+    const [ isleague, iscup,, isminor ] = parseCompType( matchobj.Competition.Comptype.name );
 
     if( isleague ) {
       const leagueobj = League.restore( matchobj.Competition.data );
@@ -86,6 +87,14 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
       description = parseCupRound( cupobj.duelObj.findMatches( matchidpartial ) );
       team1id = cupobj.getCompetitorBySeed( matchobj.payload.match.p[ 0 ] ).id;
       team2id = cupobj.getCompetitorBySeed( matchobj.payload.match.p[ 1 ] ).id;
+    } else if( isminor ) {
+      // @todo: handle playoffs for minors
+      const minorObj = Minor.restore( matchobj.Competition.data );
+      const currStage = minorObj.getCurrentStage();
+      competition = minorObj.name;
+      description = currStage.name;
+      team1id = currStage.getCompetitorBySeed( matchobj.payload.match.p[ 0 ] ).id;
+      team2id = currStage.getCompetitorBySeed( matchobj.payload.match.p[ 1 ] ).id;
     }
 
     // fetch the team details and return the formatted data
@@ -98,7 +107,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
       season: matchobj.Competition.season,
       description,
       date: matchobj.date,
-      type: [ isleague, iscup ],
+      type: parseCompType( matchobj.Competition.Comptype.name ),
       match: {
         ...matchobj.payload.match,
         team1: {
