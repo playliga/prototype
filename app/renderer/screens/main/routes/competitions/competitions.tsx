@@ -58,6 +58,8 @@ function Competition( props: CompetitionProps ) {
   React.useEffect( () => {
     if( isminor && props.data.standings.length > 0 ) {
       setStandings( props.data.standings[ 0 ] );
+    } else {
+      setStandings( props.data.standings );
     }
   }, [ props.data.standings ]);
 
