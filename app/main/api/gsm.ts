@@ -30,6 +30,7 @@ import { parseCupRound, parseMapForMatch, snooze, toOrdinalSuffix } from 'shared
 import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
+import { Minor } from 'main/lib/circuit';
 
 
 /**
@@ -75,7 +76,8 @@ let competition: Models.Competition;
 let queue: Models.ActionQueue;
 let isleague: boolean;
 let iscup: boolean;
-let compobj: League | Cup;
+let isminor: boolean;
+let compobj: League | Cup | Minor;
 let hostname_suffix: string;
 let conf: Conference | PromotionConference;
 let divobj: Division;
@@ -119,7 +121,7 @@ async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayReque
   cvar_freezetime = profile.settings.freezetime || GameSettings.SERVER_CVAR_FREEZETIME;
   competition = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).find( c => c.id === ipcreq.params.compId );
   queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
-  [ isleague, iscup ] = parseCompType( competition.Comptype.name );
+  [ isleague, iscup,, isminor ] = parseCompType( competition.Comptype.name );
 
   // set up cs16-specific vars
   if( cs16_enabled ) {
@@ -851,6 +853,20 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     team1 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 0 ] ).name );
     team2 = await Models.Team.findByName( cupobj.getCompetitorBySeed( match.p[ 1 ] ).name );
     hostname_suffix = parseCupRound( cupobj.duelObj.currentRound() );
+    motd_team1_subtitle = Tiers[ team1.tier ].name;
+    motd_team2_subtitle = Tiers[ team2.tier ].name;
+  } else if( isminor ) {
+    // @todo: handle playoffs for minors
+    const minorObj = Minor.restore( competition.data );
+    const currStage = minorObj.getCurrentStage();
+    allow_ot = false;
+    allow_draw = true;
+    compobj = minorObj;
+    tourneyobj = currStage.groupObj;
+    match = tourneyobj.findMatch( request.params.matchId );
+    team1 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 0 ] ).name );
+    team2 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 1 ] ).name );
+    hostname_suffix = currStage.name;
     motd_team1_subtitle = Tiers[ team1.tier ].name;
     motd_team2_subtitle = Tiers[ team2.tier ].name;
   }
