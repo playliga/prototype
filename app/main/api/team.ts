@@ -92,8 +92,8 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
       const stage = minorObj.stages.find( s => s.name === matchobj.payload.stageName );
       competition = minorObj.name;
       description = stage.name;
-      team1id = stage.getCompetitorBySeed( matchobj.payload.match.p[ 0 ], !!stage.duelObj ).id;
-      team2id = stage.getCompetitorBySeed( matchobj.payload.match.p[ 1 ], !!stage.duelObj ).id;
+      team1id = stage.getCompetitorBySeed( matchobj.payload.match.p[ 0 ], matchobj.payload.is_playoffs || false ).id;
+      team2id = stage.getCompetitorBySeed( matchobj.payload.match.p[ 1 ], matchobj.payload.is_playoffs || false ).id;
     }
 
     // fetch the team details and return the formatted data

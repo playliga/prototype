@@ -89,6 +89,7 @@ let team2: Models.Team;
 let tourneyobj: Tournament;
 let allow_draw = false;
 let is_postseason: boolean;
+let is_playoffs: boolean;
 let cvar_maxrounds: number;
 let cvar_freezetime: number;
 
@@ -764,6 +765,7 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
       confId: conf?.id,
       divId: divobj?.name,
       is_postseason: is_postseason || false,
+      is_playoffs: is_playoffs || false,
       stageName: currStage ? currStage.name : null,
     },
     date: profile.currentDate,
@@ -861,12 +863,13 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     const minorObj = Minor.restore( competition.data );
     compobj = minorObj;
     currStage = compobj.getCurrentStage();
-    allow_ot = !!currStage.duelObj;
-    allow_draw = !currStage.duelObj;
+    is_playoffs = !!currStage.duelObj;
+    allow_ot = is_playoffs;
+    allow_draw = !is_playoffs;
     tourneyobj = currStage.duelObj || currStage.groupObj;
     match = tourneyobj.findMatch( request.params.matchId );
-    team1 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 0 ], !!currStage.duelObj ).name );
-    team2 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 1 ], !!currStage.duelObj ).name );
+    team1 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 0 ], is_playoffs ).name );
+    team2 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 1 ], is_playoffs ).name );
     hostname_suffix = currStage.name;
     motd_team1_subtitle = Tiers[ team1.tier ].name;
     motd_team2_subtitle = Tiers[ team2.tier ].name;
@@ -898,6 +901,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
         confId: conf?.id,
         divId: divobj ? divobj.name : null,
         is_postseason: is_postseason || false,
+        is_playoffs: is_playoffs || false,
         stageName: currStage ? currStage.name : null,
       },
       date: profile.currentDate,
