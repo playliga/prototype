@@ -1,4 +1,5 @@
 import { flatten } from 'lodash';
+import { MatchId } from '../league/types';
 import Stage from './stage';
 
 
@@ -81,5 +82,17 @@ export default class Minor {
 
   public isDone() {
     return this.stages.every( stage => stage.isDone() );
+  }
+
+  public matchesDone( idpartial: Partial<MatchId> ) {
+    // bail if not in playoffs
+    const currStage = this.getCurrentStage();
+
+    if( !currStage.playoffs || !currStage.duelObj ) {
+      return false;
+    }
+
+    const matches = currStage.duelObj.findMatches( idpartial );
+    return matches.every( m => Array.isArray( m.m ) );
   }
 }

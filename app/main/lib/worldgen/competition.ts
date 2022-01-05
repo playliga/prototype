@@ -517,6 +517,7 @@ export async function simNPCMatchday( item: any ) {
   match.m = Score( team1, team2 ) as [ number, number ];
 
   // we can't have any ties during playoffs or cup-ties
+  // @todo: handle playoffs for minors
   if( ( ( isleague && is_postseason ) || iscup ) && match.m[ 0 ] === match.m[ 1 ] ) {
     log.error( '>> COULD NOT SCORE.', match.m, team1.name, team2.name );
     log.error(` >> GENERATING A NEW ONE WHERE ${team2.name} ALWAYS WINS...` );
@@ -656,13 +657,20 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, co
     tourneyobj.score( payload.match.id, payload.match.m );
   }
 
-  // if it's post-season or a cup, will we need to gen new match days?
-  // @todo: handle next stage for minors
-  const matchuuid = { s: payload.match.id.s, r: payload.match.id.r };
-  return (
-    ( ( isleague && compobj.isGroupStageDone() ) || iscup )
-    && compobj.matchesDone( matchuuid )
-  );
+  // gen new matches if any of these return true
+  const roundIsDone = compobj.matchesDone({ s: payload.match.id.s, r: payload.match.id.r });
+  const conditions = [
+    // postseason matches are done?
+    isleague && compobj.isGroupStageDone() && roundIsDone,
+
+    // cup round is over?
+    iscup && roundIsDone,
+
+    // start the next stage of the minor?
+    isminor && compobj.start()
+  ];
+
+  return conditions.includes( true );
 }
 
 
@@ -703,6 +711,11 @@ export async function recordTodaysMatchResults() {
     if( genNewMatches && !compobj.isDone() ) {
       if( isleague && compobj.startPostSeason() ) {
         ( compobj as League ).divisions.forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
+      }
+
+      if( isminor ) {
+        // @todo: handle playoffs for minors
+        genMappool( compobj.getCurrentStage().groupObj.rounds() );
       }
 
       competition.data = compobj.save();
