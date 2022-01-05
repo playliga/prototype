@@ -30,7 +30,7 @@ import { parseCupRound, parseMapForMatch, snooze, toOrdinalSuffix } from 'shared
 import { parseCompType, walk } from 'main/lib/util';
 import { Match, Tournament, MatchId, Conference, PromotionConference } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
-import { Minor } from 'main/lib/circuit';
+import { Minor, Stage } from 'main/lib/circuit';
 
 
 /**
@@ -82,6 +82,7 @@ let hostname_suffix: string;
 let conf: Conference | PromotionConference;
 let divobj: Division;
 let match: Match;
+let currStage: Stage;
 let allow_ot: boolean;
 let team1: Models.Team;
 let team2: Models.Team;
@@ -763,6 +764,7 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
       confId: conf?.id,
       divId: divobj?.name,
       is_postseason: is_postseason || false,
+      stageName: currStage ? currStage.name : null,
     },
     date: profile.currentDate,
   });
@@ -858,7 +860,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   } else if( isminor ) {
     // @todo: handle playoffs for minors
     const minorObj = Minor.restore( competition.data );
-    const currStage = minorObj.getCurrentStage();
+    currStage = minorObj.getCurrentStage();
     allow_ot = false;
     allow_draw = true;
     compobj = minorObj;
@@ -897,6 +899,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
         confId: conf?.id,
         divId: divobj ? divobj.name : null,
         is_postseason: is_postseason || false,
+        stageName: currStage ? currStage.name : null,
       },
       date: profile.currentDate,
     });

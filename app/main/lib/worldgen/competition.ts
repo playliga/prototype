@@ -531,6 +531,7 @@ export async function simNPCMatchday( item: any ) {
       confId: item.payload?.confId,
       divId: item.payload?.divId,
       is_postseason: is_postseason,
+      stageName: item.payload?.stageName,
     },
     date: item.actionDate,
   });
