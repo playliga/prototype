@@ -77,14 +77,18 @@ export default class Stage {
     this.competitors = this.competitors.filter( c => c.id !== id );
   }
 
-  public getCompetitorBySeed( seed: number ) {
-    // @todo: handle playoffs
-    return this.competitors[ seed - 1 ];
+  public getCompetitorBySeed( seed: number, fromPlayoffs = false ) {
+    return fromPlayoffs
+      ? this.playoffCompetitors[ seed - 1]
+      : this.competitors[ seed - 1 ]
+    ;
   }
 
-  public getCompetitorSeedNumById( id: number ) {
-    // @todo: handle playoffs
-    const idx = this.competitors.findIndex( c => c.id === id );
+  public getCompetitorSeedNumById( id: number, fromPlayoffs = false ) {
+    const idx = fromPlayoffs
+      ? this.playoffCompetitors.findIndex( c => c.id === id )
+      : this.competitors.findIndex( c => c.id === id )
+    ;
 
     // found! seeds start at 1 so bump if 0
     return idx > - 1
@@ -101,22 +105,10 @@ export default class Stage {
   }
 
   public isDone() {
-    // are there playoffs still left to be played?
-    const groupStageDone = this.groupObj.isDone();
-
-    if( this.playoffs && groupStageDone && !this.duelObj ) {
-      // @todo: - handle tiebreakers and use Duel.from
-      //        - https://www.npmjs.com/package/groupstage#tiebreaking
-      const winners = flatten( this.getGroupWinners() );
-      this.playoffCompetitors = winners.map( ctr => this.getCompetitorBySeed( ctr.seed ) );
-      this.duelObj = new Duel( this.playoffCompetitors.length, { short: true });
-      return false;
-    }
-
     // are both groupstage and playoffs matches done?
-    return groupStageDone && (
+    return this.isGroupStageDone() && (
       this.playoffs
-        ? this.duelObj.isDone()
+        ? this.duelObj && this.duelObj.isDone()
         : true
     );
   }
@@ -135,5 +127,23 @@ export default class Stage {
       .getGroupResults()
       .map( group => group.slice( 0, this.groupQualifyNum ) )
     ;
+  }
+
+  public isGroupStageDone() {
+    return this.groupObj && this.groupObj.isDone();
+  }
+
+  public startPlayoffs() {
+    // bail if we don't support playoffs or they have already been started
+    if( !this.playoffs || !this.isGroupStageDone() || this.duelObj ) {
+      return false;
+    }
+
+    // @todo: - handle tiebreakers and use Duel.from
+    //        - https://www.npmjs.com/package/groupstage#tiebreaking
+    const winners = flatten( this.getGroupWinners() );
+    this.playoffCompetitors = winners.map( ctr => this.getCompetitorBySeed( ctr.seed ) );
+    this.duelObj = new Duel( this.playoffCompetitors.length, { short: true });
+    return true;
   }
 }

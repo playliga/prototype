@@ -100,6 +100,7 @@ describe( 'global circuit stage', () => {
     stageObj.start();
     generateGroupStageScores( stageObj.groupObj );
     expect( stageObj.isDone() ).toBeTruthy();
+    expect( stageObj.isGroupStageDone() ).toBeTruthy();
   });
 
   it( 'checks that playoffs are done', () => {
@@ -107,6 +108,7 @@ describe( 'global circuit stage', () => {
     stageObj.playoffs = true;
     generateGroupStageScores( stageObj.groupObj );
     expect( stageObj.isDone() ).toBeFalsy();
+    expect( stageObj.startPlayoffs() ).toBeTruthy();
     generatePlayoffScores( stageObj.duelObj );
     expect( stageObj.isDone() ).toBeTruthy();
   });

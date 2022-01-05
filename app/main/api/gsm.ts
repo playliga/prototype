@@ -858,16 +858,15 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     motd_team1_subtitle = Tiers[ team1.tier ].name;
     motd_team2_subtitle = Tiers[ team2.tier ].name;
   } else if( isminor ) {
-    // @todo: handle playoffs for minors
     const minorObj = Minor.restore( competition.data );
-    currStage = minorObj.getCurrentStage();
-    allow_ot = false;
-    allow_draw = true;
     compobj = minorObj;
-    tourneyobj = currStage.groupObj;
+    currStage = compobj.getCurrentStage();
+    allow_ot = !!currStage.duelObj;
+    allow_draw = !currStage.duelObj;
+    tourneyobj = currStage.duelObj || currStage.groupObj;
     match = tourneyobj.findMatch( request.params.matchId );
-    team1 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 0 ] ).name );
-    team2 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 1 ] ).name );
+    team1 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 0 ], !!currStage.duelObj ).name );
+    team2 = await Models.Team.findByName( currStage.getCompetitorBySeed( match.p[ 1 ], !!currStage.duelObj ).name );
     hostname_suffix = currStage.name;
     motd_team1_subtitle = Tiers[ team1.tier ].name;
     motd_team2_subtitle = Tiers[ team2.tier ].name;

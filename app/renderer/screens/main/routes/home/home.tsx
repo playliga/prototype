@@ -199,7 +199,6 @@ function Home( props: Props ) {
 
   // for minors, override standings to user's group
   // @note: only override if standings is a nested array
-  // @todo: handle playoffs for minors
   if( hasStandings && isminor && standings[ 0 ].standings && Array.isArray( standings[ 0 ].standings[ 0 ] ) ) {
     standings[ 0 ].standings.every( group => {
       if( group.findIndex( ( s: any ) => s.competitorInfo.id === profile.data.Team.id ) >= 0 ) {
@@ -286,14 +285,13 @@ function Home( props: Props ) {
           </Col>
 
           {/* STANDINGS PREVIEW */}
-          {/* @todo: handle playoffs for minors */}
           <Col span={COLSIZE_STANDINGS}>
             <Card
-              title={iscup ? 'Cup Matches' :'League Table'}
+              title={iscup ? 'Cup Matches' : 'League Table'}
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
-              {( ( isleague && !ispostseason ) || isminor ) && (
+              {( ( isleague && !ispostseason ) || ( isminor && hasStandings && !!standings[ 0 ].standings ) ) && (
                 <Standings
                   disablePagination
                   highlightSeed={seednum}
@@ -313,7 +311,7 @@ function Home( props: Props ) {
                   onClick={id => props.history.push( `/home/team/${id}` )}
                 />
               )}
-              {( iscup || ispostseason ) && (
+              {( iscup || ispostseason || ( isminor && hasStandings && !!standings[ 0 ].round ) ) && (
                 <MatchResults
                   pageSize={NUM_CUP_MATCHES}
                   dataSource={hasStandings && standings[ 0 ].round}

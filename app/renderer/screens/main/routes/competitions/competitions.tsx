@@ -48,15 +48,14 @@ function Competition( props: CompetitionProps ) {
   const notstarted = [
     isleague && props.data.standings.length === 0,
     iscup && props.data.round.length === 0,
-    isminor && props.data.standings.length === 0, // @todo: handle playoffs
+    isminor && ( ( props.data.standings && props.data.standings.length === 0 ) || ( props.data.round && props.data.round.length === 0 ) ),
   ];
 
   // for minors, just render the first group
-  // @todo: handle playoffs for minors
   const [ standings, setStandings ] = React.useState<any[]>([]);
 
   React.useEffect( () => {
-    if( isminor && props.data.standings.length > 0 ) {
+    if( isminor && props.data.standings && props.data.standings.length > 0 ) {
       setStandings( props.data.standings[ 0 ] );
     } else {
       setStandings( props.data.standings );
@@ -105,8 +104,7 @@ function Competition( props: CompetitionProps ) {
       )}
 
       {/* LEAGUE/MINOR STARTED: SHOW STANDINGS */}
-      {/* @todo: handle playoffs for minors */}
-      {( isleague || isminor ) && standings.length > 0 && (
+      {( isleague || isminor ) && standings && standings.length > 0 && (
         <Standings
           disablePagination
           sliceData={NUM_STANDINGS}
@@ -121,7 +119,7 @@ function Competition( props: CompetitionProps ) {
       )}
 
       {/* CUP STARTED */}
-      {iscup && props.data.round.length > 0 && (
+      {( iscup || isminor ) && props.data.round && props.data.round.length > 0 && (
         <MatchResults
           sliceData={NUM_CUP_MATCHES}
           title={parseCupRound( props.data.round )}

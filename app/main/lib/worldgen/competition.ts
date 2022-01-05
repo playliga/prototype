@@ -6,7 +6,7 @@ import { random, flattenDeep, shuffle, flatten, groupBy } from 'lodash';
 import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
 import { League, Cup, Division, Competitor } from 'main/lib/league';
-import { Minor } from 'main/lib/circuit';
+import { Minor, Stage } from 'main/lib/circuit';
 import { parseCompType } from 'main/lib/util';
 import log from 'electron-log';
 
@@ -246,6 +246,7 @@ async function genMinorMatchdays( comp: Models.Competition ) {
   const minorObj = Minor.restore( comp.data );
   const currStage = minorObj.getCurrentStage();
   const tourneyObj = currStage.duelObj || currStage.groupObj;
+  const isPlayoffs = currStage.duelObj && currStage.playoffCompetitors && currStage.playoffCompetitors.length > 0;
 
   // bail if tourney is finished
   if( minorObj.isDone() ) {
@@ -256,29 +257,38 @@ async function genMinorMatchdays( comp: Models.Competition ) {
   let userseed: number;
 
   if( joined ) {
-    userseed = currStage.getCompetitorSeedNumById( profile.Team.id );
+    userseed = currStage.getCompetitorSeedNumById( profile.Team.id, isPlayoffs );
   }
 
-  // @todo: handle playoffs
-  const matches = tourneyObj.rounds().map( ( rnd, idx ) => {
-    return rnd.map( m => ({
-      type: m.p.includes( userseed )
-        ? ActionQueueTypes.MATCHDAY
-        : ActionQueueTypes.MATCHDAY_NPC
-      ,
-      actionDate: getWeekday(
-        comp.Comptype.name,
-        moment( profile.currentDate ).add( idx + 1, 'weeks' )
-      ),
-      payload: {
-        compId: comp.id,
-        match: m,
-        stageName: currStage.name,
-        team1Id: currStage.getCompetitorBySeed( m.p[ 0 ] ).id,
-        team2Id: currStage.getCompetitorBySeed( m.p[ 1 ] ).id,
-      }
-    }));
+  // generate the match action queue item
+  const genMatchActionQueue = ( m: Match, offset = 1 ) => ({
+    type: m.p.includes( userseed )
+      ? ActionQueueTypes.MATCHDAY
+      : ActionQueueTypes.MATCHDAY_NPC
+    ,
+    actionDate: getWeekday(
+      comp.Comptype.name,
+      moment( profile.currentDate ).add( offset + 1, 'weeks' )
+    ),
+    payload: {
+      compId: comp.id,
+      match: m,
+      stageName: currStage.name,
+      team1Id: currStage.getCompetitorBySeed( m.p[ 0 ] ).id,
+      team2Id: currStage.getCompetitorBySeed( m.p[ 1 ] ).id,
+    }
   });
+
+  // generate the matches
+  const matches = isPlayoffs
+    ? tourneyObj
+      .currentRound()
+      .filter( m => tourneyObj.unscorable( m.id, [ 0, 1 ] ) === null )
+      .map( m => genMatchActionQueue( m ) )
+    : tourneyObj
+      .rounds()
+      .map( ( rnd, idx ) => rnd.map( m => genMatchActionQueue( m, idx ) ) )
+  ;
 
   // save as a single matchday
   return Promise.resolve([ matches ]);
@@ -507,9 +517,17 @@ export async function syncTiers() {
 export async function simNPCMatchday( item: any ) {
   // grab competition info
   const competition = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
-  const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
+  const [ isleague, iscup,, isminor ] = parseCompType( competition.Comptype.name );
   const match: Match = item.payload.match;
   const is_postseason = isleague && (competition.data.divisions as Division[]).every( d => d.promotionConferences.length > 0 );
+
+  // for minors, is this match a playoff game?
+  let is_playoffs = false;
+
+  if( isminor ) {
+    const currStage = ( competition.data.stages as Stage[] ).find( s => s.name === item.payload?.stageName );
+    is_playoffs = currStage.duelObj && currStage.duelObj.matches.some( m => m.id === match.id );
+  }
 
   // sim the match
   const team1 = await Models.Team.findWithSquad( item.payload.team1Id );
@@ -517,8 +535,7 @@ export async function simNPCMatchday( item: any ) {
   match.m = Score( team1, team2 ) as [ number, number ];
 
   // we can't have any ties during playoffs or cup-ties
-  // @todo: handle playoffs for minors
-  if( ( ( isleague && is_postseason ) || iscup ) && match.m[ 0 ] === match.m[ 1 ] ) {
+  if( ( ( isleague && is_postseason ) || iscup || is_playoffs ) && match.m[ 0 ] === match.m[ 1 ] ) {
     log.error( '>> COULD NOT SCORE.', match.m, team1.name, team2.name );
     log.error(` >> GENERATING A NEW ONE WHERE ${team2.name} ALWAYS WINS...` );
     match.m = [ random( 0, 14 ), 16 ];
@@ -531,6 +548,7 @@ export async function simNPCMatchday( item: any ) {
       confId: item.payload?.confId,
       divId: item.payload?.divId,
       is_postseason: is_postseason,
+      is_playoffs: is_playoffs,
       stageName: item.payload?.stageName,
     },
     date: item.actionDate,
@@ -592,7 +610,6 @@ export function start( comp: Models.Competition ) {
   } else if( isminor ) {
     data = Minor.restore( comp.data );
     data.start();
-    // @todo: handle playoffs
     genMappool( data.getCurrentStage().groupObj.rounds() );
   }
 
@@ -649,8 +666,7 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, co
   } else if( iscup ) {
     tourneyobj = compobj.duelObj;
   } else if( isminor ) {
-    // @todo: handle playoffs
-    tourneyobj = compobj.getCurrentStage().groupObj;
+    tourneyobj = compobj.getCurrentStage().duelObj || compobj.getCurrentStage().groupObj;
   }
 
   // record the score
@@ -667,8 +683,28 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, co
     // cup round is over?
     iscup && roundIsDone,
 
-    // start the next stage of the minor?
-    isminor && compobj.start()
+    // minors are a bit more complex
+    //
+    // first, if we're in playoffs check if the round is over
+    isminor && roundIsDone,
+
+    // now check if groupstage is done
+    // and we need to start the playoffs
+    isminor && ( () => {
+      const currStage: Stage = compobj.getCurrentStage();
+
+      // start the next stage of the minor?
+      if( compobj.start() ) {
+        return true;
+      }
+
+      // does this stage have playoffs to start?
+      return (
+        currStage.playoffs
+        && currStage.isGroupStageDone()
+        && !currStage.duelObj
+      );
+    })()
   ];
 
   return conditions.includes( true );
@@ -715,8 +751,14 @@ export async function recordTodaysMatchResults() {
       }
 
       if( isminor ) {
-        // @todo: handle playoffs for minors
-        genMappool( compobj.getCurrentStage().groupObj.rounds() );
+        const currStage: Stage = compobj.getCurrentStage();
+
+        // do we need to start the playoffs?
+        if( currStage.playoffs && currStage.isGroupStageDone() && !currStage.duelObj && currStage.startPlayoffs() ) {
+          genMappool( currStage.duelObj.rounds() );
+        } else {
+          genMappool( currStage.groupObj.rounds() );
+        }
       }
 
       competition.data = compobj.save();

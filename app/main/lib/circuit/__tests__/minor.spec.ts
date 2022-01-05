@@ -125,7 +125,7 @@ describe( 'global circuit minor', () => {
       generateGroupStageScores( stage.groupObj );
 
       // generate playoffs scores
-      if( !stage.isDone() && stage.playoffs ) {
+      if( !stage.isDone() && stage.startPlayoffs() ) {
         generatePlayoffScores( stage.duelObj );
       }
     });

@@ -112,10 +112,11 @@ function formatCupMatchdata( queue: Models.ActionQueue, compobj: Models.Competit
 
 function formatMinorMatchdata( queue: Models.ActionQueue, compobj: Models.Competition, teams: Models.Team[] ) {
   const minorObj = Minor.restore( compobj.data );
-  const currStage = minorObj.getCurrentStage();
+  const currStage = minorObj.stages.find( s => s.name === queue.payload.stageName );
 
-  // @todo: handle playoffs
-  const match = currStage.groupObj.findMatch( queue.payload.match.id );
+  // @note: will we need to know if this is a playoffs match or not?
+  const tourneyObj = currStage.duelObj || currStage.groupObj;
+  const match = tourneyObj.findMatch( queue.payload.match.id );
   const team1 = currStage.getCompetitorBySeed( match.p[ 0 ] );
   const team2 = currStage.getCompetitorBySeed( match.p[ 1 ] );
   const team1data = teams.find( team => team.id === team1.id );
@@ -409,10 +410,43 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
     }];
   }
 
-  // otherwise return the match data
-  // @todo: handle playoffs
+  // first, handle playoffs standings
   const currstage = minorObj.getCurrentStage();
 
+  if( currstage.duelObj ) {
+    let matches;
+
+    if( currstage.duelObj.isDone() ) {
+      matches = currstage.duelObj.matches.slice( -1 );
+    } else {
+      matches = currstage.duelObj.currentRound();
+    }
+
+    return [{
+      ...baseobj,
+      round: matches.map( match => {
+        const team1 = currstage.getCompetitorBySeed( match.p[ 0 ], true );
+        const team2 = currstage.getCompetitorBySeed( match.p[ 1 ], true );
+        const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
+        const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
+        return ({
+          ...match,
+          team1: {
+            seed: match.p[ 0 ],
+            logo: getTeamLogo( team1data ),
+            ...team1,
+          },
+          team2: {
+            seed: match.p[ 1 ],
+            logo: getTeamLogo( team2data ),
+            ...team2
+          },
+        });
+      })
+    }];
+  }
+
+  // otherwise, must be group stage standings we want
   return [{
     ...baseobj,
     stageName: currstage.name,
