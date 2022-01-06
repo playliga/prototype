@@ -114,10 +114,10 @@ function formatMinorMatchdata( queue: Models.ActionQueue, compobj: Models.Compet
   const minorObj = Minor.restore( compobj.data );
   const currStage = minorObj.stages.find( s => s.name === queue.payload.stageName );
 
-  const tourneyObj = currStage.duelObj || currStage.groupObj;
+  const tourneyObj = queue.payload.is_playoffs ? currStage.duelObj : currStage.groupObj;
   const match = tourneyObj.findMatch( queue.payload.match.id );
-  const team1 = currStage.getCompetitorBySeed( match.p[ 0 ], !!currStage.duelObj );
-  const team2 = currStage.getCompetitorBySeed( match.p[ 1 ], !!currStage.duelObj );
+  const team1 = currStage.getCompetitorBySeed( match.p[ 0 ], queue.payload.is_playoffs );
+  const team2 = currStage.getCompetitorBySeed( match.p[ 1 ], queue.payload.is_playoffs );
   const team1data = teams.find( team => team.id === team1.id );
   const team2data = teams.find( team => team.id === team2.id );
 
