@@ -50,10 +50,6 @@ function flattenCompetition( compobj: Models.Competition ) {
 
 function getWeekday( type: string, date: moment.Moment ) {
   switch( type ) {
-    case CompTypes.CHAMPIONS_LEAGUE: {
-      const day = random( 0, Application.MATCHDAYS_CHAMPLEAGUE.length - 1 );
-      return date.weekday( Application.MATCHDAYS_CHAMPLEAGUE[ day ] );
-    }
     case CompTypes.LEAGUE: {
       const day = random( 0, Application.MATCHDAYS_LEAGUE.length - 1 );
       return date.weekday( Application.MATCHDAYS_LEAGUE[ day ] );
@@ -62,7 +58,8 @@ function getWeekday( type: string, date: moment.Moment ) {
       const day = random( 0, Application.MATCHDAYS_LEAGUECUP.length - 1 );
       return date.weekday( Application.MATCHDAYS_LEAGUECUP[ day ] );
     }
-    case CompTypes.MINOR: {
+    case CompTypes.CIRCUIT_MAJOR:
+    case CompTypes.CIRCUIT_MINOR: {
       const day = random( 0, Application.MATCHDAYS_MINOR.length - 1 );
       return date.weekday( Application.MATCHDAYS_MINOR[ day ] );
     }
@@ -340,7 +337,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
         case CompTypes.LEAGUE:
           prevtourney = League.restore( prevcomp.data );
           break;
-        case CompTypes.MINOR:
+        case CompTypes.CIRCUIT_MINOR:
           prevtourney = Minor.restore( prevcomp.data );
           break;
       }
@@ -356,7 +353,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     }
 
     // build the league or cup object
-    const [ isleague, iscup,, isminor ] = parseCompType( compdef.Comptype.name );
+    const [ isleague, iscup, iscircuit ] = parseCompType( compdef.Comptype.name );
     let data: League | Cup | Minor;
 
     if( isleague ) {
@@ -387,7 +384,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
         data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
         compteams = allteams;
       }
-    } else if( isminor ) {
+    } else if( iscircuit ) {
       data = new Minor( compdef.name );
 
       compdef.tiers.forEach( tier => {
@@ -583,7 +580,7 @@ export function genMappool( rounds: Match[][] ) {
  */
 
 export function start( comp: Models.Competition ) {
-  const [ isleague, iscup,, isminor ] = parseCompType( comp.Comptype.name );
+  const [ isleague, iscup, iscircuit ] = parseCompType( comp.Comptype.name );
   let data: League | Cup | Minor;
 
   if( isleague ) {
@@ -600,7 +597,7 @@ export function start( comp: Models.Competition ) {
     data = Cup.restore( comp.data );
     data.start();
     genMappool( data.duelObj.rounds() );
-  } else if( isminor ) {
+  } else if( iscircuit ) {
     data = Minor.restore( comp.data );
     data.start();
     genMappool( data.getCurrentStage().groupObj.rounds() );
@@ -615,14 +612,14 @@ export function start( comp: Models.Competition ) {
  */
 
 export async function genMatchdays( comp: Models.Competition ) {
-  const [ isleague, iscup,, isminor ] = parseCompType( comp.Comptype.name );
+  const [ isleague, iscup, iscircuit ] = parseCompType( comp.Comptype.name );
   let matchdays: any[];
 
   if( isleague ) {
     matchdays = await genLeagueMatchdays( comp );
   } else if( iscup ) {
     matchdays = await genCupMatchdays( comp );
-  } else if( isminor ) {
+  } else if( iscircuit ) {
     matchdays = await genMinorMatchdays( comp );
   }
 
@@ -642,7 +639,7 @@ export async function genMatchdays( comp: Models.Competition ) {
 
 function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, compinfo: boolean[] ) {
   const payload = JSON.parse( match.payload );
-  const [ isleague, iscup,, isminor ] = compinfo;
+  const [ isleague, iscup, iscircuit ] = compinfo;
   let tourneyobj: Tournament;
 
   if( isleague ) {
@@ -658,7 +655,7 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, co
     }
   } else if( iscup ) {
     tourneyobj = compobj.duelObj;
-  } else if( isminor ) {
+  } else if( iscircuit ) {
     tourneyobj = compobj.getCurrentStage().duelObj || compobj.getCurrentStage().groupObj;
   }
 
@@ -676,14 +673,14 @@ function recordMatchItem( match: Models.Match, compobj: League | Cup | Minor, co
     // cup round is over?
     iscup && roundIsDone,
 
-    // minors are a bit more complex
+    // circuits are a bit more complex
     //
     // first, if we're in playoffs check if the round is over
-    isminor && roundIsDone,
+    iscircuit && roundIsDone,
 
     // now check if groupstage is done
     // and we need to start the playoffs
-    isminor && ( () => {
+    iscircuit && ( () => {
       const currStage: Stage = compobj.getCurrentStage();
 
       // start the next stage of the minor?
@@ -720,7 +717,7 @@ export async function recordTodaysMatchResults() {
   return Promise.all( competitionIds.map( async competitionId => {
     // load competition details
     const competition = await Models.Competition.findByPk( competitionId, { include: [ 'Comptype' ] });
-    const [ isleague, iscup, ischampionsleague, isminor ] = parseCompType( competition.Comptype.name );
+    const [ isleague, iscup, iscircuit ] = parseCompType( competition.Comptype.name );
 
     let compobj: League | Cup | Minor;
 
@@ -728,13 +725,13 @@ export async function recordTodaysMatchResults() {
       compobj = League.restore( competition.data );
     } else if( iscup ) {
       compobj = Cup.restore( competition.data );
-    } else if( isminor ) {
+    } else if( iscircuit ) {
       compobj = Minor.restore( competition.data );
     }
 
     // record match results
     const matches = groupedMatches[ competitionId ];
-    const matchresults = matches.map( match => recordMatchItem( match, compobj, [ isleague, iscup, ischampionsleague, isminor ] ) );
+    const matchresults = matches.map( match => recordMatchItem( match, compobj, [ isleague, iscup, iscircuit ] ) );
     const genNewMatches = matchresults.includes( true );
 
     // do we need to generate new matchdays?
@@ -743,7 +740,7 @@ export async function recordTodaysMatchResults() {
         ( compobj as League ).divisions.forEach( d => d.promotionConferences.forEach( dd => genMappool( dd.duelObj.rounds() ) ) );
       }
 
-      if( isminor ) {
+      if( iscircuit ) {
         const currStage: Stage = compobj.getCurrentStage();
 
         // do we need to start the playoffs?

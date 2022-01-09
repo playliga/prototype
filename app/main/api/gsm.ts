@@ -76,7 +76,7 @@ let competition: Models.Competition;
 let queue: Models.ActionQueue;
 let isleague: boolean;
 let iscup: boolean;
-let isminor: boolean;
+let iscircuit: boolean;
 let compobj: League | Cup | Minor;
 let hostname_suffix: string;
 let conf: Conference | PromotionConference;
@@ -123,7 +123,7 @@ async function initAsyncVars( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayReque
   cvar_freezetime = profile.settings.freezetime || GameSettings.SERVER_CVAR_FREEZETIME;
   competition = ( await Models.Competition.findAllByTeam( profile.Team.id ) ).find( c => c.id === ipcreq.params.compId );
   queue = await Models.ActionQueue.findByPk( ipcreq.params.quid );
-  [ isleague, iscup,, isminor ] = parseCompType( competition.Comptype.name );
+  [ isleague, iscup, iscircuit ] = parseCompType( competition.Comptype.name );
 
   // set up cs16-specific vars
   if( cs16_enabled ) {
@@ -859,7 +859,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
     hostname_suffix = parseCupRound( cupobj.duelObj.currentRound() );
     motd_team1_subtitle = Tiers[ team1.tier ].name;
     motd_team2_subtitle = Tiers[ team2.tier ].name;
-  } else if( isminor ) {
+  } else if( iscircuit ) {
     const minorObj = Minor.restore( competition.data );
     compobj = minorObj;
     currStage = compobj.getCurrentStage();

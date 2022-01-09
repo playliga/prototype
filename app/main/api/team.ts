@@ -61,7 +61,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
     // populate the above vars depending
     // on the competition type
-    const [ isleague, iscup,, isminor ] = parseCompType( matchobj.Competition.Comptype.name );
+    const [ isleague, iscup, iscircuit ] = parseCompType( matchobj.Competition.Comptype.name );
 
     if( isleague ) {
       const leagueobj = League.restore( matchobj.Competition.data );
@@ -87,7 +87,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
       description = parseCupRound( cupobj.duelObj.findMatches( matchidpartial ) );
       team1id = cupobj.getCompetitorBySeed( matchobj.payload.match.p[ 0 ] ).id;
       team2id = cupobj.getCompetitorBySeed( matchobj.payload.match.p[ 1 ] ).id;
-    } else if( isminor ) {
+    } else if( iscircuit ) {
       const minorObj = Minor.restore( matchobj.Competition.data );
       const stage = minorObj.stages.find( s => s.name === matchobj.payload.stageName );
       competition = minorObj.name;

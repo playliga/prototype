@@ -158,7 +158,7 @@ function Home( props: Props ) {
   const refreshUpcoming = hasUpcoming && moment( profile.data.currentDate ).isAfter( upcoming[ 0 ].date );
   const isleague = hasUpcoming && upcoming[ 0 ].type[ 0 ];
   const iscup = hasUpcoming && upcoming[ 0 ].type[ 1 ];
-  const isminor = hasUpcoming && upcoming[ 0 ].type[ 3 ];
+  const iscircuit = hasUpcoming && upcoming[ 0 ].type[ 2 ];
   const ispostseason = isleague && !!upcoming[ 0 ].postseason;
 
   // get upcoming matches
@@ -197,9 +197,9 @@ function Home( props: Props ) {
     ;
   }, [ upcoming ]);
 
-  // for minors, override standings to user's group
+  // for circuits, override standings to user's group
   // @note: only override if standings is a nested array
-  if( hasStandings && isminor && standings[ 0 ].standings && Array.isArray( standings[ 0 ].standings[ 0 ] ) ) {
+  if( hasStandings && iscircuit && standings[ 0 ].standings && Array.isArray( standings[ 0 ].standings[ 0 ] ) ) {
     standings[ 0 ].standings.every( group => {
       if( group.findIndex( ( s: any ) => s.competitorInfo.id === profile.data.Team.id ) >= 0 ) {
         standings[ 0 ].standings = group;
@@ -213,7 +213,7 @@ function Home( props: Props ) {
   // find our team's seed number (or group number if applicable)
   let seednum: number;
 
-  if( hasStandings && ( isleague || isminor ) && standings[ 0 ].standings ) {
+  if( hasStandings && ( isleague || iscircuit ) && standings[ 0 ].standings ) {
     seednum = standings[ 0 ]
       .standings
       .find( s => s.competitorInfo.id === profile.data.Team.id )
@@ -291,7 +291,7 @@ function Home( props: Props ) {
               bodyStyle={{ height: ROWHEIGHT_BOTTOM, padding: CARD_PADDING }}
               loading={!standings}
             >
-              {( ( isleague && !ispostseason ) || ( isminor && hasStandings && !!standings[ 0 ].standings ) ) && (
+              {( ( isleague && !ispostseason ) || ( iscircuit && hasStandings && !!standings[ 0 ].standings ) ) && (
                 <Standings
                   disablePagination
                   highlightSeed={seednum}
@@ -311,7 +311,7 @@ function Home( props: Props ) {
                   onClick={id => props.history.push( `/home/team/${id}` )}
                 />
               )}
-              {( iscup || ispostseason || ( isminor && hasStandings && !!standings[ 0 ].round ) ) && (
+              {( iscup || ispostseason || ( iscircuit && hasStandings && !!standings[ 0 ].round ) ) && (
                 <MatchResults
                   pageSize={NUM_CUP_MATCHES}
                   dataSource={hasStandings && standings[ 0 ].round}

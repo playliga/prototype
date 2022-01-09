@@ -23,10 +23,10 @@ export const OfferStatus = {
 
 
 export const CompTypes = {
-  CHAMPIONS_LEAGUE  : 'championsleague',
+  CIRCUIT_MAJOR     : 'circuit:major',
+  CIRCUIT_MINOR     : 'circuit:minor',
   LEAGUE            : 'league',
   LEAGUE_CUP        : 'leaguecup',
-  MINOR             : 'circuit:minor',
 };
 
 

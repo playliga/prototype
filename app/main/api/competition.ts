@@ -154,13 +154,13 @@ export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.
   let output;
 
   // format the match data
-  const [ isleague, iscup,, isminor ] = parseCompType( compobj.Comptype.name );
+  const [ isleague, iscup, iscircuit ] = parseCompType( compobj.Comptype.name );
 
   if( isleague ) {
     output = formatLeagueMatchdata( queue, compobj, teams );
   } else if( iscup ) {
     output = formatCupMatchdata( queue, compobj, teams );
-  } else if( isminor ) {
+  } else if( iscircuit ) {
     output = formatMinorMatchdata( queue, compobj, teams );
   }
 
@@ -381,9 +381,9 @@ function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
 
 function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) {
   // bail if comptype is not a league
-  const [ ,,, isminor ] = parseCompType( compobj.Comptype.name );
+  const [ ,, iscircuit ] = parseCompType( compobj.Comptype.name );
 
-  if( !isminor ) {
+  if( !iscircuit ) {
     return [];
   }
 
@@ -470,7 +470,7 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
 
 async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
   const compobj = await Models.Competition.findByPk( request.params.id, { include: [{ all: true }] });
-  const [ isleague, iscup,, isminor ] = parseCompType( compobj.Comptype.name );
+  const [ isleague, iscup, iscircuit ] = parseCompType( compobj.Comptype.name );
 
   let teamid = request.params.teamid;
 
@@ -509,7 +509,7 @@ async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
     const cupobj = Cup.restore( compobj.data );
     cupobj.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
     compobj.data = cupobj.save();
-  } else if( isminor ) {
+  } else if( iscircuit ) {
     // build minor obj
     const minorObj = Minor.restore( compobj.data );
     const currStage = minorObj.getCurrentStage() || minorObj.stages[ 0 ];
@@ -589,7 +589,7 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
   // get standings for the league types
   const leagues = comps.filter( c => c.Comptype.name === CompTypes.LEAGUE );
   const cups = comps.filter( c => c.Comptype.name === CompTypes.LEAGUE_CUP );
-  const minors = comps.filter( c => c.Comptype.name === CompTypes.MINOR );
+  const circuits = comps.filter( c => c.Comptype.name === CompTypes.CIRCUIT_MINOR || c.Comptype.name === CompTypes.CIRCUIT_MAJOR );
 
   // get the standings for league types
   const leaguedata = leagues
@@ -603,13 +603,13 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
     .filter( c => c.length > 0 )
   ;
 
-  // get the current stage standings/round for minors
-  const minordata = minors
+  // get the current stage standings/round for circuits
+  const circuitdata = circuits
     .map( c => getMinorStageInfo( c, teams ) )
     .filter( c => c.length > 0 )
   ;
 
-  evt.sender.send( req.responsechannel, JSON.stringify([ ...leaguedata, ...cupdata, ...minordata ]) );
+  evt.sender.send( req.responsechannel, JSON.stringify([ ...leaguedata, ...cupdata, ...circuitdata ]) );
 }
 
 

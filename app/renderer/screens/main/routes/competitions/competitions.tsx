@@ -43,19 +43,19 @@ interface CompetitionProps {
 function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
   const sameregion = props.team.Country.ContinentId === props.data.regionId;
-  const [ isleague, iscup,, isminor ] = props.data.type;
+  const [ isleague, iscup, iscircuit ] = props.data.type;
   const joined = props.teamCompetitions.findIndex( ( c: any ) => c.id === props.data.competitionId ) > -1;
   const notstarted = [
     isleague && props.data.standings.length === 0,
     iscup && props.data.round.length === 0,
-    isminor && ( ( props.data.standings && props.data.standings.length === 0 ) || ( props.data.round && props.data.round.length === 0 ) ),
+    iscircuit && ( ( props.data.standings && props.data.standings.length === 0 ) || ( props.data.round && props.data.round.length === 0 ) ),
   ];
 
-  // for minors, just render the first group
+  // for circuits, just render the first group
   const [ standings, setStandings ] = React.useState<any[]>([]);
 
   React.useEffect( () => {
-    if( isminor && props.data.standings && props.data.standings.length > 0 ) {
+    if( iscircuit && props.data.standings && props.data.standings.length > 0 ) {
       setStandings( props.data.standings[ 0 ] );
     } else {
       setStandings( props.data.standings );
@@ -103,8 +103,8 @@ function Competition( props: CompetitionProps ) {
         </Space>
       )}
 
-      {/* LEAGUE/MINOR STARTED: SHOW STANDINGS */}
-      {( isleague || isminor ) && standings && standings.length > 0 && (
+      {/* LEAGUE/CIRCUIT STARTED: SHOW STANDINGS */}
+      {( isleague || iscircuit ) && standings && standings.length > 0 && (
         <Standings
           disablePagination
           sliceData={NUM_STANDINGS}
@@ -119,7 +119,7 @@ function Competition( props: CompetitionProps ) {
       )}
 
       {/* CUP STARTED */}
-      {( iscup || isminor ) && props.data.round && props.data.round.length > 0 && (
+      {( iscup || iscircuit ) && props.data.round && props.data.round.length > 0 && (
         <MatchResults
           sliceData={NUM_CUP_MATCHES}
           title={parseCupRound( props.data.round )}
