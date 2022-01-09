@@ -85,9 +85,9 @@
         "groupSize": 12,
         "groupQualifyNum": 2,
         "autofill": [
-          "open:4,0-50",
-          "open:3,0-50",
-          "open:2,0-20"
+          "action=open,tier=4,start=0,end=50",
+          "action=open,tier=3,start=0,end=50",
+          "action=open,tier=2,start=0,end=20"
         ]
       },
       {
@@ -97,7 +97,7 @@
         "groupSize": 4,
         "groupQualifyNum": 2,
         "autofill": [
-          "invite:1,0-16"
+          "action=open,tier=1,start=0,end=16"
         ]
       },
       {

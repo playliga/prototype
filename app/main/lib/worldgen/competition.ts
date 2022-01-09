@@ -7,7 +7,7 @@ import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
 import { League, Cup, Division, Competitor } from 'main/lib/league';
 import { Minor, Stage } from 'main/lib/circuit';
-import { parseCompType } from 'main/lib/util';
+import { parseAutofillValue, parseCompType } from 'main/lib/util';
 import log from 'electron-log';
 
 
@@ -394,22 +394,21 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
         let competitors: Models.Team[] = [];
 
         if( tier.autofill && Array.isArray( tier.autofill ) ) {
-          competitors = tier.autofill.map( ( autofill: string ) => {
-            const pattern = autofill.match( Application.REGEX_AUTOFILL );
-            const { autofill_action, autofill_target, autofill_end, autofill_start } = pattern.groups;
+          competitors = tier.autofill.map( ( autofill_item: string ) => {
+            const autofill = parseAutofillValue( autofill_item );
 
             // handle the different autofill actions
-            switch( autofill_action ) {
+            switch( autofill.action ) {
               // @todo: this should be topx from prev season league
               case AutofillAction.INVITE:
                 return allteams
-                  .filter( t => t.tier === parseInt( autofill_target ) )
-                  .slice( parseInt( autofill_start ), parseInt( autofill_end ) )
+                  .filter( t => t.tier === parseInt( autofill.tier ) )
+                  .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
                 ;
               case AutofillAction.OPEN:
                 return allteams
-                  .filter( t => t.tier === parseInt( autofill_target ) )
-                  .slice( parseInt( autofill_start ), parseInt( autofill_end ) )
+                  .filter( t => t.tier === parseInt( autofill.tier ) )
+                  .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
                 ;
             }
           });

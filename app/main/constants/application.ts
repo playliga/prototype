@@ -1,4 +1,6 @@
 const Application = {
+  AUTOFILL_ITEM_SEPARATOR           : ',',
+  AUTOFILL_VALUE_SEPARATOR          : '=',
   APP_LOGO_FILENAME                 : 'icon.png',
   CALENDAR_LOOP_MAX_ITERATIONS      : 15,
   DEMO_MODE                         : true,
@@ -30,7 +32,6 @@ const Application = {
   PRESEASON_SQUAD_DEADLINE_DAYS     : [ 30, 14, 7 ],      // when to start enforcing minimum squad depth
   PRESEASON_START_DAY               : 1,                  // pre-season start day
   PRESEASON_START_MONTH             : 6,                  // pre-season start month
-  REGEX_AUTOFILL                    : /(?<autofill_action>\w+):(?<autofill_target>\d+),(?<autofill_start>\d+)-(?<autofill_end>\d+)/,
   SIM_MODE_DEFAULT                  : 'default',
   SIM_MODE_ALWAYS_WIN               : 'always_win',
   SIM_MODE_ALWAYS_LOSE              : 'always_lose',

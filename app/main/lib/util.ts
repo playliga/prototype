@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import ScreenManager from 'main/lib/screen-manager';
+import Application from 'main/constants/application';
 import { CompTypes } from 'shared/enums';
 import * as Models from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -59,4 +60,21 @@ export function walk( dir: string ) {
     ( all: any, folderContents: any ) => all.concat( folderContents ),
     []
   );
+}
+
+
+// --------------------------------------
+// PARSE AUTOFILL SYNTAX
+//
+// Transforms `key=value` into an object.
+// --------------------------------------
+
+export function parseAutofillValue( autofill: string ) {
+  const output: Record<string, string> = {};
+  autofill
+    .split( Application.AUTOFILL_ITEM_SEPARATOR )
+    .map( item => item.split( Application.AUTOFILL_VALUE_SEPARATOR ) )
+    .forEach( item => output[item[0]] = item[1] )
+  ;
+  return output;
 }
