@@ -155,7 +155,7 @@ function Home( props: Props ) {
   const hasUpcoming = upcoming && upcoming.length > 0;
   const hasStandings = standings && standings.length > 0;
   const isMatchday = hasUpcoming && profile.data && upcoming[ 0 ].date === profile.data.currentDate;
-  const refreshUpcoming = hasUpcoming && moment( profile.data.currentDate ).isAfter( upcoming[ 0 ].date );
+  const refreshUpcoming = hasUpcoming && ( props.profile.forceRefresh || moment( profile.data.currentDate ).isSameOrAfter( upcoming[ 0 ].date ) );
   const isleague = hasUpcoming && upcoming[ 0 ].type[ 0 ];
   const iscup = hasUpcoming && upcoming[ 0 ].type[ 1 ];
   const iscircuit = hasUpcoming && upcoming[ 0 ].type[ 2 ];
@@ -171,9 +171,14 @@ function Home( props: Props ) {
       .send( IPCRouting.Competition.MATCHES_UPCOMING, {
         params: { limit: NUM_UPCOMING_MATCHES }
       })
-      .then( res => setUpcoming( res ) )
+      .then( res => {
+        setUpcoming( res );
+        if( props.profile.forceRefresh ) {
+          props.dispatch( profileActions.forceRefreshToggle() );
+        }
+      })
     ;
-  }, [ profile ]);
+  }, [ profile, props.profile.forceRefresh ]);
 
   // get standings for next match
   React.useEffect( () => {

@@ -4,6 +4,7 @@ import * as ProfileTypes from './types';
 const initialState: ProfileTypes.ProfileState = {
   loading: false,
   calendarRunning: false,
+  forceRefresh: false,
   data: null
 };
 
@@ -34,6 +35,11 @@ export default function profileReducer(
         ...state,
         loading: false,
         data: action.payload
+      };
+    case ProfileTypes.FORCE_REFRESH:
+      return {
+        ...state,
+        forceRefresh: !state.forceRefresh
       };
     case ProfileTypes.UPDATE_SQUAD_MEMBER_FINISH:
       return {

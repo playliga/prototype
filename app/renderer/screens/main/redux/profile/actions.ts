@@ -64,10 +64,21 @@ export function calendarFinish(): ProfileTypes.ProfileActionTypes {
 }
 
 
+export function forceRefreshToggle(): ProfileTypes.ProfileActionTypes {
+  return {
+    type: ProfileTypes.FORCE_REFRESH
+  };
+}
+
+
 export function register() {
   return ( dispatch: Function ) => {
     ipcRenderer.on( IPCRouting.Database.PROFILE_GET, ( evt, data ) => {
       dispatch( findFinish( JSON.parse( data ) ) );
+    });
+
+    ipcRenderer.on( IPCRouting.Competition.MATCHES_NEW, () => {
+      dispatch( forceRefreshToggle() );
     });
   };
 }

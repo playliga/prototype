@@ -6,6 +6,7 @@ export const TRAINSQUAD = 'profile.trainsquad';
 export const UPDATE_SQUAD_MEMBER = 'profile.updatesqdm';
 export const UPDATE_SQUAD_MEMBER_FINISH = 'profile.updatesqdm.finish';
 export const UPDATE_SETTINGS = 'profile.updatesettings';
+export const FORCE_REFRESH = 'profile.forcerefresh';
 
 
 export interface Profile {
@@ -30,6 +31,11 @@ interface CalendarFinishAction {
 
 interface FindProfileAction {
   type: typeof FIND;
+}
+
+
+interface ForceRefreshAction {
+  type: typeof FORCE_REFRESH;
 }
 
 
@@ -68,6 +74,7 @@ export type ProfileActionTypes =
   | CalendarFinishAction
   | FindProfileAction
   | FindProfileFinishAction
+  | ForceRefreshAction
   | TrainSquadProfileAction
   | UpdateSquadMemberAction
   | UpdateSquadMemberFinishAction
@@ -78,5 +85,6 @@ export type ProfileActionTypes =
 export interface ProfileState {
   loading: boolean;
   calendarRunning: boolean;
+  forceRefresh: boolean;
   data: Profile | null;
 }

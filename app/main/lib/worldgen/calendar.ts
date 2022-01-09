@@ -51,8 +51,22 @@ itemloop.register( ItemLoop.MiddlewareType.INIT, async () => {
 
 
 // record matchday results
-itemloop.register( ItemLoop.MiddlewareType.END, () => {
-  return WGCompetition.recordTodaysMatchResults();
+itemloop.register( ItemLoop.MiddlewareType.END, async () => {
+  // if this returned true, new matches were generated
+  // we must let the UI know it's time to fetch a new
+  // batch of upcoming matches
+  const res = await WGCompetition.recordTodaysMatchResults();
+
+  if( res ) {
+    ScreenManager
+      .getScreenById( IPCRouting.Main._ID )
+      .handle
+      .webContents
+      .send( IPCRouting.Competition.MATCHES_NEW )
+    ;
+  }
+
+  return Promise.resolve();
 });
 
 

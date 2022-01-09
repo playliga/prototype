@@ -761,7 +761,8 @@ export async function recordTodaysMatchResults() {
     }
 
     competition.data = compobj.save();
-    return competition.save();
+    await competition.save();
+    return Promise.resolve( genNewMatches );
   }));
 }
 
