@@ -38,7 +38,12 @@
   </head>
   <body>
     <header>
-      <h1>{{it.compobj.name}} {{it.competition.Continent.name}}</h1>
+      <h1>
+        {{it.compobj.name}}
+        {{@if(it.competition.Continent)}}
+        {{it.competition.Continent.name}}
+        {{/if}}
+      </h1>
       <hr class="half" />
       <h2>{{it.hostname_suffix}}</h2>
     </header>

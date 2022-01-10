@@ -32,7 +32,7 @@ export default function MatchPreview( props: Props ) {
           {moment( props.data.date ).format( 'ddd, MMM DD, YYYY' )}
         </Typography.Text>
         <Typography.Title level={4} style={{ marginTop: 0, marginBottom: 0 }}>
-          {props.data.competition}: {props.data.region}
+          {props.data.competition}{props.data.region ? ': ' + props.data.region : ''}
         </Typography.Title>
         <Typography.Text>
           {props.data.division || props.data.stageName}

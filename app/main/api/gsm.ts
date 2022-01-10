@@ -919,7 +919,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   // SET UP CONFIG FILES
   // --------------------------------
 
-  const server_hostname = `${compobj.name}: ${competition.Continent.name} | ${hostname_suffix}`;
+  const server_hostname = `${compobj.name}${competition.Continent?.name ? ': ' + competition.Continent.name : ''} | ${hostname_suffix}`;
 
   // extract any zip files
   await extract();

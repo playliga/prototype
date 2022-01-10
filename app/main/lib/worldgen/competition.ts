@@ -1,14 +1,15 @@
 import * as Models from 'main/database/models';
 import moment from 'moment';
+import log from 'electron-log';
 import Application from 'main/constants/application';
 import Score from './score';
-import { random, flattenDeep, shuffle, flatten, groupBy } from 'lodash';
+import { Op } from 'sequelize';
+import { random, flattenDeep, shuffle, flatten, groupBy, uniqBy } from 'lodash';
 import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
 import { League, Cup, Division, Competitor } from 'main/lib/league';
 import { Minor, Stage } from 'main/lib/circuit';
 import { parseAutofillValue, parseCompType } from 'main/lib/util';
-import log from 'electron-log';
 
 
 // ------------------------
@@ -298,30 +299,46 @@ async function genMinorMatchdays( comp: Models.Competition ) {
  * off of the definition schema
  */
 
-async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile ) {
-  // get south america just in case it's needed later
-  const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
+async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, region?: Models.Continent ) {
+  let regionids = [];
 
-  // now get the regions specified by the competition
-  const regionids = compdef.Continents?.map( c => c.id ) || [];
-  const regions = await Models.Continent.findAll({
-    where: { id: regionids }
-  });
-
-  // bail if no regions
-  if( !regions || !sa ) {
-    return Promise.resolve();
-  }
-
-  return Promise.all( regions.map( async region => {
+  // if no region was specified, then this is an international
+  // competition and we grab the three main regions
+  if( !region ) {
+    const regions = await Models.Continent.findAll({
+      where: {
+        code: {[Op.in]: [ 'SA', 'EU', 'NA' ]}
+      }
+    });
+    regionids = regions.map( r => r.id );
+  } else {
     // include south america in the NA region
-    const regionids = [ region.id ];
+    const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
+    regionids = [ region.id ];
 
     if( region.code === 'NA' ) {
       regionids.push( sa.id );
     }
+  }
+
+  // build the competition's eligible teams. we're going to
+  // filter out the user's team if they don't have a squad
+  let allteams = await Models.Team.findByRegionIds( regionids );
+  let compteams: Models.Team[] = [];
+
+  if( profile.Team.Players.length < Application.SQUAD_MIN_LENGTH ) {
+    allteams = allteams.filter( t => t.id !== profile.Team.id );
+  }
+
+  // build the league or cup object
+  const [ isleague, iscup, iscircuit ] = parseCompType( compdef.Comptype.name );
+  let data: League | Cup | Minor;
+
+  if( isleague ) {
+    data = new League( compdef.name );
 
     // was there a prev season?
+    // @note: this assumes that all leagues have a region
     let prevtourney: League | Minor;
 
     const prevcomp = await Models.Competition.findOne({
@@ -333,114 +350,90 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile )
     });
 
     if( prevcomp ) {
-      switch( compdef.Comptype.name ) {
-        case CompTypes.LEAGUE:
-          prevtourney = League.restore( prevcomp.data );
-          break;
-        case CompTypes.CIRCUIT_MINOR:
-          prevtourney = Minor.restore( prevcomp.data );
-          break;
-      }
+      prevtourney = League.restore( prevcomp.data );
     }
 
-    // build the competition's eligible teams. we're going to
-    // filter out the user's team if they don't have a squad
-    let allteams = await Models.Team.findByRegionIds( regionids );
-    let compteams: Models.Team[] = [];
-
-    if( profile.Team.Players.length < Application.SQUAD_MIN_LENGTH ) {
-      allteams = allteams.filter( t => t.id !== profile.Team.id );
-    }
-
-    // build the league or cup object
-    const [ isleague, iscup, iscircuit ] = parseCompType( compdef.Comptype.name );
-    let data: League | Cup | Minor;
-
-    if( isleague ) {
-      data = new League( compdef.name );
-
-      compdef.tiers.forEach( ( tier, tdx ) => {
-        const div = data.addDivision( tier.name, tier.minlen, tier.confsize );
-        const tierteams = prevtourney
-          ? prevtourney.postSeasonDivisions[ tdx ].competitors
-          : allteams.filter( t => t.tier === tdx ).map( t => ({ id: t.id, name: t.name }))
-        ;
-        const competitors: Competitor[] = prevtourney
-          ? tierteams
-          : tierteams.slice( 0, tier.minlen )
-        ;
-        div.meetTwice = compdef.meetTwice;
-        div.addCompetitors( competitors );
-        compteams = [
-          ...compteams,
-          ...allteams.filter( t => competitors.some( c => c.id === t.id ) )
-        ];
-      });
-    } else if( iscup ) {
-      data = new Cup( compdef.name );
-
-      // no tiers, every team will participate
-      if( !compdef.tiers ) {
-        data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
-        compteams = allteams;
-      }
-    } else if( iscircuit ) {
-      data = new Minor( compdef.name );
-
-      compdef.tiers.forEach( tier => {
-        const stage = data.addStage( tier.name, tier.size, tier.groupSize, tier.playoffs || false );
-
-        // autofill logic
-        let competitors: Models.Team[] = [];
-
-        if( tier.autofill && Array.isArray( tier.autofill ) ) {
-          competitors = tier.autofill.map( ( autofill_item: string ) => {
-            const autofill = parseAutofillValue( autofill_item );
-
-            // handle the different autofill actions
-            switch( autofill.action ) {
-              // @todo: this should be topx from prev season league
-              case AutofillAction.INVITE:
-                return allteams
-                  .filter( t => t.tier === parseInt( autofill.tier ) )
-                  .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
-                ;
-              case AutofillAction.OPEN:
-                return allteams
-                  .filter( t => t.tier === parseInt( autofill.tier ) )
-                  .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
-                ;
-            }
-          });
-        }
-
-        // add teams to the current stage and the competition model
-        competitors = shuffle( flatten( competitors ).slice( 0, tier.size ) );
-        stage.addCompetitors( competitors.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
-        compteams = [ ...compteams, ...competitors ];
-      });
-    }
-
-    // build the competition
-    const season = compdef.season;
-    const comp = Models.Competition.build({ data, season });
-    await comp.save();
-
-    // add its start date to its action queue
-    await Models.ActionQueue.create({
-      type: ActionQueueTypes.START_COMP,
-      actionDate: moment( profile.currentDate ).add( compdef.startOffset, 'days' ),
-      payload: comp.id
+    compdef.tiers.forEach( ( tier, tdx ) => {
+      const div = data.addDivision( tier.name, tier.minlen, tier.confsize );
+      const tierteams = prevtourney
+        ? prevtourney.postSeasonDivisions[ tdx ].competitors
+        : allteams.filter( t => t.tier === tdx ).map( t => ({ id: t.id, name: t.name }))
+      ;
+      const competitors: Competitor[] = prevtourney
+        ? tierteams
+        : tierteams.slice( 0, tier.minlen )
+      ;
+      div.meetTwice = compdef.meetTwice;
+      div.addCompetitors( competitors );
+      compteams = [
+        ...compteams,
+        ...allteams.filter( t => competitors.some( c => c.id === t.id ) )
+      ];
     });
+  } else if( iscup ) {
+    data = new Cup( compdef.name );
 
-    // save its associations
-    return Promise.all([
-      comp.setCompdef( compdef ),
-      comp.setComptype( compdef.Comptype ),
-      comp.setContinent( region ),
-      comp.setTeams( compteams )
-    ]);
-  }));
+    // no tiers, every team will participate
+    if( !compdef.tiers ) {
+      data.addCompetitors( allteams.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
+      compteams = allteams;
+    }
+  } else if( iscircuit ) {
+    data = new Minor( compdef.name );
+
+    compdef.tiers.forEach( tier => {
+      const stage = data.addStage( tier.name, tier.size, tier.groupSize, tier.playoffs || false );
+
+      // autofill logic
+      let competitors: Models.Team[] = [];
+
+      if( tier.autofill && Array.isArray( tier.autofill ) ) {
+        competitors = tier.autofill.map( ( autofill_item: string ) => {
+          const autofill = parseAutofillValue( autofill_item );
+
+          // handle the different autofill actions
+          switch( autofill.action ) {
+            // @todo: this should be topx from prev season league
+            case AutofillAction.INVITE:
+              return allteams
+                .filter( t => t.tier === parseInt( autofill.tier ) )
+                .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
+              ;
+            case AutofillAction.OPEN:
+              return allteams
+                .filter( t => t.tier === parseInt( autofill.tier ) )
+                .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
+              ;
+          }
+        });
+      }
+
+      // add teams to the current stage and the competition model
+      competitors = shuffle( flatten( competitors ).slice( 0, tier.size ) );
+      stage.addCompetitors( competitors.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
+      compteams = [ ...compteams, ...uniqBy( competitors, 'id' ) ];
+    });
+  }
+
+  // build the competition
+  const season = compdef.season;
+  const comp = Models.Competition.build({ data, season });
+  await comp.save();
+
+  // add its start date to its action queue
+  await Models.ActionQueue.create({
+    type: ActionQueueTypes.START_COMP,
+    actionDate: moment( profile.currentDate ).add( compdef.startOffset, 'days' ),
+    payload: comp.id
+  });
+
+  // save its associations
+  return Promise.all([
+    comp.setCompdef( compdef ),
+    comp.setComptype( compdef.Comptype ),
+    comp.setContinent( region ),
+    comp.setTeams( compteams )
+  ]);
 }
 
 
@@ -772,9 +765,20 @@ export async function recordTodaysMatchResults() {
  */
 
 export async function genAllComps() {
-  const compdefs = await Models.Compdef.findAll({
-    include: [ 'Continents', 'Comptype' ],
-  });
+  const compdefs = await Models.Compdef.findAll({ include: [ 'Continents', 'Comptype' ] });
   const profile = await Models.Profile.getActiveProfile();
-  return compdefs.map( c => genSingleComp( c, profile ) );
+  return Promise.all( compdefs.map( async compdef => {
+    // get the regions specified by the competition
+    const regions = await Models.Continent.findAll({
+      where: { id: compdef.Continents?.map( c => c.id ) || [] }
+    });
+
+    // save a competition per region
+    if( regions && regions.length > 0 ) {
+      return Promise.all( regions.map( region => genSingleComp( compdef, profile, region ) ) );
+    }
+
+    // if no regions, this is an international competition
+    return genSingleComp( compdef, profile );
+  }));
 }

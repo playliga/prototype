@@ -171,7 +171,7 @@ export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.
     competitionId: compobj.id,
     date: queue.actionDate,
     quid: queue.id,
-    region: compobj.Continent.name,
+    region: compobj.Continent?.name,
     type: parseCompType( compobj.Comptype.name ),
   });
 }
@@ -395,9 +395,9 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
     competition: compobj.data.name,
     competitionId: compobj.id,
     isOpen: compobj.Compdef.isOpen,
-    region: compobj.Continent.name,
-    regioncode: compobj.Continent.code,
-    regionId: compobj.Continent.id,
+    region: compobj.Continent?.name,
+    regioncode: compobj.Continent?.code,
+    regionId: compobj.Continent?.id,
     type: parseCompType( compobj.Comptype.name )
   };
 

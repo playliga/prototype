@@ -12,6 +12,12 @@ function associatedata( compdefs, continents ) {
     // find the regions for the current compdef
     const { regions } = data.find( d => d.name === comp.name );
 
+    if( !regions ) {
+      // if no regions, then this will be an
+      // international tourney; so bail out
+      return;
+    }
+
     // add the compdef to each region found
     regions.forEach( region => {
       // find the region's (continent) id

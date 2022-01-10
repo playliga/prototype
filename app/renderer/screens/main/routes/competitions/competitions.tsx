@@ -42,7 +42,6 @@ interface CompetitionProps {
 
 function Competition( props: CompetitionProps ) {
   const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
-  const sameregion = props.team.Country.ContinentId === props.data.regionId;
   const [ isleague, iscup, iscircuit ] = props.data.type;
   const joined = props.teamCompetitions.findIndex( ( c: any ) => c.id === props.data.competitionId ) > -1;
   const notstarted = [
@@ -50,6 +49,10 @@ function Competition( props: CompetitionProps ) {
     iscup && props.data.round.length === 0,
     iscircuit && ( ( props.data.standings && props.data.standings.length === 0 ) || ( props.data.round && props.data.round.length === 0 ) ),
   ];
+  const sameregion = props.data.regionId
+    ? props.team.Country.ContinentId === props.data.regionId
+    : true
+  ;
 
   // for circuits, just render the first group
   const [ standings, setStandings ] = React.useState<any[]>([]);
@@ -67,7 +70,7 @@ function Competition( props: CompetitionProps ) {
       <Typography.Title level={2}>
         <Space>
           <Typography.Text ellipsis>
-            {props.data.competition}: {props.data.regioncode}
+            {props.data.competition}{props.data.regioncode ? ': ' + props.data.regioncode : ''}
           </Typography.Text>
           <Typography.Link>
             <RightOutlined />
