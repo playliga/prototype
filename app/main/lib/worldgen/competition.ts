@@ -299,11 +299,7 @@ async function genMinorMatchdays( comp: Models.Competition ) {
  * off of the definition schema
  */
 
-<<<<<<< HEAD
-async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, region?: Models.Continent ) {
-=======
 async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, compdefs: Models.Compdef[], region?: Models.Continent ) {
->>>>>>> 02_liga-295_majors
   let regionids = [];
 
   // if no region was specified, then this is an international
@@ -343,11 +339,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
 
     // was there a prev season?
     // @note: this assumes that all leagues have a region
-<<<<<<< HEAD
-    let prevtourney: League | Minor;
-=======
     let prevtourney: League;
->>>>>>> 02_liga-295_majors
 
     const prevcomp = await Models.Competition.findOne({
       where: {
@@ -367,11 +359,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
         ? prevtourney.postSeasonDivisions[ tdx ].competitors
         : allteams.filter( t => t.tier === tdx ).map( t => ({ id: t.id, name: t.name }))
       ;
-<<<<<<< HEAD
-      const competitors: Competitor[] = prevtourney
-=======
       const competitors = prevtourney
->>>>>>> 02_liga-295_majors
         ? tierteams
         : tierteams.slice( 0, tier.minlen )
       ;
@@ -393,32 +381,20 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
   } else if( iscircuit ) {
     data = new Minor( compdef.name );
 
-<<<<<<< HEAD
-    compdef.tiers.forEach( tier => {
-=======
     // there is a db call in a nested for-loop
     // so this whole block becomes async
     await Promise.all( compdef.tiers.map( async tier => {
->>>>>>> 02_liga-295_majors
       const stage = data.addStage( tier.name, tier.size, tier.groupSize, tier.playoffs || false );
 
       // autofill logic
       let competitors: Models.Team[] = [];
 
       if( tier.autofill && Array.isArray( tier.autofill ) ) {
-<<<<<<< HEAD
-        competitors = tier.autofill.map( ( autofill_item: string ) => {
-=======
         competitors = await Promise.all( tier.autofill.map( async ( autofill_item: string ) => {
->>>>>>> 02_liga-295_majors
           const autofill = parseAutofillValue( autofill_item );
 
           // handle the different autofill actions
           switch( autofill.action ) {
-<<<<<<< HEAD
-            // @todo: this should be topx from prev season league
-            case AutofillAction.INVITE:
-=======
             case AutofillAction.INVITE: {
               //  - grab comptype
               //    - filter by season (optional)
@@ -453,38 +429,26 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
                 log.info( 'NONE FOUND.' );
               }
 
->>>>>>> 02_liga-295_majors
               return allteams
                 .filter( t => t.tier === parseInt( autofill.tier ) )
                 .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
               ;
-<<<<<<< HEAD
-=======
             }
->>>>>>> 02_liga-295_majors
             case AutofillAction.OPEN:
               return allteams
                 .filter( t => t.tier === parseInt( autofill.tier ) )
                 .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
               ;
           }
-<<<<<<< HEAD
-        });
-=======
         }));
->>>>>>> 02_liga-295_majors
       }
 
       // add teams to the current stage and the competition model
       competitors = shuffle( flatten( competitors ).slice( 0, tier.size ) );
       stage.addCompetitors( competitors.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
       compteams = [ ...compteams, ...uniqBy( competitors, 'id' ) ];
-<<<<<<< HEAD
-    });
-=======
       return Promise.resolve();
     }));
->>>>>>> 02_liga-295_majors
   }
 
   // build the competition
@@ -847,18 +811,10 @@ export async function genAllComps() {
 
     // save a competition per region
     if( regions && regions.length > 0 ) {
-<<<<<<< HEAD
-      return Promise.all( regions.map( region => genSingleComp( compdef, profile, region ) ) );
-    }
-
-    // if no regions, this is an international competition
-    return genSingleComp( compdef, profile );
-=======
       return Promise.all( regions.map( region => genSingleComp( compdef, profile, compdefs, region ) ) );
     }
 
     // if no regions, this is an international competition
     return genSingleComp( compdef, profile, compdefs );
->>>>>>> 02_liga-295_majors
   }));
 }
