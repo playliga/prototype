@@ -115,5 +115,70 @@
         "playoffs": true
       }
     ]
+  },
+  {
+    "id": "major",
+    "isopen": false,
+    "meetTwice": false,
+    "name": "CSGO Major",
+    "season": 1,
+    "startoffset": 200,
+    "type": "circuit:major",
+    "prizePool": {
+      "total": 4000000,
+      "distribution": [ 30, 20, 15, 11, 9, 7, 5, 3 ]
+    },
+    "regions": null,
+    "tiers": [
+      {
+        "name": "Challenger's Stage",
+        "meetTwice": false,
+        "size": 16,
+        "groupSize": 4,
+        "groupQualifyNum": 2,
+        "autofill": [
+          {
+            "type": "START_SEASON",
+            "items": [
+              "action=invite,comptype=circuit:major,tier=1,start=8,end=16,season=-1"
+            ],
+            "fallback": [
+              "action=open,tier=0,start=8,end=16"
+            ]
+          },
+          {
+            "type": "START_COMP",
+            "items": [
+              "action=invite,comptype=circuit:minor,tier=2,start=0,end=4,season=0,region=eu",
+              "action=invite,comptype=circuit:minor,tier=2,start=0,end=4,season=0,region=na"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Legend's Stage",
+        "meetTwice": false,
+        "size": 16,
+        "groupSize": 4,
+        "groupQualifyNum": 2,
+        "autofill": [{
+          "type": "START_SEASON",
+          "items": [
+            "action=invite,comptype=circuit:major,tier=1,start=0,end=8,season=-1"
+          ],
+          "fallback": [
+            "action=open,tier=0,start=0,end=8"
+          ]
+        }]
+      },
+      {
+        "name": "Champion's Stage",
+        "meetTwice": false,
+        "size": 8,
+        "groupSize": 4,
+        "groupQualifyNum": 2,
+        "playoffs": true
+      }
+    ]
   }
 ]
