@@ -434,7 +434,7 @@ itemloop.register( ActionQueueTypes.SEND_EMAIL, async item => {
 
 itemloop.register( ActionQueueTypes.START_COMP, async item => {
   return Models.Competition
-    .findByPk( item.payload, { include: [ 'Comptype' ] })
+    .findByPk( item.payload, { include: [ 'Comptype', 'Compdef', 'Continent' ] })
     .then( WGCompetition.start )
     .then( WGCompetition.genMatchdays )
   ;

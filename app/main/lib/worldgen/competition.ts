@@ -9,7 +9,7 @@ import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
 import { Minor, Stage } from 'main/lib/circuit';
-import { parseAutofillValue, parseCompType } from 'main/lib/util';
+import { parseCompType } from 'main/lib/util';
 
 
 // ------------------------
@@ -295,6 +295,89 @@ async function genMinorMatchdays( comp: Models.Competition ) {
 
 
 /**
+ * Parse autofill syntax.
+ *
+ * This can be called against a competition to populate it
+ * with players depending on the criteria specified in the syntax.
+ *
+ * @todo: turn this into a reusable autofill library
+ */
+
+function parseAutofillValue( autofill: string ) {
+  const output: Record<string, string> = {};
+  autofill
+    .split( Application.AUTOFILL_ITEM_SEPARATOR )
+    .map( item => item.split( Application.AUTOFILL_VALUE_SEPARATOR ) )
+    .forEach( item => output[item[0]] = item[1] )
+  ;
+  return output;
+}
+
+
+async function parseAutofillTypes( data: any, idx: number, autofill: any, teams: Models.Team[], compdefs: Models.Compdef[], compdef: Models.Compdef, regions?: Models.Continent[]): Promise<Models.Team[]> {
+  switch( autofill.action ) {
+    case AutofillAction.INVITE: {
+      // build our where clause
+      const where: Record<string, any> = {
+        compdefId: compdefs.find( c => c.Comptype.name === autofill.comptype ).id,
+      };
+      if( autofill.region && regions ) {
+        where.continentId = regions.find( r => r.code.toLowerCase() === autofill.region.toLowerCase() ).id;
+      }
+      if( autofill.season ) {
+        where.season = compdef.season + parseInt( autofill.season );
+      }
+
+      // search for the competition
+      const autofill_comp = await Models.Competition.findOne({ where });
+
+      if( autofill_comp ) {
+        const compobj = Minor.restore( autofill_comp.data );
+        const stage = compobj.stages[ parseInt( autofill.tier ) ];
+        const tourneyobj = stage.duelObj || stage.groupObj;
+        const competitors = tourneyobj
+          .results()
+          .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
+          .map( c => stage.getCompetitorBySeed( c.seed, !!stage.duelObj ) )
+        ;
+        return Promise.resolve( teams.filter( team => competitors.some( c => c.id === team.id ) ) );
+      }
+
+      log.info( `COULD NOT FIND A PREV SEASON FOR: comp=${compdef.name}; tier=${autofill.tier}` );
+      log.info( 'LOOKING FOR FALLBACK LOGIC...' );
+
+      if( data.fallback && data.fallback[ idx ] ) {
+        return parseAutofillTypes( data, idx, parseAutofillValue( data.fallback[ idx ] ), teams, compdefs, compdef, regions );
+      } else {
+        log.info( 'NONE FOUND.' );
+        return Promise.resolve([]);
+      }
+    }
+    case AutofillAction.OPEN:
+      return Promise.resolve(
+        teams
+          .filter( t => t.tier === parseInt( autofill.tier ) )
+          .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
+      );
+  }
+}
+
+
+async function parseAutoFill( data: any, teams: Models.Team[], compdefs: Models.Compdef[], compdef: Models.Compdef, regions?: Models.Continent[] ) {
+  if( !data || !data.items ) {
+    return Promise.resolve([]);
+  }
+
+  const work = data.items.map( ( item: string, idx: number ) => {
+    const autofill = parseAutofillValue( item );
+    return parseAutofillTypes( data, idx, autofill, teams, compdefs, compdef, regions );
+  });
+
+  return Promise.all( work );
+}
+
+
+/**
  * Generate a single competition based
  * off of the definition schema
  */
@@ -385,62 +468,12 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
     // so this whole block becomes async
     await Promise.all( compdef.tiers.map( async tier => {
       const stage = data.addStage( tier.name, tier.size, tier.groupSize, tier.playoffs || false );
-
-      // autofill logic
       let competitors: Models.Team[] = [];
 
-      if( tier.autofill && Array.isArray( tier.autofill ) ) {
-        competitors = await Promise.all( tier.autofill.map( async ( autofill_item: string ) => {
-          const autofill = parseAutofillValue( autofill_item );
-
-          // handle the different autofill actions
-          switch( autofill.action ) {
-            case AutofillAction.INVITE: {
-              //  - grab comptype
-              //    - filter by season (optional)
-              //    - filter by region (optional)
-              //  - grab the specific tier
-              //  - slice the start/end
-              // const prevcomp = await Models.Competition.findOne({
-              //   where: {
-              //     continentId: region.id,
-              //     compdefId: compdef.id,
-              //     season: compdef.season - 1,
-              //   }
-              // });
-              // build our where clause
-              const where: Record<string, any> = {
-                compdefId: compdefs.find( c => c.Comptype.name === autofill.comptype ).id,
-              };
-              if( autofill.region ) {
-                where.continentId = autofill.region;
-              }
-              if( autofill.season ) {
-                where.season = compdef.season + autofill.season;
-              }
-
-              const autofill_comp = await Models.Competition.findOne({ where });
-
-              if( autofill_comp ) {
-                log.info( `FOUND: id=${autofill_comp.id}; season=${autofill_comp.season}` );
-              } else {
-                log.info( `COULD NOT FIND A PREV SEASON FOR: comp=${compdef.name}; tier=${tier.name}` );
-                log.info( 'LOOKING FOR FALLBACK LOGIC...' );
-                log.info( 'NONE FOUND.' );
-              }
-
-              return allteams
-                .filter( t => t.tier === parseInt( autofill.tier ) )
-                .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
-              ;
-            }
-            case AutofillAction.OPEN:
-              return allteams
-                .filter( t => t.tier === parseInt( autofill.tier ) )
-                .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
-              ;
-          }
-        }));
+      // autofill logic
+      if( tier.autofill ) {
+        const autofill = tier.autofill.find( ( a: any ) => a.type === ActionQueueTypes.START_SEASON );
+        competitors = await parseAutoFill( autofill, allteams, compdefs, compdef );
       }
 
       // add teams to the current stage and the competition model
@@ -607,7 +640,7 @@ export function genMappool( rounds: Match[][] ) {
  * Start a competition.
  */
 
-export function start( comp: Models.Competition ) {
+export async function start( comp: Models.Competition ) {
   const [ isleague, iscup, iscircuit ] = parseCompType( comp.Comptype.name );
   let data: League | Cup | Minor;
 
@@ -626,7 +659,41 @@ export function start( comp: Models.Competition ) {
     data.start();
     genMappool( data.duelObj.rounds() );
   } else if( iscircuit ) {
+    // global circuits support autofill logic
     data = Minor.restore( comp.data );
+
+    // build the list of eligible teams to autofill from
+    const regions = await Models.Continent.findAll({
+      where: {
+        code: {[Op.in]: [ 'SA', 'EU', 'NA' ]}
+      }
+    });
+    const allteams = await Models.Team.findByRegionIds( regions.map( r => r.id ) );
+    const compdefs = await Models.Compdef.findAll({ include: [ 'Continents', 'Comptype' ] });
+
+    // autofill logic
+    const compteams = await Promise.all( comp.Compdef.tiers.map( async tier => {
+      if( !tier.autofill ) {
+        return Promise.resolve([]);
+      }
+
+      let competitors: Models.Team[];
+      const autofill = tier.autofill.find( ( a: any ) => a.type === ActionQueueTypes.START_COMP );
+      const stage = data.stages.find( ( s: any ) => s.name === tier.name );
+      competitors = await parseAutoFill( autofill, allteams, compdefs, comp.Compdef, regions );
+      competitors = shuffle( flatten( competitors ).slice( 0, tier.size ) );
+      stage.addCompetitors( competitors.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
+      return Promise.resolve( competitors );
+    }));
+
+    // if autofill added teams, let's set the db relationship here
+    const autofilled = uniqBy( flatten( compteams ), 'id' );
+
+    if( autofilled.length > 0 ) {
+      await comp.setTeams( autofilled );
+    }
+
+    // start the competition and gen the map pool
     data.start();
     genMappool( data.getCurrentStage().groupObj.rounds() );
   }
