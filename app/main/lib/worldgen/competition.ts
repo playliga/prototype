@@ -303,6 +303,40 @@ async function genMinorMatchdays( comp: Models.Competition ) {
  * @todo: turn this into a reusable autofill library
  */
 
+function parseAutoFillWhereClause( autofill: any, compdefs: Models.Compdef[], compdef: Models.Compdef, regions?: Models.Continent[] ) {
+  const where: Record<string, any> = {
+    compdefId: compdefs.find( c => c.Comptype.name === autofill.comptype ).id,
+  };
+  if( autofill.region && regions ) {
+    where.continentId = regions.find( r => r.code.toLowerCase() === autofill.region.toLowerCase() ).id;
+  }
+  if( autofill.season ) {
+    where.season = compdef.season + parseInt( autofill.season );
+  }
+  return where;
+}
+
+
+async function parseAutoFillQuery( autofill: any, teams: Models.Team[], compdefs: Models.Compdef[], compdef: Models.Compdef, regions?: Models.Continent[] ) {
+  // search for the competition
+  const autofill_comp = await Models.Competition.findOne({ where: parseAutoFillWhereClause( autofill, compdefs, compdef, regions ) });
+
+  if( autofill_comp ) {
+    const compobj = Minor.restore( autofill_comp.data );
+    const stage = compobj.stages[ parseInt( autofill.tier ) ];
+    const tourneyobj = stage.duelObj || stage.groupObj;
+    const competitors = tourneyobj
+      .results()
+      .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
+      .map( c => stage.getCompetitorBySeed( c.seed, !!stage.duelObj ) )
+    ;
+    return Promise.resolve( teams.filter( team => competitors.some( c => c.id === team.id ) ) );
+  }
+
+  return Promise.resolve([]);
+}
+
+
 function parseAutofillValue( autofill: string ) {
   const output: Record<string, string> = {};
   autofill
@@ -315,51 +349,46 @@ function parseAutofillValue( autofill: string ) {
 
 
 async function parseAutofillTypes( data: any, idx: number, autofill: any, teams: Models.Team[], compdefs: Models.Compdef[], compdef: Models.Compdef, regions?: Models.Continent[]): Promise<Models.Team[]> {
+  // fill competitors list using any of the known actions
+  let competitors: Models.Team[] = [];
+
   switch( autofill.action ) {
-    case AutofillAction.INVITE: {
-      // build our where clause
-      const where: Record<string, any> = {
-        compdefId: compdefs.find( c => c.Comptype.name === autofill.comptype ).id,
-      };
-      if( autofill.region && regions ) {
-        where.continentId = regions.find( r => r.code.toLowerCase() === autofill.region.toLowerCase() ).id;
-      }
-      if( autofill.season ) {
-        where.season = compdef.season + parseInt( autofill.season );
+    case AutofillAction.EXCLUDE: {
+      const excluded = await parseAutoFillQuery( autofill, teams, compdefs, compdef, regions );
+
+      if( excluded && excluded.length > 0 ) {
+        competitors = teams.filter( team => excluded.some( c => c.id === team.id ) );
       }
 
-      // search for the competition
-      const autofill_comp = await Models.Competition.findOne({ where });
-
-      if( autofill_comp ) {
-        const compobj = Minor.restore( autofill_comp.data );
-        const stage = compobj.stages[ parseInt( autofill.tier ) ];
-        const tourneyobj = stage.duelObj || stage.groupObj;
-        const competitors = tourneyobj
-          .results()
-          .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
-          .map( c => stage.getCompetitorBySeed( c.seed, !!stage.duelObj ) )
-        ;
-        return Promise.resolve( teams.filter( team => competitors.some( c => c.id === team.id ) ) );
-      }
-
-      log.info( `COULD NOT FIND A PREV SEASON FOR: comp=${compdef.name}; tier=${autofill.tier}` );
-      log.info( 'LOOKING FOR FALLBACK LOGIC...' );
-
-      if( data.fallback && data.fallback[ idx ] ) {
-        return parseAutofillTypes( data, idx, parseAutofillValue( data.fallback[ idx ] ), teams, compdefs, compdef, regions );
-      } else {
-        log.info( 'NONE FOUND.' );
-        return Promise.resolve([]);
-      }
+      return Promise.resolve( competitors );
     }
-    case AutofillAction.OPEN:
-      return Promise.resolve(
-        teams
-          .filter( t => t.tier === parseInt( autofill.tier ) )
-          .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
-      );
+    case AutofillAction.INVITE: {
+      competitors = await parseAutoFillQuery( autofill, teams, compdefs, compdef, regions );
+      break;
+    }
+    case AutofillAction.OPEN: {
+      competitors = teams
+        .filter( t => t.tier === parseInt( autofill.tier ) )
+        .slice( parseInt( autofill.start ), parseInt( autofill.end ) )
+      ;
+      break;
+    }
   }
+
+  // no results, do we have a fallback?
+  if( competitors.length === 0 && data.fallback && data.fallback[ idx ] ) {
+    return parseAutofillTypes( data, idx, parseAutofillValue( data.fallback[ idx ] ), teams, compdefs, compdef, regions );
+  }
+
+  // we have results but do we have any exclusions?
+  if( data.exclude ) {
+    let excluded = await Promise.all( data.exclude.map( ( exclude: any ) => parseAutofillTypes( data, idx, parseAutofillValue( exclude ), competitors, compdefs, compdef, regions ) ) );
+    excluded = uniqBy( flatten( excluded ), 'id' );
+    competitors = competitors.filter( team => !excluded.some( ex => ex.id === team.id ) );
+  }
+
+  // return our list of competitors
+  return Promise.resolve( competitors );
 }
 
 
@@ -690,7 +719,13 @@ export async function start( comp: Models.Competition ) {
     const autofilled = uniqBy( flatten( compteams ), 'id' );
 
     if( autofilled.length > 0 ) {
-      await comp.setTeams( autofilled );
+      try {
+        await comp.setTeams( autofilled );
+      } catch( err ) {
+        log.warn( `DUPLICATE TEAM FOUND WHEN STARTING: ${comp.Compdef.name}` );
+        log.warn( 'IGNORING DUPLICATES...' );
+        await comp.setTeams( autofilled, { ignoreDuplicates: true });
+      }
     }
 
     // start the competition and gen the map pool

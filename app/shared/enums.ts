@@ -31,6 +31,7 @@ export const CompTypes = {
 
 
 export const AutofillAction = {
-  OPEN    : 'open',
+  EXCLUDE : 'exclude',
   INVITE  : 'invite',
+  OPEN    : 'open',
 };

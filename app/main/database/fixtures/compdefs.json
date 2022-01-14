@@ -90,6 +90,10 @@
             "action=open,tier=4,start=0,end=50",
             "action=open,tier=3,start=0,end=50",
             "action=open,tier=2,start=0,end=20"
+          ],
+          "exclude": [
+            "action=exclude,comptype=circuit:major,tier=1,start=8,end=16,season=-1",
+            "action=exclude,comptype=circuit:major,tier=1,start=0,end=8,season=-1"
           ]
         }]
       },
