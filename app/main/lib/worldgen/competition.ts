@@ -634,11 +634,15 @@ export async function simNPCMatchday( item: any ) {
     date: item.actionDate,
   });
 
+  try {
+    await matchobj.setTeams([ team1, team2 ]);
+  } catch( err ) {
+    log.warn( `AN INVALID MATCHDAY WAS GENERATED FOR ${competition.Comptype.name}. SKIPING...` );
+    log.warn( `TEAM1=${team1.name}; TEAM2=${team2.name}` );
+  }
+
   // save changes to the db
-  return Promise.all([
-    matchobj.setCompetition( competition.id ),
-    matchobj.setTeams([ team1, team2 ]),
-  ]);
+  return matchobj.setCompetition( competition.id );
 }
 
 
