@@ -48,7 +48,9 @@ export default function MatchPreview( props: Props ) {
               ? <Avatar size={100} src={props.data.match.team1.logo} shape="square" />
               : <Avatar size={100} icon={<UserOutlined />} />
             }
-            <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
+            {!props.data.match.team1.logo && (
+              <Typography.Text ellipsis>{props.data.match.team1.name}</Typography.Text>
+            )}
             {typeof props.data.match.team1.tier === 'number' && (
               <Typography.Text className="tier-text">
                 {Tiers[ props.data.match.team1.tier ].name}
@@ -65,7 +67,9 @@ export default function MatchPreview( props: Props ) {
               ? <Avatar size={100} src={props.data.match.team2.logo} shape="square" />
               : <Avatar size={100} icon={<UserOutlined />} />
             }
-            <Typography.Text ellipsis>{props.data.match.team2.name}</Typography.Text>
+            {!props.data.match.team2.logo && (
+              <Typography.Text ellipsis>{props.data.match.team2.name}</Typography.Text>
+            )}
             {typeof props.data.match.team2.tier === 'number' && (
               <Typography.Text className="tier-text">
                 {Tiers[ props.data.match.team2.tier ].name}

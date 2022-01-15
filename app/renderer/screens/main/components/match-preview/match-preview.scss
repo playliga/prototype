@@ -1,6 +1,7 @@
 .match-preview-body {
   display: flex;
   justify-content: space-around;
+  align-items: center;
   text-align: center;
 
   & > * {
@@ -10,6 +11,7 @@
   img {
     display: inline-block;
     object-fit: contain;
+    margin: 0;
   }
 
   .ant-space-item > span {
