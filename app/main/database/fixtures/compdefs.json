@@ -90,7 +90,7 @@
           "items": [
             "action=open,tier=4,start=0,end=50",
             "action=open,tier=3,start=0,end=50",
-            "action=open,tier=2,start=0,end=20"
+            "action=open,tier=2,start=10,end=20"
           ],
           "exclude": [
             "action=exclude,comptype=circuit:major,tier=1,start=8,end=16,season=-1",
@@ -108,6 +108,7 @@
           "type": "START_SEASON",
           "limit": 16,
           "items": [
+            "action=open,tier=2,start=0,end=10",
             "action=open,tier=1,start=0,end=20"
           ],
           "exclude": [
