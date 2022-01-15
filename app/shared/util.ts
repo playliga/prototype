@@ -8,6 +8,8 @@
 
 export function parseCupRound( round: any[] ) {
   switch( round.length ) {
+    case 16:
+      return 'RO32';
     case 8:
       return 'RO16';
     case 4:
