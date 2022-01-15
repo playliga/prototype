@@ -86,6 +86,7 @@
         "groupQualifyNum": 2,
         "autofill": [{
           "type": "START_SEASON",
+          "limit": 96,
           "items": [
             "action=open,tier=4,start=0,end=50",
             "action=open,tier=3,start=0,end=50",
@@ -105,8 +106,13 @@
         "groupQualifyNum": 2,
         "autofill": [{
           "type": "START_SEASON",
+          "limit": 16,
           "items": [
-            "action=open,tier=1,start=0,end=16"
+            "action=open,tier=1,start=0,end=20"
+          ],
+          "exclude": [
+            "action=exclude,comptype=circuit:major,tier=1,start=8,end=16,season=-1",
+            "action=exclude,comptype=circuit:major,tier=1,start=0,end=8,season=-1"
           ]
         }]
       },
@@ -143,6 +149,7 @@
         "autofill": [
           {
             "type": "START_SEASON",
+            "limit": 8,
             "items": [
               "action=invite,comptype=circuit:major,tier=1,start=8,end=16,season=-1"
             ],
@@ -152,6 +159,7 @@
           },
           {
             "type": "START_COMP",
+            "limit": 8,
             "items": [
               "action=invite,comptype=circuit:minor,tier=2,start=0,end=4,season=0,region=eu",
               "action=invite,comptype=circuit:minor,tier=2,start=0,end=4,season=0,region=na"
@@ -167,6 +175,7 @@
         "groupQualifyNum": 2,
         "autofill": [{
           "type": "START_SEASON",
+          "limit": 8,
           "items": [
             "action=invite,comptype=circuit:major,tier=1,start=0,end=8,season=-1"
           ],

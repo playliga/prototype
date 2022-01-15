@@ -402,7 +402,8 @@ async function parseAutoFill( data: any, teams: Models.Team[], compdefs: Models.
     return parseAutofillTypes( data, idx, autofill, teams, compdefs, compdef, regions );
   });
 
-  return Promise.all( work );
+  const results = await Promise.all( work );
+  return Promise.all( flatten( results ).slice( 0, data.limit ) );
 }
 
 
@@ -726,8 +727,20 @@ export async function start( comp: Models.Competition ) {
       try {
         await comp.setTeams( autofilled );
       } catch( err ) {
-        log.warn( `DUPLICATE TEAM FOUND WHEN STARTING: ${comp.Compdef.name}` );
-        log.warn( 'IGNORING DUPLICATES...' );
+        log.warn( `DUPLICATE TEAM FOUND WHEN STARTING: id=${comp.id}; name=${comp.Compdef.name}` );
+
+        const found = [] as any[];
+        data.stages.forEach( stage => {
+          stage.competitors.forEach( competitor => {
+            if( !found.some( d => d.id === competitor.id ) ) {
+              found.push( competitor );
+            } else {
+              log.warn( `FOUND: ${competitor.name} IN ${stage.name} FOR ${comp.Comptype.name}` );
+            }
+          });
+        });
+
+        // add them regardless :(
         await comp.setTeams( autofilled, { ignoreDuplicates: true });
       }
     }
