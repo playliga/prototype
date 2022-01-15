@@ -403,7 +403,7 @@ async function parseAutoFill( data: any, teams: Models.Team[], compdefs: Models.
   });
 
   const results = await Promise.all( work );
-  return Promise.all( flatten( results ).slice( 0, data.limit ) );
+  return Promise.resolve( flatten( results ).slice( 0, data.limit ) );
 }
 
 
