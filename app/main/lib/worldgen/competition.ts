@@ -606,17 +606,29 @@ export async function syncTiers() {
 export async function simNPCMatchday( item: any ) {
   // grab competition info
   const competition = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
-  const [ isleague, iscup ] = parseCompType( competition.Comptype.name );
+  const [ isleague,, iscircuit ] = parseCompType( competition.Comptype.name );
   const match: Match = item.payload.match;
-  const is_postseason = isleague && (competition.data.divisions as Division[]).every( d => d.promotionConferences.length > 0 );
+
+  // for leagues we need to figure out if post-season
+  const is_postseason = isleague && item.payload.divId
+    ? (competition.data.divisions as Division[]).find( d => d.name === item.payload.divId )?.promotionConferences.length > 0
+    : false
+  ;
+
+  // are draws allowed?
+  const conditions = [
+    isleague && !is_postseason,
+    iscircuit && item.payload.is_playoffs === null,
+  ];
+  const allow_draws = conditions.some( c => c );
 
   // sim the match
   const team1 = await Models.Team.findWithSquad( item.payload.team1Id );
   const team2 = await Models.Team.findWithSquad( item.payload.team2Id );
-  match.m = Score( team1, team2 ) as [ number, number ];
+  match.m = Score( team1, team2, allow_draws ) as [ number, number ];
 
   // we can't have any ties during playoffs or cup-ties
-  if( ( ( isleague && is_postseason ) || iscup || item.payload.is_playoffs ) && match.m[ 0 ] === match.m[ 1 ] ) {
+  if( !allow_draws && match.m[ 0 ] === match.m[ 1 ] ) {
     log.error( '>> COULD NOT SCORE.', match.m, team1.name, team2.name );
     log.error(` >> GENERATING A NEW ONE WHERE ${team2.name} ALWAYS WINS...` );
     match.m = [ random( 0, 14 ), 16 ];
