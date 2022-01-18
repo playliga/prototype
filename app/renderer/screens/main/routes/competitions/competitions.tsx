@@ -6,11 +6,11 @@ import Standings from 'renderer/screens/main/components/standings';
 import MatchResults from 'renderer/screens/main/components/match-results';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
+import * as MainScreenTypes from 'renderer/screens/main/types';
 import { RouteComponentProps } from 'react-router';
 import { Spin, Tabs, Typography, Select, Col, Row, Alert, Button } from 'antd';
 import { parseCompType, parseCupRound } from 'shared/util';
 import { CompTypePrettyNames } from 'shared/enums';
-import { ApplicationState, BaseCompetition, CompTypeResponse, CupResponse, GlobalCircuitResponse, GlobalCircuitStageResponse, LeagueResponse } from 'renderer/screens/main/types';
 import { getLetter } from 'renderer/lib/util';
 
 
@@ -25,12 +25,12 @@ const NUM_STANDINGS = 10;
 const NUM_CUP_MATCHES = 10;
 
 
-interface MainComponentProps extends ApplicationState, RouteComponentProps {
+interface MainComponentProps extends MainScreenTypes.ApplicationState, RouteComponentProps {
   dispatch: Function;
 }
 
 
-interface CompetitionTypeProps extends CompTypeResponse {
+interface CompetitionTypeProps extends MainScreenTypes.CompTypeResponse {
   joining: boolean;
   onTeamClick: ( id: number ) => void;
   onJoin: ( id: number ) => void;
@@ -62,7 +62,7 @@ function TierSelector( props: { placeholder: string; onChange?: any; defaultValu
 }
 
 
-function JoinCompetitionComponent( props: CompetitionTypeProps & { competition: BaseCompetition }) {
+function JoinCompetitionComponent( props: CompetitionTypeProps & { competition: MainScreenTypes.BaseCompetition }) {
   // bail early if it has already started
   if( props.competition.started ) {
     return null;
@@ -103,7 +103,7 @@ function JoinCompetitionComponent( props: CompetitionTypeProps & { competition: 
  * Competition-related Components
  */
 
-function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: LeagueResponse }) {
+function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: MainScreenTypes.LeagueResponse }) {
   // grab default filter value
   const [ defaultFilter ] = props.competition.started
     ? props.competition.divisions
@@ -166,7 +166,7 @@ function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: Lea
 }
 
 
-function CompetitionTypeCup( props: CompetitionTypeProps & { competition: CupResponse }) {
+function CompetitionTypeCup( props: CompetitionTypeProps & { competition: MainScreenTypes.CupResponse }) {
   // util function to filter out unplayed rounds
   const skipUnplayed = ( round: any ) => {
     return round.every( ( match: any ) => match.team1.id || match.team2.id );
@@ -223,9 +223,9 @@ function CompetitionTypeCup( props: CompetitionTypeProps & { competition: CupRes
 }
 
 
-function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competition: GlobalCircuitResponse }) {
+function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competition: MainScreenTypes.GlobalCircuitResponse }) {
   // util functions
-  const skipEmptyStandings = ( stage: GlobalCircuitStageResponse ) => {
+  const skipEmptyStandings = ( stage: MainScreenTypes.GlobalCircuitStageResponse ) => {
     return stage.standings.length > 0;
   };
   const skipUnplayed = ( round: any ) => {
@@ -325,7 +325,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
   const ids = props.Competitions.filter( competition => competition.season === season ).map( competition => competition.id );
 
   // now fetch the details for the listed competitions
-  const [ competitions, setCompetitions ] = React.useState<BaseCompetition[]>([]);
+  const [ competitions, setCompetitions ] = React.useState<MainScreenTypes.BaseCompetition[]>([]);
 
   React.useEffect( () => {
     IpcService
@@ -345,7 +345,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
             <CompetitionTypeLeague
               {...props}
               key={competition.id}
-              competition={competition as LeagueResponse}
+              competition={competition as MainScreenTypes.LeagueResponse}
             />
           );
         } else if( iscup ) {
@@ -353,7 +353,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
             <CompetitionTypeCup
               {...props}
               key={competition.id}
-              competition={competition as CupResponse}
+              competition={competition as MainScreenTypes.CupResponse}
             />
           );
         } else if( iscircuit ) {
@@ -361,7 +361,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
             <CompetitionTypeGlobalCircuit
               {...props}
               key={competition.id}
-              competition={competition as GlobalCircuitResponse}
+              competition={competition as MainScreenTypes.GlobalCircuitResponse}
             />
           );
         }
@@ -381,7 +381,7 @@ const { TabPane } = Tabs;
 
 
 function Competitions( props: MainComponentProps ) {
-  const [ comptypes, setComptypes ] = React.useState<CompTypeResponse[]>([]);
+  const [ comptypes, setComptypes ] = React.useState<MainScreenTypes.CompTypeResponse[]>([]);
   const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
   const [ joining, setJoining ] = React.useState( false );
 
