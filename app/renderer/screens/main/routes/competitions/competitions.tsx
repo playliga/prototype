@@ -22,6 +22,7 @@ const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
 const NUM_STANDINGS = 10;
+const NUM_STANDINGS_CIRCUITS = 12;
 const NUM_CUP_MATCHES = 10;
 
 
@@ -297,7 +298,7 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
                   {stage.standings.map( ( group: any, groupNum: number ) => (
                     <Col key={props.competition.id + JSON.stringify( group )} span={GRID_COL_WIDTH}>
                       <Standings
-                        pageSize={NUM_STANDINGS}
+                        pageSize={NUM_STANDINGS_CIRCUITS}
                         title={`${stage.stageName} | Group ${getLetter( groupNum + 1 )}`}
                         dataSource={group.map( ( s: any ) => ({
                           id: s.competitorInfo.id,
