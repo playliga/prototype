@@ -86,10 +86,16 @@ export default function Standings( props: StandingsProps ) {
     }
   }
 
+  const [ currPage, setCurrPage ] = React.useState( 1 );
+
   return (
     <Table
       dataSource={props.sliceData && props.dataSource ? props.dataSource.slice( 0, props.sliceData ) : props.dataSource}
-      pagination={!props.disablePagination && { pageSize: props.pageSize || 20, hideOnSinglePage: true }}
+      pagination={!props.disablePagination && {
+        pageSize: props.pageSize || 20,
+        hideOnSinglePage: true,
+        onChange: setCurrPage,
+      }}
       rowClassName={( r, idx ) => getRowClass( idx + 1 )}
       rowKey={props.rowKey || 'id'}
       size={props.size || 'small'}
@@ -102,7 +108,14 @@ export default function Standings( props: StandingsProps ) {
           ellipsis
           width="50%"
           title="Name"
-          render={( item, r, idx ) => <NameColumn highlightSeed={props.highlightSeed} item={item} idx={idx} rowData={r} /> }
+          render={( item, r, idx ) => (
+            <NameColumn
+              highlightSeed={props.highlightSeed}
+              item={item}
+              idx={idx + ( currPage > 1 ? props.pageSize : 0 )}
+              rowData={r}
+            />
+          )}
         />
         <Table.Column
           title="W/L/D"

@@ -49,3 +49,49 @@ export interface StandingsResponse {
   round?: any[];
   type: string[];
 }
+
+
+export interface BaseCompetition {
+  id: number;
+  name: string;
+  region: string;
+  regioncode: string;
+  regionId: string;
+  started: boolean;
+  isOpen: boolean;
+}
+
+
+export interface LeagueDivisionResponse {
+  name: string;
+  conferences: StandingsResponse[];
+}
+
+
+export interface GlobalCircuitStageResponse {
+  stageName: string;
+  standings?: StandingsResponse[];
+  rounds: any[];
+}
+
+
+export interface LeagueResponse extends BaseCompetition {
+  divisions: LeagueDivisionResponse[];
+}
+
+
+export interface CupResponse extends BaseCompetition {
+  data: any[];
+}
+
+
+export interface GlobalCircuitResponse extends BaseCompetition {
+  stages: GlobalCircuitStageResponse[];
+}
+
+
+export interface CompTypeResponse {
+  id: number;
+  name: string;
+  Competitions: any[];
+}

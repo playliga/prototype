@@ -7,9 +7,15 @@ import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { parseCupRound } from 'shared/util';
 import { parseCompType } from 'main/lib/util';
 import { League, Division, Cup } from 'main/lib/league';
-import { Minor } from 'main/lib/circuit';
+import { Minor, Stage } from 'main/lib/circuit';
+import { Match, Result } from 'main/lib/league/types';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
+
+
+interface FindAllParams {
+  ids: number[];
+}
 
 
 interface IpcRequestParams {
@@ -315,7 +321,7 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
 }
 
 
-function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
+function getCupStandings( compobj: Models.Competition, teams: Models.Team[], allrounds = false, reverse = false ) {
   // bail if comptype is not a league
   const [ , iscup ] = parseCompType( compobj.Comptype.name );
 
@@ -327,7 +333,7 @@ function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
   const cupobj = Cup.restore( compobj.data );
 
   // build base response object
-  const baseobj = {
+  const baseobj: Record<string, any> = {
     competition: compobj.data.name,
     competitionId: compobj.id,
     isOpen: compobj.Compdef.isOpen,
@@ -335,6 +341,26 @@ function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
     regioncode: compobj.Continent.code,
     regionId: compobj.Continent.id,
     type: parseCompType( compobj.Comptype.name )
+  };
+
+  const buildMatchData = ( match: Match ) => {
+    const team1 = cupobj.getCompetitorBySeed( match.p[ 0 ] );
+    const team2 = cupobj.getCompetitorBySeed( match.p[ 1 ] );
+    const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
+    const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
+    return ({
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        logo: getTeamLogo( team1data ),
+        ...team1,
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        logo: getTeamLogo( team2data ),
+        ...team2
+      },
+    });
   };
 
   // bail if tournament not started
@@ -345,41 +371,122 @@ function getCupStandings( compobj: Models.Competition, teams: Models.Team[] ) {
     }];
   }
 
-  // or return the final result if finished!
-  let matches;
-
-  if( cupobj.duelObj.isDone() ) {
-    matches = cupobj.duelObj.matches.slice( -1 );
-  } else {
-    matches = cupobj.duelObj.currentRound();
+  // are we returning all the rounds?
+  if( allrounds ) {
+    const rounds = cupobj.duelObj.rounds();
+    return [{
+      ...baseobj,
+      rounds: ( reverse ? rounds.reverse() : rounds ).map( matches => matches.map( buildMatchData ) )
+    }];
   }
 
+  // if the tourney is done, return the last round
+  if( cupobj.duelObj.isDone() ) {
+    return [{
+      ...baseobj,
+      round: cupobj.duelObj.matches.slice( -1 ).map( buildMatchData )
+    }];
+  }
+
+  // otherwise, return the current round
   return [{
     ...baseobj,
-    round: matches.map( match => {
-      const team1 = cupobj.getCompetitorBySeed( match.p[ 0 ] );
-      const team2 = cupobj.getCompetitorBySeed( match.p[ 1 ] );
-      const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
-      const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
-      return ({
-        ...match,
-        team1: {
-          seed: match.p[ 0 ],
-          logo: getTeamLogo( team1data ),
-          ...team1,
-        },
-        team2: {
-          seed: match.p[ 1 ],
-          logo: getTeamLogo( team2data ),
-          ...team2
-        },
-      });
-    })
+    round: cupobj.duelObj.currentRound().map( buildMatchData )
   }];
 }
 
 
-function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) {
+function parseMinorStage( baseobj: any, minorObj: Minor, teams: Models.Team[], stageOverride: Stage = null, allrounds = false, reverse = false ) {
+  let currstage: Stage;
+
+  if( !stageOverride ) {
+    currstage = minorObj.getCurrentStage();
+  } else {
+    currstage = stageOverride;
+  }
+
+  // bail early if stage is not started
+  if( !currstage.started  ) {
+    return [{
+      ...baseobj,
+      stageName: currstage.name,
+      standings: []
+    }];
+  }
+
+  const buildPlayoffData = ( match: Match ) => {
+    const team1 = currstage.getCompetitorBySeed( match.p[ 0 ], true );
+    const team2 = currstage.getCompetitorBySeed( match.p[ 1 ], true );
+    const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
+    const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
+    return ({
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        logo: getTeamLogo( team1data ),
+        ...team1,
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        logo: getTeamLogo( team2data ),
+        ...team2
+      },
+    });
+  };
+
+  const buildGroupStageData = ( group: Result[] ) => group.map( item => {
+    const competitor = currstage.getCompetitorBySeed( item.seed );
+    const teamdata = teams.find( team => team.id === competitor.id );
+    return ({
+      ...item,
+      competitorInfo: {
+        ...competitor,
+        logo: getTeamLogo( teamdata )
+      }
+    });
+  });
+
+  // first, handle playoffs standings
+  if( currstage.duelObj ) {
+
+    // are we returning all the rounds?
+    if( allrounds ) {
+      const rounds = currstage.duelObj.rounds();
+      return [{
+        ...baseobj,
+        stageName: currstage.name,
+        standings: currstage.getGroupResults().map( buildGroupStageData ),
+        rounds: ( reverse ? rounds.reverse() : rounds ).map( matches => matches.map( buildPlayoffData ) )
+      }];
+    }
+
+    // if the tourney is done, return the last round
+    if( currstage.duelObj.isDone() ) {
+      return [{
+        ...baseobj,
+        stageName: currstage.name,
+        round: currstage.duelObj.matches.slice( -1 ).map( buildPlayoffData )
+      }];
+    }
+
+    // otherwise, return the current round
+    return [{
+      ...baseobj,
+      stageName: currstage.name,
+      round: currstage.duelObj.currentRound().map( buildPlayoffData )
+    }];
+  }
+
+  // otherwise, must be group stage standings we want
+  return [{
+    ...baseobj,
+    stageName: currstage.name,
+    standings: currstage.getGroupResults().map( buildGroupStageData )
+  }];
+}
+
+
+function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[], allstages = false, reverse = false ) {
   // bail if comptype is not a league
   const [ ,, iscircuit ] = parseCompType( compobj.Comptype.name );
 
@@ -409,58 +516,13 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[] ) 
     }];
   }
 
-  // first, handle playoffs standings
-  const currstage = minorObj.getCurrentStage();
-
-  if( currstage.duelObj ) {
-    let matches;
-
-    if( currstage.duelObj.isDone() ) {
-      matches = currstage.duelObj.matches.slice( -1 );
-    } else {
-      matches = currstage.duelObj.currentRound();
-    }
-
-    return [{
-      ...baseobj,
-      round: matches.map( match => {
-        const team1 = currstage.getCompetitorBySeed( match.p[ 0 ], true );
-        const team2 = currstage.getCompetitorBySeed( match.p[ 1 ], true );
-        const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
-        const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
-        return ({
-          ...match,
-          team1: {
-            seed: match.p[ 0 ],
-            logo: getTeamLogo( team1data ),
-            ...team1,
-          },
-          team2: {
-            seed: match.p[ 1 ],
-            logo: getTeamLogo( team2data ),
-            ...team2
-          },
-        });
-      })
-    }];
+  // are we returning all stages or just the current one?
+  if( allstages ) {
+    const stages = ( reverse ? minorObj.stages.reverse() : minorObj.stages );
+    return stages.map( stage => parseMinorStage( baseobj, minorObj, teams, stage, allstages, reverse )[ 0 ] );
   }
 
-  // otherwise, must be group stage standings we want
-  return [{
-    ...baseobj,
-    stageName: currstage.name,
-    standings: currstage.getGroupResults().map( group => group.map( item => {
-      const competitor = currstage.getCompetitorBySeed( item.seed );
-      const teamdata = teams.find( team => team.id === competitor.id );
-      return ({
-        ...item,
-        competitorInfo: {
-          ...competitor,
-          logo: getTeamLogo( teamdata )
-        }
-      });
-    }))
-  }];
+  return parseMinorStage( baseobj, minorObj, teams );
 }
 
 
@@ -613,7 +675,72 @@ async function standings( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) 
 }
 
 
+async function getComptypes( evt: IpcMainEvent, req: IpcRequest<StandingsParams> ) {
+  const comptypes = await Models.Comptype.findAll({ include: [ 'Competitions' ] });
+  // sort competitions by season before returning
+  const sorted = comptypes.map( comptype => ({
+    ...comptype.toJSON(),
+    Competitions: comptype.Competitions.sort( ( a, b ) => a.season - b.season )
+  }));
+  evt.sender.send( req.responsechannel, JSON.stringify( sorted ) );
+}
+
+
+async function findAll( evt: IpcMainEvent, req: IpcRequest<FindAllParams> ) {
+  // get team logos separately to improve performance.
+  // sequelize many-to-many queries are really slow
+  const teams = await Models.Team.findAll();
+
+  // grab competitions
+  const competitions = await Models.Competition.findAll({
+    where: { id: req.params.ids },
+    include: [ 'Continent', 'Compdef', 'Comptype' ]
+  });
+
+  // build output data
+  const out = competitions.map( competition => {
+    const [ isleague, iscup, iscircuit ] = parseCompType( competition.Comptype.name );
+
+    const baseobj = {
+      id: competition.id,
+      name: competition.data.name,
+      isOpen: competition.Compdef.isOpen,
+      started: competition.data.started,
+      region: competition.Continent?.name,
+      regioncode: competition.Continent?.code,
+      regionId: competition.Continent?.id,
+    };
+
+    if( isleague ) {
+      return ({
+        ...baseobj,
+        divisions: competition.data.divisions.map( ( division: Division ) => ({
+          ...division,
+          conferences: getLeagueStandings( competition, teams, division.name, null )
+        }))
+      });
+    } else if( iscup ) {
+      return ({
+        ...baseobj,
+        data: getCupStandings( competition, teams, true, true )
+      });
+    } else if( iscircuit ) {
+      return ({
+        ...baseobj,
+        stages: getMinorStageInfo( competition, teams, true, true )
+      });
+    }
+
+    return [];
+  });
+
+  evt.sender.send( req.responsechannel, JSON.stringify( out ) );
+}
+
+
 export default function() {
+  ipcMain.on( IPCRouting.Competition.COMPTYPES, getComptypes );
+  ipcMain.on( IPCRouting.Competition.FIND_ALL, findAll );
   ipcMain.on( IPCRouting.Competition.JOIN, join );
   ipcMain.on( IPCRouting.Competition.MATCHES_UPCOMING, upcoming );
   ipcMain.on( IPCRouting.Competition.STANDINGS, standings );

@@ -1,3 +1,6 @@
+import { CompTypes } from 'shared/enums';
+
+
 /**
  * Returns the proper round description depending
  * on the number of matches left. For example:
@@ -69,4 +72,21 @@ export function toOrdinalSuffix( num: string | number ) {
     ? int + ordinals[ digits[ 0 ] - 1 ]
     : int + ordinals[ 3 ]
   ;
+}
+
+
+/**
+ * Parses the type of competition based off of the name.
+ */
+
+export function parseCompType( type: string ) {
+  const leagues = [ CompTypes.LEAGUE ];
+  const cups = [ CompTypes.LEAGUE_CUP ];
+  const circuits = [ CompTypes.CIRCUIT_MAJOR, CompTypes.CIRCUIT_MINOR ];
+
+  return [
+    leagues.includes( type ),
+    cups.includes( type ),
+    circuits.includes( type ),
+  ];
 }

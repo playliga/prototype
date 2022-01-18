@@ -1,136 +1,374 @@
 import React from 'react';
 import IpcService from 'renderer/lib/ipc-service';
+import Application from 'main/constants/application';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
-import Application from 'main/constants/application';
 import MatchResults from 'renderer/screens/main/components/match-results';
-import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
+import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import { RouteComponentProps } from 'react-router';
-import { Spin, Row, Col, Typography, Space, Alert, Button } from 'antd';
-import { RightOutlined } from '@ant-design/icons';
-import { parseCupRound } from 'shared/util';
-import { StandingsResponse, ApplicationState } from 'renderer/screens/main/types';
+import { Spin, Tabs, Typography, Select, Col, Row, Alert, Button } from 'antd';
+import { ApplicationState, BaseCompetition, CompTypeResponse, CupResponse, GlobalCircuitResponse, GlobalCircuitStageResponse, LeagueResponse } from 'renderer/screens/main/types';
+import { parseCompType, parseCupRound } from 'shared/util';
+import { getLetter } from 'renderer/lib/util';
 
+
+/**
+ * Constants, variables, and types
+ */
 
 const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
-const NUM_CUP_MATCHES = 10;
 const NUM_STANDINGS = 10;
-const SQUAD_STARTERS_NUM = Application.SQUAD_MIN_LENGTH;
+const NUM_CUP_MATCHES = 10;
 
 
-interface Props extends ApplicationState, RouteComponentProps {
+interface MainComponentProps extends ApplicationState, RouteComponentProps {
   dispatch: Function;
 }
 
 
-interface CompetitionProps {
-  data: StandingsResponse;
+interface CompetitionTypeProps extends CompTypeResponse {
   joining: boolean;
-  onClick: () => void;
   onTeamClick: ( id: number ) => void;
+  onJoin: ( id: number ) => void;
   team: any;
   teamCompetitions: any;
 }
 
 
 /**
- * Competition Component
+ * Utility Components
  */
 
-function Competition( props: CompetitionProps ) {
-  const nosquad = props.team.Players.length < SQUAD_STARTERS_NUM;
-  const [ isleague, iscup, iscircuit ] = props.data.type;
-  const joined = props.teamCompetitions.findIndex( ( c: any ) => c.id === props.data.competitionId ) > -1;
-  const notstarted = [
-    isleague && props.data.standings.length === 0,
-    iscup && props.data.round.length === 0,
-    iscircuit && ( ( props.data.standings && props.data.standings.length === 0 ) || ( props.data.round && props.data.round.length === 0 ) ),
-  ];
-  const sameregion = props.data.regionId
-    ? props.team.Country.ContinentId === props.data.regionId
-    : true
-  ;
-
-  // for circuits, just render the first group
-  const [ standings, setStandings ] = React.useState<any[]>([]);
-
-  React.useEffect( () => {
-    if( iscircuit && props.data.standings && props.data.standings.length > 0 ) {
-      setStandings( props.data.standings[ 0 ] );
-    } else {
-      setStandings( props.data.standings );
-    }
-  }, [ props.data.standings ]);
+function TierSelector( props: { placeholder: string; onChange?: any; defaultValue: string; tiers: string[] }) {
+  const { Option } = Select;
 
   return (
-    <Col key={props.data.competitionId} span={GRID_COL_WIDTH}>
-      <Typography.Title level={2}>
-        <Space>
-          <Typography.Text ellipsis>
-            {props.data.competition}{props.data.regioncode ? ': ' + props.data.regioncode : ''}
-          </Typography.Text>
-          <Typography.Link>
-            <RightOutlined />
-          </Typography.Link>
-        </Space>
+    <Select
+      placeholder={props.placeholder}
+      onChange={props?.onChange}
+      defaultValue={props.defaultValue}
+    >
+      {props.tiers.map( ( tier: string ) => (
+        <Option key={tier} value={tier}>
+          {tier}
+        </Option>
+      ))}
+    </Select>
+  );
+}
+
+
+function JoinCompetitionComponent( props: CompetitionTypeProps & { competition: BaseCompetition }) {
+  // bail early if it has already started
+  if( props.competition.started ) {
+    return null;
+  }
+
+  // can the player join this competition?
+  const nosquad = props.team.Players.length < Application.SQUAD_MIN_LENGTH;
+  const joined = props.teamCompetitions.some( ( c: any ) => c.id === props.competition.id );
+
+  return (
+    <article style={{ width: '33%' }}>
+      <p><em>{'Not started.'}</em></p>
+      {nosquad && props.competition.regionId === props.team.Country.ContinentId && props.competition.isOpen && (
+        <Alert
+          type="warning"
+          message="You don't have enough players in your squad to join."
+        />
+      )}
+      {!nosquad && props.competition.regionId === props.team.Country.ContinentId && props.competition.isOpen && (
+        <Button
+          block
+          type="primary"
+          disabled={props.joining || joined || nosquad}
+          onClick={() => props.onJoin( props.competition.id )}
+        >
+          {props.joining
+            ? <Spin size="small" />
+            : joined ? 'Joined' : 'Join'
+          }
+        </Button>
+      )}
+    </article>
+  );
+}
+
+
+/**
+ * Competition-related Components
+ */
+
+function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: LeagueResponse }) {
+  // grab default filter value
+  const [ defaultFilter ] = props.competition.started
+    ? props.competition.divisions
+    : [ null ]
+  ;
+
+  // track the state of our tier filter
+  const [ filter, setFilter ] = React.useState( defaultFilter?.name );
+
+  return (
+    <section>
+      <Typography.Title ellipsis level={2}>
+        {props.competition.name}
+        {props.competition.regioncode ? ': ' + props.competition.regioncode : ''}
       </Typography.Title>
+      <JoinCompetitionComponent {...props} />
+      {props.competition.started && (
+        <TierSelector
+          placeholder="Choose a division"
+          tiers={props.competition.divisions.map( division => division.name )}
+          onChange={( value: string ) => setFilter( value )}
+          defaultValue={filter}
+        />
+      )}
+      {props.competition.started && props.competition.divisions
+        .filter( division => division.name === filter )
+        .map( division => (
+          <article key={props.competition.id + division.name}>
+            <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+              {division.conferences.map( ( conference, idx ) => (
+                <Col key={props.competition.id + division.name + idx} span={GRID_COL_WIDTH}>
+                  {'standings' in conference && (
+                    <Standings
+                      pageSize={NUM_STANDINGS}
+                      title={division.name + ( division.conferences.length > 1 ? ` | Conference ${getLetter( idx+1 )}` : '' )}
+                      dataSource={conference.standings.map( ( s: any ) => ({
+                        id: s.competitorInfo.id,
+                        name: s.competitorInfo.name,
+                        ...s,
+                      }))}
+                      onClick={props.onTeamClick}
+                    />
+                  )}
+                  {'round' in conference && (
+                    <MatchResults
+                      sliceData={NUM_CUP_MATCHES}
+                      title={parseCupRound( conference.round ) + ( division.conferences.length > 1 ? ` | Conference ${getLetter( idx+1 )}` : '' )}
+                      dataSource={conference.round}
+                      onClick={props.onTeamClick}
+                    />
+                  )}
+                </Col>
+              ))}
+            </Row>
+          </article>
+        ))
+      }
+    </section>
+  );
+}
 
-      {/* COMPETITION NOT STARTED */}
-      {notstarted.some( val => val ) && (
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <em>{'Not started.'}</em>
-          {nosquad && sameregion && props.data.isOpen && (
-            <Alert
-              type="warning"
-              message="You don't have enough players in your squad to join."
+
+function CompetitionTypeCup( props: CompetitionTypeProps & { competition: CupResponse }) {
+  // util function to filter out unplayed rounds
+  const skipUnplayed = ( round: any ) => {
+    return round.every( ( match: any ) => match.team1.id || match.team2.id );
+  };
+
+  // grab the rounds
+  const [ cupdata ] = props.competition?.data || [];
+  const rounds = cupdata?.rounds?.filter( skipUnplayed ) || [];
+
+  // track the state of our tier filter
+  const defaultFilter = props.competition.started
+    ? parseCupRound( rounds[ 0 ] )
+    : null
+  ;
+  const [ filter, setFilter ] = React.useState( defaultFilter );
+
+  // render jsx
+  return (
+    <section>
+      <Typography.Title ellipsis level={2}>
+        {props.competition.name}
+        {props.competition.regioncode ? ': ' + props.competition.regioncode : ''}
+      </Typography.Title>
+      <JoinCompetitionComponent {...props} />
+      {props.competition.started && (
+        <TierSelector
+          placeholder="Choose a cup round"
+          tiers={rounds.map( parseCupRound )}
+          onChange={( value: string ) => setFilter( value )}
+          defaultValue={filter}
+        />
+      )}
+      {props.competition.started && (
+        <article>
+          <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+            {rounds
+              .filter( ( round: any ) => parseCupRound( round ) === filter )
+              .map( ( round: any ) => (
+                <Col key={props.competition.id + JSON.stringify( round )} span={GRID_COL_WIDTH}>
+                  <MatchResults
+                    pageSize={NUM_CUP_MATCHES}
+                    title={parseCupRound( round )}
+                    dataSource={round}
+                    onClick={props.onTeamClick}
+                  />
+                </Col>
+              ))
+            }
+          </Row>
+        </article>
+      )}
+    </section>
+  );
+}
+
+
+function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competition: GlobalCircuitResponse }) {
+  // util functions
+  const skipEmptyStandings = ( stage: GlobalCircuitStageResponse ) => {
+    return stage.standings.length > 0;
+  };
+  const skipUnplayed = ( round: any ) => {
+    return round.every( ( match: any ) => match.team1.id || match.team2.id );
+  };
+
+  // grab the stages
+  const stages = props.competition.started
+    ? props.competition.stages
+    : []
+  ;
+
+  // track the state of our tier filter
+  const [ defaultFilter ] = props.competition.started
+    ? stages.filter( skipEmptyStandings )
+    : [ null ]
+  ;
+  const [ filter, setFilter ] = React.useState( defaultFilter?.stageName );
+
+  return (
+    <section>
+      <Typography.Title ellipsis level={2}>
+        {props.competition.name}
+        {props.competition.regioncode ? ': ' + props.competition.regioncode : ''}
+      </Typography.Title>
+      <JoinCompetitionComponent {...props} />
+      {props.competition.started && (
+        <TierSelector
+          placeholder="Choose a stage"
+          tiers={props.competition.stages.filter( skipEmptyStandings ).map( stage => stage.stageName )}
+          onChange={( value: string ) => setFilter( value )}
+          defaultValue={filter}
+        />
+      )}
+      {props.competition.started && props.competition.stages
+        .filter( stage => stage.stageName === filter )
+        .filter( skipEmptyStandings )
+        .map( stage => (
+          <article key={props.competition.id + stage.stageName}>
+            {'rounds' in stage && (
+              <React.Fragment>
+                {'standings' in stage && (
+                  <Typography.Title level={3}>
+                    {'Playoffs'}
+                  </Typography.Title>
+                )}
+                <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+                  {stage.rounds.filter( skipUnplayed ).map( round => (
+                    <Col key={props.competition.id + JSON.stringify( round )} span={GRID_COL_WIDTH}>
+                      <MatchResults
+                        pageSize={NUM_CUP_MATCHES}
+                        title={parseCupRound( round )}
+                        dataSource={round}
+                        onClick={props.onTeamClick}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </React.Fragment>
+            )}
+            {'standings' in stage && (
+              <React.Fragment>
+                {'rounds' in stage && (
+                  <Typography.Title level={3}>
+                    {'Group Stage'}
+                  </Typography.Title>
+                )}
+                <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+                  {stage.standings.map( ( group: any, groupNum: number ) => (
+                    <Col key={props.competition.id + JSON.stringify( group )} span={GRID_COL_WIDTH}>
+                      <Standings
+                        pageSize={NUM_STANDINGS}
+                        title={`${stage.stageName} | Group ${getLetter( groupNum + 1 )}`}
+                        dataSource={group.map( ( s: any ) => ({
+                          id: s.competitorInfo.id,
+                          name: s.competitorInfo.name,
+                          ...s,
+                        }))}
+                        onClick={props.onTeamClick}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </React.Fragment>
+            )}
+          </article>
+        ))
+      }
+    </section>
+  );
+}
+
+
+function CompetitionType( props: CompetitionTypeProps ) {
+  // grab the latest season
+  const season = Math.max( ...props.Competitions.map( competition => competition.season ) );
+  const ids = props.Competitions.filter( competition => competition.season === season ).map( competition => competition.id );
+
+  // now fetch the details for the listed competitions
+  const [ competitions, setCompetitions ] = React.useState<BaseCompetition[]>([]);
+
+  React.useEffect( () => {
+    IpcService
+      .send( IPCRouting.Competition.FIND_ALL, { params: { ids } })
+      .then( res => setCompetitions( res ) )
+    ;
+  }, [ props.id ]);
+
+  // render the competition based off types
+  const [ isleague, iscup, iscircuit ] = parseCompType( props.name );
+  console.log( competitions );
+
+  return (
+    <React.Fragment>
+      {competitions.map( competition => {
+        if( isleague ) {
+          return (
+            <CompetitionTypeLeague
+              {...props}
+              key={competition.id}
+              competition={competition as LeagueResponse}
             />
-          )}
-          {!nosquad && sameregion && props.data.isOpen && (
-            <Button
-              block
-              type="primary"
-              disabled={props.joining || joined || nosquad}
-              onClick={props.onClick}
-            >
-              {props.joining
-                ? <Spin size="small" />
-                : joined
-                  ? 'Joined'
-                  : 'Join'
-              }
-            </Button>
-          )}
-        </Space>
-      )}
+          );
+        } else if( iscup ) {
+          return (
+            <CompetitionTypeCup
+              {...props}
+              key={competition.id}
+              competition={competition as CupResponse}
+            />
+          );
+        } else if( iscircuit ) {
+          return (
+            <CompetitionTypeGlobalCircuit
+              {...props}
+              key={competition.id}
+              competition={competition as GlobalCircuitResponse}
+            />
+          );
+        }
 
-      {/* LEAGUE/CIRCUIT STARTED: SHOW STANDINGS */}
-      {( isleague || iscircuit ) && standings && standings.length > 0 && (
-        <Standings
-          disablePagination
-          sliceData={NUM_STANDINGS}
-          title={isleague ? props.data.division : props.data.stageName}
-          dataSource={standings.map( ( s: any ) => ({
-            id: s.competitorInfo.id,
-            name: s.competitorInfo.name,
-            ...s,
-          }))}
-          onClick={props.onTeamClick}
-        />
-      )}
-
-      {/* CUP STARTED */}
-      {( iscup || iscircuit ) && props.data.round && props.data.round.length > 0 && (
-        <MatchResults
-          sliceData={NUM_CUP_MATCHES}
-          title={parseCupRound( props.data.round )}
-          dataSource={props.data.round}
-          onClick={props.onTeamClick}
-        />
-      )}
-    </Col>
+        return null;
+      })}
+    </React.Fragment>
   );
 }
 
@@ -139,22 +377,23 @@ function Competition( props: CompetitionProps ) {
  * Main Route Component
  */
 
-function Competitions( props: Props ) {
-  const [ joining, setJoining ] = React.useState( false );
-  const [ standings, setStandings ] = React.useState<StandingsResponse[][]>([]);
-  const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
+const { TabPane } = Tabs;
 
+
+function Competitions( props: MainComponentProps ) {
+  const [ comptypes, setComptypes ] = React.useState<CompTypeResponse[]>([]);
+  const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
+  const [ joining, setJoining ] = React.useState( false );
+
+  // grab comptypes on load
   React.useEffect( () => {
     IpcService
-      .send( IPCRouting.Competition.STANDINGS, {
-        params: {
-          divIdx: 0
-        }
-      })
-      .then( res => setStandings( res ) )
+      .send( IPCRouting.Competition.COMPTYPES )
+      .then( res => setComptypes( res ) )
     ;
   }, []);
 
+  // grab user's joined competitions
   React.useEffect( () => {
     IpcService
       .send( IPCRouting.Database.GENERIC, {
@@ -168,7 +407,8 @@ function Competitions( props: Props ) {
     ;
   }, [ props.profile.data ]);
 
-  if( !standings || standings.length === 0 ) {
+  // show loading bar if not ready yet
+  if( !comptypes || comptypes.length === 0 ) {
     return (
       <div id="competitions" className="content">
         <Spin size="large" />
@@ -176,30 +416,31 @@ function Competitions( props: Props ) {
     );
   }
 
+  // event handlers
+  const handleOnJoin = async ( id: number ) => {
+    setJoining( true );
+    const newprofile = await IpcService.send( IPCRouting.Competition.JOIN, { params: { id } });
+    props.dispatch( profileActions.findFinish( newprofile ) );
+    setJoining( false );
+  };
+
+  // render the main component
   return (
     <div id="competitions" className="content">
-      <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-        {standings.map( ([ comp ]) => (
-          <Competition
-            key={comp.competitionId}
-            team={props.profile.data.Team}
-            teamCompetitions={teamCompetitions}
-            joining={joining}
-            data={comp}
-            onClick={async () => {
-              setJoining( true );
-              const newprofile = await IpcService.send(
-                IPCRouting.Competition.JOIN, {
-                  params: { id: comp.competitionId }
-                }
-              );
-              props.dispatch( profileActions.findFinish( newprofile ) );
-              setJoining( false );
-            }}
-            onTeamClick={id => props.history.push( `/competitions/team/${id}` )}
-          />
+      <Tabs defaultActiveKey="1">
+        {comptypes.map( comptype => (
+          <TabPane tab={comptype.name} key={comptype.id}>
+            <CompetitionType
+              {...comptype}
+              joining={joining}
+              onTeamClick={id => props.history.push( `/competitions/team/${id}` )}
+              onJoin={handleOnJoin}
+              team={props.profile.data.Team}
+              teamCompetitions={teamCompetitions}
+            />
+          </TabPane>
         ))}
-      </Row>
+      </Tabs>
     </div>
   );
 }

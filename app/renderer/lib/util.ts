@@ -22,3 +22,8 @@ export function getMonthlyWages( wages: number ) {
     wages * WEEKS_PER_MONTH
   );
 }
+
+
+export function getLetter( num: number ) {
+  return String.fromCharCode( num + 64 );
+}

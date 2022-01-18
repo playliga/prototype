@@ -34,6 +34,7 @@ declare module 'main/database/models' {
 
   export class Comptype extends BaseModel {
     public name: string;
+    public Competitions?: Competition[];
   }
 
 
