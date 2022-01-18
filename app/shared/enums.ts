@@ -30,6 +30,14 @@ export const CompTypes = {
 };
 
 
+export const CompTypePrettyNames = {
+  [CompTypes.CIRCUIT_MAJOR] : 'Global Circuit / Major',
+  [CompTypes.CIRCUIT_MINOR] : 'Global Circuit / Minors',
+  [CompTypes.LEAGUE]        : 'Leagues',
+  [CompTypes.LEAGUE_CUP]    : 'Cups',
+};
+
+
 export const AutofillAction = {
   EXCLUDE : 'exclude',
   INVITE  : 'invite',

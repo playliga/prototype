@@ -8,8 +8,9 @@ import * as IPCRouting from 'shared/ipc-routing';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import { RouteComponentProps } from 'react-router';
 import { Spin, Tabs, Typography, Select, Col, Row, Alert, Button } from 'antd';
-import { ApplicationState, BaseCompetition, CompTypeResponse, CupResponse, GlobalCircuitResponse, GlobalCircuitStageResponse, LeagueResponse } from 'renderer/screens/main/types';
 import { parseCompType, parseCupRound } from 'shared/util';
+import { CompTypePrettyNames } from 'shared/enums';
+import { ApplicationState, BaseCompetition, CompTypeResponse, CupResponse, GlobalCircuitResponse, GlobalCircuitStageResponse, LeagueResponse } from 'renderer/screens/main/types';
 import { getLetter } from 'renderer/lib/util';
 
 
@@ -335,7 +336,6 @@ function CompetitionType( props: CompetitionTypeProps ) {
 
   // render the competition based off types
   const [ isleague, iscup, iscircuit ] = parseCompType( props.name );
-  console.log( competitions );
 
   return (
     <React.Fragment>
@@ -429,7 +429,7 @@ function Competitions( props: MainComponentProps ) {
     <div id="competitions" className="content">
       <Tabs defaultActiveKey="1">
         {comptypes.map( comptype => (
-          <TabPane tab={comptype.name} key={comptype.id}>
+          <TabPane tab={CompTypePrettyNames[ comptype.name ]} key={comptype.id}>
             <CompetitionType
               {...comptype}
               joining={joining}
