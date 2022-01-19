@@ -8,7 +8,7 @@ import { parseCupRound } from 'shared/util';
 import { parseCompType } from 'main/lib/util';
 import { League, Division, Cup } from 'main/lib/league';
 import { Minor, Stage } from 'main/lib/circuit';
-import { Match, Result } from 'main/lib/league/types';
+import { Conference, Match, PromotionConference, Result } from 'main/lib/league/types';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
@@ -206,7 +206,7 @@ function getTeamLogo( teamdata: Models.Team | null ) {
 }
 
 
-function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], divId: string | number, confId: string | null ) {
+function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], divId: string | number, confId: string | null, allstages = false, allrounds = false, reverse = false ) {
   // bail if comptype is not a league
   const [ isleague ] = parseCompType( compobj.Comptype.name );
 
@@ -243,6 +243,63 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
     type: parseCompType( compobj.Comptype.name )
   };
 
+  const buildPlayoffMatchData = ( match: Match, conf: PromotionConference ) => {
+    const team1 = divobj.getCompetitorBySeed( conf, match.p[ 0 ] );
+    const team2 = divobj.getCompetitorBySeed( conf, match.p[ 1 ] );
+    const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
+    const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
+    return ({
+      ...match,
+      team1: {
+        seed: match.p[ 0 ],
+        logo: getTeamLogo( team1data ),
+        ...team1,
+      },
+      team2: {
+        seed: match.p[ 1 ],
+        logo: getTeamLogo( team2data ),
+        ...team2
+      },
+    });
+  };
+
+  const buildPromotionConferenceData = ( conf: PromotionConference ) => {
+    // are we returning all the rounds?
+    if( allrounds ) {
+      const rounds = conf.duelObj.rounds();
+      return {
+        ...baseobj,
+        rounds: ( reverse ? rounds.reverse() : rounds ).map( matches => matches.map( match => buildPlayoffMatchData( match, conf ) ) )
+      };
+    }
+
+    // if the tourney is done, return the last round
+    if( conf.duelObj.isDone() ) {
+      return {
+        ...baseobj,
+        round: conf.duelObj.matches.slice( -1 ).map( match => buildPlayoffMatchData( match, conf ) )
+      };
+    }
+
+    // otherwise, return the current round
+    return {
+      ...baseobj,
+      round: conf.duelObj.currentRound().map( match => buildPlayoffMatchData( match, conf ) )
+    };
+  };
+
+  const buildGroupStageMatchData = ( conf: Conference, item: Result ) => {
+    const competitor = divobj.getCompetitorBySeed( conf, item.seed );
+    const teamdata = teams.find( team => team.id === competitor.id );
+    return ({
+      ...item,
+      competitorInfo: {
+        ...competitor,
+        logo: getTeamLogo( teamdata )
+      }
+    });
+  };
+
   // bail if tournament not started
   if( !compobj.data.started ) {
     return [{
@@ -250,6 +307,8 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
       standings: []
     }];
   }
+
+  let out = [] as any[];
 
   // handle post-season first
   if( leagueobj.isGroupStageDone() ) {
@@ -260,39 +319,11 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
       promotionConferences = promotionConferences.filter( c => c.id === confId );
     }
 
-    return promotionConferences.map( conf => {
-      // if tourney is done, show the last match instead
-      let matches;
+    out = promotionConferences.map( buildPromotionConferenceData );
 
-      if( conf.duelObj.isDone() ) {
-        matches = conf.duelObj.matches.slice( -1 );
-      } else {
-        matches = conf.duelObj.currentRound();
-      }
-
-      return {
-        ...baseobj,
-        round: matches.map( match => {
-          const team1 = divobj.getCompetitorBySeed( conf, match.p[ 0 ] );
-          const team2 = divobj.getCompetitorBySeed( conf, match.p[ 1 ] );
-          const team1data = team1 ? teams.find( team => team.id === team1.id ) : null;
-          const team2data = team2 ? teams.find( team => team.id === team2.id ) : null;
-          return ({
-            ...match,
-            team1: {
-              seed: match.p[ 0 ],
-              logo: getTeamLogo( team1data ),
-              ...team1,
-            },
-            team2: {
-              seed: match.p[ 1 ],
-              logo: getTeamLogo( team2data ),
-              ...team2
-            },
-          });
-        })
-      };
-    });
+    if( !allstages ) {
+      return out;
+    }
   }
 
   // regular season
@@ -304,20 +335,20 @@ function getLeagueStandings( compobj: Models.Competition, teams: Models.Team[], 
     conferences = conferences.filter( c => c.id === confId );
   }
 
-  return conferences.map( conf => ({
-    ...baseobj,
-    standings: conf.groupObj.results().map( item => {
-      const competitor = divobj.getCompetitorBySeed( conf, item.seed );
-      const teamdata = teams.find( team => team.id === competitor.id );
-      return ({
-        ...item,
-        competitorInfo: {
-          ...competitor,
-          logo: getTeamLogo( teamdata )
-        }
-      });
-    })
-  }));
+  // return early if we're not doing all stages
+  if( !allstages ) {
+    return conferences.map( conf => ({
+      ...baseobj,
+      standings: conf.groupObj.results().map( item => buildGroupStageMatchData( conf, item ) )
+    }));
+  }
+
+  // combine group stage data with promotion conferences
+  conferences.forEach( ( conf, cdx ) => {
+    out[ cdx ] = { ...out[ cdx ], standings: conf.groupObj.results().map( item => buildGroupStageMatchData( conf, item ) ) };
+  });
+
+  return out;
 }
 
 
@@ -716,7 +747,7 @@ async function findAll( evt: IpcMainEvent, req: IpcRequest<FindAllParams> ) {
         ...baseobj,
         divisions: competition.data.divisions.map( ( division: Division ) => ({
           ...division,
-          conferences: getLeagueStandings( competition, teams, division.name, null )
+          conferences: getLeagueStandings( competition, teams, division.name, null, true, true, true )
         }))
       });
     } else if( iscup ) {

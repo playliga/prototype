@@ -48,6 +48,7 @@ export interface StandingsResponse {
   standings?: any[];
   round?: any[];
   type: string[];
+  rounds?: any[];
 }
 
 

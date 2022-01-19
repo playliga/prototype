@@ -104,6 +104,79 @@ function JoinCompetitionComponent( props: CompetitionTypeProps & { competition: 
  * Competition-related Components
  */
 
+// util function to filter out unplayed rounds
+function skipUnplayed( round: any ) {
+  return round.every( ( match: any ) => match.team1.id || match.team2.id );
+}
+
+
+function CompetitionTypeLeagueConferences( props: Partial<CompetitionTypeProps> & { conferences: MainScreenTypes.StandingsResponse[]; division: MainScreenTypes.LeagueDivisionResponse }) {
+  // track the state of our tier filter
+  const genConferenceLabel = ( cid: number ) => `Conference ${getLetter( cid+1 )}`;
+  const [ filter, setFilter ] = React.useState( genConferenceLabel( 0 ) );
+
+  return (
+    <React.Fragment>
+      <TierSelector
+        placeholder="Choose a conference"
+        tiers={props.conferences.map( ( _, idx ) => genConferenceLabel( idx ) )}
+        onChange={( value: string ) => setFilter( value )}
+        defaultValue={filter}
+      />
+      {props.conferences
+        .filter( ( _, idx ) => genConferenceLabel( idx ) === filter )
+        .map( ( conference, idx ) => (
+          <aside key={idx + JSON.stringify( conference )}>
+            {'rounds' in conference && (
+              <React.Fragment>
+                <Typography.Title level={3}>
+                  {'Promotional Playoffs'}
+                </Typography.Title>
+                <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+                  {conference.rounds.filter( skipUnplayed ).map( round => (
+                    <Col key={idx + JSON.stringify( round )} span={GRID_COL_WIDTH}>
+                      <MatchResults
+                        pageSize={NUM_CUP_MATCHES}
+                        title={parseCupRound( round )}
+                        dataSource={round}
+                        onClick={props.onTeamClick}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </React.Fragment>
+            )}
+            {'standings' in conference && (
+              <React.Fragment>
+                {'rounds' in conference && (
+                  <Typography.Title level={3}>
+                    {'Group Stage'}
+                  </Typography.Title>
+                )}
+                <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+                  <Col span={GRID_COL_WIDTH}>
+                    <Standings
+                      pageSize={NUM_STANDINGS}
+                      title={props.division.name}
+                      dataSource={conference.standings.map( ( s: any ) => ({
+                        id: s.competitorInfo.id,
+                        name: s.competitorInfo.name,
+                        ...s,
+                      }))}
+                      onClick={props.onTeamClick}
+                    />
+                  </Col>
+                </Row>
+              </React.Fragment>
+            )}
+          </aside>
+        ))
+      }
+    </React.Fragment>
+  );
+}
+
+
 function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: MainScreenTypes.LeagueResponse }) {
   // grab default filter value
   const [ defaultFilter ] = props.competition.started
@@ -133,32 +206,59 @@ function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: Mai
         .filter( division => division.name === filter )
         .map( division => (
           <article key={props.competition.id + division.name}>
-            <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-              {division.conferences.map( ( conference, idx ) => (
-                <Col key={props.competition.id + division.name + idx} span={GRID_COL_WIDTH}>
-                  {'standings' in conference && (
-                    <Standings
-                      pageSize={NUM_STANDINGS}
-                      title={division.name + ( division.conferences.length > 1 ? ` | Conference ${getLetter( idx+1 )}` : '' )}
-                      dataSource={conference.standings.map( ( s: any ) => ({
-                        id: s.competitorInfo.id,
-                        name: s.competitorInfo.name,
-                        ...s,
-                      }))}
-                      onClick={props.onTeamClick}
-                    />
-                  )}
-                  {'round' in conference && (
-                    <MatchResults
-                      sliceData={NUM_CUP_MATCHES}
-                      title={parseCupRound( conference.round ) + ( division.conferences.length > 1 ? ` | Conference ${getLetter( idx+1 )}` : '' )}
-                      dataSource={conference.round}
-                      onClick={props.onTeamClick}
-                    />
-                  )}
-                </Col>
-              ))}
-            </Row>
+            {division.conferences.length > 1 && (
+              <CompetitionTypeLeagueConferences
+                division={division}
+                conferences={division.conferences}
+                onTeamClick={props.onTeamClick}
+              />
+            )}
+            {division.conferences.length === 1 && division.conferences.map( ( conference, idx ) => (
+              <aside key={idx + JSON.stringify( conference )}>
+                {'rounds' in conference && (
+                  <React.Fragment>
+                    <Typography.Title level={3}>
+                      {'Promotional Playoffs'}
+                    </Typography.Title>
+                    <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+                      {conference.rounds.filter( skipUnplayed ).map( round => (
+                        <Col key={idx + JSON.stringify( round )} span={GRID_COL_WIDTH}>
+                          <MatchResults
+                            pageSize={NUM_CUP_MATCHES}
+                            title={parseCupRound( round )}
+                            dataSource={round}
+                            onClick={props.onTeamClick}
+                          />
+                        </Col>
+                      ))}
+                    </Row>
+                  </React.Fragment>
+                )}
+                {'standings' in conference && (
+                  <React.Fragment>
+                    {'rounds' in conference && (
+                      <Typography.Title level={3}>
+                        {'Group Stage'}
+                      </Typography.Title>
+                    )}
+                    <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+                      <Col span={GRID_COL_WIDTH}>
+                        <Standings
+                          pageSize={NUM_STANDINGS}
+                          title={division.name}
+                          dataSource={conference.standings.map( ( s: any ) => ({
+                            id: s.competitorInfo.id,
+                            name: s.competitorInfo.name,
+                            ...s,
+                          }))}
+                          onClick={props.onTeamClick}
+                        />
+                      </Col>
+                    </Row>
+                  </React.Fragment>
+                )}
+              </aside>
+            ))}
           </article>
         ))
       }
@@ -168,11 +268,6 @@ function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: Mai
 
 
 function CompetitionTypeCup( props: CompetitionTypeProps & { competition: MainScreenTypes.CupResponse }) {
-  // util function to filter out unplayed rounds
-  const skipUnplayed = ( round: any ) => {
-    return round.every( ( match: any ) => match.team1.id || match.team2.id );
-  };
-
   // grab the rounds
   const [ cupdata ] = props.competition?.data || [];
   const rounds = cupdata?.rounds?.filter( skipUnplayed ) || [];
@@ -228,9 +323,6 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
   // util functions
   const skipEmptyStandings = ( stage: MainScreenTypes.GlobalCircuitStageResponse ) => {
     return stage.standings.length > 0;
-  };
-  const skipUnplayed = ( round: any ) => {
-    return round.every( ( match: any ) => match.team1.id || match.team2.id );
   };
 
   // grab the stages
