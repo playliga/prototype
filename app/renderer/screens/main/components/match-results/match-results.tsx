@@ -19,7 +19,7 @@ interface Props {
 function NameColumn( props: { data: any }) {
   return (
     <>
-      {props.data.logo && <img src={props.data.logo} width="16" height="16" />}
+      {props.data.logo && <img src={props.data.logo} width="16" height="16" className="img-responsive" />}
       {props.data.seed > -1 ? props.data.name : 'BYE'}
     </>
   );

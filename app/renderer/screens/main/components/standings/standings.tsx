@@ -44,7 +44,7 @@ function NameColumn( props: { item: any; idx: number; highlightSeed: number; row
       <span>
         {props.item.realpos || props.idx + 1}
         {hasLogo
-          ? <img src={props.rowData.competitorInfo.logo} width="16" height="16" />
+          ? <img src={props.rowData.competitorInfo.logo} width="16" height="16" className="img-responsive" />
           : '. '
         }
         {props.item.name}

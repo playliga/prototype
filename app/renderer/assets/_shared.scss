@@ -21,8 +21,9 @@ body {
 
 
 #root {
-  // Disable text selection, or your app will feel like a web page
+  // these settings help reduce the "web page" feel of electron apps
   -webkit-user-select: none;
+  user-select: none;
   cursor: default;
 
   // Cover the whole window
@@ -53,4 +54,10 @@ body {
   text-transform: uppercase;
   font-variant: small-caps;
   font-weight: 100;
+}
+
+
+.img-responsive {
+  display: inline-block;
+  object-fit: contain;
 }

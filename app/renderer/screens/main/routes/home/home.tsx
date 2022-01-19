@@ -87,7 +87,7 @@ function NameColumn( props: { data: any; userteamid: number }) {
   ;
   return (
     <>
-      {opponent.logo && <img src={opponent.logo} width="16" height="16" />}
+      {opponent.logo && <img src={opponent.logo} width="16" height="16" className="img-responsive" />}
       {opponent.name}
     </>
   );
