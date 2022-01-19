@@ -319,6 +319,40 @@ function CompetitionTypeCup( props: CompetitionTypeProps & { competition: MainSc
 }
 
 
+function CompetitionTypeGlobalCircuitPlayoffs( props: Partial<CompetitionTypeProps> & { rounds: any }) {
+  // track the state of our tier filter
+  const rounds = props.rounds.filter( skipUnplayed ) || [];
+  const defaultFilter = parseCupRound( rounds[ 0 ] );
+  const [ filter, setFilter ] = React.useState( defaultFilter );
+
+  return (
+    <React.Fragment>
+      <TierSelector
+        placeholder="Choose a cup round"
+        tiers={rounds.map( parseCupRound )}
+        onChange={( value: string ) => setFilter( value )}
+        defaultValue={filter}
+      />
+      <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+        {props.rounds
+          .filter( ( round: any ) => parseCupRound( round ) === filter )
+          .map( ( round: any ) => (
+            <Col key={JSON.stringify( round )} span={GRID_COL_WIDTH}>
+              <MatchResults
+                pageSize={NUM_CUP_MATCHES}
+                title={parseCupRound( round )}
+                dataSource={round}
+                onClick={props.onTeamClick}
+              />
+            </Col>
+          ))
+        }
+      </Row>
+    </React.Fragment>
+  );
+}
+
+
 function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competition: MainScreenTypes.GlobalCircuitResponse }) {
   // util functions
   const skipEmptyStandings = ( stage: MainScreenTypes.GlobalCircuitStageResponse ) => {
@@ -365,18 +399,10 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
                     {'Playoffs'}
                   </Typography.Title>
                 )}
-                <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-                  {stage.rounds.filter( skipUnplayed ).map( round => (
-                    <Col key={props.competition.id + JSON.stringify( round )} span={GRID_COL_WIDTH}>
-                      <MatchResults
-                        pageSize={NUM_CUP_MATCHES}
-                        title={parseCupRound( round )}
-                        dataSource={round}
-                        onClick={props.onTeamClick}
-                      />
-                    </Col>
-                  ))}
-                </Row>
+                <CompetitionTypeGlobalCircuitPlayoffs
+                  onTeamClick={props.onTeamClick}
+                  rounds={stage.rounds}
+                />
               </React.Fragment>
             )}
             {'standings' in stage && (
