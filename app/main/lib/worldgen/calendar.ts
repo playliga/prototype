@@ -474,26 +474,7 @@ itemloop.register( ActionQueueTypes.TRANSFER_MOVE, async item => {
   const profile = await Models.Profile.getActiveProfile();
 
   if( item.payload.is_selling && item.payload.fee > 0 ) {
-    await profile.Team.increment( 'earnings', { by: item.payload.fee } );
-  }
-
-  // if user has reached the minimum squad,
-  // then we send a next-steps e-mail
-  if( profile.Team.Players.length === Application.SQUAD_MIN_LENGTH ) {
-    const persona = await Models.Persona.getManagerByTeamId( profile.Team.id, 'Assistant Manager' );
-    const tomorrow = moment( profile.currentDate ).add( 1, 'day' );
-
-    return Models.ActionQueue.create({
-      type: ActionQueueTypes.SEND_EMAIL,
-      actionDate: tomorrow,
-      payload: {
-        from: persona.id,
-        to: profile.Player.id,
-        subject: 'Our squad is complete!',
-        content: Sqrl.render( EmailDialogue.PRESEASON_SQUAD_COMPLETE, { player: profile.Player }),
-        sentAt: tomorrow,
-      }
-    });
+    return profile.Team.increment( 'earnings', { by: item.payload.fee } );
   } else {
     return Promise.resolve();
   }
