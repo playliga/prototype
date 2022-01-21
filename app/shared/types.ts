@@ -27,7 +27,6 @@ export interface OfferReview {
 export interface TeamInfoResponse {
   id: number;
   name: string;
-  Country: any;
-  matches: any[];
-  prevDivisions: any[];
+  logo: string;
+  Country: { code: string };
 }
