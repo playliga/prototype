@@ -7,16 +7,35 @@ import { parseCompType } from 'main/lib/util';
 import { PromotionConference } from 'main/lib/league/types';
 import { Cup, Division, League } from 'main/lib/league';
 import { Minor } from 'main/lib/circuit';
+import { TeamLogo } from 'main/lib/cached-image';
 import * as Models from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
 
 
-interface DivisionHistoryRequest {
+interface BaseTeamRequest {
   id: number;
 }
 
 
-async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
+/**
+ * Helper functions
+ */
+
+function getTeamLogo( teamdata: Models.Team | null ) {
+  if( !teamdata || !teamdata.shortName ) {
+    return null;
+  }
+
+  const teamlogo = new TeamLogo( teamdata.shortName );
+  return teamlogo.getBase64();
+}
+
+
+/**
+ * IPC Handlers
+ */
+
+async function get( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest> ) {
   // grab team's matches
   const teamobj = await Models.Team.findByPk( req.params.id, {
     include: [
@@ -130,7 +149,7 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
 }
 
 
-async function divisions( evt: IpcMainEvent, req: IpcRequest<any> ) {
+async function divisions( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest> ) {
   const teamobj = await Models.Team.findByPk( req.params.id, {
     include: [
       { model: Models.Country },
@@ -149,7 +168,22 @@ async function divisions( evt: IpcMainEvent, req: IpcRequest<any> ) {
 }
 
 
+async function info( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest> ) {
+  const teamobj = await Models.Team.findByPk( req.params.id, {
+    include: [
+      { model: Models.Country },
+      { model: Models.Player, include: [ 'Country' ]}
+    ]
+  });
+  evt.sender.send( req.responsechannel, JSON.stringify({
+    ...teamobj.toJSON(),
+    logo: getTeamLogo( teamobj ),
+  }));
+}
+
+
 export default function() {
-  ipcMain.on( IPCRouting.Database.TEAM_GET, get );
   ipcMain.on( IPCRouting.Database.TEAM_DIVISIONS, divisions );
+  ipcMain.on( IPCRouting.Database.TEAM_GET, get );
+  ipcMain.on( IPCRouting.Database.TEAM_INFO, info );
 }
