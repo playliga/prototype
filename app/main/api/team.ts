@@ -182,7 +182,20 @@ async function info( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest> ) {
 }
 
 
+async function competitions( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest> ) {
+  const comptypes = await Models.Comptype.findAll({
+    include: [{
+      model: Models.Competition,
+      attributes: [ 'id' ],
+      include: [{ model: Models.Team, where: { id: req.params.id }}]
+    }],
+  });
+  evt.sender.send( req.responsechannel, JSON.stringify( comptypes ) );
+}
+
+
 export default function() {
+  ipcMain.on( IPCRouting.Database.TEAM_COMPETITIONS, competitions );
   ipcMain.on( IPCRouting.Database.TEAM_DIVISIONS, divisions );
   ipcMain.on( IPCRouting.Database.TEAM_GET, get );
   ipcMain.on( IPCRouting.Database.TEAM_INFO, info );
