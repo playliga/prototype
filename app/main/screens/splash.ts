@@ -3,17 +3,25 @@ import log from 'electron-log';
 import is from 'electron-is';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
-import AppLogo from 'main/lib/applogo';
 import packageinfo from '../../../package.json';
+import * as IPCRouting from 'shared/ipc-routing';
+import { AppLogo } from 'main/lib/cached-image';
 import { ipcMain, Menu } from 'electron';
 import { NsisUpdater, MacUpdater, AppUpdater } from 'electron-updater';
 import { CustomPublishOptions } from 'builder-util-runtime/out/publishOptions';
 import { Profile } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
-import * as IPCRouting from 'shared/ipc-routing';
 
 
-// module-level variables and constants
+/**
+ * Module level variables, constants, and types
+ */
+
+// variables
+const applogo = new AppLogo();
+
+
+// constants
 const PORT = process.env.PORT || 3000;
 const WIDTH = 300;
 const HEIGHT = 400;
@@ -30,7 +38,7 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
-    icon: AppLogo.getPath()
+    icon: applogo.getPath()
   }
 };
 

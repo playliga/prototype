@@ -1,16 +1,16 @@
 import path from 'path';
 import fs from 'fs';
-import { app } from 'electron';
 import log from 'electron-log';
 import is from 'electron-is';
-import { Sequelize } from 'sequelize';
-
+import Application from 'main/constants/application';
+import ScreenManager from 'main/lib/screen-manager';
 import * as Models from 'main/database/models';
 import * as IPCApis from 'main/api';
 import * as Screens from 'main/screens';
-import Application from 'main/constants/application';
-import ScreenManager from 'main/lib/screen-manager';
-import AppLogo from 'main/lib/applogo';
+import { app } from 'electron';
+import { Sequelize } from 'sequelize';
+import { AppLogo } from 'main/lib/cached-image';
+
 
 
 /**
@@ -101,7 +101,8 @@ function setupIPCListeners() {
 function handleOnReady() {
   // set the dock icon for osx
   if( is.osx() ) {
-    app.dock.setIcon( AppLogo.getNativeImage() );
+    const applogo = new AppLogo();
+    app.dock.setIcon( applogo.getNativeImage() );
   }
 
   // setup source-controlled snapshots

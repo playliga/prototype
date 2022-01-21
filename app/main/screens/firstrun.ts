@@ -6,14 +6,23 @@ import * as Models from 'main/database/models';
 import { ipcMain, Menu } from 'electron';
 import { IterableObject } from 'shared/types';
 import { Screen } from 'main/lib/screen-manager/types';
+import { AppLogo } from 'main/lib/cached-image';
 import Worldgen from 'main/lib/worldgen';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
 import Application from 'main/constants/application';
-import AppLogo from 'main/lib/applogo';
 
 
-// module-level variables and constants
+/**
+ * Module level variables, constants, and types
+ */
+
+// variables
+let screen: Screen;
+const applogo = new AppLogo();
+
+
+// constants
 const PORT = process.env.PORT || 3000;
 const WIDTH = 800;
 const HEIGHT = 650;
@@ -31,12 +40,9 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
-    icon: AppLogo.getPath()
+    icon: applogo.getPath()
   }
 };
-
-
-let screen: Screen;
 
 
 /**

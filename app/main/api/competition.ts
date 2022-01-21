@@ -1,5 +1,3 @@
-import path from 'path';
-import fs from 'fs';
 import { ipcMain, IpcMainEvent } from 'electron';
 import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
@@ -9,6 +7,7 @@ import { parseCompType } from 'main/lib/util';
 import { League, Division, Cup } from 'main/lib/league';
 import { Minor, Stage } from 'main/lib/circuit';
 import { Conference, Match, PromotionConference, Result } from 'main/lib/league/types';
+import { TeamLogo } from 'main/lib/cached-image';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 
@@ -187,22 +186,13 @@ export async function formatMatchdata( queue: Models.ActionQueue, teams: Models.
  * Helper functions
  */
 
-const logoscache: Record<string, string> = {};
-
 function getTeamLogo( teamdata: Models.Team | null ) {
   if( !teamdata || !teamdata.shortName ) {
     return null;
   }
 
-  const logos_basedir = path.join( __dirname, 'resources/teamlogos' );
-  const logo_filename = `${teamdata.shortName}.png`;
-  const logo_path = path.join( logos_basedir, logo_filename );
-
-  if( !logoscache[ logo_path ] ) {
-    logoscache[ logo_path ] = fs.readFileSync( logo_path ).toString( 'base64' );
-  }
-
-  return `data:image/png;base64,${logoscache[ logo_path ]}`;
+  const teamlogo = new TeamLogo( teamdata.shortName );
+  return teamlogo.getBase64();
 }
 
 

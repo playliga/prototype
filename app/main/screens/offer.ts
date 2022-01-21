@@ -1,18 +1,17 @@
 import path from 'path';
 import is from 'electron-is';
-import { ipcMain, Menu, IpcMainEvent } from 'electron';
-
+import ScreenManager from 'main/lib/screen-manager';
+import Worldgen from 'main/lib/worldgen';
+import DefaultMenuTemplate from 'main/lib/default-menu';
+import EmailDialogue from 'main/constants/emaildialogue';
 import * as IPCRouting from 'shared/ipc-routing';
+import { ipcMain, Menu, IpcMainEvent } from 'electron';
 import { IpcRequest, OfferRequest, OfferReview } from 'shared/types';
 import { TransferOffer, Profile } from 'main/database/models';
 import { Player } from 'main/database/models';
 import { Screen } from 'main/lib/screen-manager/types';
 import { OfferStatus } from 'shared/enums';
-import ScreenManager from 'main/lib/screen-manager';
-import Worldgen from 'main/lib/worldgen';
-import DefaultMenuTemplate from 'main/lib/default-menu';
-import EmailDialogue from 'main/constants/emaildialogue';
-import AppLogo from 'main/lib/applogo';
+import { AppLogo } from 'main/lib/cached-image';
 
 
 /**
@@ -22,6 +21,7 @@ import AppLogo from 'main/lib/applogo';
 // variables
 let _screen: Screen;
 let _playerid: number;
+const applogo = new AppLogo();
 
 
 // constants
@@ -42,7 +42,7 @@ const CONFIG = {
     resizable: false,
     movable: false,
     minimizable: false,
-    icon: AppLogo.getPath(),
+    icon: applogo.getPath(),
   }
 };
 

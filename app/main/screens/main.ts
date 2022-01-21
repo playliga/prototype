@@ -1,14 +1,22 @@
 import path from 'path';
-import { ipcMain, IpcMainEvent, Menu } from 'electron';
-import { IpcRequest } from 'shared/types';
 import is from 'electron-is';
-import * as IPCRouting from 'shared/ipc-routing';
 import ScreenManager from 'main/lib/screen-manager';
 import DefaultMenuTemplate from 'main/lib/default-menu';
-import AppLogo from 'main/lib/applogo';
+import * as IPCRouting from 'shared/ipc-routing';
+import { ipcMain, IpcMainEvent, Menu } from 'electron';
+import { IpcRequest } from 'shared/types';
+import { AppLogo } from 'main/lib/cached-image';
 
 
-// module-level variables and constants
+/**
+ * Module level variables, constants, and types
+ */
+
+// variables
+const applogo = new AppLogo();
+
+
+// constants
 const PORT = process.env.PORT || 3000;
 const WIDTH = 1024;
 const HEIGHT = 768;
@@ -22,7 +30,7 @@ const CONFIG = {
     height: HEIGHT,
     minWidth: WIDTH,
     minHeight: HEIGHT,
-    icon: AppLogo.getPath()
+    icon: applogo.getPath()
   }
 };
 
@@ -46,7 +54,7 @@ async function openWindowHandler() {
 async function getAppLogoHandler( evt: IpcMainEvent, request: IpcRequest<any> ) {
   evt.sender.send(
     request.responsechannel,
-    JSON.stringify({ logo: AppLogo.getBase64() })
+    JSON.stringify({ logo: applogo.getBase64() })
   );
 }
 
