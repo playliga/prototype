@@ -11,7 +11,7 @@ import * as Models from 'main/database/models';
 import * as IPCRouting from 'shared/ipc-routing';
 
 
-interface GetTeamRequest {
+interface DivisionHistoryRequest {
   id: number;
 }
 
@@ -130,6 +130,26 @@ async function get( evt: IpcMainEvent, req: IpcRequest<any> ) {
 }
 
 
+async function divisions( evt: IpcMainEvent, req: IpcRequest<any> ) {
+  const teamobj = await Models.Team.findByPk( req.params.id, {
+    include: [
+      { model: Models.Country },
+      { model: Models.Competition, include: [ 'Comptype' ] }
+    ]
+  });
+  const prevdivisions = teamobj.Competitions
+    .filter( c => c.Comptype.name === CompTypes.LEAGUE )
+    .map( comp => {
+      const idx = comp.data.divisions.findIndex( ( d: Division ) => d.competitors.some( c => c.id === teamobj.id ) );
+      const division = comp.data.divisions[ idx ];
+      return ({ name: division.name, tier: idx, season: comp.season });
+    })
+  ;
+  evt.sender.send( req.responsechannel, JSON.stringify( prevdivisions ) );
+}
+
+
 export default function() {
   ipcMain.on( IPCRouting.Database.TEAM_GET, get );
+  ipcMain.on( IPCRouting.Database.TEAM_DIVISIONS, divisions );
 }

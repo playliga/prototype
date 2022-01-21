@@ -140,9 +140,7 @@ function Team( props: RouteComponentProps ) {
 
   React.useEffect( () => {
     IpcService
-      .send( IPCRouting.Database.TEAM_GET, {
-        params: { id }
-      })
+      .send( IPCRouting.Database.TEAM_GET, { params: { id } })
       .then( res => { setData( res ); setLoading( false ); })
     ;
   }, []);
