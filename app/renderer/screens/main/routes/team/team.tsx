@@ -105,7 +105,7 @@ function Team( props: Props ) {
             />
           </aside>
           <aside>
-            <Typography.Title level={4}>
+            <Typography.Title level={3} className="small-caps">
               {'League History'}
             </Typography.Title>
             <div id="chart-container">
@@ -161,7 +161,7 @@ function Team( props: Props ) {
         </article>
 
         {/* SQUAD INFORMATION */}
-        <Typography.Title level={2} ellipsis>
+        <Typography.Title level={3} className="small-caps">
           {'Squad'}
         </Typography.Title>
         <Row gutter={[ GUTTER_H, GUTTER_V ]}>
