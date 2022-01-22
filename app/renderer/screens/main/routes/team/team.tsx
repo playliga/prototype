@@ -1,4 +1,5 @@
 import React from 'react';
+import ColorThief from 'colorthief';
 import IpcService from 'renderer/lib/ipc-service';
 import Tiers from 'shared/tiers';
 import Connector from 'renderer/screens/main/components/connector';
@@ -58,6 +59,8 @@ function Team( props: Props ) {
   const [ basicInfo, setBasicInfo ] = React.useState<TeamInfoResponse>( null );
   const [ divisions, setDivisions ] = React.useState<DivisionResponse[]>( null );
   const [ loading, setLoading ] = React.useState( true );
+  const [ lineColor, setLineColor ] = React.useState<number[]>();
+  const logoRef = React.useRef( null );
 
   React.useEffect( () => {
     IpcService
@@ -102,8 +105,15 @@ function Team( props: Props ) {
           {basicInfo.logo && (
             <aside>
               <img
+                ref={logoRef}
                 className="img-responsive"
                 src={basicInfo.logo}
+                onLoad={() => {
+                  if( logoRef.current ) {
+                    const ct = new ColorThief();
+                    setLineColor( ct.getColor( logoRef.current ) );
+                  }
+                }}
               />
             </aside>
           )}
@@ -113,7 +123,7 @@ function Team( props: Props ) {
                 labels: divisions.map( d => `S${d.season}` ),
                 datasets: [{
                   data: divisions.map( d => Tiers[ d.tier ].order ),
-                  borderColor: 'purple',
+                  borderColor: lineColor ? `rgb(${lineColor.join(', ')})` : 'salmon',
                   fill: false,
                 }],
               }}
