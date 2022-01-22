@@ -76,57 +76,8 @@ function Team( props: RouteComponentProps ) {
       <section className="content">
         {/* BASIC INFORMATION, TEAM LOGO, AND DIVISION HISTORY */}
         <article id="info-container">
-          <aside id="chart-container">
-            <Line
-              data={{
-                labels: divisions.map( d => `S${d.season}` ),
-                datasets: [{
-                  data: divisions.map( d => Tiers[ d.tier ].order ),
-                  borderColor: 'purple',
-                  fill: false,
-                }],
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: false,
-                tooltips: false,
-                elements: {
-                  point: {
-                    pointStyle: 'cross'
-                  },
-                  line: {
-                    tension: 0,
-                  }
-                },
-                scales: {
-                  xAxes: [{
-                    offset: true,
-                    gridLines: {
-                      borderDash: [ 5, 5 ],
-                      drawBorder: false,
-                    },
-                  }],
-                  yAxes: [{
-                    offset: true,
-                    gridLines: {
-                      borderDash: [ 5, 5 ],
-                      drawBorder: false,
-                    },
-                    ticks: {
-                      beginAtZero: true,
-                      stepSize: 1,
-                      max: 4,
-                      padding: 10,
-                      callback: getYAxisLabel
-                    }
-                  }]
-                }
-              }}
-            />
-          </aside>
           <aside>
-            <Typography.Title>
+            <Typography.Title level={2} ellipsis>
               {basicInfo.name}
             </Typography.Title>
             <Typography.Text>
@@ -137,6 +88,60 @@ function Team( props: RouteComponentProps ) {
               className="img-responsive"
               src={basicInfo.logo}
             />
+          </aside>
+          <aside>
+            <Typography.Title level={4}>
+              {'League History'}
+            </Typography.Title>
+            <div id="chart-container">
+              <Line
+                data={{
+                  labels: divisions.map( d => `S${d.season}` ),
+                  datasets: [{
+                    data: divisions.map( d => Tiers[ d.tier ].order ),
+                    borderColor: 'purple',
+                    fill: false,
+                  }],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  legend: false,
+                  tooltips: false,
+                  elements: {
+                    point: {
+                      pointStyle: 'cross'
+                    },
+                    line: {
+                      tension: 0,
+                    }
+                  },
+                  scales: {
+                    xAxes: [{
+                      offset: true,
+                      gridLines: {
+                        borderDash: [ 5, 5 ],
+                        drawBorder: false,
+                      },
+                    }],
+                    yAxes: [{
+                      offset: true,
+                      gridLines: {
+                        borderDash: [ 5, 5 ],
+                        drawBorder: false,
+                      },
+                      ticks: {
+                        beginAtZero: true,
+                        stepSize: 1,
+                        max: 4,
+                        padding: 10,
+                        callback: getYAxisLabel
+                      }
+                    }]
+                  }
+                }}
+              />
+            </div>
           </aside>
         </article>
       </section>
