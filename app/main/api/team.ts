@@ -3,7 +3,7 @@ import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { CompTypes } from 'shared/enums';
 import { parseCupRound } from 'shared/util';
-import { parseCompType } from 'main/lib/util';
+import { buildXPTree, parseCompType } from 'main/lib/util';
 import { PromotionConference } from 'main/lib/league/types';
 import { Cup, Division, League } from 'main/lib/league';
 import { Minor } from 'main/lib/circuit';
@@ -177,6 +177,10 @@ async function info( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest> ) {
   });
   evt.sender.send( req.responsechannel, JSON.stringify({
     ...teamobj.toJSON(),
+    Players: teamobj.Players.map( player => ({
+      ...player.toJSON(),
+      ...buildXPTree( player )
+    })),
     logo: getTeamLogo( teamobj ),
   }));
 }

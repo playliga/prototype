@@ -1,6 +1,7 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
+import { buildXPTree } from 'main/lib/util';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import moment from 'moment';
@@ -32,32 +33,11 @@ async function getsquad( evt: IpcMainEvent, request: IpcRequest<null> ) {
     .Team
     .Players
     .filter( player => player.id !== profile.Player.id )
-    .map( async player => {
-      let stats = player.stats;
-      if( !stats ) {
-        const tier = Tiers[ player.tier ];
-        stats = tier.templates[ tier.templates.length - 1 ].stats;
-      }
-      const xp = new BotExp( stats );
-      const rankid = xp.getTierId();
-      const current = Tiers[ rankid[ 0 ] ].templates[ rankid[ 1 ] ];
-      const prev = BotExp.getPrevRank( rankid );
-      const next = BotExp.getNextRank( rankid );
-      return {
-        ...player.toJSON(),
-        TransferOffers: await player.getTransferOffers(),
-        stats,
-        xp: {
-          prev,
-          current,
-          next,
-          total: BotExp.getSumOfStats( stats ),
-          totalprev: !!prev && BotExp.getSumOfStats( prev.stats ),
-          totalcurrent: !!current && BotExp.getSumOfStats( current.stats ),
-          totalnext: !!next && BotExp.getSumOfStats( next.stats ),
-        }
-      };
-    })
+    .map( async player => ({
+      ...player.toJSON(),
+      TransferOffers: await player.getTransferOffers(),
+      ...buildXPTree( player ),
+    }))
   );
   evt.sender.send( request.responsechannel, JSON.stringify( squad ) );
 }
