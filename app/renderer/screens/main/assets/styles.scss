@@ -117,6 +117,10 @@
       height: $chart-height;
     }
 
+    & > aside:only-child {
+      flex-basis: 100%;
+    }
+
     img {
       display: block;
       width: auto;

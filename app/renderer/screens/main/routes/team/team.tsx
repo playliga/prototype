@@ -99,12 +99,14 @@ function Team( props: Props ) {
           {'League History'}
         </Typography.Title>
         <article id="history-container">
-          <aside>
-            <img
-              className="img-responsive"
-              src={basicInfo.logo}
-            />
-          </aside>
+          {basicInfo.logo && (
+            <aside>
+              <img
+                className="img-responsive"
+                src={basicInfo.logo}
+              />
+            </aside>
+          )}
           <aside>
             <Line
               data={{
