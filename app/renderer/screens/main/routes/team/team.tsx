@@ -95,7 +95,7 @@ function Team( props: Props ) {
 
       <section className="content">
         {/* TEAM LOGO, AND LEAGUE HISTORY */}
-        <Typography.Title level={2} className="small-caps">
+        <Typography.Title level={2}>
           {'League History'}
         </Typography.Title>
         <article id="history-container">
@@ -157,7 +157,7 @@ function Team( props: Props ) {
         </article>
 
         {/* SQUAD INFORMATION */}
-        <Typography.Title level={2} className="small-caps">
+        <Typography.Title level={2}>
           {'Squad'}
         </Typography.Title>
         <Row gutter={[ GUTTER_H, GUTTER_V ]}>
