@@ -94,47 +94,35 @@
 
 
 #team {
-  $info-height: 240px;
   $chart-height: 200px;
 
-  article#info-container {
+  article#history-container {
     display: flex;
-    height: $info-height;
-  }
-
-  article#info-container > aside {
-    width: 100%;
-  }
-
-  article#info-container > aside:first-child {
-    flex-basis: 33%;
-    height: 100%;
-    text-align: center;
-  }
-
-  article#info-container > aside + aside {
-    flex-basis: 66%;
-  }
-
-  article#info-container h2 {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  article#info-container h3 {
-    text-align: center;
-  }
-
-  div#chart-container {
-    position: relative;
     height: $chart-height;
-  }
 
-  img {
-    display: block;
-    width: auto;
-    max-height: 66%;
-    margin: 0 auto;
-    margin-top: 10px;
+    & > aside {
+      width: 100%;
+    }
+
+    & > aside:first-child {
+      flex-basis: 33%;
+      height: 100%;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    & > aside + aside {
+      position: relative;
+      flex-basis: 66%;
+      height: $chart-height;
+    }
+
+    img {
+      display: block;
+      width: auto;
+      max-height: 66%;
+      margin: 0 auto;
+      margin-top: 10px;
+    }
   }
 }

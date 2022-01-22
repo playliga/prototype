@@ -83,85 +83,81 @@ function Team( props: Props ) {
       <Affix>
         <PageHeader
           ghost={false}
-          title={'Team Info'}
           onBack={() => props.history.goBack()}
+          title={(
+            <React.Fragment>
+              <span className={`fp ${basicInfo.Country.code.toLowerCase()}`} />
+              <span>{basicInfo.name}</span>
+            </React.Fragment>
+          )}
         />
       </Affix>
 
       <section className="content">
-        {/* BASIC INFORMATION, TEAM LOGO, AND DIVISION HISTORY */}
-        <article id="info-container">
+        {/* TEAM LOGO, AND LEAGUE HISTORY */}
+        <Typography.Title level={2} className="small-caps">
+          {'League History'}
+        </Typography.Title>
+        <article id="history-container">
           <aside>
-            <Typography.Title level={2} ellipsis>
-              {basicInfo.name}
-            </Typography.Title>
-            <Typography.Text>
-              <span className={`fp ${basicInfo.Country.code.toLowerCase()}`} />
-              <span className="small-caps">{basicInfo.Country.name}</span>
-            </Typography.Text>
             <img
               className="img-responsive"
               src={basicInfo.logo}
             />
           </aside>
           <aside>
-            <Typography.Title level={3} className="small-caps">
-              {'League History'}
-            </Typography.Title>
-            <div id="chart-container">
-              <Line
-                data={{
-                  labels: divisions.map( d => `S${d.season}` ),
-                  datasets: [{
-                    data: divisions.map( d => Tiers[ d.tier ].order ),
-                    borderColor: 'purple',
-                    fill: false,
-                  }],
-                }}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  legend: false,
-                  tooltips: false,
-                  elements: {
-                    point: {
-                      pointStyle: 'cross'
-                    },
-                    line: {
-                      tension: 0,
-                    }
+            <Line
+              data={{
+                labels: divisions.map( d => `S${d.season}` ),
+                datasets: [{
+                  data: divisions.map( d => Tiers[ d.tier ].order ),
+                  borderColor: 'purple',
+                  fill: false,
+                }],
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: false,
+                tooltips: false,
+                elements: {
+                  point: {
+                    pointStyle: 'cross'
                   },
-                  scales: {
-                    xAxes: [{
-                      offset: true,
-                      gridLines: {
-                        borderDash: [ 5, 5 ],
-                        drawBorder: false,
-                      },
-                    }],
-                    yAxes: [{
-                      offset: true,
-                      gridLines: {
-                        borderDash: [ 5, 5 ],
-                        drawBorder: false,
-                      },
-                      ticks: {
-                        beginAtZero: true,
-                        stepSize: 1,
-                        max: 4,
-                        padding: 10,
-                        callback: getYAxisLabel
-                      }
-                    }]
+                  line: {
+                    tension: 0,
                   }
-                }}
-              />
-            </div>
+                },
+                scales: {
+                  xAxes: [{
+                    offset: true,
+                    gridLines: {
+                      borderDash: [ 5, 5 ],
+                      drawBorder: false,
+                    },
+                  }],
+                  yAxes: [{
+                    offset: true,
+                    gridLines: {
+                      borderDash: [ 5, 5 ],
+                      drawBorder: false,
+                    },
+                    ticks: {
+                      beginAtZero: true,
+                      stepSize: 1,
+                      max: 4,
+                      padding: 10,
+                      callback: getYAxisLabel
+                    }
+                  }]
+                }
+              }}
+            />
           </aside>
         </article>
 
         {/* SQUAD INFORMATION */}
-        <Typography.Title level={3} className="small-caps">
+        <Typography.Title level={2} className="small-caps">
           {'Squad'}
         </Typography.Title>
         <Row gutter={[ GUTTER_H, GUTTER_V ]}>
