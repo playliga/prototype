@@ -1,18 +1,33 @@
 import React from 'react';
 import IpcService from 'renderer/lib/ipc-service';
 import Tiers from 'shared/tiers';
+import Connector from 'renderer/screens/main/components/connector';
+import PlayerCard from 'renderer/screens/main/components/player-card';
 import * as IPCRouting from 'shared/ipc-routing';
+import { ipcRenderer } from 'electron';
 import { useParams, RouteComponentProps } from 'react-router';
-import { Affix, PageHeader, Spin, Typography } from 'antd';
+import { Affix, Col, PageHeader, Row, Spin, Typography } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { TeamInfoResponse } from 'shared/types';
+import { ApplicationState } from 'renderer/screens/main/types';
 
 
 /**
  * Module constants, variables, and typings
  */
 
+// constants
+const GUTTER_H = 8;
+const GUTTER_V = 8;
+const GRID_COL_WIDTH = 8;
+
+
 // typings
+interface Props extends RouteComponentProps, ApplicationState {
+  dispatch: Function;
+}
+
+
 interface RouteParams {
   id?: string;
 }
@@ -38,7 +53,7 @@ function getYAxisLabel( label: number ) {
  * Team Route Component
  */
 
-function Team( props: RouteComponentProps ) {
+function Team( props: Props ) {
   const { id } = useParams<RouteParams>();
   const [ basicInfo, setBasicInfo ] = React.useState<TeamInfoResponse>( null );
   const [ divisions, setDivisions ] = React.useState<DivisionResponse[]>( null );
@@ -144,10 +159,28 @@ function Team( props: RouteComponentProps ) {
             </div>
           </aside>
         </article>
+
+        {/* SQUAD INFORMATION */}
+        <Typography.Title level={2} ellipsis>
+          {'Squad'}
+        </Typography.Title>
+        <Row gutter={[ GUTTER_H, GUTTER_V ]}>
+          {basicInfo.Players.map( player => (
+            <Col key={player.id} span={GRID_COL_WIDTH}>
+              <PlayerCard
+                disableManagerActions={id !== props.profile.data.Team.id}
+                player={player}
+                me={props.profile.data.Player.id === player.id}
+                onClick={(p: any ) => ipcRenderer.send( IPCRouting.Offer.OPEN, p.id )}
+                onClickDetails={(p: any ) => ipcRenderer.send( IPCRouting.Offer.OPEN, p.id )}
+              />
+            </Col>
+          ))}
+        </Row>
       </section>
     </div>
   );
 }
 
 
-export default Team;
+export default Connector.connect( Team );

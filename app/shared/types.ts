@@ -29,4 +29,5 @@ export interface TeamInfoResponse {
   name: string;
   logo: string;
   Country: { code: string; name: string };
+  Players?: { id: number; alias: string }[];
 }

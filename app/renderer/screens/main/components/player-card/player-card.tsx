@@ -47,22 +47,28 @@ function PlayerCard( props: any ) {
   const { player, me } = props;
 
   let cardactions = [
-    <Tooltip title="Set as starter" key="starter">
-      <StarterIcon starter={player.starter} onClick={() => props.onSetStarter( player )} />
-    </Tooltip>,
-    <Tooltip title="Transfer list" key="transfer">
-      <TransferIcon transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />
-    </Tooltip>,
-    <Tooltip title="View offers" key="offers">
-      {player.TransferOffers.length > 0 && player.TransferOffers.some( ( item: any ) => item.status === OfferStatus.PENDING && item.msg === EmailDialogue.OFFER_SENT )
-        ? <Badge dot><FolderOpenFilled onClick={() => props.onClickDetails( player )} /></Badge>
-        : <FolderOpenFilled onClick={() => props.onClickDetails( player )} />
-      }
-    </Tooltip>,
+    props.onSetStarter && (
+      <Tooltip title="Set as starter" key="starter">
+        <StarterIcon starter={player.starter} onClick={() => props.onSetStarter( player )} />
+      </Tooltip>
+    ),
+    props.onTransferList && (
+      <Tooltip title="Transfer list" key="transfer">
+        <TransferIcon transferListed={player.transferListed} onClick={() => props.onTransferList( player )} />
+      </Tooltip>
+    ),
+    props.onClickDetails && (
+      <Tooltip title={props.disableManagerActions ? 'Send offer' : 'View offers'} key="offers">
+        {player.TransferOffers && player.TransferOffers.length > 0 && player.TransferOffers.some( ( item: any ) => item.status === OfferStatus.PENDING && item.msg === EmailDialogue.OFFER_SENT )
+          ? <Badge dot><FolderOpenFilled onClick={() => props.onClickDetails( player )} /></Badge>
+          : <FolderOpenFilled onClick={() => props.onClickDetails( player )} />
+        }
+      </Tooltip>
+    ),
   ];
 
-  // only need the details action if it's the user
-  if( me ) {
+  // only need the details action if it's the user or not the user's squad
+  if( me || props.disableManagerActions ) {
     cardactions = [ cardactions[ cardactions.length - 1 ] ];
   }
 
@@ -73,7 +79,7 @@ function PlayerCard( props: any ) {
   //        126    - 120       = 6     /   151           - 120       = 6 / 31 = 19.35%
   let totalxp = 0;
 
-  if( !me ) {
+  if( !me && player.xp ) {
     totalxp = (( player.xp.total - player.xp.totalprev ) / ( player.xp.totalcurrent - player.xp.totalprev ) ) * 100;
   }
 
@@ -93,7 +99,8 @@ function PlayerCard( props: any ) {
       hoverable={!props.selected}
       actions={cardactions}
       id="player-card"
-      onDoubleClick={() => props.onDoubleClick( player )}
+      onDoubleClick={() => props.onDoubleClick && props.onDoubleClick( player )}
+      onClick={() => props.onClick && props.onClick( player )}
       style={props.selected ? { borderColor: blue.primary } : {}}
     >
 
@@ -103,13 +110,15 @@ function PlayerCard( props: any ) {
       </Typography.Title>
 
       {/* TOTAL XP */}
-      <ExpBar
-        title={`${Math.floor( player.xp.total )} XP`}
-        prev={Math.floor( player.xp.totalprev )}
-        next={Math.ceil( player.xp.totalcurrent )}
-        success={totalxp - totalgains}
-        total={totalxp}
-      />
+      {player.xp && (
+        <ExpBar
+          title={`${Math.floor( player.xp.total )} XP`}
+          prev={Math.floor( player.xp.totalprev )}
+          next={Math.ceil( player.xp.totalcurrent )}
+          success={totalxp - totalgains}
+          total={totalxp}
+        />
+      )}
 
       {/* PLAYER COUNTRY */}
       <Divider orientation="center" className="flag-divider">
@@ -120,7 +129,7 @@ function PlayerCard( props: any ) {
       </Divider>
 
       {/* PLAYER STATS */}
-      {Object.keys( props.player.stats ).map( stat => {
+      {props.player.stats && Object.keys( props.player.stats ).map( stat => {
         // inverse the formula if the stat is
         // improved by subtracting from it
         const total = statModifiers.SUBTRACT.includes( stat )
