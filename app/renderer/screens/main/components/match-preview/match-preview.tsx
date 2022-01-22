@@ -45,7 +45,7 @@ export default function MatchPreview( props: Props ) {
         <section onClick={() => !!props.onClick && props.onClick( props.data.match.team1.id )}>
           <Space direction="vertical" size={2}>
             {props.data.match.team1.logo
-              ? <Avatar size={100} src={props.data.match.team1.logo} shape="square" />
+              ? <Avatar size={100} src={props.data.match.team1.logo} shape="square" style={{ lineHeight: 0 }} />
               : <Avatar size={100} icon={<UserOutlined />} />
             }
             {!props.data.match.team1.logo && (
@@ -64,7 +64,7 @@ export default function MatchPreview( props: Props ) {
         <section onClick={() => !!props.onClick && props.onClick( props.data.match.team2.id )}>
           <Space direction="vertical" size={2}>
             {props.data.match.team2.logo
-              ? <Avatar size={100} src={props.data.match.team2.logo} shape="square" />
+              ? <Avatar size={100} src={props.data.match.team2.logo} shape="square" style={{ lineHeight: 0 }} />
               : <Avatar size={100} icon={<UserOutlined />} />
             }
             {!props.data.match.team2.logo && (
