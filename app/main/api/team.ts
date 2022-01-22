@@ -190,8 +190,11 @@ async function competitions( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest>
   const comptypes = await Models.Comptype.findAll({
     include: [{
       model: Models.Competition,
-      attributes: [ 'id' ],
-      include: [{ model: Models.Team, where: { id: req.params.id }}]
+      attributes: [ 'id', 'season' ],
+      include: [
+        { model: Models.Compdef },
+        { model: Models.Team, where: { id: req.params.id }}
+      ]
     }],
   });
   evt.sender.send( req.responsechannel, JSON.stringify( comptypes ) );

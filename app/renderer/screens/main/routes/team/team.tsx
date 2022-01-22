@@ -7,9 +7,10 @@ import PlayerCard from 'renderer/screens/main/components/player-card';
 import * as IPCRouting from 'shared/ipc-routing';
 import { ipcRenderer } from 'electron';
 import { useParams, RouteComponentProps } from 'react-router';
-import { Affix, Col, PageHeader, Row, Spin, Typography } from 'antd';
+import { Affix, Col, Menu, PageHeader, Row, Spin, Typography } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { TeamInfoResponse } from 'shared/types';
+import { CompTypePrettyNames } from 'shared/enums';
 import { ApplicationState } from 'renderer/screens/main/types';
 
 
@@ -21,6 +22,10 @@ import { ApplicationState } from 'renderer/screens/main/types';
 const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
+
+
+// variables
+const { SubMenu } = Menu;
 
 
 // typings
@@ -41,6 +46,20 @@ interface DivisionResponse {
 }
 
 
+interface CompetitionResponse {
+  id: number;
+  name: string;
+  Competitions: {
+    id: number;
+    season: number;
+    Compdef: {
+      id: number;
+      name: string;
+    };
+  }[];
+}
+
+
 /**
  * HELPER FUNCTIONS
  */
@@ -58,7 +77,9 @@ function Team( props: Props ) {
   const { id } = useParams<RouteParams>();
   const [ basicInfo, setBasicInfo ] = React.useState<TeamInfoResponse>( null );
   const [ divisions, setDivisions ] = React.useState<DivisionResponse[]>( null );
+  const [ competitions, setCompetitions ] = React.useState<CompetitionResponse[]>( null );
   const [ loading, setLoading ] = React.useState( true );
+  const [ competitionFilter, setCompetitionFilter ] = React.useState<string[]>( null );
   const [ lineColor, setLineColor ] = React.useState<number[]>();
   const logoRef = React.useRef( null );
 
@@ -71,9 +92,21 @@ function Team( props: Props ) {
       .send( IPCRouting.Database.TEAM_DIVISIONS, { params: { id } })
       .then( res => { setDivisions( res ); setLoading( false ); })
     ;
+    IpcService
+      .send( IPCRouting.Database.TEAM_COMPETITIONS, { params: { id } })
+      .then( res => {
+        setCompetitions( res );
+        setLoading( false );
+        setCompetitionFilter([ String( res[ 0 ].Competitions[ 0 ].id ) ]);
+      })
+    ;
   }, []);
 
-  if( loading || !basicInfo || !divisions ) {
+  React.useEffect( () => {
+    console.log( competitionFilter );
+  }, [ competitionFilter ]);
+
+  if( loading || !basicInfo || !divisions || !competitions ) {
     return (
       <div id="team">
         <PageHeader ghost={false} title={<Spin />} />
@@ -185,6 +218,31 @@ function Team( props: Props ) {
             </Col>
           ))}
         </Row>
+
+        {/* COMPETITION DROPDOWNS */}
+        <Typography.Title level={2}>
+          {'Competitions and match history'}
+        </Typography.Title>
+        <Menu
+          mode="horizontal"
+          onClick={({ key }) => setCompetitionFilter([ key as string ])}
+          defaultSelectedKeys={competitionFilter}
+        >
+          {competitions.map( comptype => (
+            <SubMenu
+              key={comptype.id}
+              title={CompTypePrettyNames[ comptype.name ]}
+              disabled={comptype.Competitions.length === 0}
+            >
+              {comptype.Competitions.map( competition => (
+                <Menu.Item key={competition.id}>
+                  {competition.Compdef.name + ' '}
+                  {`S${String( competition.season ).padStart( 2, '0' )}`}
+                </Menu.Item>
+              ))}
+            </SubMenu>
+          ))}
+        </Menu>
       </section>
     </div>
   );
