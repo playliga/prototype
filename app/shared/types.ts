@@ -28,5 +28,5 @@ export interface TeamInfoResponse {
   id: number;
   name: string;
   logo: string;
-  Country: { code: string };
+  Country: { code: string; name: string };
 }

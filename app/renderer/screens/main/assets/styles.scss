@@ -91,3 +91,40 @@
     margin-bottom: 10px;
   }
 }
+
+
+#team {
+  $chart-height: 200px;
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  article#info-container {
+    display: flex;
+    height: $chart-height;
+  }
+
+  article#info-container > aside {
+    width: 100%;
+  }
+
+  aside#chart-container {
+    position: relative;
+    flex-basis: 66%;
+  }
+
+  aside#chart-container + aside {
+    flex-basis: 33%;
+    text-align: center;
+  }
+
+  img {
+    display: block;
+    width: auto;
+    max-height: 50%;
+    margin: 0 auto;
+    margin-top: 10px;
+  }
+}
