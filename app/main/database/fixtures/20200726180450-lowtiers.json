@@ -233,6 +233,7 @@
   },
   {
     "name":"ETHEREAL ",
+    "shortname": "ethereal",
     "logourl":"/commons/images/thumb/9/96/ETHEREAL_logo_2019.png/93px-ETHEREAL_logo_2019.png",
     "countrycode":"Us",
     "url":"/counterstrike/index.php?title=ETHEREAL&action=edit&redlink=1",
@@ -472,6 +473,7 @@
   },
   {
     "name":"Oceanus Gaming ",
+    "shortname": "oceanusgaming",
     "logourl":"/commons/images/thumb/6/6d/Oceanus_Gaming_logo.png/120px-Oceanus_Gaming_logo.png",
     "countrycode":"Ca",
     "url":"/counterstrike/index.php?title=Oceanus_Gaming&action=edit&redlink=1",
@@ -15282,6 +15284,7 @@
   },
   {
     "name":"Izako Boars",
+    "shortname": "izakoboars",
     "logourl":"/commons/images/thumb/5/5b/Izakoboars.png/136px-Izakoboars.png",
     "countrycode":"Pl",
     "url":"/counterstrike/Izako_Boars",
@@ -15431,6 +15434,7 @@
   },
   {
     "name":"SJ Gaming",
+    "shortname": "sjgaming",
     "logourl":"/commons/images/thumb/d/dd/SJ_Gaming_teamcardimage.png/190px-SJ_Gaming_teamcardimage.png",
     "countrycode":"Fi",
     "url":"/counterstrike/SJ_Gaming",
@@ -15573,6 +15577,7 @@
   },
   {
     "name":"Nordavind",
+    "shortname": "nordavind",
     "logourl":"/commons/images/thumb/4/4e/Nordavind_logo.png/147px-Nordavind_logo.png",
     "countrycode":"No",
     "url":"/counterstrike/Nordavind",
@@ -18397,6 +18402,7 @@
   },
   {
     "name":"9INE",
+    "shortname": "9ine",
     "logourl":"/commons/images/thumb/b/b1/9INE_Logo.png/109px-9INE_Logo.png",
     "countrycode":"Se",
     "url":"/counterstrike/9INE",
