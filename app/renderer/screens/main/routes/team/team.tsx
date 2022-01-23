@@ -339,6 +339,7 @@ function Team( props: Props ) {
               key={comptype.id}
               title={CompTypePrettyNames[ comptype.name ]}
               disabled={comptype.Competitions.length === 0}
+              popupClassName="ant-menu-small-sub-menu"
             >
               {comptype.Competitions.map( competition => (
                 <Menu.Item key={competition.id}>
