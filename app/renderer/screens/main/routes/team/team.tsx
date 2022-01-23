@@ -106,7 +106,7 @@ function Team( props: Props ) {
     console.log( competitionFilter );
   }, [ competitionFilter ]);
 
-  if( loading || !basicInfo || !divisions || !competitions ) {
+  if( loading || !basicInfo || !divisions || !competitions || !competitionFilter ) {
     return (
       <div id="team">
         <PageHeader ghost={false} title={<Spin />} />
