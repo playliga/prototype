@@ -2,10 +2,12 @@ import React from 'react';
 import Connector from 'renderer/screens/main/components/connector';
 import Application from 'main/constants/application';
 import GameSettings from 'main/constants/gamesettings';
+import IpcService from 'renderer/lib/ipc-service';
 import { RouteComponentProps } from 'react-router';
-import { Col, Row, Typography, Switch, Card, Select } from 'antd';
+import { Col, Row, Typography, Switch, Card, Select, Button } from 'antd';
 import { ApplicationState } from 'renderer/screens/main/types';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
+import * as IPCRouting from 'shared/ipc-routing';
 import './settings.scss';
 
 
@@ -16,6 +18,7 @@ interface Props extends ApplicationState, RouteComponentProps {
 
 function Settings( props: Props ) {
   const { settings } = props.profile.data;
+  const [ working, setWorking ] = React.useState( false );
 
   const handleOnChange = ( data: any ) => {
     props.dispatch( profileActions.updateSettings({
@@ -47,23 +50,6 @@ function Settings( props: Props ) {
             <Typography.Text type="secondary">
               {'This will launch CS 1.6 instead of CS:GO when playing matches.'}
             </Typography.Text>
-          </Card.Grid>
-          <Card.Grid hoverable={false}>
-            <Row>
-              <Col span={20}>
-                <Typography.Text>{'Simulation Modes'}</Typography.Text>
-              </Col>
-              <Col span={4}>
-                <Select
-                  defaultValue={settings.sim_mode || Application.SIM_MODE_DEFAULT}
-                  onChange={value => handleOnChange({ sim_mode: value })}
-                >
-                  <Select.Option value={Application.SIM_MODE_DEFAULT}>{'Default'}</Select.Option>
-                  <Select.Option value={Application.SIM_MODE_ALWAYS_WIN}>{'Always Win'}</Select.Option>
-                  <Select.Option value={Application.SIM_MODE_ALWAYS_LOSE}>{'Always Lose'}</Select.Option>
-                </Select>
-              </Col>
-            </Row>
           </Card.Grid>
         </Card>
       </section>
@@ -104,6 +90,56 @@ function Settings( props: Props ) {
                 </Select>
               </Col>
             </Row>
+          </Card.Grid>
+        </Card>
+      </section>
+      <section>
+        <Typography.Title level={2}>
+          {'Debug'}
+        </Typography.Title>
+        <Card>
+          <Card.Grid hoverable={false}>
+            <Row>
+              <Col span={20}>
+                <Typography.Text>{'Simulation Modes'}</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Select
+                  defaultValue={settings.sim_mode || Application.SIM_MODE_DEFAULT}
+                  onChange={value => handleOnChange({ sim_mode: value })}
+                >
+                  <Select.Option value={Application.SIM_MODE_DEFAULT}>{'Default'}</Select.Option>
+                  <Select.Option value={Application.SIM_MODE_ALWAYS_WIN}>{'Always Win'}</Select.Option>
+                  <Select.Option value={Application.SIM_MODE_ALWAYS_LOSE}>{'Always Lose'}</Select.Option>
+                </Select>
+              </Col>
+            </Row>
+          </Card.Grid>
+          <Card.Grid hoverable={false}>
+            <Row>
+              <Col span={20}>
+                <Typography.Text>{'Regenerate Player Stats'}</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Button
+                  block
+                  loading={working}
+                  type="primary"
+                  onClick={() => {
+                    setWorking( true );
+                    IpcService
+                      .send( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ALL )
+                      .then( () => setWorking( false ) )
+                    ;
+                  }}
+                >
+                  {'Regenerate'}
+                </Button>
+              </Col>
+            </Row>
+            <Typography.Text type="secondary">
+              {'Initiates a training session for all players in the database. This may take some time!'}
+            </Typography.Text>
           </Card.Grid>
         </Card>
       </section>

@@ -1,4 +1,5 @@
 import { ipcMain, IpcMainEvent } from 'electron';
+import { Op } from 'sequelize';
 import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
 import { buildXPTree } from 'main/lib/util';
@@ -82,9 +83,37 @@ async function isEligible( evt: IpcMainEvent, req: IpcRequest<any> ) {
 }
 
 
+async function trainAllSquads( evt: IpcMainEvent, req: IpcRequest<any> ) {
+  // grab all players except the user
+  const profile = await Models.Profile.getActiveProfile();
+  const players = await Models.Player.findAll({
+    where: {
+      id: {[Op.ne]: profile.Player.id }
+    }
+  });
+
+  // start the training sessions
+  const trainingsession = players.map( player => {
+    let stats = player.stats;
+    if( !stats ) {
+      const tier = Tiers[ player.tier ];
+      stats = tier.templates[ tier.templates.length - 1 ].stats;
+    }
+    const xp = new BotExp( stats );
+    xp.train();
+    return player.update({ stats: xp.stats, gains: xp.gains, tier: xp.getTierId()[ 0 ] });
+  });
+
+  // save the changes
+  await Promise.all( trainingsession );
+  evt.sender.send( req.responsechannel );
+}
+
+
 export default function() {
   ipcMain.on( IPCRouting.Database.PROFILE_GET, get );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD, getsquad );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN, trainsquad );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ELIGIBLE, isEligible );
+  ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ALL, trainAllSquads );
 }
