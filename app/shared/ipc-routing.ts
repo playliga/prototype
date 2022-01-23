@@ -63,5 +63,6 @@ export const Database = {
   TEAM_DIVISIONS                  : '/database/team/divisions',
   TEAM_GET                        : '/database/team/get',
   TEAM_INFO                       : '/database/team/info',
+  TEAM_MATCHES                    : '/database/team/matches',
   UPDATE                          : '/database/update',
 };

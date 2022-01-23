@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import ColorThief from 'colorthief';
 import IpcService from 'renderer/lib/ipc-service';
 import Tiers from 'shared/tiers';
@@ -7,11 +8,12 @@ import PlayerCard from 'renderer/screens/main/components/player-card';
 import * as IPCRouting from 'shared/ipc-routing';
 import { ipcRenderer } from 'electron';
 import { useParams, RouteComponentProps } from 'react-router';
-import { Affix, Col, Menu, PageHeader, Row, Spin, Typography } from 'antd';
+import { Affix, Card, Col, Menu, PageHeader, Row, Space, Spin, Typography } from 'antd';
+import { CaretLeftFilled } from '@ant-design/icons';
 import { Line } from 'react-chartjs-2';
-import { TeamInfoResponse } from 'shared/types';
 import { CompTypePrettyNames } from 'shared/enums';
 import { ApplicationState } from 'renderer/screens/main/types';
+import { Match } from 'main/lib/league/types';
 
 
 /**
@@ -39,6 +41,15 @@ interface RouteParams {
 }
 
 
+interface TeamInfoResponse {
+  id: number;
+  name: string;
+  logo: string;
+  Country: { code: string; name: string };
+  Players?: { id: number; alias: string }[];
+}
+
+
 interface DivisionResponse {
   name: string;
   tier: number;
@@ -60,12 +71,96 @@ interface CompetitionResponse {
 }
 
 
+interface MatchResponse {
+  id: number;
+  competition: string;
+  season: number;
+  description?: string;
+  date: string;
+  match: Match & {
+    [N in 'team1' | 'team2']: Partial<TeamInfoResponse> & {
+      seed: number;
+      shortName: string;
+    };
+  };
+}
+
+
 /**
  * HELPER FUNCTIONS
  */
 
 function getYAxisLabel( label: number ) {
   return Tiers.find( t => t.order === label ).name;
+}
+
+
+function padSeasonNumber( season: number ) {
+  return `S${String( season ).padStart( 2, '0' )}`;
+}
+
+
+/**
+ * HELPER COMPONENTS
+ */
+
+function MatchResult( props: MatchResponse ) {
+  const team1win = props.match.m[ 0 ] > props.match.m[ 1 ];
+  const team2win = props.match.m[ 1 ] > props.match.m[ 0 ];
+  const team1text = [
+    <span key="team1_flag" className={`fp ${props.match.team1.Country.code.toLowerCase()}`} />,
+    props.match.team1.name
+  ];
+  const team2text = [
+    <span key="team2_flag" className={`fp ${props.match.team2.Country.code.toLowerCase()}`} />,
+    props.match.team2.name
+  ];
+
+  return (
+    <Card.Grid style={{ width: '50%' }}>
+      <p className="small-caps">
+        <Typography.Text type="secondary">
+          {props.competition + ' '}
+          {padSeasonNumber( props.season ) + ' '}
+          {props.description && `(${props.description})`}
+        </Typography.Text>
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Space direction="vertical">
+          {team1win
+            ? <p>{team1text}</p>
+            : <p><Typography.Text type="secondary">{team1text}</Typography.Text></p>
+          }
+          {team2win
+            ? <p>{team2text}</p>
+            : <p><Typography.Text type="secondary">{team2text}</Typography.Text></p>
+          }
+        </Space>
+        <Space size="middle">
+          <Space direction="vertical">
+            <p>
+              {team1win
+                ? [ props.match.m[ 0 ], <CaretLeftFilled key="team1" /> ]
+                : <Typography.Text type="secondary">{props.match.m[ 0 ]}</Typography.Text>
+              }
+            </p>
+            <p>
+              {team2win
+                ? [ props.match.m[ 1 ], <CaretLeftFilled key="team1" /> ]
+                : <Typography.Text type="secondary">{props.match.m[ 1 ]}</Typography.Text>
+              }
+            </p>
+          </Space>
+          <Space direction="vertical" align="center">
+            <Typography.Text type="secondary">
+              {moment( props.date ).format( 'MM/DD/YY' )}
+            </Typography.Text>
+            <p>{props.match.data.map}</p>
+          </Space>
+        </Space>
+      </div>
+    </Card.Grid>
+  );
 }
 
 
@@ -78,11 +173,14 @@ function Team( props: Props ) {
   const [ basicInfo, setBasicInfo ] = React.useState<TeamInfoResponse>( null );
   const [ divisions, setDivisions ] = React.useState<DivisionResponse[]>( null );
   const [ competitions, setCompetitions ] = React.useState<CompetitionResponse[]>( null );
+  const [ matches, setMatches ] = React.useState<MatchResponse[]>( null );
   const [ loading, setLoading ] = React.useState( true );
+  const [ fetchingMatches, setFetchingMatches ] = React.useState( true );
   const [ competitionFilter, setCompetitionFilter ] = React.useState<string[]>( null );
   const [ lineColor, setLineColor ] = React.useState<number[]>();
   const logoRef = React.useRef( null );
 
+  // fetch initial data
   React.useEffect( () => {
     IpcService
       .send( IPCRouting.Database.TEAM_INFO, { params: { id } })
@@ -102,8 +200,16 @@ function Team( props: Props ) {
     ;
   }, []);
 
+  // fetch data when filter is toggled
   React.useEffect( () => {
-    console.log( competitionFilter );
+    if( competitionFilter ) {
+      const [ competitionId ] = competitionFilter;
+      setFetchingMatches( !fetchingMatches );
+      IpcService
+        .send( IPCRouting.Database.TEAM_MATCHES, { params: { id, competitionId } })
+        .then( res => { setMatches( res ); setFetchingMatches( false ); })
+      ;
+    }
   }, [ competitionFilter ]);
 
   if( loading || !basicInfo || !divisions || !competitions || !competitionFilter ) {
@@ -237,12 +343,25 @@ function Team( props: Props ) {
               {comptype.Competitions.map( competition => (
                 <Menu.Item key={competition.id}>
                   {competition.Compdef.name + ' '}
-                  {`S${String( competition.season ).padStart( 2, '0' )}`}
+                  {padSeasonNumber( competition.season )}
                 </Menu.Item>
               ))}
             </SubMenu>
           ))}
         </Menu>
+
+        {/* MATCH HISTORY */}
+        {!!matches && matches.length > 0 && (
+          <Card
+            className="ant-card-contain-grid"
+            style={{ marginTop: 20 }}
+            loading={fetchingMatches}
+          >
+            {matches.map( match => (
+              <MatchResult key={match.id} {...match} />
+            ))}
+          </Card>
+        )}
       </section>
     </div>
   );
