@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import { Typography, Space, Avatar, Empty } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { UpcomingMatchResponse } from 'renderer/screens/main/types';

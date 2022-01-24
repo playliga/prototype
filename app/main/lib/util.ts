@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import ScreenManager from 'main/lib/screen-manager';
 import BotExp from 'main/lib/bot-exp';
 import { CompTypes } from 'shared/enums';

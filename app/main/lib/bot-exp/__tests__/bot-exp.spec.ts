@@ -1,4 +1,4 @@
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import BotExp from '../bot-exp';
 
 

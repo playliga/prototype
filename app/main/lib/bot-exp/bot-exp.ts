@@ -1,7 +1,8 @@
 import { random, sampleSize } from 'lodash';
 import { IterableObject } from 'shared/types';
+import { StatModifiers } from 'shared/enums';
 import probable from 'probable';
-import Tiers, { statModifiers } from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 
 
 export interface Stats {
@@ -111,7 +112,7 @@ export default class BotExp {
     const unmaxxed = Object.keys( this.stats ).filter( key => {
       // if the modifier for this stat is to subtract it's not
       // maxxed out if its greater than the next stat value
-      if( statModifiers.SUBTRACT.includes( key ) ) {
+      if( StatModifiers.SUBTRACT.includes( key ) ) {
         return this.stats[ key ] >= current.stats[ key ];
       }
 
@@ -125,7 +126,7 @@ export default class BotExp {
     drills.forEach( drill => {
       const probtable = probable.createTableFromSizes( BotExp.probTables[ drill ] );
 
-      if( statModifiers.SUBTRACT.includes( drill ) ) {
+      if( StatModifiers.SUBTRACT.includes( drill ) ) {
         const gains = probtable.roll();
         this.stats[ drill ] -= gains;
         this.gains[ drill ] = gains;

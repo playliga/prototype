@@ -43,3 +43,13 @@ export const AutofillAction = {
   INVITE  : 'invite',
   OPEN    : 'open',
 };
+
+
+/**
+ * Certain stats are better when you
+ * subtract instead of add to them.
+ */
+
+export const StatModifiers = {
+  SUBTRACT: [ 'reactionTime', 'attackDelay' ],
+};

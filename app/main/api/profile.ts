@@ -6,7 +6,7 @@ import { buildXPTree } from 'main/lib/util';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import moment from 'moment';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import BotExp from 'main/lib/bot-exp';
 import Application from 'main/constants/application';
 

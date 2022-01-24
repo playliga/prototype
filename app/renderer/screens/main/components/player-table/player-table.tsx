@@ -1,5 +1,5 @@
 import React from 'react';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import { isEqual } from 'lodash';
 import { Badge, Button, Space, Table, Typography } from 'antd';
 import { TablePaginationConfig } from 'antd/lib/table';

@@ -1,6 +1,6 @@
 import log from 'electron-log';
 import probable from 'probable';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import Application from 'main/constants/application';
 import BotExp from 'main/lib/bot-exp';
 import { random } from 'lodash';

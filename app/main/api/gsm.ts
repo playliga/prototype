@@ -7,7 +7,7 @@ import dedent from 'dedent';
 import probable from 'probable';
 import glob from 'glob';
 import unzipper from 'unzipper';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import getLocalIP from 'main/lib/local-ip';
 import Scorebot from 'main/lib/scorebot';
 import RconClient from 'main/lib/rcon-client';

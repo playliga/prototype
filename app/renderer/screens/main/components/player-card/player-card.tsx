@@ -4,8 +4,7 @@ import EmailDialogue from 'main/constants/emaildialogue';
 import { StarFilled, FolderOpenFilled,StarOutlined, ShoppingOutlined,  ShoppingFilled } from '@ant-design/icons';
 import { blue } from '@ant-design/colors';
 import { Card, Typography, Divider,  Tooltip, Badge } from 'antd';
-import { statModifiers } from 'shared/tiers';
-import { OfferStatus } from 'shared/enums';
+import { OfferStatus, StatModifiers } from 'shared/enums';
 import './player-card.scss';
 
 
@@ -132,7 +131,7 @@ function PlayerCard( props: any ) {
       {props.player.stats && Object.keys( props.player.stats ).map( stat => {
         // inverse the formula if the stat is
         // improved by subtracting from it
-        const total = statModifiers.SUBTRACT.includes( stat )
+        const total = StatModifiers.SUBTRACT.includes( stat )
           ? ( ( player.xp.prev?.stats[ stat ] - props.player.stats[ stat ] ) / ( player.xp.prev?.stats[ stat ] - player.xp.current.stats[ stat ] ) ) * 100
           : ( ( props.player.stats[ stat ] - player.xp.prev?.stats[ stat ] ) / ( player.xp.current.stats[ stat ] - player.xp.prev?.stats[ stat ] ) ) * 100
         ;

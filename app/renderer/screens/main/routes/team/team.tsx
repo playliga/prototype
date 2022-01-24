@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import ColorThief from 'colorthief';
 import IpcService from 'renderer/lib/ipc-service';
-import Tiers from 'shared/tiers';
+import Tiers from 'shared/tiers.json';
 import Connector from 'renderer/screens/main/components/connector';
 import PlayerCard from 'renderer/screens/main/components/player-card';
 import * as IPCRouting from 'shared/ipc-routing';
