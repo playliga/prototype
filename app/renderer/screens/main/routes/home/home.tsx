@@ -76,15 +76,20 @@ function handleOnStop( setStopping: Function ) {
 }
 
 
+function getOpponent( matchdata: any, userteamid: number ) {
+  return matchdata.team1.id === userteamid
+    ? matchdata.team2
+    : matchdata.team1
+  ;
+}
+
+
 /**
  * Helper components
  */
 
 function NameColumn( props: { data: any; userteamid: number }) {
-  const opponent = props.data.match.team1.id === props.userteamid
-    ? props.data.match.team2
-    : props.data.match.team1
-  ;
+  const opponent = getOpponent( props.data.match, props.userteamid );
   return (
     <>
       {opponent.logo && <img src={opponent.logo} width="16" height="16" className="img-responsive" />}
@@ -94,7 +99,7 @@ function NameColumn( props: { data: any; userteamid: number }) {
 }
 
 
-function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: number }) {
+function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: number; onClick: ( id: number ) => void }) {
   if( !props.data || props.data.length === 0 ) {
     return (
       <Empty
@@ -134,6 +139,9 @@ function UpcomingMatches( props: { data: UpcomingMatchResponse[]; userteamid: nu
       <Table.Column
         ellipsis
         render={value => <NameColumn data={value} userteamid={props.userteamid} />}
+        onCell={( c: any ) => ({
+          onClick: () => !!props.onClick && props.onClick( getOpponent( c.match, props.userteamid ).id )
+        })}
       />
     </Table>
   );
@@ -269,6 +277,7 @@ function Home( props: Props ) {
               <UpcomingMatches
                 data={hasUpcoming && upcoming.slice( 1 )}
                 userteamid={props.profile.data && props.profile.data.Team.id}
+                onClick={id => props.history.push( `/home/team/${id}` )}
               />
             </Card>
           </Col>
