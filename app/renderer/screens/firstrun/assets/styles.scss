@@ -1,6 +1,10 @@
 @import '~renderer/assets/shared';
 
 
+$content_width: 75%;
+$content_width_small: 45%;
+
+
 html {
   overflow-x: hidden;
 }
@@ -39,7 +43,7 @@ html {
 
 
 #routes {
-  width: 35%;
+  width: $content_width;
   margin: 0 auto;
   text-align: center;
 
@@ -54,7 +58,15 @@ html {
 
   .content {
     position: absolute;
-    width: 35%; // same as parent's
+    width: $content_width;
+  }
+
+  .content-small {
+    width: $content_width_small;
+  }
+
+  .content-center {
+    margin: 0 auto;
   }
 
   .ant-form-item {

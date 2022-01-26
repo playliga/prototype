@@ -1,5 +1,6 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { Op } from 'sequelize';
+import { shuffle } from 'lodash';
 import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
 import { buildXPTree } from 'main/lib/util';
@@ -17,7 +18,8 @@ interface IpcRequestParams {
 
 
 interface FreeAgentsParams {
-  country?: string;
+  country: string;
+  limit: number;
 }
 
 
@@ -137,7 +139,7 @@ async function freeagents( evt: IpcMainEvent, req: IpcRequest<FreeAgentsParams> 
     }]
   });
 
-  // grab the players in the same region and return the result
+  // grab the players in the same region and load their xp data
   const players = await Models.Player.findAll({
     where: { teamId: null },
     include: [{
@@ -145,10 +147,13 @@ async function freeagents( evt: IpcMainEvent, req: IpcRequest<FreeAgentsParams> 
       where: { id: countries.map( c => c.id ) }
     }]
   });
-  const out = players.map( player => ({
+  const formatted = players.map( player => ({
     ...player.toJSON(),
     ...buildXPTree( player ),
   }));
+
+  // shuffle and limit the result before returning
+  const out = shuffle( formatted ).slice( 0, req.params.limit );
   evt.sender.send( req.responsechannel, JSON.stringify( out ) );
 }
 

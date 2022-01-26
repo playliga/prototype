@@ -89,7 +89,7 @@ class One extends Component<Props, IterableObject<Field>> {
       <section className="content">
         <h1>{'Player Information'}</h1>
 
-        <Form onFinish={this.handleSubmit}>
+        <Form onFinish={this.handleSubmit} className="content-small content-center">
           {this.plaintxtfields.map( ( id: string, idx: number ) => {
             const field = this.state[ id ];
 
