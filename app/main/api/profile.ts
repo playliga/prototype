@@ -16,6 +16,11 @@ interface IpcRequestParams {
 }
 
 
+interface FreeAgentsParams {
+  country?: string;
+}
+
+
 async function get( evt: IpcMainEvent, request: IpcRequest<IpcRequestParams> ) {
   // bail if no response channel provided
   if( !request.responsechannel ) {
@@ -110,9 +115,48 @@ async function trainAllSquads( evt: IpcMainEvent, req: IpcRequest<any> ) {
 }
 
 
+async function freeagents( evt: IpcMainEvent, req: IpcRequest<FreeAgentsParams> ) {
+  // grab the countries in the same region as the provided country name
+  const country = await Models.Country.findOne({
+    where: { name: req.params.country },
+    include: [ 'Continent' ]
+  });
+
+  // include south america in the NA region
+  const region_ids = [ country.Continent.id ];
+
+  if( country.Continent.code === 'NA' ) {
+    const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
+    region_ids.push( sa.id );
+  }
+
+  const countries = await Models.Country.findAll({
+    include: [{
+      model: Models.Continent,
+      where: { id: region_ids }
+    }]
+  });
+
+  // grab the players in the same region and return the result
+  const players = await Models.Player.findAll({
+    where: { teamId: null },
+    include: [{
+      model: Models.Country,
+      where: { id: countries.map( c => c.id ) }
+    }]
+  });
+  const out = players.map( player => ({
+    ...player.toJSON(),
+    ...buildXPTree( player ),
+  }));
+  evt.sender.send( req.responsechannel, JSON.stringify( out ) );
+}
+
+
 export default function() {
   ipcMain.on( IPCRouting.Database.PROFILE_GET, get );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD, getsquad );
+  ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_FREE_AGENTS, freeagents );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN, trainsquad );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ELIGIBLE, isEligible );
   ipcMain.on( IPCRouting.Database.PROFILE_SQUAD_TRAIN_ALL, trainAllSquads );

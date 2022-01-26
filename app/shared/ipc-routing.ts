@@ -60,6 +60,7 @@ export const Database = {
   PROFILE_SQUAD_TRAIN             : '/database/profile/squad/train',
   PROFILE_SQUAD_TRAIN_ELIGIBLE    : '/database/profile/squad/train/eligible',
   PROFILE_SQUAD_TRAIN_ALL         : '/database/profile/squad/train/all',
+  PROFILE_SQUAD_FREE_AGENTS       : '/database/profile/squad/freeagents',
   TEAM_COMPETITIONS               : '/database/team/competitions',
   TEAM_DIVISIONS                  : '/database/team/divisions',
   TEAM_GET                        : '/database/team/get',

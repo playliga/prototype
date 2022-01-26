@@ -24,8 +24,8 @@ const applogo = new AppLogo();
 
 // constants
 const PORT = process.env.PORT || 3000;
-const WIDTH = 800;
-const HEIGHT = 650;
+const WIDTH = 1024;
+const HEIGHT = 768;
 const CONFIG = {
   url: is.production()
     ? `file://${path.join( __dirname, 'dist/renderer/screens/firstrun/index.html' )}`
@@ -38,7 +38,6 @@ const CONFIG = {
     minHeight: HEIGHT,
     maximizable: false,
     resizable: false,
-    movable: false,
     minimizable: false,
     icon: applogo.getPath()
   }

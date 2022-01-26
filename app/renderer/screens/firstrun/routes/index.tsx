@@ -68,7 +68,8 @@ export default class Routes extends Component<RouteComponentProps, State> {
       <FormContext.Provider
         value={{
           continents: this.state.continents,
-          onSubmit: this.handleSubmit
+          onSubmit: this.handleSubmit,
+          formdata: this.state.formdata
         }}
       >
         {this.routes.map( r => (
