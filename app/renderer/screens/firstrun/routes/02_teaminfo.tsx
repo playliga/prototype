@@ -63,7 +63,7 @@ class Two extends Component<Props, IterableObject<Field>> {
     };
 
     // pass it back to the parent route
-    this.props.onSubmit( payload, 'finish' );
+    this.props.onSubmit( payload, 'three' );
   }
 
   public render() {

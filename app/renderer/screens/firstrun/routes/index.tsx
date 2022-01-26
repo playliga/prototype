@@ -10,7 +10,8 @@ import IpcService from 'renderer/lib/ipc-service';
 import { FormContext } from '../common';
 import One from './01_userinfo';
 import Two from './02_teaminfo';
-import Finish from './03_finish';
+import Three from './03_squad';
+import Finish from './04_finish';
 
 
 interface State {
@@ -24,6 +25,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
   private routes = [
     { path: '/', component: One, title: 'Player', icon: <UserOutlined /> },
     { path: '/firstrun/two', component: Two, title: 'Team', icon: <TeamOutlined /> },
+    { path: '/firstrun/three', component: Three, title: 'Squad', icon: <TeamOutlined /> },
     { path: '/firstrun/finish', component: Finish, title: 'Finish', icon: <FileDoneOutlined /> },
   ];
 
