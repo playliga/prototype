@@ -102,3 +102,25 @@ html {
     transition: left 300ms ease-in-out;
   }
 }
+
+#squadselect {
+  p {
+    margin-bottom: 0;
+  }
+
+  .ant-space {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .ant-space-item {
+    width: 25%;
+    max-width: 25%;
+    text-align: center;
+  }
+
+  .empty {
+    border: 1px dashed lightgray;
+    color: lightgray;
+  }
+}

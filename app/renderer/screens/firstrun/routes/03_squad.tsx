@@ -2,7 +2,8 @@ import React from 'react';
 import Application from 'main/constants/application';
 import IpcService from 'renderer/lib/ipc-service';
 import PlayerCard from 'renderer/screens/main/components/player-card';
-import { Button, Col, Row, Spin } from 'antd';
+import { Button, Card, Col, Row, Space, Spin } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { snooze } from 'shared/util';
 import { FormContext } from '../common';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -25,6 +26,21 @@ const NUM_PLAYERS = 3 * NUM_PLAYERS_PER_ROW;
 interface Props {
   onSubmit: Function;
   formdata: any[];
+}
+
+
+/**
+ * HELPER FUNCTIONS
+ */
+
+function handleOnClickPlayer( existing: any[], player: any ) {
+  const found = existing.some( p => p.id === player.id );
+
+  if( found ) {
+    return existing.filter( p => p.id !== player.id );
+  }
+
+  return [ ...existing, player ];
 }
 
 
@@ -54,7 +70,24 @@ function Three( props: Props ) {
   return (
     <section id="squadselect" className="content">
       <h1>{'Squad Information'}</h1>
-      <p>{'Pick your squad from this list of free agents.'}</p>
+      <p>{`Pick your ${Application.SQUAD_MIN_LENGTH} starters from the list of free agents.`}</p>
+      <Space direction="horizontal">
+        {Array.from( Array( Application.SQUAD_MIN_LENGTH ) ).map( ( _, idx ) => {
+          const item = squad[ idx ];
+          return (
+            <Card
+              key={idx}
+              bordered={!!item}
+              className={!item && 'empty'}
+            >
+              {item
+                ? <><span className={`fp ${item.Country.code.toLowerCase()}`} /> {item.alias}</>
+                : <PlusOutlined />
+              }
+            </Card>
+          );
+        })}
+      </Space>
       <article>
         <Button
           block
@@ -85,8 +118,8 @@ function Three( props: Props ) {
             <PlayerCard
               disableManagerActions
               player={player}
-              selected={squad.includes( player.id )}
-              onClick={( player: any ) => setSquad([ ...squad, player.id ])}
+              selected={squad.some( p => p.id === player.id )}
+              onClick={( player: any ) => setSquad( handleOnClickPlayer( squad, player ) )}
             />
           </Col>
         ))}
