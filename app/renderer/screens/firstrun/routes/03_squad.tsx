@@ -4,6 +4,7 @@ import IpcService from 'renderer/lib/ipc-service';
 import PlayerCard from 'renderer/screens/main/components/player-card';
 import { Button, Card, Col, Row, Space, Spin, Typography } from 'antd';
 import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { shuffle } from 'lodash';
 import { snooze } from 'shared/util';
 import { FormContext } from '../common';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -40,6 +41,17 @@ function handleOnClickPlayer( existing: any[], player: any ) {
   }
 
   return [ ...existing, player ];
+}
+
+
+function handleAutoSelect( existing: any[], players: any[] ) {
+  if( existing.length === Application.SQUAD_MIN_LENGTH ) {
+    return existing;
+  }
+
+  const eligible = players.filter( p => !existing.some( e => e.id === p.id ) );
+  const needed = Application.SQUAD_MIN_LENGTH - existing.length;
+  return [ ...existing, ...shuffle( eligible ).slice( 0, needed ) ];
 }
 
 
@@ -107,7 +119,13 @@ function Three( props: Props ) {
       </article>
       <Row gutter={[ GUTTER_H, GUTTER_V ]}>
         <Col span={GRID_COL_WIDTH}>
-          <Button block>{'Automatically select'}</Button>
+          <Button
+            block
+            disabled={squad.length === Application.SQUAD_MIN_LENGTH}
+            onClick={() => setSquad( handleAutoSelect( squad, freeagents ) )}
+          >
+            {'Automatically select'}
+          </Button>
         </Col>
         <Col span={GRID_COL_WIDTH_SMALL}>
           <Button block onClick={getFreeAgents}>
@@ -121,16 +139,20 @@ function Three( props: Props ) {
             <Spin size="large" />
           </Col>
         )}
-        {( !!freeagents && !fetching ) && freeagents.map( player => (
-          <Col key={player.id} span={GRID_COL_WIDTH}>
-            <PlayerCard
-              disableManagerActions
-              player={player}
-              selected={squad.some( p => p.id === player.id )}
-              onClick={( player: any ) => setSquad( handleOnClickPlayer( squad, player ) )}
-            />
-          </Col>
-        ))}
+        {( !!freeagents && !fetching ) && freeagents.map( player => {
+          const selected = squad.some( p => p.id === player.id );
+          return (
+            <Col key={player.id} span={GRID_COL_WIDTH}>
+              <PlayerCard
+                disableManagerActions
+                player={player}
+                disabled={selected || squad.length === Application.SQUAD_MIN_LENGTH}
+                selected={selected}
+                onClick={( player: any ) => setSquad( handleOnClickPlayer( squad, player ) )}
+              />
+            </Col>
+          );
+        })}
       </Row>
     </section>
   );

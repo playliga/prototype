@@ -95,11 +95,11 @@ function PlayerCard( props: any ) {
 
   return (
     <Card
-      hoverable={!props.selected}
+      hoverable={!props.selected && !props.disabled}
       actions={cardactions}
       id="player-card"
       onDoubleClick={() => props.onDoubleClick && props.onDoubleClick( player )}
-      onClick={() => props.onClick && props.onClick( player )}
+      onClick={() => !props.selected && !props.disabled && props.onClick && props.onClick( player )}
       style={props.selected ? { borderColor: blue.primary } : {}}
     >
 
