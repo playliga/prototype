@@ -3,6 +3,7 @@
 
 $content_width: 75%;
 $content_width_small: 45%;
+$squad_picker_height: 120px;
 
 
 html {
@@ -114,12 +115,19 @@ html {
   }
 
   .ant-space-item {
-    width: 25%;
-    max-width: 25%;
+    min-width: 20%;
+    max-width: 20%;
     text-align: center;
   }
 
+  .ant-space-item > .ant-card {
+    height: $squad_picker_height;
+  }
+
   .empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: 1px dashed lightgray;
     color: lightgray;
   }

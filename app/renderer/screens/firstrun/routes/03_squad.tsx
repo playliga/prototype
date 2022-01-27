@@ -2,8 +2,8 @@ import React from 'react';
 import Application from 'main/constants/application';
 import IpcService from 'renderer/lib/ipc-service';
 import PlayerCard from 'renderer/screens/main/components/player-card';
-import { Button, Card, Col, Row, Space, Spin } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Row, Space, Spin, Typography } from 'antd';
+import { CloseCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { snooze } from 'shared/util';
 import { FormContext } from '../common';
 import * as IPCRouting from 'shared/ipc-routing';
@@ -18,8 +18,7 @@ const GUTTER_H = 8;
 const GUTTER_V = 8;
 const GRID_COL_WIDTH = 8;
 const GRID_COL_WIDTH_SMALL = GRID_COL_WIDTH - 4;
-const NUM_PLAYERS_PER_ROW = 4;
-const NUM_PLAYERS = 3 * NUM_PLAYERS_PER_ROW;
+const NUM_PLAYERS = 6;
 
 
 // typings
@@ -52,25 +51,26 @@ function Three( props: Props ) {
   const [ , teaminfo ] = props.formdata;
   const [ freeagents, setFreeAgents ] = React.useState<any[]>( null );
   const [ squad, setSquad ] = React.useState<any[]>( [] );
+  const [ fetching, setFetching ] = React.useState( false );
+
+  const getFreeAgents = () => {
+    setFetching( true );
+    IpcService
+      .send( IPCRouting.Database.PROFILE_SQUAD_FREE_AGENTS, { params: { country: teaminfo.country, limit: NUM_PLAYERS } })
+      .then( data => { setFreeAgents( data ); setFetching( false ); })
+    ;
+  };
 
   React.useEffect( () => {
-    const params = {
-      country: teaminfo.country,
-      limit: NUM_PLAYERS
-    };
-
     // wait for route transition to finish before
     // fetching the data to reduce jarring animations
-    snooze( 1000 )
-      .then( () => IpcService.send( IPCRouting.Database.PROFILE_SQUAD_FREE_AGENTS, { params }))
-      .then( data => setFreeAgents( data ) )
-    ;
+    snooze( 1000 ) .then( getFreeAgents );
   }, []);
 
   return (
     <section id="squadselect" className="content">
       <h1>{'Squad Information'}</h1>
-      <p>{`Pick your ${Application.SQUAD_MIN_LENGTH} starters from the list of free agents.`}</p>
+      <p>{`Pick your ${Application.SQUAD_MIN_LENGTH} teammates from the list of free agents.`}</p>
       <Space direction="horizontal">
         {Array.from( Array( Application.SQUAD_MIN_LENGTH ) ).map( ( _, idx ) => {
           const item = squad[ idx ];
@@ -79,9 +79,15 @@ function Three( props: Props ) {
               key={idx}
               bordered={!!item}
               className={!item && 'empty'}
+              actions={!!item && [
+                <CloseCircleOutlined
+                  key={item.id}
+                  onClick={() => setSquad( handleOnClickPlayer( squad, item ) )}
+                />
+              ]}
             >
               {item
-                ? <><span className={`fp ${item.Country.code.toLowerCase()}`} /> {item.alias}</>
+                ? <Typography.Text ellipsis><span className={`fp ${item.Country.code.toLowerCase()}`} /> {item.alias}</Typography.Text>
                 : <PlusOutlined />
               }
             </Card>
@@ -104,16 +110,18 @@ function Three( props: Props ) {
           <Button block>{'Automatically select'}</Button>
         </Col>
         <Col span={GRID_COL_WIDTH_SMALL}>
-          <Button block>{'Randomize'}</Button>
+          <Button block onClick={getFreeAgents}>
+            {'Randomize'}
+          </Button>
         </Col>
       </Row>
       <Row gutter={[ GUTTER_H, GUTTER_V ]}>
-        {!freeagents && (
+        {( !freeagents || fetching ) && (
           <Col span={GRID_COL_WIDTH} offset={GRID_COL_WIDTH}>
             <Spin size="large" />
           </Col>
         )}
-        {!!freeagents && freeagents.map( player => (
+        {( !!freeagents && !fetching ) && freeagents.map( player => (
           <Col key={player.id} span={GRID_COL_WIDTH}>
             <PlayerCard
               disableManagerActions
