@@ -1,14 +1,12 @@
 import React from 'react';
 import IpcService from 'renderer/lib/ipc-service';
-import Application from 'main/constants/application';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
 import MatchResults from 'renderer/screens/main/components/match-results';
 import * as IPCRouting from 'shared/ipc-routing';
-import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as MainScreenTypes from 'renderer/screens/main/types';
 import { RouteComponentProps } from 'react-router';
-import { Spin, Tabs, Typography, Select, Col, Row, Alert, Button } from 'antd';
+import { Spin, Tabs, Typography, Select, Col, Row } from 'antd';
 import { parseCompType, parseCupRound } from 'shared/util';
 import { CompTypePrettyNames } from 'shared/enums';
 import { getLetter } from 'renderer/lib/util';
@@ -32,9 +30,7 @@ interface MainComponentProps extends MainScreenTypes.ApplicationState, RouteComp
 
 
 interface CompetitionTypeProps extends MainScreenTypes.CompTypeResponse {
-  joining: boolean;
   onTeamClick: ( id: number ) => void;
-  onJoin: ( id: number ) => void;
   team: any;
   teamCompetitions: any;
 }
@@ -63,38 +59,15 @@ function TierSelector( props: { placeholder: string; onChange?: any; defaultValu
 }
 
 
-function JoinCompetitionComponent( props: CompetitionTypeProps & { competition: MainScreenTypes.BaseCompetition }) {
+function CompetitionStatusComponent( props: CompetitionTypeProps & { competition: MainScreenTypes.BaseCompetition }) {
   // bail early if it has already started
   if( props.competition.started ) {
     return null;
   }
 
-  // can the player join this competition?
-  const nosquad = props.team.Players.length < Application.SQUAD_MIN_LENGTH;
-  const joined = props.teamCompetitions.some( ( c: any ) => c.id === props.competition.id );
-
   return (
     <article style={{ width: '33%' }}>
       <p><em>{'Not started.'}</em></p>
-      {nosquad && props.competition.regionId === props.team.Country.ContinentId && props.competition.isOpen && (
-        <Alert
-          type="warning"
-          message="You don't have enough players in your squad to join."
-        />
-      )}
-      {!nosquad && props.competition.regionId === props.team.Country.ContinentId && props.competition.isOpen && (
-        <Button
-          block
-          type="primary"
-          disabled={props.joining || joined || nosquad}
-          onClick={() => props.onJoin( props.competition.id )}
-        >
-          {props.joining
-            ? <Spin size="small" />
-            : joined ? 'Joined' : 'Join'
-          }
-        </Button>
-      )}
     </article>
   );
 }
@@ -193,7 +166,7 @@ function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: Mai
         {props.competition.name}
         {props.competition.regioncode ? ': ' + props.competition.regioncode : ''}
       </Typography.Title>
-      <JoinCompetitionComponent {...props} />
+      <CompetitionStatusComponent {...props} />
       {props.competition.started && (
         <TierSelector
           placeholder="Choose a division"
@@ -286,7 +259,7 @@ function CompetitionTypeCup( props: CompetitionTypeProps & { competition: MainSc
         {props.competition.name}
         {props.competition.regioncode ? ': ' + props.competition.regioncode : ''}
       </Typography.Title>
-      <JoinCompetitionComponent {...props} />
+      <CompetitionStatusComponent {...props} />
       {props.competition.started && (
         <TierSelector
           placeholder="Choose a cup round"
@@ -378,7 +351,7 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
         {props.competition.name}
         {props.competition.regioncode ? ': ' + props.competition.regioncode : ''}
       </Typography.Title>
-      <JoinCompetitionComponent {...props} />
+      <CompetitionStatusComponent {...props} />
       {props.competition.started && (
         <TierSelector
           placeholder="Choose a stage"
@@ -502,7 +475,6 @@ const { TabPane } = Tabs;
 function Competitions( props: MainComponentProps ) {
   const [ comptypes, setComptypes ] = React.useState<MainScreenTypes.CompTypeResponse[]>([]);
   const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
-  const [ joining, setJoining ] = React.useState( false );
 
   // grab comptypes on load
   React.useEffect( () => {
@@ -535,14 +507,6 @@ function Competitions( props: MainComponentProps ) {
     );
   }
 
-  // event handlers
-  const handleOnJoin = async ( id: number ) => {
-    setJoining( true );
-    const newprofile = await IpcService.send( IPCRouting.Competition.JOIN, { params: { id } });
-    props.dispatch( profileActions.findFinish( newprofile ) );
-    setJoining( false );
-  };
-
   // render the main component
   return (
     <div id="competitions" className="content">
@@ -551,9 +515,7 @@ function Competitions( props: MainComponentProps ) {
           <TabPane tab={CompTypePrettyNames[ comptype.name ]} key={comptype.id}>
             <CompetitionType
               {...comptype}
-              joining={joining}
               onTeamClick={id => props.history.push( `/competitions/team/${id}` )}
-              onJoin={handleOnJoin}
               team={props.profile.data.Team}
               teamCompetitions={teamCompetitions}
             />

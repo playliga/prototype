@@ -45,7 +45,6 @@ export const Worldgen = {
 export const Competition = {
   COMPTYPES         : '/competition/types',
   FIND_ALL          : '/competition/find/all',
-  JOIN              : '/competition/join',
   MATCHES_NEW       : '/competition/matches/new',
   MATCHES_UPCOMING  : '/competition/matches/upcoming',
   PLAY              : '/competition/play',

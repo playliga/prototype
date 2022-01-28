@@ -551,76 +551,6 @@ function getMinorStageInfo( compobj: Models.Competition, teams: Models.Team[], a
  * IPC Handlers
  */
 
-async function join( evt: IpcMainEvent, request: IpcRequest<JoinParams> ) {
-  const compobj = await Models.Competition.findByPk( request.params.id, { include: [{ all: true }] });
-  const [ isleague, iscup, iscircuit ] = parseCompType( compobj.Comptype.name );
-
-  let teamid = request.params.teamid;
-
-  // fetch the team
-  //
-  // default to user profile if no id was provided
-  if( !teamid ) {
-    teamid = (await Models.Profile.getActiveProfile()).Team?.id;
-  }
-
-  const teamobj = await Models.Team.findByPk( teamid );
-
-  if( isleague ) {
-    // build league obj
-    const leagueobj = League.restore( compobj.data );
-
-    // if no division was specified, default to the lowest one
-    let divid = request.params.divId;
-
-    if( !divid ) {
-      divid = leagueobj.divisions.length - 1;
-    }
-
-    // if the division length is already maxxed out then
-    // remove the last team to make room for the user
-    if( leagueobj.divisions[ divid ].size === leagueobj.divisions[ divid ].competitors.length ) {
-      const lastteam = leagueobj.divisions[ divid ].competitors[ leagueobj.divisions[ divid ].competitors.length - 1 ];
-      leagueobj.divisions[ divid ].removeCompetitor( lastteam.id );
-      await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ));
-    }
-
-    // save changes to db
-    leagueobj.divisions[ divid ].addCompetitor( teamobj.id, teamobj.name );
-    compobj.data = leagueobj.save();
-  } else if( iscup ) {
-    const cupobj = Cup.restore( compobj.data );
-    cupobj.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
-    compobj.data = cupobj.save();
-  } else if( iscircuit ) {
-    // build minor obj
-    const minorObj = Minor.restore( compobj.data );
-    const currStage = minorObj.getCurrentStage() || minorObj.stages[ 0 ];
-
-    // if the current stage is already maxxed out then
-    // remove the last team to make room for the user
-    if( currStage.size === currStage.competitors.length ) {
-      const lastteam = currStage.competitors[ currStage.competitors.length - 1 ];
-      currStage.removeCompetitor( lastteam.id );
-      await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ) );
-    }
-
-    // save changes to the db
-    currStage.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
-    compobj.data = minorObj.save();
-  }
-
-  await compobj.save();
-  await compobj.addTeam( teamid );
-
-  // return an updated profile from the db
-  evt.sender.send(
-    request.responsechannel,
-    JSON.stringify( await Models.Profile.getActiveProfile() )
-  );
-}
-
-
 async function upcoming( evt: IpcMainEvent, req: IpcRequest<UpcomingParams> ) {
   // get the upcoming matchdays in the queue
   const profile = await Models.Profile.getActiveProfile();
@@ -762,7 +692,6 @@ async function findAll( evt: IpcMainEvent, req: IpcRequest<FindAllParams> ) {
 export default function() {
   ipcMain.on( IPCRouting.Competition.COMPTYPES, getComptypes );
   ipcMain.on( IPCRouting.Competition.FIND_ALL, findAll );
-  ipcMain.on( IPCRouting.Competition.JOIN, join );
   ipcMain.on( IPCRouting.Competition.MATCHES_UPCOMING, upcoming );
   ipcMain.on( IPCRouting.Competition.STANDINGS, standings );
 }
