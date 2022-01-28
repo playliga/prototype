@@ -76,7 +76,7 @@ function Three( props: Props ) {
   React.useEffect( () => {
     // wait for route transition to finish before
     // fetching the data to reduce jarring animations
-    snooze( 1000 ) .then( getFreeAgents );
+    snooze( 1000 ).then( getFreeAgents );
   }, []);
 
   return (
@@ -112,7 +112,7 @@ function Three( props: Props ) {
           type="primary"
           className="content-small content-center"
           disabled={squad.length < Application.SQUAD_MIN_LENGTH}
-          onClick={() => props.onSubmit( null, 'finish' )}
+          onClick={() => props.onSubmit( squad, 'finish' )}
         >
           {'Next'}
         </Button>

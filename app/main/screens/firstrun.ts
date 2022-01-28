@@ -63,7 +63,7 @@ function openMainWindow() {
  */
 
 async function saveplayer( data: IterableObject<any>[] ) {
-  const [ userinfo, teaminfo ] = data;
+  const [ userinfo, teaminfo, squadinfo ] = data;
 
   // get the countryids
   const teamcountry = await Models.Country.findOne({ where: { name: teaminfo.country }});
@@ -80,6 +80,17 @@ async function saveplayer( data: IterableObject<any>[] ) {
     alias: userinfo.alias,
     tier: 4,
   });
+
+  // save player's squad to their team
+  const squad = await Models.Player.findAll({
+    where: {
+      id: squadinfo.map( ( p: any ) => p.id )
+    }
+  });
+  await Promise.all([
+    ...squad.map( squadmember => squadmember.setTeam( team ) ),
+    ...squad.map( squadmember => squadmember.update({ transferListed: false }) ),
+  ]);
 
   // build the first season date
   const today = moment([

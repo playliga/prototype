@@ -49,7 +49,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
     this.setState({ continents: data, logo });
   }
 
-  private handleSubmit = ( data: never, next = '' ) => {
+  private handleSubmit = ( data: any, next = '' ) => {
     const { formdata } = this.state;
     formdata.push( data );
 
