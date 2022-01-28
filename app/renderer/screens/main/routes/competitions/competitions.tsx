@@ -5,7 +5,7 @@ import Standings from 'renderer/screens/main/components/standings';
 import MatchResults from 'renderer/screens/main/components/match-results';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as MainScreenTypes from 'renderer/screens/main/types';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, useHistory } from 'react-router';
 import { Spin, Tabs, Typography, Select, Col, Row } from 'antd';
 import { parseCompType, parseCupRound } from 'shared/util';
 import { CompTypePrettyNames } from 'shared/enums';
@@ -29,8 +29,19 @@ interface MainComponentProps extends MainScreenTypes.ApplicationState, RouteComp
 }
 
 
+interface Filter {
+  activeTabKey?: string;
+  conference?: string;
+  division?: any;
+  round?: string;
+  stage?: any;
+}
+
+
 interface CompetitionTypeProps extends MainScreenTypes.CompTypeResponse {
+  filterdata?: Record<string, Filter>;
   onTeamClick: ( id: number ) => void;
+  onFilterChange: ( data: any ) => void;
   team: any;
   teamCompetitions: any;
 }
@@ -83,10 +94,14 @@ function skipUnplayed( round: any ) {
 }
 
 
-function CompetitionTypeLeagueConferences( props: Partial<CompetitionTypeProps> & { conferences: MainScreenTypes.StandingsResponse[]; division: MainScreenTypes.LeagueDivisionResponse }) {
+function CompetitionTypeLeagueConferences( props: Partial<CompetitionTypeProps> & { conferences: MainScreenTypes.StandingsResponse[]; division: MainScreenTypes.LeagueDivisionResponse; filterOverride: Filter }) {
   // track the state of our tier filter
   const genConferenceLabel = ( cid: number ) => `Conference ${getLetter( cid+1 )}`;
-  const [ filter, setFilter ] = React.useState( genConferenceLabel( 0 ) );
+  const [ filter, setFilter ] = React.useState( props.filterOverride?.conference || genConferenceLabel( 0 ) );
+
+  React.useEffect( () => {
+    props.onFilterChange( filter );
+  }, [ filter ]);
 
   return (
     <React.Fragment>
@@ -158,7 +173,11 @@ function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: Mai
   ;
 
   // track the state of our tier filter
-  const [ filter, setFilter ] = React.useState( defaultFilter?.name );
+  const [ filter, setFilter ] = React.useState( props.filterdata[ props.competition.id ]?.division || defaultFilter?.name );
+
+  React.useEffect( () => {
+    props.onFilterChange({ division: filter });
+  }, [ filter ]);
 
   return (
     <section>
@@ -181,9 +200,11 @@ function CompetitionTypeLeague( props: CompetitionTypeProps & { competition: Mai
           <article key={props.competition.id + division.name}>
             {division.conferences.length > 1 && (
               <CompetitionTypeLeagueConferences
+                filterOverride={props.filterdata[ props.competition.id ]}
                 division={division}
                 conferences={division.conferences}
                 onTeamClick={props.onTeamClick}
+                onFilterChange={data => props.onFilterChange({ conference: data })}
               />
             )}
             {division.conferences.length === 1 && division.conferences.map( ( conference, idx ) => (
@@ -250,7 +271,11 @@ function CompetitionTypeCup( props: CompetitionTypeProps & { competition: MainSc
     ? parseCupRound( rounds[ 0 ] )
     : null
   ;
-  const [ filter, setFilter ] = React.useState( defaultFilter );
+  const [ filter, setFilter ] = React.useState( props.filterdata[ props.competition.id ]?.round || defaultFilter );
+
+  React.useEffect( () => {
+    props.onFilterChange({ round: filter });
+  }, [ filter ]);
 
   // render jsx
   return (
@@ -292,11 +317,15 @@ function CompetitionTypeCup( props: CompetitionTypeProps & { competition: MainSc
 }
 
 
-function CompetitionTypeGlobalCircuitPlayoffs( props: Partial<CompetitionTypeProps> & { rounds: any }) {
+function CompetitionTypeGlobalCircuitPlayoffs( props: Partial<CompetitionTypeProps> & { rounds: any; filterOverride?: Filter }) {
   // track the state of our tier filter
   const rounds = props.rounds.filter( skipUnplayed ) || [];
   const defaultFilter = parseCupRound( rounds[ 0 ] );
-  const [ filter, setFilter ] = React.useState( defaultFilter );
+  const [ filter, setFilter ] = React.useState( props.filterOverride?.round || defaultFilter );
+
+  React.useEffect( () => {
+    props.onFilterChange( filter );
+  }, [ filter ]);
 
   return (
     <React.Fragment>
@@ -343,7 +372,11 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
     ? stages.filter( skipEmptyStandings )
     : [ null ]
   ;
-  const [ filter, setFilter ] = React.useState( defaultFilter?.stageName );
+  const [ filter, setFilter ] = React.useState( props.filterdata[ props.competition.id ]?.stage || defaultFilter?.stageName );
+
+  React.useEffect( () => {
+    props.onFilterChange({ stage: filter });
+  }, [ filter ]);
 
   return (
     <section>
@@ -373,8 +406,10 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
                   </Typography.Title>
                 )}
                 <CompetitionTypeGlobalCircuitPlayoffs
+                  filterOverride={props.filterdata[ props.competition.id ]}
                   onTeamClick={props.onTeamClick}
                   rounds={stage.rounds}
+                  onFilterChange={data => props.onFilterChange({ round: data })}
                 />
               </React.Fragment>
             )}
@@ -432,12 +467,15 @@ function CompetitionType( props: CompetitionTypeProps ) {
   return (
     <React.Fragment>
       {competitions.map( competition => {
+        const existingfilter = props.filterdata[competition.id];
+        const onFilterChange = ( data: any ) => props.onFilterChange({ [competition.id]: { ...existingfilter, ...data } });
         if( isleague ) {
           return (
             <CompetitionTypeLeague
               {...props}
               key={competition.id}
               competition={competition as MainScreenTypes.LeagueResponse}
+              onFilterChange={onFilterChange}
             />
           );
         } else if( iscup ) {
@@ -446,6 +484,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
               {...props}
               key={competition.id}
               competition={competition as MainScreenTypes.CupResponse}
+              onFilterChange={onFilterChange}
             />
           );
         } else if( iscircuit ) {
@@ -454,6 +493,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
               {...props}
               key={competition.id}
               competition={competition as MainScreenTypes.GlobalCircuitResponse}
+              onFilterChange={onFilterChange}
             />
           );
         }
@@ -473,8 +513,16 @@ const { TabPane } = Tabs;
 
 
 function Competitions( props: MainComponentProps ) {
+  // figure out filter data if there
+  // was any from a previous route
+  const history: any = useHistory();
+  const [ entry ] = history.entries.slice( -1 );
+  const refererData = entry.state?.refererData;
+
+  // component state
   const [ comptypes, setComptypes ] = React.useState<MainScreenTypes.CompTypeResponse[]>([]);
   const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
+  const [ filterdata, setFilterdata ] = React.useState<Record<string, Filter | string>>( refererData || {} );
 
   // grab comptypes on load
   React.useEffect( () => {
@@ -510,12 +558,18 @@ function Competitions( props: MainComponentProps ) {
   // render the main component
   return (
     <div id="competitions" className="content">
-      <Tabs defaultActiveKey="1">
+      <Tabs
+        defaultActiveKey="1"
+        activeKey={filterdata.activeTabKey as string}
+        onChange={key => setFilterdata({ ...filterdata, activeTabKey: key })}
+      >
         {comptypes.map( comptype => (
           <TabPane tab={CompTypePrettyNames[ comptype.name ]} key={comptype.id}>
             <CompetitionType
               {...comptype}
-              onTeamClick={id => props.history.push( `/competitions/team/${id}` )}
+              filterdata={filterdata as Record<string, Filter>}
+              onFilterChange={data => setFilterdata({ ...filterdata, ...data })}
+              onTeamClick={id => props.history.push( `/competitions/team/${id}`, { refererData: filterdata })}
               team={props.profile.data.Team}
               teamCompetitions={teamCompetitions}
             />
