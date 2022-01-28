@@ -536,6 +536,61 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
 }
 
 
+async function addTeamToCompetition( compobj: Models.Competition, teamobj: Models.Team ) {
+  const [ isleague, iscup, iscircuit ] = parseCompType( compobj.Comptype.name );
+
+  // bail early if team is already in the competition
+  if( compobj.Teams.some( team => team.id === teamobj.id ) ) {
+    return Promise.resolve();
+  }
+
+  if( isleague ) {
+    // build league obj
+    const leagueobj = League.restore( compobj.data );
+
+    // default to the lowest division
+    const divid = leagueobj.divisions.length - 1;
+
+    // if the division length is already maxxed out then
+    // remove the last team to make room for the user
+    if( leagueobj.divisions[ divid ].size === leagueobj.divisions[ divid ].competitors.length ) {
+      const lastteam = leagueobj.divisions[ divid ].competitors[ leagueobj.divisions[ divid ].competitors.length - 1 ];
+      leagueobj.divisions[ divid ].removeCompetitor( lastteam.id );
+      await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ));
+    }
+
+    // save changes to db
+    leagueobj.divisions[ divid ].addCompetitor( teamobj.id, teamobj.name );
+    compobj.data = leagueobj.save();
+  } else if( iscup ) {
+    const cupobj = Cup.restore( compobj.data );
+    cupobj.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
+    compobj.data = cupobj.save();
+  } else if( iscircuit ) {
+    // build minor obj
+    const minorObj = Minor.restore( compobj.data );
+    const currStage = minorObj.getCurrentStage() || minorObj.stages[ 0 ];
+
+    // if the current stage is already maxxed out then
+    // remove the last team to make room for the user
+    if( currStage.size === currStage.competitors.length ) {
+      const lastteam = currStage.competitors[ currStage.competitors.length - 1 ];
+      currStage.removeCompetitor( lastteam.id );
+      await compobj.removeTeam( compobj.Teams.find( t => t.id === lastteam.id ) );
+    }
+
+    // save changes to the db
+    currStage.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
+    compobj.data = minorObj.save();
+  }
+
+  return [
+    compobj.save(),
+    compobj.addTeam( teamobj )
+  ];
+}
+
+
 // ------------------------
 // EXPORTED FUNCTIONS
 // ------------------------
@@ -948,4 +1003,28 @@ export async function genAllComps() {
     // if no regions, this is an international competition
     return genSingleComp( compdef, profile, compdefs );
   }));
+}
+
+
+/**
+ * Adds the user's team to competitions
+ */
+
+export async function assignUserCompetitions() {
+  // grab competitions within same region as the user
+  const profile = await Models.Profile.getActiveProfile();
+  const region = profile.Team.Country.Continent;
+  const competitions = await Models.Competition.findAll({
+    include: [
+      { model: Models.Comptype },
+      { model: Models.Team },
+      {
+        model: Models.Continent,
+        where: { id: region.id }
+      },
+    ]
+  });
+
+  // add user's team to each applicable competition
+  return competitions.map( competition => addTeamToCompetition( competition, profile.Team ) );
 }
