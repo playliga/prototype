@@ -23,13 +23,9 @@ const Application = {
   OFFER_USER_HIGH_TIER_MODIFIER     : 10,                 // affects chances of an offer if the user's player is a higher tier
   OFFER_USER_SQUAD_MODIFIER         : -10,                // affects chances of an offer if the buying team already has enough players in their squad
   OFFER_USER_TOP_TALENT_MODIFIER    : 60,                 // chance of looking for the user's highest skilled player
-  PRESEASON_AUTOADD_COMP            : 3,                  // when to auto-add the user to a competition
-  PRESEASON_AUTOADD_SQUAD           : 5,                  // when to auto-add players to user's team
-  PRESEASON_COMP_DEADLINE_DAYS      : [ 14, 7 ],          // when to start asking to join a competition
   PRESEASON_FIRST_YEAR              : 2019,               // the very first pre-season's year
   PRESEASON_LENGTH                  : 60,                 // when the regular season starts
   PRESEASON_PREV_END_DAYS           : 5,                  // how many days before pre-season does the prev season end
-  PRESEASON_SQUAD_DEADLINE_DAYS     : [ 30, 14, 7 ],      // when to start enforcing minimum squad depth
   PRESEASON_START_DAY               : 1,                  // pre-season start day
   PRESEASON_START_MONTH             : 6,                  // pre-season start month
   SIM_MODE_DEFAULT                  : 'default',

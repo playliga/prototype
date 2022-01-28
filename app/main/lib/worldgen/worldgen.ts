@@ -42,39 +42,8 @@ export async function preseasonChecks() {
     }
   });
 
-  const today = moment( profile.currentDate );
-  const preseason_start = moment([ today.year(), Application.PRESEASON_START_MONTH, Application.PRESEASON_START_DAY ]);
-  const preseason_end = preseason_start.add( Application.PRESEASON_LENGTH, 'days' );
-
-  // set up action items for the preseason checks
-  const actions = [
-    ...Application.PRESEASON_COMP_DEADLINE_DAYS.map( offset => ({
-      type: ActionQueueTypes.PRESEASON_CHECK_COMP,
-      actionDate: moment( preseason_end ).subtract( offset, 'days' ),
-      payload: null
-    })),
-    ...Application.PRESEASON_SQUAD_DEADLINE_DAYS.map( offset => ({
-      type: ActionQueueTypes.PRESEASON_CHECK_SQUAD,
-      actionDate: moment( preseason_end ).subtract( offset, 'days' ),
-      payload: null
-    }))
-  ];
-
-  // set up action items for when to auto-add competitions/squad members
-  actions.push({
-    type: ActionQueueTypes.PRESEASON_AUTOADD_COMP,
-    actionDate: moment( preseason_end ).subtract( Application.PRESEASON_AUTOADD_COMP, 'days' ),
-    payload: null
-  });
-
-  actions.push({
-    type: ActionQueueTypes.PRESEASON_AUTOADD_SQUAD,
-    actionDate: moment( preseason_end ).subtract( Application.PRESEASON_AUTOADD_SQUAD, 'days' ),
-    payload: null
-  });
-
   // send an e-mail before the first matchday to explain how to play
-  actions.push({
+  const actions = [{
     type: ActionQueueTypes.SEND_EMAIL,
     actionDate: moment( first_comp.actionDate ),
     payload: {
@@ -84,7 +53,7 @@ export async function preseasonChecks() {
       content: Sqrl.render( EmailDialogue.INTRO_HOW_TO_PLAY, { player: profile.Player }),
       sentAt: moment( first_comp.actionDate ),
     }
-  });
+  }];
 
   return Models.ActionQueue.bulkCreate( actions );
 }

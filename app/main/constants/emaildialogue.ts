@@ -96,44 +96,6 @@ We might have to spend a little more for this offer.
 `;
 
 
-const PRESEASON_AUTOADD_COMP = `
-Hi, {{it.player.alias}}.
-
-I've signed us up for the *{{it.compname}}: {{it.compregion}}* competition.
-
-Since the season was about to start and we had not joined any competitions yet.
-`;
-
-
-const PRESEASON_AUTOADD_SQUAD = `
-Hi, {{it.player.alias}}.
-
-I've signed some players on a free transfer since the season is about to start and we still had not found any players for our squad:
-
-{{@each(it.players) => player}}
-- {{player.alias}}\n
-{{/each}}
-`;
-
-
-const PRESEASON_COMP_DEADLINE = `
-Hi, {{it.player.alias}}.
-
-Our squad is ready to go but I noticed we haven't joined any competitions.
-
-The season is about to start so we should get on that!
-`;
-
-
-const PRESEASON_SQUAD_DEADLINE = `
-Hi, {{it.player.alias}}.
-
-We don't have enough squad members to join any competitions.
-
-There are some free agents in the transfer market we can send offers to.
-`;
-
-
 const TEAM_ACCEPT = `
 Hi, {{it.player.alias}}.
 
@@ -187,10 +149,6 @@ export default {
   PLAYER_REJECT_REASON_REGION,
   PLAYER_REJECT_REASON_TIER,
   PLAYER_REJECT_REASON_WAGES,
-  PRESEASON_AUTOADD_COMP,
-  PRESEASON_AUTOADD_SQUAD,
-  PRESEASON_COMP_DEADLINE,
-  PRESEASON_SQUAD_DEADLINE,
   TEAM_ACCEPT,
   TEAM_REJECT_REASON_ADJUSTED_FEE,
   TEAM_REJECT_REASON_NOTFORSALE,
