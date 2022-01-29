@@ -7,7 +7,6 @@ import { sendEmailAndEmit } from 'main/lib/util';
 import moment from 'moment';
 import PlayerWages from 'main/constants/playerwages';
 import EmailDialogue from 'main/constants/emaildialogue';
-import Application from 'main/constants/application';
 
 
 /**
