@@ -376,8 +376,10 @@ export async function generate() {
   // is our target a higher tier than us?
   if( target.tier > team.tier ) {
     send_offer_probability += Application.OFFER_USER_HIGH_TIER_MODIFIER;
-  } else {
+  } else if( target.tier === team.tier ) {
     send_offer_probability += Application.OFFER_USER_SAME_TIER_MODIFIER;
+  } else {
+    send_offer_probability += Application.OFFER_USER_LOW_TIER_MODIFIER;
   }
 
   // is this player worth sending an offer to?

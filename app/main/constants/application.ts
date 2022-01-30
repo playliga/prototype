@@ -19,8 +19,9 @@ const Application = {
   OFFER_PLAYER_RESPONSE_MAXDAYS     : 1,
   OFFER_USER_BASE_PROBABILITY       : 5,                  // chance of sending the user a transfer offer
   OFFER_USER_SELLING_MODIFIER       : 5,                  // affects chances of an offer if the user is selling their player
-  OFFER_USER_SAME_TIER_MODIFIER     : 5,                  // affects chances of an offer if the user's player is the same tier
+  OFFER_USER_SAME_TIER_MODIFIER     : -10,                // affects chances of an offer if the user's player is the same tier
   OFFER_USER_HIGH_TIER_MODIFIER     : 10,                 // affects chances of an offer if the user's player is a higher tier
+  OFFER_USER_LOW_TIER_MODIFIER      : -50,                // affects chances of an offer if the user's player is a lower tier
   OFFER_USER_SQUAD_MODIFIER         : -10,                // affects chances of an offer if the buying team already has enough players in their squad
   OFFER_USER_TOP_TALENT_MODIFIER    : 60,                 // chance of looking for the user's highest skilled player
   PRESEASON_FIRST_YEAR              : 2019,               // the very first pre-season's year
