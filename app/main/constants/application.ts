@@ -12,6 +12,7 @@ const Application = {
   MATCHDAYS_LEAGUECUP               : [ 1, 2 ],           // mon, tues
   MATCHDAYS_CHAMPLEAGUE             : [ 3, 4 ],           // wed, thurs
   MATCHDAYS_MINOR                   : [ 3, 4 ],           // wed, thurs
+  NAEU_REGION_MAP                   : {'NA': [ 'AF', 'SA' ], 'EU': [ 'OC', 'AS' ]},     // alt regions to map to either NA or EU
   OFFER_TEAM_RESPONSE_MINDAYS       : 1,
   OFFER_TEAM_RESPONSE_MAXDAYS       : 2,
   OFFER_PLAYER_ELIGIBLE_BUFFER_DAYS : 60,

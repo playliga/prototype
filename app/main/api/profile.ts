@@ -118,19 +118,18 @@ async function trainAllSquads( evt: IpcMainEvent, req: IpcRequest<any> ) {
 
 
 async function freeagents( evt: IpcMainEvent, req: IpcRequest<FreeAgentsParams> ) {
-  // grab the countries in the same region as the provided country name
+  // grab the countries in the same region
+  // as the provided country name
   const country = await Models.Country.findOne({
     where: { name: req.params.country },
     include: [ 'Continent' ]
   });
 
-  // include south america in the NA region
-  const region_ids = [ country.Continent.id ];
-
-  if( country.Continent.code === 'NA' ) {
-    const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
-    region_ids.push( sa.id );
-  }
+  // grab countries from alt regions too
+  const altregions = await Promise.all( Application.NAEU_REGION_MAP[ country.Continent.code as 'NA' | 'EU' ].map( item => {
+    return Models.Continent.findOne({ where: { code: item }});
+  }));
+  const region_ids = [ country.Continent.id, ...altregions.map( region => region.id ) ];
 
   const countries = await Models.Country.findAll({
     include: [{

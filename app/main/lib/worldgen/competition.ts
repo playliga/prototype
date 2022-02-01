@@ -3,7 +3,6 @@ import moment from 'moment';
 import log from 'electron-log';
 import Application from 'main/constants/application';
 import Score from './score';
-import { Op } from 'sequelize';
 import { random, flattenDeep, shuffle, flatten, groupBy, uniqBy } from 'lodash';
 import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
@@ -388,7 +387,7 @@ async function parseAutofillTypes( data: any, idx: number, autofill: any, teams:
   }
 
   // return our list of competitors
-  return Promise.resolve( competitors );
+  return Promise.resolve( shuffle( competitors ) );
 }
 
 
@@ -416,22 +415,16 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
   let regionids = [];
 
   // if no region was specified, then this is an international
-  // competition and we grab the three main regions
+  // competition and we grab all the main regions
   if( !region ) {
-    const regions = await Models.Continent.findAll({
-      where: {
-        code: {[Op.in]: [ 'SA', 'EU', 'NA' ]}
-      }
-    });
+    const regions = await Models.Continent.findAll();
     regionids = regions.map( r => r.id );
   } else {
-    // include south america in the NA region
-    const sa = await Models.Continent.findOne({ where: { code: 'SA' }});
-    regionids = [ region.id ];
-
-    if( region.code === 'NA' ) {
-      regionids.push( sa.id );
-    }
+    // grab countries from alt regions too
+    const altregions = await Promise.all( Application.NAEU_REGION_MAP[ region.code as 'NA' | 'EU' ].map( item => {
+      return Models.Continent.findOne({ where: { code: item }});
+    }));
+    regionids = [ region.id, ...altregions.map( region => region.id ) ];
   }
 
   // build the competition's eligible teams. we're going to
@@ -507,7 +500,7 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
       }
 
       // add teams to the current stage and the competition model
-      competitors = shuffle( flatten( competitors ).slice( 0, tier.size ) );
+      competitors = flatten( competitors ).slice( 0, tier.size );
       stage.addCompetitors( competitors.map( t => ({ id: t.id, name: t.name, tier: t.tier }) ) );
       compteams = [ ...compteams, ...uniqBy( competitors, 'id' ) ];
       return Promise.resolve();
@@ -764,11 +757,7 @@ export async function start( comp: Models.Competition ) {
     data = Minor.restore( comp.data );
 
     // build the list of eligible teams to autofill from
-    const regions = await Models.Continent.findAll({
-      where: {
-        code: {[Op.in]: [ 'SA', 'EU', 'NA' ]}
-      }
-    });
+    const regions = await Models.Continent.findAll();
     const allteams = await Models.Team.findByRegionIds( regions.map( r => r.id ) );
     const compdefs = await Models.Compdef.findAll({ include: [ 'Continents', 'Comptype' ] });
 
