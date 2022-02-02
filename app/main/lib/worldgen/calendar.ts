@@ -276,6 +276,7 @@ itemloop.register( ActionQueueTypes.START_SEASON, () => {
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )
     .then( WGCompetition.genAllComps )
+    .then( WGCompetition.assignUserCompetitions )
   ;
 });
 

@@ -560,6 +560,24 @@ async function addTeamToCompetition( compobj: Models.Competition, teamobj: Model
     cupobj.addCompetitor( teamobj.id, teamobj.name, teamobj.tier );
     compobj.data = cupobj.save();
   } else if( iscircuit ) {
+    // bail early if it's a major as they
+    // would need to qualify first
+    if( compobj.Comptype.name === CompTypes.CIRCUIT_MAJOR ) {
+      return Promise.resolve();
+    }
+
+    // bail if user's team has already qualified for the major
+    const major = await Models.Competition.findOne({
+      where: { season: compobj.season },
+      include: [
+        { model: Models.Comptype, where: { name: CompTypes.CIRCUIT_MAJOR }},
+        { model: Models.Team }
+      ]
+    });
+    if( major.Teams.some( team => team.id === teamobj.id ) ) {
+      return Promise.resolve();
+    }
+
     // build minor obj
     const minorObj = Minor.restore( compobj.data );
     const currStage = minorObj.getCurrentStage() || minorObj.stages[ 0 ];
