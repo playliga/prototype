@@ -8,7 +8,7 @@ import { ActionQueueTypes, AutofillAction, CompTypes } from 'shared/enums';
 import { Match, Tournament } from 'main/lib/league/types';
 import { League, Cup, Division } from 'main/lib/league';
 import { Minor, Stage } from 'main/lib/circuit';
-import { parseCompType } from 'main/lib/util';
+import { getNEAURegion, parseCompType } from 'main/lib/util';
 
 
 // ------------------------
@@ -421,10 +421,10 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
     regionids = regions.map( r => r.id );
   } else {
     // grab countries from alt regions too
-    const altregions = await Promise.all( Application.NAEU_REGION_MAP[ region.code as 'NA' | 'EU' ].map( item => {
+    const altregions = await Promise.all( getNEAURegion( region.code ).map( item => {
       return Models.Continent.findOne({ where: { code: item }});
     }));
-    regionids = [ region.id, ...altregions.map( region => region.id ) ];
+    regionids = altregions.map( region => region.id );
   }
 
   // build the competition's eligible teams. we're going to
@@ -1018,16 +1018,18 @@ export async function genAllComps() {
  */
 
 export async function assignUserCompetitions() {
-  // grab competitions within same region as the user
+  // grab the main region
   const profile = await Models.Profile.getActiveProfile();
-  const region = profile.Team.Country.Continent;
+  const [ main_region_code ] = getNEAURegion( profile.Team.Country.Continent.code );
+
+  // grab competitions within same region
   const competitions = await Models.Competition.findAll({
     include: [
       { model: Models.Comptype },
       { model: Models.Team },
       {
         model: Models.Continent,
-        where: { id: region.id }
+        where: { code: main_region_code }
       },
     ]
   });

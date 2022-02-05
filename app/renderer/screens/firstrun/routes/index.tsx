@@ -41,8 +41,7 @@ export default class Routes extends Component<RouteComponentProps, State> {
         model: 'Continent',
         method: 'findAll',
         args: {
-          include: [ 'Countries' ],
-          where: { id: [ 4, 5 ] }
+          include: [ 'Countries' ]
         }
       }
     });

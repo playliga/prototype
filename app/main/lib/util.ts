@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Tiers from 'shared/tiers.json';
+import Application from 'main/constants/application';
 import ScreenManager from 'main/lib/screen-manager';
 import BotExp from 'main/lib/bot-exp';
 import { CompTypes } from 'shared/enums';
@@ -39,6 +40,16 @@ export async function sendEmailAndEmit( payload: any ) {
   ;
 
   return Promise.resolve();
+}
+
+
+export function getNEAURegion( code: string ) {
+  const region_map = Application.NAEU_REGION_MAP as Record<string, string[]>;
+  const region_code = Object
+    .keys( region_map )
+    .find( key => region_map[ key ].includes( code ) )
+  ;
+  return region_map[ region_code ];
 }
 
 

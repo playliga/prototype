@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { shuffle } from 'lodash';
 import { IpcRequest } from 'shared/types';
 import { Profile } from 'main/database/models';
-import { buildXPTree } from 'main/lib/util';
+import { buildXPTree, getNEAURegion } from 'main/lib/util';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as Models from 'main/database/models';
 import moment from 'moment';
@@ -124,17 +124,10 @@ async function freeagents( evt: IpcMainEvent, req: IpcRequest<FreeAgentsParams> 
     where: { name: req.params.country },
     include: [ 'Continent' ]
   });
-
-  // grab countries from alt regions too
-  const altregions = await Promise.all( Application.NAEU_REGION_MAP[ country.Continent.code as 'NA' | 'EU' ].map( item => {
-    return Models.Continent.findOne({ where: { code: item }});
-  }));
-  const region_ids = [ country.Continent.id, ...altregions.map( region => region.id ) ];
-
   const countries = await Models.Country.findAll({
     include: [{
       model: Models.Continent,
-      where: { id: region_ids }
+      where: { code: getNEAURegion( country.Continent.code ) }
     }]
   });
 
