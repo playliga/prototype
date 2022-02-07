@@ -264,3 +264,28 @@ export async function schedulePrizeMoneyDistribution() {
     payload: null,
   });
 }
+
+
+/**
+ * Schedule end season competition results
+ */
+
+export async function scheduleEndSeasonResults() {
+  // get the date for the start of the next season
+  // subtract a day to schedule the report
+  const action = await Models.ActionQueue.findOne({
+    where: {
+      completed: false,
+      type: ActionQueueTypes.START_SEASON
+    },
+    order: [
+      [ 'id', 'DESC' ]
+    ],
+  });
+
+  return Models.ActionQueue.create({
+    type: ActionQueueTypes.ENDSEASON_RESULTS,
+    actionDate: moment( action.actionDate ).subtract( 1, 'week' ),
+    payload: null
+  });
+}

@@ -11,7 +11,9 @@ import Application from 'main/constants/application';
 import EmailDialogue from 'main/constants/emaildialogue';
 import { flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
-import { Cup, League } from 'main/lib/league';
+import { Cup, League, Competitor } from 'main/lib/league';
+import { Result as TourneyResult } from 'main/lib/league/types';
+import { Minor } from 'main/lib/circuit';
 import { parseCompType, sendEmailAndEmit } from 'main/lib/util';
 
 /**
@@ -242,6 +244,64 @@ itemloop.register( ActionQueueTypes.ENDSEASON_REPORT, async () => {
 });
 
 
+itemloop.register( ActionQueueTypes.ENDSEASON_RESULTS, async () => {
+  // @notes:  - fetch teams separately due to performance hit?
+  // grab comptypes and filter their competitions by latest season
+  const comptypes = await Models.Comptype.findAll({
+    include: [{
+      model: Models.Competition,
+      include: [ 'Comptype' ],
+    }]
+  });
+  const competitions = comptypes.map( comptype => {
+    const currseason = Math.max( ...comptype.Competitions.map( competition => competition.season ) );
+    return comptype.Competitions.filter( competition => competition.season === currseason )
+    ;
+  });
+
+  // record the results per competition
+  const work = flatten( competitions ).map( competition => {
+    const [ isleague, iscup, iscircuit ] = parseCompType( competition.Comptype.name );
+    let results = [] as ( Partial<TourneyResult> & { competitor: Partial<Competitor> })[];
+
+    if( isleague ) {
+      const leagueobj = League.restore( competition.data );
+      leagueobj.divisions.forEach( division => division.conferences.forEach( conference => {
+        results = [ ...results, ...conference.groupObj
+          .results()
+          .map( result => ({ ...result, competitor: division.getCompetitorBySeed( conference, result.seed ) }) )
+        ];
+      }));
+    } else if( iscup ) {
+      const cupobj = Cup.restore( competition.data );
+      results = cupobj.duelObj
+        .results()
+        .map( result => ({ ...result, competitor: cupobj.getCompetitorBySeed( result.seed ) }) )
+      ;
+    } else if( iscircuit ) {
+      const minorobj = Minor.restore( competition.data );
+      minorobj.stages.forEach( stage => [ 'groupstage', 'playoffs' ].forEach( ( _, idx ) => {
+        const tourneyobj = idx > 0
+          ? stage.duelObj || stage.groupObj
+          : stage.groupObj
+        ;
+        results = [ ...results, ...tourneyobj
+          .results()
+          .map( result => ({ ...result, competitor: stage.getCompetitorBySeed( result.seed ) }) )
+        ];
+      }));
+    }
+
+    return Promise.all( results.map( result => Models.CompetitionTeams.update(
+      { result },
+      { where: { teamId: result.competitor.id, competitionId: competition.id } }
+    )));
+  });
+
+  return Promise.all( work );
+});
+
+
 itemloop.register( ActionQueueTypes.MATCHDAY, () => {
   return Promise.resolve( false );
 });
@@ -273,6 +333,7 @@ itemloop.register( ActionQueueTypes.START_SEASON, () => {
     .then( WGCompetition.nextSeasonStartDate )
     .then( Worldgen.schedulePrizeMoneyDistribution )
     .then( Worldgen.scheduleEndSeasonReport )
+    .then( Worldgen.scheduleEndSeasonResults )
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )
     .then( WGCompetition.genAllComps )

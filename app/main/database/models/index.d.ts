@@ -190,4 +190,11 @@ declare module 'main/database/models' {
   }
 
 
+  export class CompetitionTeams extends BaseModel {
+    public readonly CompetitionId: number;
+    public readonly TeamId: number;
+    public readonly result?: any;
+  }
+
+
 }

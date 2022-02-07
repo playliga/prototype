@@ -12,3 +12,4 @@ export { default as Email } from './email';
 export { default as ActionQueue } from './actionqueue';
 export { default as TransferOffer } from './transferoffer';
 export { default as Match } from './match';
+export { default as CompetitionTeams } from './competitionteams';

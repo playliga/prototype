@@ -27,7 +27,7 @@ class Competition extends Model {
     this.belongsTo( models.Comptype );
     this.belongsTo( models.Compdef );
     this.belongsTo( models.Continent );
-    this.belongsToMany( models.Team, { through: 'CompetitionTeams' });
+    this.belongsToMany( models.Team, { through: models.CompetitionTeams });
   }
 
   static findAllByTeam( id ) {

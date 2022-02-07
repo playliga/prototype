@@ -1,6 +1,7 @@
 export const ActionQueueTypes = {
   ENDSEASON_PRIZE_MONEY   : 'ENDSEASON_PRIZE_MONEY',
   ENDSEASON_REPORT        : 'ENDSEASON_REPORT',
+  ENDSEASON_RESULTS       : 'ENDSEASON_RESULTS',
   MATCHDAY                : 'MATCHDAY',
   MATCHDAY_NPC            : 'MATCHDAY_NPC',
   SEND_EMAIL              : 'SEND_EMAIL',

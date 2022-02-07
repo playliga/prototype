@@ -149,6 +149,9 @@ async function saveFirstRunHandler( evt: object, data: IterableObject<any>[] ) {
     // schedule the end of season report
     .then( Worldgen.scheduleEndSeasonReport )
 
+    // schedule recording the competition results
+    .then( Worldgen.scheduleEndSeasonResults )
+
     // finished!
     .then( openMainWindow )
   ;
