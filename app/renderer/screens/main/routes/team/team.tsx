@@ -8,12 +8,14 @@ import PlayerCard from 'renderer/screens/main/components/player-card';
 import * as IPCRouting from 'shared/ipc-routing';
 import { ipcRenderer } from 'electron';
 import { useParams, RouteComponentProps } from 'react-router';
-import { Affix, Card, Col, Menu, PageHeader, Row, Space, Spin, Typography } from 'antd';
-import { CaretLeftFilled } from '@ant-design/icons';
+import { Affix, Card, Col, Menu, PageHeader, Row, Space, Spin, Statistic, Typography } from 'antd';
+import { CaretLeftFilled, StarFilled, TrophyOutlined } from '@ant-design/icons';
+import { gold } from '@ant-design/colors';
 import { Line } from 'react-chartjs-2';
-import { CompTypePrettyNames } from 'shared/enums';
+import { CompTypePrettyNames, CompTypes, CompTypeTitleNames } from 'shared/enums';
 import { ApplicationState } from 'renderer/screens/main/types';
 import { Match } from 'main/lib/league/types';
+import { parseCompType } from 'shared/util';
 
 
 /**
@@ -57,17 +59,21 @@ interface DivisionResponse {
 }
 
 
+interface CompetitionResponseItem {
+  id: number;
+  season: number;
+  Compdef: {
+    id: number;
+    name: string;
+  };
+  Teams: any[];
+}
+
+
 interface CompetitionResponse {
   id: number;
   name: string;
-  Competitions: {
-    id: number;
-    season: number;
-    Compdef: {
-      id: number;
-      name: string;
-    };
-  }[];
+  Competitions: CompetitionResponseItem[];
 }
 
 
@@ -97,6 +103,12 @@ function getYAxisLabel( label: number ) {
 
 function padSeasonNumber( season: number ) {
   return `S${String( season ).padStart( 2, '0' )}`;
+}
+
+
+function filterWonCompetitions( competition: CompetitionResponseItem ) {
+  const [ team ] = competition.Teams;
+  return team.CompetitionTeams.result?.pos === 1;
 }
 
 
@@ -212,6 +224,14 @@ function Team( props: Props ) {
     }
   }, [ competitionFilter ]);
 
+  // parse team accolades
+  const accolades = React.useMemo(() => {
+    if( !competitions ) {
+      return [];
+    }
+    return competitions.filter( comptype => comptype.Competitions.some( filterWonCompetitions ) );
+  }, [ competitions ]);
+
   if( loading || !basicInfo || !divisions || !competitions || !competitionFilter ) {
     return (
       <div id="team">
@@ -306,6 +326,34 @@ function Team( props: Props ) {
             />
           </aside>
         </article>
+
+        {/* TROPHY CASE */}
+        {accolades && accolades.length > 0 && (
+          <React.Fragment>
+            <Typography.Title level={2}>
+              {'Trophy Case'}
+            </Typography.Title>
+            <Card className="ant-card-contain-grid">
+              {accolades.map( comptype => {
+                const wins = comptype.Competitions.filter( filterWonCompetitions );
+                const [ ,, isminor ] = parseCompType( comptype.name );
+                const ismajor = isminor && comptype.name === CompTypes.CIRCUIT_MAJOR;
+                return (
+                  <Card.Grid style={{ width: '25%' }} key={comptype.id} hoverable={false}>
+                    <Statistic
+                      title={CompTypeTitleNames[ comptype.name ]}
+                      value={wins.length}
+                      precision={0}
+                      valueStyle={{ color: ismajor ? gold.primary : '' }}
+                      prefix={ismajor ? <StarFilled /> : <TrophyOutlined />}
+                      suffix="X"
+                    />
+                  </Card.Grid>
+                );
+              })}
+            </Card>
+          </React.Fragment>
+        )}
 
         {/* SQUAD INFORMATION */}
         <Typography.Title level={2}>

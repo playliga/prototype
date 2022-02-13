@@ -35,6 +35,14 @@ export const CompTypePrettyNames = {
 };
 
 
+export const CompTypeTitleNames = {
+  [CompTypes.CIRCUIT_MAJOR] : 'World Champion',
+  [CompTypes.CIRCUIT_MINOR] : 'Minor Winner',
+  [CompTypes.LEAGUE]        : 'Division Winner',
+  [CompTypes.LEAGUE_CUP]    : 'Cup Winner',
+};
+
+
 export const AutofillAction = {
   EXCLUDE : 'exclude',
   INVITE  : 'invite',
