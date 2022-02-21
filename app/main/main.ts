@@ -40,6 +40,9 @@ if( process.env.LOG_LEVEL ) {
  * Set-up the application database
  */
 
+let sequelize: Sequelize;
+
+
 function setupDB() {
   const dbpath = path.join( app.getPath( 'userData' ), 'databases' );
   const targetpath = path.join( dbpath, Application.DB_NAME );
@@ -68,7 +71,7 @@ function setupDB() {
   ;
 
   // configure the sequelize cnx
-  const sequelize = new Sequelize({
+  sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: targetpath,
     logging: ( msg: string ) => log.debug( msg ),
@@ -83,7 +86,15 @@ function setupDB() {
     .forEach( m => m.associate( Models ) )
   ;
 
-  return sequelize.authenticate();
+  // @note: concurrently reading and writing from an SQLite3
+  //        database can be very slow. it's recommended to
+  //        turn on WAL mode to greatly increase performance.
+  //
+  // @ see: https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/performance.md
+  return sequelize
+    .authenticate()
+    .then( () => sequelize.query( 'PRAGMA journal_mode=WAL;' ) )
+  ;
 }
 
 
@@ -135,6 +146,13 @@ function handleAllClosed() {
   if( process.platform !== 'darwin' ) {
     app.quit();
   }
+
+  // @note: manually checkpoint the wal file to prevent
+  //        sqlite corruption issues due to sequelize
+  //        not properly closing sqlite3 connections
+  //
+  // @see:  https://github.com/sequelize/sequelize/issues/6798
+  sequelize.query('PRAGMA schema.wal_checkpoint;');
 }
 
 
