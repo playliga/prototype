@@ -141,18 +141,9 @@ function handleOnReady() {
 
 
 function handleAllClosed() {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if( process.platform !== 'darwin' ) {
-    app.quit();
-  }
-
-  // @note: manually checkpoint the wal file to prevent
-  //        sqlite corruption issues due to sequelize
-  //        not properly closing sqlite3 connections
-  //
-  // @see:  https://github.com/sequelize/sequelize/issues/6798
-  sequelize.query('PRAGMA schema.wal_checkpoint;');
+  // manually close the sequelize connection
+  // to clean up the sqlite wal and shm files
+  sequelize.close().then( () => app.quit() );
 }
 
 
