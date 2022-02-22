@@ -100,6 +100,7 @@
 
 #team {
   $chart-height: 200px;
+  $trophy-case-table-height: 235px;
 
   article#history-container {
     display: flex;
@@ -132,5 +133,9 @@
       max-height: 66%;
       margin-top: 10px;
     }
+  }
+
+  article#trophy-case .ant-table.ant-table-small {
+    min-height: $trophy-case-table-height;
   }
 }

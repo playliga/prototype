@@ -7,15 +7,16 @@ import Connector from 'renderer/screens/main/components/connector';
 import PlayerCard from 'renderer/screens/main/components/player-card';
 import * as IPCRouting from 'shared/ipc-routing';
 import { ipcRenderer } from 'electron';
+import { flatten } from 'lodash';
 import { useParams, RouteComponentProps } from 'react-router';
-import { Affix, Card, Col, Menu, PageHeader, Row, Space, Spin, Statistic, Typography } from 'antd';
+import { Affix, Card, Col, Menu, PageHeader, Row, Space, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import { CaretLeftFilled, StarFilled, TrophyOutlined } from '@ant-design/icons';
-import { gold } from '@ant-design/colors';
+import { gold, grey, orange } from '@ant-design/colors';
 import { Line } from 'react-chartjs-2';
 import { CompTypePrettyNames, CompTypes, CompTypeTitleNames } from 'shared/enums';
 import { ApplicationState } from 'renderer/screens/main/types';
 import { Match } from 'main/lib/league/types';
-import { parseCompType } from 'shared/util';
+import { parseCompType, toOrdinalSuffix } from 'shared/util';
 
 
 /**
@@ -109,6 +110,26 @@ function padSeasonNumber( season: number ) {
 function filterWonCompetitions( competition: CompetitionResponseItem ) {
   const [ team ] = competition.Teams;
   return team.CompetitionTeams.result?.pos === 1;
+}
+
+
+function filterCompletedCompetitions( competition: CompetitionResponseItem ) {
+  const [ team ] = competition.Teams;
+  return !!team.CompetitionTeams.result;
+}
+
+
+function parseResultColor( pos: number ) {
+  switch( pos ) {
+    case 1:
+      return gold.primary;
+    case 2:
+      return grey.primary;
+    case 3:
+      return orange[ orange.length - 1 ];
+    default:
+      return null;
+  }
 }
 
 
@@ -224,13 +245,22 @@ function Team( props: Props ) {
     }
   }, [ competitionFilter ]);
 
-  // parse team accolades
-  const accolades = React.useMemo(() => {
+  // parse completed tourneys
+  const completedtourneys = React.useMemo(() => {
     if( !competitions ) {
       return [];
     }
-    return competitions.filter( comptype => comptype.Competitions.some( filterWonCompetitions ) );
+
+    return competitions.map( comptype => ({
+      ...comptype,
+      Competitions: comptype.Competitions.filter( filterCompletedCompetitions )
+    }));
   }, [ competitions ]);
+
+  // parse team accolades
+  const accolades = React.useMemo(() => {
+    return completedtourneys.filter( comptype => comptype.Competitions.some( filterWonCompetitions ) );
+  }, [ completedtourneys ]);
 
   if( loading || !basicInfo || !divisions || !competitions || !competitionFilter ) {
     return (
@@ -327,32 +357,67 @@ function Team( props: Props ) {
           </aside>
         </article>
 
-        {/* TROPHY CASE */}
-        {accolades && accolades.length > 0 && (
-          <React.Fragment>
+        {/* TOURNEY RESULTS */}
+        {completedtourneys && completedtourneys.length > 0 && (
+          <article id="trophy-case">
             <Typography.Title level={2}>
               {'Trophy Case'}
             </Typography.Title>
-            <Card className="ant-card-contain-grid">
-              {accolades.map( comptype => {
-                const wins = comptype.Competitions.filter( filterWonCompetitions );
-                const [ ,, isminor ] = parseCompType( comptype.name );
-                const ismajor = isminor && comptype.name === CompTypes.CIRCUIT_MAJOR;
-                return (
-                  <Card.Grid style={{ width: '25%' }} key={comptype.id} hoverable={false}>
-                    <Statistic
-                      title={CompTypeTitleNames[ comptype.name ]}
-                      value={wins.length}
-                      precision={0}
-                      valueStyle={{ color: ismajor ? gold.primary : '' }}
-                      prefix={ismajor ? <StarFilled /> : <TrophyOutlined />}
-                      suffix="X"
-                    />
-                  </Card.Grid>
-                );
-              })}
-            </Card>
-          </React.Fragment>
+            {accolades && accolades.length > 0 && (
+              <Card className="ant-card-contain-grid">
+                {accolades.map( comptype => {
+                  const wins = comptype.Competitions.filter( filterWonCompetitions );
+                  const [ ,, isminor ] = parseCompType( comptype.name );
+                  const ismajor = isminor && comptype.name === CompTypes.CIRCUIT_MAJOR;
+                  return (
+                    <Card.Grid style={{ width: '25%' }} key={comptype.id} hoverable={false}>
+                      <Statistic
+                        title={CompTypeTitleNames[ comptype.name ]}
+                        value={wins.length}
+                        precision={0}
+                        valueStyle={{ color: ismajor ? gold.primary : '' }}
+                        prefix={ismajor ? <StarFilled /> : <TrophyOutlined />}
+                        suffix="X"
+                      />
+                    </Card.Grid>
+                  );
+                })}
+              </Card>
+            )}
+            <Table
+              size="small"
+              rowKey="id"
+              dataSource={flatten( completedtourneys.map( comptype => comptype.Competitions ) ).sort( ( a, b ) => b.id - a.id )}
+              pagination={{ pageSize: 5 }}
+            >
+              <Table.Column
+                title="Result"
+                width="25%"
+                align="center"
+                render={( competition: CompetitionResponseItem ) => {
+                  const [ team ] = competition.Teams;
+                  const pos = team.CompetitionTeams.result?.pos;
+                  const color = parseResultColor( pos );
+
+                  if( !color ) {
+                    return (
+                      <Typography.Text keyboard>{toOrdinalSuffix( pos )}</Typography.Text>
+                    );
+                  }
+
+                  return (
+                    <Tag icon={<TrophyOutlined />} color={color}>
+                      {toOrdinalSuffix( pos )}
+                    </Tag>
+                  );
+                }}
+              />
+              <Table.Column
+                title="Competition"
+                render={( competition: CompetitionResponseItem ) => `${competition.Compdef.name} Season ${competition.season}` }
+              />
+            </Table>
+          </article>
         )}
 
         {/* SQUAD INFORMATION */}
@@ -375,7 +440,7 @@ function Team( props: Props ) {
 
         {/* COMPETITION DROPDOWNS */}
         <Typography.Title level={2}>
-          {'Competitions and match history'}
+          {'Match History'}
         </Typography.Title>
         <Menu
           mode="horizontal"
