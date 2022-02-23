@@ -225,10 +225,12 @@ function Team( props: Props ) {
     ;
     IpcService
       .send( IPCRouting.Database.TEAM_COMPETITIONS, { params: { id } })
-      .then( res => {
+      .then( ( res: CompetitionResponse[] ) => {
         setCompetitions( res );
         setLoading( false );
-        setCompetitionFilter([ String( res[ 0 ].Competitions[ 0 ].id ) ]);
+        // set the default competition filter
+        const defaultFilter = res.find( item => item.Competitions.length > 0 );
+        setCompetitionFilter([ String( defaultFilter.Competitions[ 0 ].id ) ]);
       })
     ;
   }, []);
