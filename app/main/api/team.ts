@@ -201,6 +201,7 @@ async function competitions( evt: IpcMainEvent, req: IpcRequest<BaseTeamRequest>
       attributes: [ 'id', 'season' ],
       include: [
         { model: Models.Compdef },
+        { model: Models.Comptype },
         { model: Models.Team, where: { id: req.params.id }}
       ]
     }],

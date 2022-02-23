@@ -67,6 +67,10 @@ interface CompetitionResponseItem {
     id: number;
     name: string;
   };
+  Comptype: {
+    id: number;
+    name: string;
+  };
   Teams: any[];
 }
 
@@ -108,8 +112,14 @@ function padSeasonNumber( season: number ) {
 
 
 function filterWonCompetitions( competition: CompetitionResponseItem ) {
+  const [ ,, isminor ] = parseCompType( competition.Comptype.name );
   const [ team ] = competition.Teams;
-  return team.CompetitionTeams.result?.pos === 1;
+  const { result } = team.CompetitionTeams;
+  const is_first = result.pos === 1;
+  return isminor
+    ? result.tier.is_playoffs && is_first
+    : is_first
+  ;
 }
 
 
@@ -397,26 +407,45 @@ function Team( props: Props ) {
                 width="25%"
                 align="center"
                 render={( competition: CompetitionResponseItem ) => {
+                  const [ ,, isminor ] = parseCompType( competition.Comptype.name );
                   const [ team ] = competition.Teams;
-                  const pos = team.CompetitionTeams.result?.pos;
-                  const color = parseResultColor( pos );
+                  const { result } = team.CompetitionTeams;
+                  const is_minor_playoffs = isminor && result.tier.is_playoffs;
+                  const result_color = is_minor_playoffs || !isminor
+                    ? parseResultColor( result.pos )
+                    : null
+                  ;
+                  const result_label = is_minor_playoffs || !isminor
+                    ? toOrdinalSuffix( result.pos )
+                    : 'Group Stage'
+                  ;
 
-                  if( !color ) {
+                  if( !result_color ) {
                     return (
-                      <Typography.Text keyboard>{toOrdinalSuffix( pos )}</Typography.Text>
+                      <Typography.Text keyboard>{result_label}</Typography.Text>
                     );
                   }
 
                   return (
-                    <Tag icon={<TrophyOutlined />} color={color}>
-                      {toOrdinalSuffix( pos )}
-                    </Tag>
+                    <Tag icon={<TrophyOutlined />} color={result_color}>{result_label}</Tag>
                   );
                 }}
               />
               <Table.Column
                 title="Competition"
-                render={( competition: CompetitionResponseItem ) => `${competition.Compdef.name} Season ${competition.season}` }
+                render={( competition: CompetitionResponseItem ) => {
+                  const [ isleague ] = parseCompType( competition.Comptype.name );
+                  const [ team ] = competition.Teams;
+                  const { result } = team.CompetitionTeams;
+                  const tier = result.tier?.name;
+                  return (
+                    <React.Fragment>
+                      {competition.Compdef.name} Season {competition.season}
+                      {!!tier && `: ${tier}`}
+                      {!!tier && isleague && ' Division'}
+                    </React.Fragment>
+                  );
+                }}
               />
             </Table>
           </article>

@@ -266,11 +266,13 @@ itemloop.register( ActionQueueTypes.ENDSEASON_RESULTS, async () => {
 
     if( isleague ) {
       const leagueobj = League.restore( competition.data );
-      leagueobj.divisions.forEach( division => division.conferences.forEach( conference => {
-        results = [ ...results, ...conference.groupObj
-          .results()
-          .map( result => ({ ...result, competitor: division.getCompetitorBySeed( conference, result.seed ) }) )
-        ];
+      leagueobj.divisions.forEach( ( division, divid ) => division.conferences.forEach( conference => {
+        const record_result = conference.groupObj.results().map( result => ({
+          ...result,
+          competitor: division.getCompetitorBySeed( conference, result.seed ),
+          tier: { id: divid, name: division.name }
+        }));
+        results = [ ...results,  ...record_result ];
       }));
     } else if( iscup ) {
       const cupobj = Cup.restore( competition.data );
@@ -280,15 +282,20 @@ itemloop.register( ActionQueueTypes.ENDSEASON_RESULTS, async () => {
       ;
     } else if( iscircuit ) {
       const minorobj = Minor.restore( competition.data );
-      minorobj.stages.forEach( stage => [ 'groupstage', 'playoffs' ].forEach( ( _, idx ) => {
+      minorobj.stages.forEach( ( stage, stage_id ) => [ 'groupstage', 'playoffs' ].forEach( ( _, idx ) => {
+        if( idx > 0 && !stage.duelObj ) {
+          return;
+        }
         const tourneyobj = idx > 0
-          ? stage.duelObj || stage.groupObj
+          ? stage.duelObj
           : stage.groupObj
         ;
-        results = [ ...results, ...tourneyobj
-          .results()
-          .map( result => ({ ...result, competitor: stage.getCompetitorBySeed( result.seed ) }) )
-        ];
+        const record_result = tourneyobj.results().map( result => ({
+          ...result,
+          competitor: stage.getCompetitorBySeed( result.seed ),
+          tier: { id: stage_id, name: stage.name, is_playoffs: idx > 0 }
+        }));
+        results = [ ...results, ...record_result ];
       }));
     }
 
