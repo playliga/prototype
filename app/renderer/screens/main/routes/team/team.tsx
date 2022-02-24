@@ -422,7 +422,7 @@ function Team( props: Props ) {
 
                   if( !result_color ) {
                     return (
-                      <Typography.Text keyboard>{result_label}</Typography.Text>
+                      <Typography.Text type="secondary"><em>{result_label}</em></Typography.Text>
                     );
                   }
 
