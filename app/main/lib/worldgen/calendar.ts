@@ -12,7 +12,7 @@ import EmailDialogue from 'main/constants/emaildialogue';
 import { flatten } from 'lodash';
 import { ActionQueueTypes, CompTypes } from 'shared/enums';
 import { Cup, League, Competitor } from 'main/lib/league';
-import { Result as TourneyResult } from 'main/lib/league/types';
+import { Result as TourneyResult, Tournament } from 'main/lib/league/types';
 import { Minor } from 'main/lib/circuit';
 import { parseCompType, sendEmailAndEmit } from 'main/lib/util';
 
@@ -259,6 +259,23 @@ itemloop.register( ActionQueueTypes.ENDSEASON_RESULTS, async () => {
     ;
   });
 
+  const buildResultsData = ( tourneyobj: Tournament, compobj: { getCompetitorBySeed: Function }, comptype: Models.Comptype, tierdata?: Record<string, any> ) => {
+    const [ isleague ] = parseCompType( comptype.name );
+    return tourneyobj.results().map( result => {
+      const [ last_match ] = tourneyobj.matchesFor( result.seed ).slice( -1 );
+      return ({
+        stats: result,
+        competitor: isleague
+          ? compobj.getCompetitorBySeed( tierdata.conference_id, result.seed )
+          : compobj.getCompetitorBySeed( result.seed )
+        ,
+        tier: tierdata,
+        rounddata: tourneyobj.findMatches({ s: last_match.id.s, r: last_match.id.r }),
+        matchdata: last_match
+      });
+    });
+  };
+
   // record the results per competition
   const work = flatten( competitions ).map( competition => {
     const [ isleague, iscup, iscircuit ] = parseCompType( competition.Comptype.name );
@@ -266,36 +283,29 @@ itemloop.register( ActionQueueTypes.ENDSEASON_RESULTS, async () => {
 
     if( isleague ) {
       const leagueobj = League.restore( competition.data );
-      leagueobj.divisions.forEach( ( division, divid ) => division.conferences.forEach( conference => {
-        const record_result = conference.groupObj.results().map( result => ({
-          ...result,
-          competitor: division.getCompetitorBySeed( conference, result.seed ),
-          tier: { id: divid, name: division.name }
-        }));
-        results = [ ...results,  ...record_result ];
+      leagueobj.divisions.forEach( ( division, divid ) => division.conferences.forEach( ( conference, cdx ) => {
+        results = [ ...results,  ...buildResultsData(
+          conference.groupObj,
+          division,
+          competition.Comptype,
+          { id: divid, name: division.name, conference_id: cdx }
+        )];
       }));
     } else if( iscup ) {
       const cupobj = Cup.restore( competition.data );
-      results = cupobj.duelObj
-        .results()
-        .map( result => ({ ...result, competitor: cupobj.getCompetitorBySeed( result.seed ) }) )
-      ;
+      results = buildResultsData( cupobj.duelObj, cupobj, competition.Comptype );
     } else if( iscircuit ) {
       const minorobj = Minor.restore( competition.data );
-      minorobj.stages.forEach( ( stage, stage_id ) => [ 'groupstage', 'playoffs' ].forEach( ( _, idx ) => {
+      minorobj.stages.forEach( stage => [ 'groupstage', 'playoffs' ].forEach( ( _, idx ) => {
         if( idx > 0 && !stage.duelObj ) {
           return;
         }
-        const tourneyobj = idx > 0
-          ? stage.duelObj
-          : stage.groupObj
-        ;
-        const record_result = tourneyobj.results().map( result => ({
-          ...result,
-          competitor: stage.getCompetitorBySeed( result.seed ),
-          tier: { id: stage_id, name: stage.name, is_playoffs: idx > 0 }
-        }));
-        results = [ ...results, ...record_result ];
+        results = [ ...results, ...buildResultsData(
+          idx > 0 ? stage.duelObj : stage.groupObj,
+          stage,
+          competition.Comptype,
+          { id: idx, name: stage.name }
+        )];
       }));
     }
 

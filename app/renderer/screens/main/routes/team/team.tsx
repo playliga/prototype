@@ -16,7 +16,7 @@ import { Line } from 'react-chartjs-2';
 import { CompTypePrettyNames, CompTypes, CompTypeTitleNames } from 'shared/enums';
 import { ApplicationState } from 'renderer/screens/main/types';
 import { Match } from 'main/lib/league/types';
-import { parseCompType, toOrdinalSuffix } from 'shared/util';
+import { parseCompType, parseCupRound, toOrdinalSuffix } from 'shared/util';
 
 
 /**
@@ -71,7 +71,17 @@ interface CompetitionResponseItem {
     id: number;
     name: string;
   };
-  Teams: any[];
+  Teams: {
+    CompetitionTeams: {
+      result: {
+        stats: any;
+        competitor: any;
+        tier: any;
+        rounddata: any[];
+        matchdata: any;
+      };
+    };
+  }[];
 }
 
 
@@ -115,7 +125,7 @@ function filterWonCompetitions( competition: CompetitionResponseItem ) {
   const [ ,, isminor ] = parseCompType( competition.Comptype.name );
   const [ team ] = competition.Teams;
   const { result } = team.CompetitionTeams;
-  const is_first = result.pos === 1;
+  const is_first = result.stats.pos === 1;
   return isminor
     ? result.tier.is_playoffs && is_first
     : is_first
@@ -407,16 +417,18 @@ function Team( props: Props ) {
                 width="25%"
                 align="center"
                 render={( competition: CompetitionResponseItem ) => {
-                  const [ ,, isminor ] = parseCompType( competition.Comptype.name );
+                  const [ , iscup, isminor ] = parseCompType( competition.Comptype.name );
                   const [ team ] = competition.Teams;
                   const { result } = team.CompetitionTeams;
                   const is_minor_playoffs = isminor && result.tier.is_playoffs;
                   const result_color = is_minor_playoffs || !isminor
-                    ? parseResultColor( result.pos )
+                    ? parseResultColor( result.stats.pos )
                     : null
                   ;
                   const result_label = is_minor_playoffs || !isminor
-                    ? toOrdinalSuffix( result.pos )
+                    ? !result_color && ( iscup || is_minor_playoffs )
+                      ? parseCupRound( result.rounddata )
+                      : toOrdinalSuffix( result.stats.pos )
                     : 'Group Stage'
                   ;
 
