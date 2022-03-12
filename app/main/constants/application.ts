@@ -3,6 +3,7 @@ const Application = {
   AUTOFILL_VALUE_SEPARATOR          : '=',
   APP_LOGO_FILENAME                 : 'icon.png',
   CALENDAR_LOOP_MAX_ITERATIONS      : 15,
+  CALENDAR_LOOP_UNIT_MULTIPLIERS    : [ 'day', 'week', 'month', 'year' ],
   DEMO_MODE                         : true,
   DB_CNX_LIMIT                      : 10000,
   DB_NAME                           : 'save0.sqlite',

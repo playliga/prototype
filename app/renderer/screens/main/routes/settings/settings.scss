@@ -7,11 +7,25 @@
     margin-top: 20px;
   }
 
-  .ant-select {
+  .ant-card-grid {
     width: 100%;
   }
 
-  .ant-card-grid {
+  .ant-form-item {
+    margin-bottom: 0;
+  }
+
+  // grouped inputs with only two elements
+  // should split the width 50/50
+  .ant-input-group > div:first-child,
+  .ant-input-group > div:nth-child(2) {
+    width: 50%;
+  }
+
+  // full width on grouped inputs look
+  // weird so do not set it on those
+  :not(.ant-input-group) > .ant-input-number,
+  :not(.ant-input-group) > .ant-select {
     width: 100%;
   }
 }

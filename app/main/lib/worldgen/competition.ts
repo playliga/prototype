@@ -664,12 +664,14 @@ export async function syncTiers() {
 
 
 /**
- * Simulates an NPC matchday and saves it as a Match in the database.
+ * Simulates an NPC (or user) matchday and
+ * saves it as a Match in the database.
  *
- * Note that this is *not* modify the matches competition object.
+ * Note that this is *not* modify the
+ * matches competition object.
  */
 
-export async function simNPCMatchday( item: any ) {
+export async function simNPCMatchday( item: any, profile?: Models.Profile ) {
   // grab competition info
   const competition = await Models.Competition.findByPk( item.payload.compId, { include: [ 'Comptype' ] });
   const [ isleague,, iscircuit ] = parseCompType( competition.Comptype.name );
@@ -688,10 +690,13 @@ export async function simNPCMatchday( item: any ) {
   ];
   const allow_draws = conditions.some( c => c );
 
-  // sim the match
+  // grab team information
   const team1 = await Models.Team.findWithSquad( item.payload.team1Id );
   const team2 = await Models.Team.findWithSquad( item.payload.team2Id );
-  match.m = Score( team1, team2, allow_draws ) as [ number, number ];
+
+  // are we simming npc or user matches?
+  const score_opts = !!profile && { mode: profile.settings.sim_mode, team_id: profile.Team.id };
+  match.m = Score( team1, team2, allow_draws, score_opts ) as [ number, number ];
 
   // we can't have any ties during playoffs or cup-ties
   if( !allow_draws && match.m[ 0 ] === match.m[ 1 ] ) {

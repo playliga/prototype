@@ -46,6 +46,18 @@ describe( 'item loop', () => {
     expect( someval ).toEqual( 1 );
   });
 
+  it( 'does not stop execution if `skip_bail` is set to true', async () => {
+    let someval = 0;
+
+    theloop.register( 'foo', () => {
+      someval += 1;
+      return Promise.resolve( false );
+    });
+
+    await theloop.start( MAX_ITERATIONS, true );
+    expect( someval ).toEqual( MAX_ITERATIONS );
+  });
+
   it( 'executes unnamed middleware', async () => {
     let someval = 0;
 

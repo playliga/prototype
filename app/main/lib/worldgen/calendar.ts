@@ -319,7 +319,14 @@ itemloop.register( ActionQueueTypes.ENDSEASON_RESULTS, async () => {
 });
 
 
-itemloop.register( ActionQueueTypes.MATCHDAY, () => {
+itemloop.register( ActionQueueTypes.MATCHDAY, async ( item: Models.ActionQueue ) => {
+  // are we simming this match automatically?
+  const profile = await Models.Profile.getActiveProfile();
+  if( profile.settings?.sim_ignore_bail ) {
+    return WGCompetition.simNPCMatchday( item, profile );
+  }
+
+  // no, bail out of the loop if we can
   return Promise.resolve( false );
 });
 
@@ -406,6 +413,6 @@ export function loop_stop() {
 }
 
 
-export function loop( max = Application.CALENDAR_LOOP_MAX_ITERATIONS ) {
-  return itemloop.start( max );
+export function loop( max = Application.CALENDAR_LOOP_MAX_ITERATIONS, ignore_bail = false ) {
+  return itemloop.start( max, ignore_bail );
 }

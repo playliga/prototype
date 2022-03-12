@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import probable from 'probable';
 import Tiers from 'shared/tiers.json';
 import Application from 'main/constants/application';
@@ -49,7 +48,31 @@ function getTeamSkillLevel( team: any ) {
 }
 
 
-export default function( team1: any, team2: any, allowdraw = false, debug = false ) {
+type SimSettingsArgs = {
+  mode: string;
+  team_id: number;
+};
+
+
+export default function( team1: any, team2: any, allowdraw = false, simSettings: SimSettingsArgs = null ) {
+  // handle sim mode early since that won't
+  // require any probability calculations
+  const score_winner = 16;
+  const score_loser = random( SCORE_LOSER_LOW, SCORE_LOSER_HIGH );
+
+  switch( simSettings?.mode ) {
+    case Application.SIM_MODE_ALWAYS_WIN:
+      return [
+        team1.id === simSettings.team_id ? score_winner : score_loser,
+        team2.id === simSettings.team_id ? score_winner : score_loser,
+      ];
+    case Application.SIM_MODE_ALWAYS_LOSE:
+      return [
+        team1.id === simSettings.team_id ? score_loser : score_winner,
+        team2.id === simSettings.team_id ? score_loser : score_winner,
+      ];
+  }
+
   // calculate probability weight for teams
   let w_team1 = 0;
   let w_team2 = 0;
@@ -81,10 +104,6 @@ export default function( team1: any, team2: any, allowdraw = false, debug = fals
     rawtable.push([ template.multiplier * Application.SQUAD_MIN_LENGTH, DRAW_ID ]);
   }
 
-  if( debug ) {
-    log.debug( 'Generating score with probability weights: ', rawtable );
-  }
-
   // generate a score!
   const ptable = probable.createTableFromSizes( rawtable );
   const winner = ptable.roll();
@@ -95,8 +114,6 @@ export default function( team1: any, team2: any, allowdraw = false, debug = fals
   }
 
   // return the winner.
-  const score_winner = 16;
-  const score_loser = random( SCORE_LOSER_LOW, SCORE_LOSER_HIGH );
   return [
     winner === team1.id ? score_winner : score_loser,
     winner === team2.id ? score_winner : score_loser,

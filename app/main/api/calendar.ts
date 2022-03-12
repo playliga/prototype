@@ -1,7 +1,10 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import { IpcRequest } from 'shared/types';
 import * as IPCRouting from 'shared/ipc-routing';
+import * as Models from 'main/database/models';
+import moment from 'moment';
 import Worldgen from 'main/lib/worldgen';
+import Application from 'main/constants/application';
 
 
 interface LoopParams {
@@ -15,8 +18,14 @@ async function handler( evt: IpcMainEvent, request: IpcRequest<LoopParams> ) {
     return;
   }
 
+  // grab current calendar loop settings settings
+  const profile = await Models.Profile.getActiveProfile();
+  const sim_loop_iterations = profile.settings.sim_loop_iterations || Application.CALENDAR_LOOP_MAX_ITERATIONS;
+  const sim_loop_unit = profile.settings.sim_loop_multiplier || Application.CALENDAR_LOOP_UNIT_MULTIPLIERS[ 0 ];
+  const sim_loop_length_days = request.params?.max || moment.duration( sim_loop_iterations, sim_loop_unit ).asDays();
+
   // begin the calendar loop
-  await Worldgen.Calendar.loop( request.params?.max );
+  await Worldgen.Calendar.loop( sim_loop_length_days, profile.settings.sim_ignore_bail );
   evt.sender.send( request.responsechannel, null );
 }
 
