@@ -17,18 +17,19 @@ export const TeamEnum: IterableObject<number> = {
 
 
 export const GameEvents = {
-  ROUND_OVER: 'roundover',
   GAME_OVER: 'gameover',
+  PLAYER_KILLED: 'playerkilled',
+  ROUND_OVER: 'roundover',
   SAY: 'say',
 };
 
 
 const RegexTypes = {
   GAME_OVER_REGEX: new RegExp( /(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2}):([\d]{1,2})/ ),
+  PLAYER_KILLED_REGEX: new RegExp( /"(.+) killed "(.+) with "(.+)"/ ),
+  PLAYER_REGEX: new RegExp( /(.+)<(\d+)><(STEAM_\d:\d:\d+|BOT|Console)><(TERRORIST|CT)>"?/ ),
   ROUND_OVER_REGEX: new RegExp( /Team "(TERRORIST|CT)" triggered "(.+)" (?:.)+(\d)(?:.)+(\d)/ ),
   SAY_REGEX: new RegExp( /(?:.)+(?:say|say_team)(?:.)+"(.*)"/ ),
-  STEAM_REGEX: new RegExp( /<(STEAM_\d+:\d+:\d+|BOT|Console)>/ ),
-  TEAM_REGEX: new RegExp( /["<]?(CT|TERRORIST|Spectator|Unassigned)[">]?/ ),
 };
 
 
@@ -94,6 +95,32 @@ export class Scorebot extends events.EventEmitter {
         score: regexmatch.slice( 3 )          // e.g.: [ 0 (ct) , 1 (t) ]
       });
       return;
+    }
+
+    // player killed event
+    regexmatch = line.match( RegexTypes.PLAYER_KILLED_REGEX );
+
+    if( regexmatch ) {
+      const [ , attackerSignature, victimSignature, weapon ] = regexmatch;
+      const [ , attackerName, attackerServerId, attackerSteamId, attackerTeam ] = attackerSignature.match( RegexTypes.PLAYER_REGEX );
+      const [ , victimName, victimServerId, victimSteamId, victimTeam ] = victimSignature.match( RegexTypes.PLAYER_REGEX );
+      this.emit( GameEvents.PLAYER_KILLED, {
+        attacker: {
+          signature: attackerSignature,
+          name: attackerName,
+          serverId: attackerServerId,
+          steamId: attackerSteamId,
+          team: attackerTeam,
+        },
+        victim: {
+          signature: victimSignature,
+          name: victimName,
+          serverId: victimServerId,
+          steamId: victimSteamId,
+          team: victimTeam,
+        },
+        weapon
+      });
     }
   }
 }
