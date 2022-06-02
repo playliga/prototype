@@ -652,6 +652,12 @@ async function sbEventHandler_Say( text: string ) {
         : await rcon.send( 'mp_warmup_end' )
       ;
       break;
+    case '.score':
+      cs16_enabled
+        ? await sbEventHandler_CS16_Score()
+        : await Promise.resolve()
+      ;
+      break;
     default:
       break;
   }
@@ -666,6 +672,17 @@ function sbEventHandler_CS16_ReadyUp() {
 
   gameislive = true;
   return rcon.send( 'exec liga-lo3.cfg' );
+}
+
+
+function sbEventHandler_CS16_Score() {
+  // bail if game is not live
+  if( !gameislive && !halftime && !is_ot ) {
+    return Promise.resolve( false );
+  }
+
+  const getCurrentScore = () => `${team1.name} ${score[ Scorebot.TeamEnum.CT ]} - ${score[ Scorebot.TeamEnum.TERRORIST ]} ${team2.name}`;
+  return rcon.send( `say * * * CURRENT SCORE | ${getCurrentScore()} * * *` );
 }
 
 
