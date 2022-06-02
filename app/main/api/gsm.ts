@@ -706,14 +706,15 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
     otscore[ result.winner ] += +is_ot;
   }
 
-  // report current score
-  await rcon.send( `say * * * ROUND OVER | ${getCurrentScore()} * * *` );
-
   // set up vars
   const totalrounds     = is_ot ? otscore.reduce( getTotalRounds ) : score.reduce( getTotalRounds );
   const halftimerounds  = cvar_maxrounds / 2;
   const clinchrounds    = ( cvar_maxrounds / 2 ) + 1;
   let gameover = false;
+
+  // report current score
+  const is_last_round = getTeamScore( Scorebot.TeamEnum.CT ) === clinchrounds - 1 || getTeamScore( Scorebot.TeamEnum.TERRORIST ) === clinchrounds - 1;
+  await rcon.send( `say * * * ${is_last_round ? 'GAME POINT' : 'ROUND OVER'} | ${getCurrentScore()} * * *` );
 
   // we've reached half-time
   if( totalrounds === halftimerounds ) {
