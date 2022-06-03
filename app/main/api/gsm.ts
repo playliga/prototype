@@ -62,6 +62,7 @@ let otscore = [ 0, 0 ];
 let gameislive = false;
 let halftime = false;
 let is_ot = false;
+let matchEventsList = [] as any[];
 
 
 // these will be used later when launching/closing the game
@@ -617,6 +618,9 @@ function launchCS16Server( map = 'de_dust2' ) {
       shell: true
     }
   );
+
+  // register listeners
+  gameproc_server.addListener( 'close', cleanup );
 }
 
 
@@ -789,15 +793,29 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
     date: profile.currentDate,
   });
 
+  // record match events in bulk and reset them afterwards
+  const matchEventObjectList = await Models.MatchEvent.bulkCreate( matchEventsList );
+
   await Promise.all([
     matchobj.setCompetition( competition.id ),
     matchobj.setTeams([ team1, team2 ]),
     queue.update({ completed: true }),
+    ...matchEventObjectList.map( matchEvent => matchEvent.setMatch( matchobj ) )
   ]);
+
+  matchEventsList = [];
 
   // let the front-end know the game is over
   evt.sender.send( request.responsechannel );
   return Promise.resolve();
+}
+
+
+async function sbEventHandler_Player_Killed( data: any ) {
+  matchEventsList.push({
+    payload: data,
+    type: Scorebot.GameEvents.PLAYER_KILLED,
+  });
 }
 
 
@@ -1030,6 +1048,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   scorebot.on( Scorebot.GameEvents.SAY, sbEventHandler_Say );
   scorebot.on( Scorebot.GameEvents.ROUND_OVER, sbEventHandler_Round_Over );
   scorebot.on( Scorebot.GameEvents.GAME_OVER, sbEventHandler_Game_Over );
+  scorebot.on( Scorebot.GameEvents.PLAYER_KILLED, sbEventHandler_Player_Killed );
 }
 
 

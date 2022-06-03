@@ -190,6 +190,14 @@ declare module 'main/database/models' {
   }
 
 
+  export class MatchEvent extends BaseModel {
+    public payload: any;
+    public type: string;
+    public Match?: Match;
+    public setMatch: Sequelize.BelongsToSetAssociationMixin<Match, number>;
+  }
+
+
   export class CompetitionTeams extends BaseModel {
     public readonly CompetitionId: number;
     public readonly TeamId: number;

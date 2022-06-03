@@ -16,6 +16,7 @@ class Match extends Model {
   static associate( models ) {
     this.belongsToMany( models.Team, { through: 'MatchTeams' });
     this.belongsTo( models.Competition );
+    this.hasMany( models.MatchEvent );
   }
 }
 

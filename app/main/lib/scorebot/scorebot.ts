@@ -106,14 +106,12 @@ export class Scorebot extends events.EventEmitter {
       const [ , victimName, victimServerId, victimSteamId, victimTeam ] = victimSignature.match( RegexTypes.PLAYER_REGEX );
       this.emit( GameEvents.PLAYER_KILLED, {
         attacker: {
-          signature: attackerSignature,
           name: attackerName,
           serverId: attackerServerId,
           steamId: attackerSteamId,
           team: attackerTeam,
         },
         victim: {
-          signature: victimSignature,
           name: victimName,
           serverId: victimServerId,
           steamId: victimSteamId,
