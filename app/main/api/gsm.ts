@@ -793,17 +793,51 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
     date: profile.currentDate,
   });
 
-  // record match events in bulk and reset them afterwards
+  // record match events in bulk and reset them
   const matchEventObjectList = await Models.MatchEvent.bulkCreate( matchEventsList );
+  matchEventsList = [];
 
+  // generate end of match stats
+  const matchStats = {} as Record<string, any>;
+  matchStats.playerStats = {};
+
+  matchEventObjectList
+    .filter( matchEvent => matchEvent.type === Scorebot.GameEvents.PLAYER_KILLED )
+    .forEach( matchEvent => {
+      if( !matchStats.playerStats[ matchEvent.payload.attacker.name ] ) {
+        matchStats.playerStats[ matchEvent.payload.attacker.name ] = {
+          kills: 0,
+          deaths: 0,
+        };
+      }
+
+      if( !matchStats.playerStats[ matchEvent.payload.victim.name ] ) {
+        matchStats.playerStats[ matchEvent.payload.victim.name ] = {
+          kills: 0,
+          deaths: 0,
+        };
+      }
+
+      const attackerStats = matchStats.playerStats[ matchEvent.payload.attacker.name ];
+      const victimStats = matchStats.playerStats[ matchEvent.payload.victim.name ];
+      attackerStats.kills += 1;
+      victimStats.deaths += 1;
+    })
+  ;
+
+  const matchStatsEvent = await Models.MatchEvent.create({
+    payload: matchStats,
+    type: Scorebot.GameEvents.GAME_OVER,
+  });
+
+  // save data and associations to db
   await Promise.all([
     matchobj.setCompetition( competition.id ),
     matchobj.setTeams([ team1, team2 ]),
     queue.update({ completed: true }),
+    matchStatsEvent.setMatch( matchobj ),
     ...matchEventObjectList.map( matchEvent => matchEvent.setMatch( matchobj ) )
   ]);
-
-  matchEventsList = [];
 
   // let the front-end know the game is over
   evt.sender.send( request.responsechannel );
