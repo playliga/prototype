@@ -690,7 +690,7 @@ function sbEventHandler_CS16_Score() {
 }
 
 
-async function sbEventHandler_Round_Over( result: { winner: number; score: number[] } ) {
+async function sbEventHandler_Round_Over( result: { winner: number; score: number[]; event: string } ) {
   // do not record anything if we're not live
   if( !gameislive ) {
     return Promise.resolve( false );
@@ -715,6 +715,15 @@ async function sbEventHandler_Round_Over( result: { winner: number; score: numbe
   const halftimerounds  = cvar_maxrounds / 2;
   const clinchrounds    = ( cvar_maxrounds / 2 ) + 1;
   let gameover = false;
+
+  // record match event
+  matchEventsList.push({
+    payload: {
+      round: totalrounds,
+      ...result,
+    },
+    type: Scorebot.GameEvents.ROUND_OVER
+  });
 
   // report current score
   const is_last_round = getTeamScore( Scorebot.TeamEnum.CT ) === clinchrounds - 1 || getTeamScore( Scorebot.TeamEnum.TERRORIST ) === clinchrounds - 1;
