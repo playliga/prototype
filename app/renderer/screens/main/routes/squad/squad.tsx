@@ -161,7 +161,7 @@ function Squad( props: Props ) {
                 block
                 type="primary"
                 disabled={selection.length === 0 || profile.loading}
-                onClick={() => props.dispatch( ProfileActions.trainSquad( selection ) )}
+                onClick={() => props.dispatch( ProfileActions.trainSquad({ ids: selection }) )}
               >
                 {profile.loading
                   ? 'Training...'

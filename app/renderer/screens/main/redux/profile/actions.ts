@@ -18,7 +18,7 @@ export function findFinish( payload: ProfileTypes.Profile ): ProfileTypes.Profil
 }
 
 
-export function trainSquad( payload: number[] ): ProfileTypes.ProfileActionTypes {
+export function trainSquad( payload: any ): ProfileTypes.ProfileActionTypes {
   return {
     type: ProfileTypes.TRAINSQUAD,
     payload

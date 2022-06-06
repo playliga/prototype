@@ -63,6 +63,16 @@ async function handleOnPlay( upcoming: UpcomingMatchResponse, dispatch: Function
         sim: shouldsim
       }
     })
+    .then( matchResults => {
+      // match over; if the user played and won,
+      // we add some xp to their squad
+      if( matchResults?.isWinner && !shouldsim ) {
+        dispatch( profileActions.trainSquad({ ids: matchResults.squad, freeTrainingSession: true }) );
+      }
+
+      // continue on our way
+      return Promise.resolve();
+    })
     .then( () => IpcService.send( IPCRouting.Worldgen.CALENDAR_LOOP, { params: { max: 1 }} ))
     .then( () => dispatch( profileActions.calendarFinish() ) )
     .then( () => Promise.resolve( setLoading( false )) )

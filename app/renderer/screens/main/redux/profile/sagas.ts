@@ -22,7 +22,7 @@ function* trainSquad( action: ProfileTypes.ProfileActionTypes ) {
   // train the squad and fetch the new data
   yield IpcService.send( IPCRouting.Database.PROFILE_SQUAD_TRAIN, {
     // @ts-ignore
-    params: { ids: action.payload }
+    params: action.payload
   });
 
   yield find();

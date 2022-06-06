@@ -74,9 +74,13 @@ async function trainsquad( evt: IpcMainEvent, req: IpcRequest<any> ) {
     return player.update({ stats: xp.stats, gains: xp.gains, tier: xp.getTierId()[ 0 ] });
   });
 
+  // update last training date unless specified otherwise
+  if( !req.params.freeTrainingSession ) {
+    await profile.update({ trainedAt: profile.currentDate });
+  }
+
   // save the changes
   await Promise.all( trainingsession );
-  await profile.update({ trainedAt: profile.currentDate });
   evt.sender.send( req.responsechannel, true );
 }
 

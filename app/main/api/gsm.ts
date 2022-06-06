@@ -87,6 +87,7 @@ let currStage: Stage;
 let allow_ot: boolean;
 let team1: Models.Team;
 let team2: Models.Team;
+let squads: Models.Player[][];
 let tourneyobj: Tournament;
 let allow_draw = false;
 let is_postseason: boolean;
@@ -848,8 +849,19 @@ async function sbEventHandler_Game_Over( result: { map: string; score: number[] 
     ...matchEventObjectList.map( matchEvent => matchEvent.setMatch( matchobj ) )
   ]);
 
-  // let the front-end know the game is over
-  evt.sender.send( request.responsechannel );
+  // did the user win? pass that along and let
+  // the front-end know the game is over
+  const user_won = (
+    result.score[ Scorebot.TeamEnum.CT ] > result.score[ Scorebot.TeamEnum.TERRORIST ] && team1.id === profile.Team.id
+    || result.score[ Scorebot.TeamEnum.TERRORIST ] > result.score[ Scorebot.TeamEnum.CT ] && team2.id === profile.Team.id
+  );
+  const user_squad = profile.Team.id === team1.id ? squads[ Scorebot.TeamEnum.CT ] : squads[ Scorebot.TeamEnum.TERRORIST ];
+
+  evt.sender.send( request.responsechannel, JSON.stringify({
+    isWinner: user_won,
+    squad: user_squad.map( player => player.id )
+  }));
+
   return Promise.resolve();
 }
 
@@ -955,7 +967,7 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
   }
 
   // generate each team's squads
-  const squads = getSquads();
+  squads = getSquads();
 
   // --------------------------------
   // SIMULATE THE GAME?

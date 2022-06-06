@@ -41,7 +41,7 @@ interface ForceRefreshAction {
 
 interface TrainSquadProfileAction {
   type: typeof TRAINSQUAD;
-  payload: number[];
+  payload: any;
 }
 
 
