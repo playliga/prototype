@@ -5,6 +5,7 @@
     "meetTwice": false,
     "name":"LESM",
     "season":32,
+    "seasonYear": 2019,
     "startoffset": 60,
     "type": "league",
     "prizePool": {
@@ -49,6 +50,7 @@
     "meetTwice": false,
     "name": "CSGO CUP",
     "season": 1,
+    "seasonYear": 2019,
     "startoffset": 90,
     "type": "leaguecup",
     "prizePool": {
@@ -67,6 +69,7 @@
     "meetTwice": false,
     "name": "CSGO Minor",
     "season": 1,
+    "seasonYear": 2019,
     "startoffset": 15,
     "type": "circuit:minor",
     "prizePool": {
@@ -133,6 +136,7 @@
     "meetTwice": false,
     "name": "CSGO Major",
     "season": 1,
+    "seasonYear": 2019,
     "startoffset": 200,
     "type": "circuit:major",
     "prizePool": {

@@ -509,7 +509,8 @@ async function genSingleComp( compdef: Models.Compdef, profile: Models.Profile, 
 
   // build the competition
   const season = compdef.season;
-  const comp = Models.Competition.build({ data, season });
+  const seasonYear = compdef.seasonYear;
+  const comp = Models.Competition.build({ data, season, seasonYear });
   await comp.save();
 
   // add its start date to its action queue
@@ -630,8 +631,10 @@ export async function nextSeasonStartDate() {
 
 export async function bumpSeasonNumbers() {
   const compdefs = await Models.Compdef.findAll();
+  const profile = await Models.Profile.getActiveProfile();
   return Promise.all( compdefs.map( c => {
     c.season += 1;
+    c.seasonYear = profile.currentSeasonYear;
     return c.save();
   }));
 }

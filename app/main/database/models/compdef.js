@@ -17,6 +17,10 @@ class Compdef extends Model {
       season: {
         type: Sequelize.INTEGER
       },
+      seasonYear: {
+        allowNull: false,
+        type: Sequelize.NUMBER,
+      },
       startOffset: {
         type: Sequelize.INTEGER
       },

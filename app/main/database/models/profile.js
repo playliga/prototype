@@ -11,7 +11,7 @@ class Profile extends Model {
         allowNull: false,
         type: Sequelize.DATEONLY
       },
-      currentSeason: {
+      currentSeasonYear: {
         allowNull: false,
         type: Sequelize.NUMBER,
       },

@@ -14,6 +14,7 @@ module.exports = {
       meetTwice: d.meetTwice,
       name: d.name,
       season: d.season,
+      seasonYear: d.seasonYear,
       startOffset: d.startoffset,
       tiers: d.tiers ? JSON.stringify( d.tiers ) : null,
       prizePool: d.prizePool ? JSON.stringify( d.prizePool ) : null,

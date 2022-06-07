@@ -3,6 +3,7 @@ import IpcService from 'renderer/lib/ipc-service';
 import Connector from 'renderer/screens/main/components/connector';
 import Standings from 'renderer/screens/main/components/standings';
 import MatchResults from 'renderer/screens/main/components/match-results';
+import Application from 'main/constants/application';
 import * as IPCRouting from 'shared/ipc-routing';
 import * as MainScreenTypes from 'renderer/screens/main/types';
 import { RouteComponentProps, useHistory } from 'react-router';
@@ -448,8 +449,12 @@ function CompetitionTypeGlobalCircuit( props: CompetitionTypeProps & { competiti
 
 function CompetitionType( props: CompetitionTypeProps ) {
   // grab the latest season
-  const season = Math.max( ...props.Competitions.map( competition => competition.season ) );
-  const ids = props.Competitions.filter( competition => competition.season === season ).map( competition => competition.id );
+  const season_override = props.filterdata?.activeSeasonYear;
+  const season = season_override || Math.max( ...props.Competitions.map( competition => competition.season ) );
+  const ids = props.Competitions
+    .filter( competition => season_override ? competition.seasonYear === season : competition.season === season )
+    .map( competition => competition.id )
+  ;
 
   // now fetch the details for the listed competitions
   const [ competitions, setCompetitions ] = React.useState<MainScreenTypes.BaseCompetition[]>([]);
@@ -459,7 +464,7 @@ function CompetitionType( props: CompetitionTypeProps ) {
       .send( IPCRouting.Competition.FIND_ALL, { params: { ids } })
       .then( res => setCompetitions( res ) )
     ;
-  }, [ props.id ]);
+  }, [ props.id, season_override ]);
 
   // render the competition based off types
   const [ isleague, iscup, iscircuit ] = parseCompType( props.name );
@@ -523,6 +528,7 @@ function Competitions( props: MainComponentProps ) {
   const [ comptypes, setComptypes ] = React.useState<MainScreenTypes.CompTypeResponse[]>([]);
   const [ teamCompetitions, setTeamCompetitions ] = React.useState<any[]>([]);
   const [ filterdata, setFilterdata ] = React.useState<Record<string, Filter | string>>( refererData || {} );
+  const [ seasonYears, setSeasonYears ] = React.useState<Record<string, any>[]>([]);
 
   // grab comptypes on load
   React.useEffect( () => {
@@ -546,6 +552,16 @@ function Competitions( props: MainComponentProps ) {
     ;
   }, [ props.profile.data ]);
 
+  // season selector
+  //
+  // - ex: 2021-2020, 2020-2019
+  React.useEffect( () => {
+    setSeasonYears([ ...Array( ( props.profile.data.currentSeasonYear + 1 ) - Application.PRESEASON_FIRST_YEAR ) ].map( ( _, idx ) => ({
+      key: props.profile.data.currentSeasonYear - idx,
+      label: `${props.profile.data.currentSeasonYear - idx} - ${( props.profile.data.currentSeasonYear - idx ) + 1}`
+    })));
+  }, [ props.profile.data ]);
+
   // show loading bar if not ready yet
   if( !comptypes || comptypes.length === 0 ) {
     return (
@@ -558,6 +574,22 @@ function Competitions( props: MainComponentProps ) {
   // render the main component
   return (
     <div id="competitions" className="content">
+      <Typography.Paragraph strong>
+        {'Select Season'}
+      </Typography.Paragraph>
+      <Select
+        defaultValue={filterdata.activeSeasonYear as string || seasonYears[ 0 ].key}
+        onChange={key => setFilterdata({ ...filterdata, activeSeasonYear: key })}
+      >
+        {seasonYears.map( year => (
+          <Select.Option
+            key={year.key}
+            value={year.key}
+          >
+            {year.label}
+          </Select.Option>
+        ))}
+      </Select>
       <Tabs
         defaultActiveKey="1"
         activeKey={filterdata.activeTabKey as string}

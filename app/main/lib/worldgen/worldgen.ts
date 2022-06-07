@@ -289,3 +289,14 @@ export async function scheduleEndSeasonResults() {
     payload: null
   });
 }
+
+
+/**
+ * Bump profile current season year
+ */
+
+export async function bumpProfileSeasonYear() {
+  const profile = await Models.Profile.getActiveProfile();
+  profile.currentSeasonYear = moment( profile.currentSeasonYear.toString() ).add( 1, 'year' ).year();
+  return profile.save();
+}

@@ -41,6 +41,7 @@ declare module 'main/database/models' {
   export class Compdef extends BaseModel {
     public name: string;
     public season: number;
+    public seasonYear: number;
     public tiers: any[];
     public isOpen: boolean;
     public startOffset: number;
@@ -54,6 +55,7 @@ declare module 'main/database/models' {
   export class Competition extends BaseModel {
     public data: any;
     public season: number;
+    public seasonYear: number;
     public Teams?: Team[];
     public readonly Comptype?: Comptype;
     public readonly Continent?: Continent;
@@ -110,7 +112,7 @@ declare module 'main/database/models' {
 
   export class Profile extends BaseModel {
     public currentDate: Date;
-    public currentSeason: number;
+    public currentSeasonYear: number;
     public settings: any;
     public trainedAt?: Date;
     public readonly Team?: Team;

@@ -12,6 +12,7 @@ export const FORCE_REFRESH = 'profile.forcerefresh';
 export interface Profile {
   id: number;
   currentDate: string;
+  currentSeasonYear: number;
   settings: any;
   trainedAt: string;
   Player: any;

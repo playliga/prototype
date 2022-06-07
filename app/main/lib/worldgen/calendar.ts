@@ -358,6 +358,7 @@ itemloop.register( ActionQueueTypes.START_SEASON, () => {
     .then( Worldgen.schedulePrizeMoneyDistribution )
     .then( Worldgen.scheduleEndSeasonReport )
     .then( Worldgen.scheduleEndSeasonResults )
+    .then( Worldgen.bumpProfileSeasonYear )
     .then( WGCompetition.bumpSeasonNumbers )
     .then( WGCompetition.syncTiers )
     .then( WGCompetition.genAllComps )

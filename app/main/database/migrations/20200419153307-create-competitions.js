@@ -16,6 +16,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 1,
       },
+      seasonYear: {
+        allowNull: false,
+        type: Sequelize.NUMBER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

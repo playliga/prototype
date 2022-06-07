@@ -102,7 +102,7 @@ async function saveplayer( data: IterableObject<any>[] ) {
   // create the new user profile
   const profile = await Models.Profile.create({
     currentDate: today,
-    currentSeason: Application.PRESEASON_FIRST_YEAR,
+    currentSeasonYear: Application.PRESEASON_FIRST_YEAR,
   });
 
   // save associations and return as a single promise

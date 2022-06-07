@@ -16,6 +16,10 @@ class Competition extends Model {
         type: Sequelize.INTEGER,
         defaultValue: 1,
       },
+      seasonYear: {
+        allowNull: false,
+        type: Sequelize.NUMBER,
+      },
     }, { sequelize, modelName: 'Competition' });
   }
 
