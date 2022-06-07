@@ -41,7 +41,7 @@
       <h1>
         {{it.compobj.name}}
         {{@if(it.competition.Continent)}}
-        {{it.competition.Continent.name}}
+        : {{it.competition.Continent.name}}
         {{/if}}
       </h1>
       <hr class="half" />
