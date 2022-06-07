@@ -25,6 +25,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "dist/*"
+        prerelease: true
         repo: "${{ github.event.repository.name }}-public"
         tag: ${{ github.ref_name }}
         token: ${{ secrets.TARGET_GITHUB_TOKEN }}
