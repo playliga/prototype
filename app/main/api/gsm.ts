@@ -1074,9 +1074,9 @@ async function play( ipcevt: IpcMainEvent, ipcreq: IpcRequest<PlayRequest> ) {
 
   // launch the game (or server if cs16)
   if( cs16_enabled ) {
-    launchCS16Server( match.data.map );
+    launchCS16Server( profile.settings.map_override || match.data.map );
   } else {
-    launchCSGO( match.data.map );
+    launchCSGO( profile.settings.map_override || match.data.map );
   }
 
   // connect to rcon and add cleanup listener

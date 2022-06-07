@@ -6,6 +6,7 @@ import IpcService from 'renderer/lib/ipc-service';
 import { RouteComponentProps } from 'react-router';
 import { Col, Row, Typography, Switch, Card, Select, Button, InputNumber, Form, Input } from 'antd';
 import { ApplicationState } from 'renderer/screens/main/types';
+import { parseMapForMatch } from 'shared/util';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
 import * as IPCRouting from 'shared/ipc-routing';
 import './settings.scss';
@@ -90,6 +91,29 @@ function Settings( props: Props ) {
                 >
                   <Select.Option value={7}>{'7s'}</Select.Option>
                   <Select.Option value={15}>{'15s'}</Select.Option>
+                </Select>
+              </Col>
+            </Row>
+          </Card.Grid>
+          <Card.Grid hoverable={false}>
+            <Row>
+              <Col span={20}>
+                <Typography.Text>{'Map Override'}</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Select
+                  defaultValue={settings.map_override || null}
+                  onChange={value => handleOnChange({ map_override: value })}
+                >
+                  <Select.Option value={null}>{'None'}</Select.Option>
+                  {Application.MAP_POOL.map( map => (
+                    <Select.Option
+                      value={map}
+                      key={map}
+                    >
+                      {parseMapForMatch(map, settings.cs16_enabled)}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Col>
             </Row>

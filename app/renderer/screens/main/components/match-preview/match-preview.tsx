@@ -11,6 +11,7 @@ import './match-preview.scss';
 interface Props {
   data: UpcomingMatchResponse;
   cs16_enabled?: boolean;
+  map_override?: string | null;
   onClick?: ( id: number ) => void;
 }
 
@@ -81,7 +82,7 @@ export default function MatchPreview( props: Props ) {
       <div className="match-preview-footer">
         <Typography.Text mark>
           {props.data.match.data
-            ? parseMapForMatch( props.data.match.data.map, props.cs16_enabled )
+            ? parseMapForMatch( props.map_override || props.data.match.data.map, props.cs16_enabled )
             : 'TBD'
           }
         </Typography.Text>
