@@ -11,6 +11,7 @@
     "noEmit": true,
     "paths": {
       "main*": [ "app/main*" ],
+      "package.json": [ "package.json" ],
       "renderer*": [ "app/renderer*" ],
       "shared*": [ "app/shared*" ]
     },

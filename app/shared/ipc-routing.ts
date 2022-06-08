@@ -67,3 +67,8 @@ export const Database = {
   TEAM_MATCHES                    : '/database/team/matches',
   UPDATE                          : '/database/update',
 };
+
+
+export const Common = {
+  APP_INFO  : '/common/app/info',
+};

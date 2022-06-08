@@ -4,7 +4,7 @@ import Application from 'main/constants/application';
 import GameSettings from 'main/constants/gamesettings';
 import IpcService from 'renderer/lib/ipc-service';
 import { RouteComponentProps } from 'react-router';
-import { Col, Row, Typography, Switch, Card, Select, Button, InputNumber, Form, Input } from 'antd';
+import { Col, Row, Typography, Switch, Card, Select, Button, InputNumber, Form, Input, Divider } from 'antd';
 import { ApplicationState } from 'renderer/screens/main/types';
 import { parseMapForMatch } from 'shared/util';
 import * as profileActions from 'renderer/screens/main/redux/profile/actions';
@@ -19,6 +19,7 @@ interface Props extends ApplicationState, RouteComponentProps {
 
 function Settings( props: Props ) {
   const { settings } = props.profile.data;
+  const [ appInfo, setAppInfo ] = React.useState<Record<string, any>>();
   const [ working, setWorking ] = React.useState( false );
 
   const handleOnChange = ( data: any ) => {
@@ -27,6 +28,15 @@ function Settings( props: Props ) {
       ...data
     }));
   };
+
+  React.useEffect(() => {
+    setWorking( true );
+    IpcService
+      .send( IPCRouting.Common.APP_INFO )
+      .then( data => Promise.resolve( setAppInfo( data ) ) )
+      .then( () => setWorking( false ) )
+    ;
+  }, []);
 
   return (
     <div id="settings" className="content">
@@ -229,6 +239,18 @@ function Settings( props: Props ) {
             </Card.Grid>
           </Card>
         </aside>
+      </section>
+
+      {/* VERSION FOOTER */}
+      <section>
+        <Divider>
+          <Typography.Text className="small-caps">
+            {appInfo
+              ? appInfo.version
+              : 'Loading app information...'
+            }
+          </Typography.Text>
+        </Divider>
       </section>
     </div>
   );

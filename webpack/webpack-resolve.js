@@ -12,6 +12,7 @@ module.exports = {
   extensions: [ '.ts', '.tsx', '.js', '.json' ],
   alias: {
     main: path.resolve( __dirname, '../app/main' ),
+    'package.json': path.resolve( __dirname, '../package.json' ),
     renderer: path.resolve( __dirname, '../app/renderer' ),
     shared: path.resolve( __dirname, '../app/shared' ),
 
