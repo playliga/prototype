@@ -160,7 +160,7 @@
     "redux-thunk": "2.3.0",
     "request": "2.88.2",
     "reselect": "4.0.0",
-    "sequelize": "5.21.6",
+    "sequelize": "6.29.0",
     "sqlite3": "4.1.1",
     "squirrelly": "8.0.3",
     "tail": "2.0.4",
