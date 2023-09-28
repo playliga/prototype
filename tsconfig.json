@@ -6,28 +6,20 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react",
-    "lib": ["es6", "dom"],
+    "lib": ["ES2015", "dom"],
     "moduleResolution": "node",
     "noEmit": true,
     "paths": {
-      "main*": [ "app/main*" ],
-      "package.json": [ "package.json" ],
-      "renderer*": [ "app/renderer*" ],
-      "shared*": [ "app/shared*" ]
+      "main*": ["app/main*"],
+      "package.json": ["package.json"],
+      "renderer*": ["app/renderer*"],
+      "shared*": ["app/shared*"]
     },
     "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": false,
-    "target": "esnext",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./@types"
-    ]
+    "target": "ES2015",
+    "typeRoots": ["./node_modules/@types", "./@types"]
   },
-  "exclude": [
-    "babel.config.js",
-    "dist",
-    "main.bundle.js",
-    "node_modules"
-  ]
+  "exclude": ["babel.config.js", "dist", "main.bundle.js", "node_modules"]
 }
