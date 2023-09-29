@@ -565,6 +565,12 @@ function launchCSGO( map = 'de_dust2' ) {
     '-gamemodes_serverfile', GameSettings.CSGO_GAMEMODES_FILE
   ];
 
+  // this is a temporary workaround until cs2 fully supports custom bot names
+  // and proper logging output like being able to specify log
+  // location and dumping end of match statistics
+  const fixedsteampath = steampath + '/steamapps/common/Counter-Strike Global Offensive';
+  commonflags.unshift('-insecure');
+
   if( is.osx() ) {
     gameproc = spawn(
       'open',
@@ -573,12 +579,12 @@ function launchCSGO( map = 'de_dust2' ) {
     );
   } else {
     gameproc = spawn(
-      'steam.exe',
+      'csgo.exe', // switch back to `steam.exe` once cs2 is supported
       [
         '-applaunch', GameSettings.CSGO_APPID.toString(),
         ...commonflags
       ],
-      { cwd: steampath }
+      { cwd: fixedsteampath }
     );
   }
 }
