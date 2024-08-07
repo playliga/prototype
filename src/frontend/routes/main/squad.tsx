@@ -106,8 +106,12 @@ export default function () {
   const [trainingBonuses, setTrainingBonuses] = React.useState<
     Awaited<ReturnType<typeof api.bonus.all>>
   >([]);
-  const [trainingMapId, setTrainingMapId] = React.useState<number>();
-  const [trainingServerId, setTrainingServerId] = React.useState<number>();
+  const [trainingMapId, setTrainingMapId] = React.useState<number>(
+    Number(localStorage.getItem('trainingMapId')),
+  );
+  const [trainingServerId, setTrainingServerId] = React.useState<number>(
+    Number(localStorage.getItem('trainingServerId')),
+  );
   const [trainingStatus, setTrainingStatus] = React.useState(null);
 
   // fetch data on first load
@@ -390,6 +394,9 @@ export default function () {
                   className="btn btn-primary"
                   disabled={!trainingAllowed || !!trainingStatus}
                   onClick={async () => {
+                    localStorage.setItem('trainingServerId', trainingServerId.toString());
+                    localStorage.setItem('trainingMapId', trainingMapId.toString());
+
                     for (const status of trainingStatuses) {
                       setTrainingStatus(status);
 
