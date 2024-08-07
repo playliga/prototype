@@ -1,0 +1,12 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shield-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50"/>
+      <stop offset="100%" style="stop-color:#1A2530"/>
+    </linearGradient>
+  </defs>
+  <path d="M250 30L450 120V280C450 380 350 450 250 470C150 450 50 380 50 280V120L250 30Z" fill="url(#shield-gradient)" stroke="#E74C3C" stroke-width="8"/>
+  <path d="M250 80L400 150V270C400 350 320 400 250 420C180 400 100 350 100 270V150L250 80Z" fill="none" stroke="#3498DB" stroke-width="4"/>
+  <polygon points="250,140 350,190 320,300 250,340 180,300 150,190" fill="#3498DB" opacity="0.8"/>
+  <path d="M250 180L300 210L285,280 250,305 215,280 200,210Z" fill="#E74C3C"/>
+</svg>

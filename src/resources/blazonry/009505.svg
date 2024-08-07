@@ -1,0 +1,13 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shield-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50"/>
+      <stop offset="100%" style="stop-color:#1A252F"/>
+    </linearGradient>
+  </defs>
+  <path d="M250 20L450 100V240C450 360 370 440 250 480C130 440 50 360 50 240V100L250 20Z" fill="url(#shield-gradient)"/>
+  <path d="M250 40L420 110V235C420 340 350 410 250 445C150 410 80 340 80 235V110L250 40Z" fill="#3498DB"/>
+  <path d="M250 70L390 130V230C390 320 330 380 250 410C170 380 110 320 110 230V130L250 70Z" fill="#2980B9"/>
+  <path d="M250 180L310 240L250 300L190 240L250 180Z" fill="#ECF0F1"/>
+  <circle cx="250" cy="240" r="40" fill="#E74C3C"/>
+</svg>

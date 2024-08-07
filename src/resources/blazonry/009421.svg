@@ -1,0 +1,18 @@
+<svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M250 20L450 160V340L250 480L50 340V160L250 20Z" fill="#2C3E50"/>
+  <path d="M250 40L430 165V335L250 460L70 335V165L250 40Z" fill="#34495E"/>
+  <path d="M250 80L390 180V320L250 420L110 320V180L250 80Z" fill="#E74C3C"/>
+  <path d="M250 120L350 195V305L250 380L150 305V195L250 120Z" fill="#C0392B"/>
+  <path d="M250 150L320 205V295L250 350L180 295V205L250 150Z" stroke="#ECF0F1" stroke-width="8" fill="#E74C3C"/>
+  <path d="M250 180L290 215V285L250 320L210 285V215L250 180Z" fill="#ECF0F1"/>
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+    <feMerge>
+      <feMergeNode in="coloredBlur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <g filter="url(#glow)">
+    <path d="M250 40L430 165V335L250 460L70 335V165L250 40Z" stroke="#E74C3C" stroke-width="2"/>
+  </g>
+</svg>

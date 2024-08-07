@@ -1,0 +1,18 @@
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFD700"/>
+      <stop offset="50%" style="stop-color:#FFC800"/>
+      <stop offset="100%" style="stop-color:#FFD700"/>
+    </linearGradient>
+  </defs>
+  <path d="M80 270h40v20H80z" fill="url(#goldGradient)"/>
+  <path d="M60 290h80v10H60z" fill="url(#goldGradient)"/>
+  <path d="M90 200h20v70H90z" fill="url(#goldGradient)"/>
+  <path d="M40 50c0 0-10 80 60 150c70-70 60-150 60-150h-120z" fill="url(#goldGradient)"/>
+  <path d="M20 50h160v-10H20z" fill="url(#goldGradient)"/>
+  <path d="M40 40h120v-10H40z" fill="url(#goldGradient)"/>
+  <path d="M60 30h80v-10H60z" fill="url(#goldGradient)"/>
+  <path d="M10 50c-10 0-10 20 0 20h20c-5-10-5-20 0-20H10z" fill="url(#goldGradient)"/>
+  <path d="M190 50c10 0 10 20 0 20h-20c5-10 5-20 0-20h20z" fill="url(#goldGradient)"/>
+</svg>

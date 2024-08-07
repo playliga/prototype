@@ -1,0 +1,19 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50"/>
+      <stop offset="100%" style="stop-color:#1A252F"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498DB"/>
+      <stop offset="100%" style="stop-color:#2980B9"/>
+    </linearGradient>
+  </defs>
+  <path d="M250 30L450 140V360L250 470L50 360V140L250 30Z" fill="url(#shieldGrad)" stroke="#34495E" stroke-width="10"/>
+  <path d="M250 70L410 160V340L250 430L90 340V160L250 70Z" fill="none" stroke="url(#glowGrad)" stroke-width="5"/>
+  <g transform="translate(250,250) scale(0.5)">
+    <path d="M0,-150 L100,0 L0,150 L-100,0 Z" fill="#3498DB" opacity="0.8"/>
+    <circle cx="0" cy="0" r="50" fill="#ECF0F1"/>
+    <path d="M-30,-30 L30,30 M-30,30 L30,-30" stroke="#2C3E50" stroke-width="12" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <path d="M250 30L80 140v220l170 110 170-110V140L250 30z" fill="#2c3e50"/>
+  <path d="M250 50L100 150v200l150 100 150-100V150L250 50z" fill="#3498db"/>
+  <path d="M250 90L130 170v160l120 80 120-80V170L250 90z" fill="#e74c3c"/>
+  <path d="M250 130L160 190v120l90 60 90-60V190L250 130z" fill="#f1c40f"/>
+  <circle cx="250" cy="250" r="50" fill="#ecf0f1"/>
+  <path d="M230 220l40 30-40 30v-60z" fill="#2c3e50"/>
+</svg>

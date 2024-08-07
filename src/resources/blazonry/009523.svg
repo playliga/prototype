@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shield-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50"/>
+      <stop offset="100%" style="stop-color:#1A252F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield Background -->
+  <path d="M250 30L450 120V280C450 380 350 450 250 470C150 450 50 380 50 280V120L250 30Z" fill="url(#shield-gradient)"/>
+
+  <!-- Inner Border -->
+  <path d="M250 50L425 130V270C425 360 335 420 250 440C165 420 75 360 75 270V130L250 50Z" fill="none" stroke="#3498DB" stroke-width="3"/>
+
+  <!-- Abstract Gaming Symbol -->
+  <g transform="translate(150, 150)">
+    <path d="M100 0L200 60L100 120L0 60Z" fill="#3498DB" opacity="0.9"/>
+    <path d="M100 20L180 70L100 100L20 70Z" fill="#E74C3C"/>
+    <circle cx="100" cy="60" r="25" fill="#ECF0F1"/>
+  </g>
+
+  <!-- Stars -->
+  <g fill="#F1C40F">
+    <circle cx="175" cy="100" r="10"/>
+    <circle cx="325" cy="100" r="10"/>
+    <circle cx="250" cy="380" r="10"/>
+  </g>
+</svg>

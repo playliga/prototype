@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1A2632;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E74C3C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C0392B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M250 30L450 160L450 340L250 470L50 340L50 160Z" fill="url(#grad1)" stroke="#34495E" stroke-width="8"/>
+  <path d="M250 80L400 180L400 320L250 420L100 320L100 180Z" fill="none" stroke="#ECF0F1" stroke-width="4"/>
+  <path d="M250 150L350 220L350 280L250 350L150 280L150 220Z" fill="url(#grad2)" stroke="#C0392B" stroke-width="4"/>
+  <circle cx="250" cy="250" r="40" fill="#ECF0F1" stroke="#BDC3C7" stroke-width="3"/>
+  <path d="M235 230L265 230L265 270L235 270Z" fill="#2C3E50"/>
+</svg>

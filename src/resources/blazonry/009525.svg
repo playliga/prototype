@@ -1,0 +1,51 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shield -->
+  <path
+    d="M100 10 L180 50 L180 120 C180 160 140 185 100 190 C60 185 20 160 20 120 L20 50 Z"
+    fill="#1a1a1a"
+    stroke="#3498db"
+    stroke-width="3"
+  />
+
+  <!-- Inner Shield Border -->
+  <path
+    d="M100 25 L165 58 L165 115 C165 150 130 170 100 175 C70 170 35 150 35 115 L35 58 Z"
+    fill="none"
+    stroke="#3498db"
+    stroke-width="1"
+    opacity="0.5"
+  />
+
+  <!-- Abstract Gaming Symbol -->
+  <g transform="translate(100 100)" fill="#3498db">
+    <!-- Central Diamond -->
+    <rect x="-25" y="-25" width="50" height="50" transform="rotate(45)" />
+
+    <!-- Diagonal Lines -->
+    <rect x="-40" y="-2" width="80" height="4" transform="rotate(45)" />
+    <rect x="-40" y="-2" width="80" height="4" transform="rotate(-45)" />
+
+    <!-- Corner Triangles -->
+    <path d="M-35,-35 L-25,-25 L-35,-25 Z" />
+    <path d="M35,-35 L25,-25 L35,-25 Z" />
+    <path d="M-35,35 L-25,25 L-35,25 Z" />
+    <path d="M35,35 L25,25 L35,25 Z" />
+  </g>
+
+  <!-- Side Accent Lines -->
+  <g stroke="#3498db" stroke-width="2">
+    <line x1="40" y1="70" x2="60" y2="70" />
+    <line x1="140" y1="70" x2="160" y2="70" />
+    <line x1="40" y1="130" x2="60" y2="130" />
+    <line x1="140" y1="130" x2="160" y2="130" />
+  </g>
+
+  <!-- Bottom Accent -->
+  <path
+    d="M85 150 L100 160 L115 150"
+    fill="none"
+    stroke="#3498db"
+    stroke-width="2"
+    stroke-linecap="round"
+  />
+</svg>

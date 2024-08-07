@@ -1,0 +1,14 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50"/>
+      <stop offset="100%" style="stop-color:#1a252f"/>
+    </linearGradient>
+  </defs>
+  <path d="M150 20L270 70v100c0 80-120 130-120 130S30 250 30 170V70L150 20z" fill="url(#shield)"/>
+  <path d="M150 40L250 80v85c0 65-100 105-100 105S50 230 50 165V80L150 40z" fill="#3498db"/>
+  <path d="M150 60L230 90v70c0 50-80 80-80 80S70 210 70 160V90L150 60z" fill="#2980b9"/>
+  <path d="M150 150l-30-30v-40l30-15 30 15v40z" fill="#ecf0f1"/>
+  <path d="M150 85l15 7v20l-15 15-15-15v-20z" fill="#e74c3c"/>
+  <path d="M120 155l30-30 30 30-30 30z" fill="#f1c40f"/>
+</svg>

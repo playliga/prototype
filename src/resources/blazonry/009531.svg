@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a148c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7b1fa2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M100 10L180 60L180 140L100 190L20 140L20 60Z" fill="url(#grad1)" stroke="#2d1252" stroke-width="4"/>
+  <path d="M100 30L160 70L160 130L100 170L40 130L40 70Z" fill="none" stroke="#9c27b0" stroke-width="2"/>
+  <path d="M100 50L140 80L140 120L100 150L60 120L60 80Z" fill="none" stroke="#e1bee7" stroke-width="1.5"/>
+  <path d="M80 70L100 60L120 70L120 130L100 140L80 130Z" fill="#e1bee7"/>
+  <path d="M70 90L90 80L90 120L70 110Z" fill="#9c27b0"/>
+  <path d="M130 90L110 80L110 120L130 110Z" fill="#9c27b0"/>
+</svg>

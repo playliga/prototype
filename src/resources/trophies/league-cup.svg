@@ -1,0 +1,16 @@
+<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bronzeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#cd7f32;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#a66321;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cd7f32;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M40,110 h20 v5 h-20 z" fill="url(#bronzeGrad)"/>
+  <path d="M35,115 h30 v5 h-30 z" fill="url(#bronzeGrad)"/>
+  <path d="M20,20 h60 l-5,10 h-50 z" fill="url(#bronzeGrad)"/>
+  <path d="M30,30 h40 l-5,75 h-30 l-5,-75" fill="url(#bronzeGrad)"/>
+  <ellipse cx="50" cy="20" rx="30" ry="5" fill="url(#bronzeGrad)"/>
+  <path d="M15,20 q-15,25 -5,40 q5,7 15,5" fill="none" stroke="url(#bronzeGrad)" stroke-width="3"/>
+  <path d="M85,20 q15,25 5,40 q-5,7 -15,5" fill="none" stroke="url(#bronzeGrad)" stroke-width="3"/>
+</svg>

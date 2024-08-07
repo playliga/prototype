@@ -1,0 +1,15 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C3E50"/>
+      <stop offset="100%" style="stop-color:#1a252f"/>
+    </linearGradient>
+  </defs>
+  <path d="M150 20L270 80V180C270 230 220 270 150 280C80 270 30 230 30 180V80L150 20Z" fill="url(#shield)"/>
+  <path d="M150 40L250 90V170C250 210 210 245 150 255C90 245 50 210 50 170V90L150 40Z" fill="#3498db"/>
+  <path d="M150 70L220 110V160C220 190 190 215 150 225C110 215 80 190 80 160V110L150 70Z" fill="#2980b9"/>
+  <g transform="translate(150,140) scale(0.4)">
+    <path d="M0-80L40-20L100-40L60 20L100 80L40 60L0 100L-40 60L-100 80L-60 20L-100-40L-40-20Z" fill="#ecf0f1"/>
+  </g>
+  <path d="M150 70L220 110V160C220 190 190 215 150 225C110 215 80 190 80 160V110L150 70Z" fill="#2980b9" opacity="0.3"/>
+</svg>

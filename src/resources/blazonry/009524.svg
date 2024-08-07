@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- Shield Base -->
+  <path d="M250 30L70 100v200c0 100 80 150 180 170 100-20 180-70 180-170V100L250 30z" fill="#2a2a2a"/>
+
+  <!-- Inner Shield -->
+  <path d="M250 50L90 110v180c0 90 70 130 160 150 90-20 160-60 160-150V110L250 50z" fill="#3498db"/>
+
+  <!-- Abstract Design Elements -->
+  <path d="M250 100l-100 80v100l100 80 100-80V180l-100-80z" fill="none" stroke="#fff" stroke-width="8"/>
+  <path d="M250 140l-60 50v60l60 50 60-50v-60l-60-50z" fill="#fff"/>
+
+  <!-- Decorative Lines -->
+  <path d="M190 230h120M250 170v120" stroke="#2a2a2a" stroke-width="8"/>
+
+  <!-- Abstract Wings -->
+  <path d="M150 200c-20-20-40-20-60-10 40-10 50 10 60 40" fill="#fff"/>
+  <path d="M350 200c20-20 40-20 60-10-40-10-50 10-60 40" fill="#fff"/>
+</svg>
