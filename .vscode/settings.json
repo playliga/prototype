@@ -1,0 +1,10 @@
+{
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "amxxpawn.compiler.outputType": "path",
+  "amxxpawn.compiler.outputPath": "${workspaceRoot}/src/resources/games/cstrike/addons/amxmodx/plugins"
+}

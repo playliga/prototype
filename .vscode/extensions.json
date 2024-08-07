@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "editorconfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "klippy.amxxpawn-language",
+    "prisma.prisma",
+    "sarrus.sourcepawn-vscode",
+    "yoavbls.pretty-ts-errors"
+  ],
+  "unwantedRecommendations": []
+}
