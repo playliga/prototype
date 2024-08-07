@@ -76,6 +76,23 @@ Generate platform specific distributables.
 npm run make
 ```
 
+### Publishing
+
+> [!IMPORTANT]
+> A [Github Access Token](https://github.com/settings/tokens) is required.
+
+The publish command will build the application and publish it to Github as a draft release.
+
+```
+export GITHUB_TOKEN="<...>"
+npm run publish
+```
+
+In order for the CI/CD process to mirror it into the [public releases repo](https://github.com/lemonpole/LIGA-public) the following must be done:
+
+- Publish the release.
+- Ensure it is _not_ a pre-release otherwise the CI/CD process will not pick it up.
+
 ### Updating Application Icon
 
 The installers only accept an `.ico` file so it must be manually converted from the base `assets/icon.png` image.
