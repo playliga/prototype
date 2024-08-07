@@ -1,0 +1,31 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/electron",
+    "plugin:import/typescript",
+    "plugin:jsdoc/recommended-typescript-error",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "jsdoc"],
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "import/no-named-as-default-member": "off",
+    "jsdoc/check-tag-names": ["off", { "definedTags": ["component", "note"] }],
+    "jsdoc/require-returns": "off",
+    "jsdoc/tag-lines": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  }
+}

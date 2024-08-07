@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Public Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download latest release
+        uses: robinraju/release-downloader@v1.2
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          latest: true
+          tarBall: false
+          zipBall: false
+          fileName: '*'
+          out-file-path: 'dist'
+      - name: Upload to public releases repo
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'dist/*'
+          prerelease: true
+          repo: '${{ github.event.repository.name }}-public'
+          tag: ${{ github.ref_name }}
+          token: ${{ secrets.TARGET_GITHUB_TOKEN }}

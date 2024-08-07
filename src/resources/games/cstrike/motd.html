@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{it.title}}</title>
+    <style type="text/css">
+      /** GLOBAL STYLES */
+      body {
+        background: rgb(0, 0, 0);
+        margin: 8px;
+        color: rgb(255, 176, 0);
+        font-family: Verdana, Tahoma, sans-serif;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      section {
+        display: inline-block;
+        margin-left: 1.25rem;
+        width: 10%;
+      }
+
+      section:first-child,
+      section:last-child {
+        width: 33%;
+      }
+
+      section > footer {
+        background-color: rgb(35, 43, 43);
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+      }
+
+      img {
+        height: 8rem;
+        width: 8rem;
+      }
+
+      table {
+        width: 90%;
+        margin: 0 auto;
+        margin-top: 2rem;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background-color: rgb(35, 43, 43);
+      }
+
+      tr > * {
+        padding: 1rem;
+      }
+
+      td {
+        border-bottom: 1px solid rgb(35, 43, 43);
+      }
+
+      /** UTIL CLASSES */
+      .text-left {
+        text-align: left;
+      }
+
+      .spotlight {
+        background-color: rgba(35, 43, 43, 0.5);
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>{{it.title}}</h1>
+      <h2>{{it.subtitle}}</h2>
+      {{@if(it.stage)}}
+      <h3>{{it.stage}}</h3>
+      {{/if}}
+    </header>
+
+    <main>
+      <section>
+        <img src="data:image/png;base64,{{it.home.logo}}" />
+        <footer>
+          <h3>{{it.home.name}}</h3>
+          <h4>{{it.home.subtitle}}</h4>
+        </footer>
+      </section>
+      <section>
+        <h3>vs</h3>
+      </section>
+      <section>
+        <img src="data:image/png;base64,{{it.away.logo}}" />
+        <footer>
+          <h3>{{it.away.name}}</h3>
+          <h4>{{it.away.subtitle}}</h4>
+        </footer>
+      </section>
+    </main>
+
+    {{@if(it.standings)}}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th class="text-left">Name</th>
+          <th>MP</th>
+          <th>Win</th>
+          <th>Loss</th>
+          <th>Draw</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{@each(it.standings) => competitor, idx}}
+        <tr
+          class="{{@if(competitor.team.name === it.home.name || competitor.team.name === it.away.name)}}spotlight{{/if}}"
+        >
+          <td>{{idx + 1}}</td>
+          <td class="text-left">{{competitor.team.name}}</td>
+          <td>{{competitor.win + competitor.loss + competitor.draw}}</td>
+          <td>{{competitor.win}}</td>
+          <td>{{competitor.loss}}</td>
+          <td>{{competitor.draw}}</td>
+          <td>{{competitor.win * 3 + competitor.draw}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+  </body>
+</html>

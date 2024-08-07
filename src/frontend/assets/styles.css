@@ -1,0 +1,334 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import '~flagpack/dist/flagpack.css';
+
+/** for smoother startups */
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/** global styles */
+body {
+  @apply h-full overflow-hidden overflow-y-auto bg-base-100;
+}
+
+img {
+  transition: filter 0.3s ease-out;
+}
+
+h1,
+h2,
+h3,
+legend,
+th {
+  @apply font-bold;
+}
+
+h2,
+legend {
+  @apply text-2xl;
+}
+
+h3 {
+  @apply text-xl;
+}
+
+table {
+  caption {
+    @apply border-b border-b-base-content/10 pb-2 text-center;
+  }
+
+  tr {
+    @apply !border-b-base-content/10;
+  }
+
+  thead tr,
+  tfoot tr {
+    @apply !bg-base-200;
+  }
+
+  tbody tr {
+    @apply !border-b-base-content/10 last:border-b-0;
+  }
+}
+
+/** helps reduce the "web-like" feel of the app in electron */
+#root,
+#main,
+#modal {
+  @apply h-full cursor-default select-none;
+  animation: fadein 0.5s;
+}
+
+/** patch meter element */
+meter {
+  @apply w-full;
+}
+
+meter::-webkit-meter-bar {
+  @apply h-2 rounded-2xl border-0 bg-base-content/20;
+}
+
+/** main screen styles */
+#main > header + * {
+  @apply pt-16;
+}
+
+/** adjust prose stylings */
+.prose hr {
+  @apply my-4 border-base-content/10;
+}
+
+/** adjust flagpack stylings */
+.fp {
+  @apply border-2 border-black;
+}
+
+/** components */
+@layer components {
+  .dashboard {
+    & {
+      @apply stack-y h-screen !gap-0;
+    }
+
+    & > header {
+      @apply stack-x w-full !gap-0 border-b border-base-content/10 bg-base-200;
+    }
+
+    & > header > button {
+      @apply btn rounded-none font-normal shadow-none;
+    }
+
+    main {
+      @apply grid h-0 flex-grow grid-cols-3 divide-x divide-base-content/10;
+    }
+
+    main > * {
+      @apply overflow-y-scroll;
+    }
+
+    main > :nth-child(2) {
+      @apply col-span-2;
+    }
+
+    header.prose {
+      @apply heading max-w-none;
+    }
+  }
+
+  .day {
+    @apply card card-side rounded-none border-b border-base-content/10 bg-base-200 uppercase;
+
+    &.day-active {
+      @apply bg-base-300 font-black;
+    }
+
+    &.day-btn {
+      @apply btn btn-neutral btn-block h-full rounded-none border-0 border-b border-base-content/10;
+
+      &:hover {
+        @apply border-base-content/10;
+      }
+
+      figure {
+        @apply !w-full;
+      }
+
+      figure svg {
+        @apply size-10;
+      }
+    }
+
+    figure {
+      @apply w-1/2 flex-col text-center;
+
+      p {
+        @apply h-auto;
+      }
+
+      img,
+      svg {
+        @apply inline-block size-16;
+      }
+    }
+
+    aside {
+      @apply card-body items-center px-0;
+
+      h2 {
+        @apply card-title text-2xl font-black;
+      }
+    }
+  }
+
+  .form-ios {
+    &.col-2 fieldset > :not(legend) {
+      @apply grid-cols-2;
+
+      & > :first-child {
+        @apply col-span-1;
+      }
+    }
+
+    fieldset {
+      @apply stack-y !gap-0 divide-y divide-base-content/10;
+    }
+
+    fieldset > * {
+      @apply px-2;
+    }
+
+    fieldset > legend {
+      @apply heading w-full;
+      border-bottom-width: 0;
+    }
+
+    fieldset > :not(legend) {
+      @apply grid w-full grid-cols-3 items-center py-2;
+
+      & > :first-child {
+        @apply col-span-2;
+      }
+
+      & > :not(:first-child) {
+        @apply flex;
+      }
+
+      :first-child:has(.tooltip) {
+        @apply relative;
+
+        & > [class*='tooltip'] {
+          @apply absolute right-1 top-1;
+        }
+      }
+
+      header > :first-child {
+        @apply text-base font-normal;
+      }
+
+      header > :not(:first-child) {
+        @apply text-sm italic;
+      }
+    }
+
+    input:not([type='checkbox'], [id*='react-select']),
+    select {
+      @apply !bg-base-200;
+    }
+  }
+
+  .player-card {
+    @apply stack-y h-fit !gap-0 divide-y divide-base-content/10 border-base-content/10 bg-base-200;
+
+    header {
+      @apply prose my-4 max-w-none text-center;
+
+      h3 {
+        @apply my-0;
+      }
+
+      p {
+        @apply my-0 text-sm;
+      }
+    }
+
+    figure {
+      @apply px-10 py-4;
+    }
+
+    footer {
+      @apply bg-base-300;
+
+      button {
+        @apply btn-sm;
+      }
+    }
+
+    button {
+      @apply btn btn-ghost btn-block rounded-none;
+    }
+  }
+
+  .react-hot-toast {
+    @apply max-w-none bg-base-100 p-0 text-base-content;
+
+    & > div {
+      @apply m-0;
+    }
+
+    dialog {
+      @apply stack-x static w-96 divide-x divide-base-content/10 sm:w-96;
+      gap: 1rem;
+    }
+
+    dialog:before {
+      content: '';
+    }
+
+    dialog > section:first-child {
+      @apply stack-x w-2/3 items-center;
+      gap: 1rem;
+    }
+
+    dialog > section + section {
+      @apply w-1/3;
+    }
+
+    article {
+      @apply py-5;
+    }
+
+    header {
+      @apply font-bold;
+    }
+
+    footer {
+      @apply italic;
+    }
+
+    svg {
+      @apply size-8;
+    }
+
+    button {
+      @apply btn btn-ghost btn-block h-full rounded-none;
+    }
+  }
+}
+
+/** utilities */
+@layer utilities {
+  .badge-xxs {
+    @apply h-1 px-[.08rem] text-[.25rem]/[.25rem];
+  }
+
+  .center {
+    @apply grid grid-cols-1 place-content-center place-items-center;
+  }
+
+  .frosted {
+    @apply shadow-lg backdrop-blur-md;
+  }
+
+  .heading {
+    @apply border-y border-base-content/10 bg-base-200 px-2 py-4;
+  }
+
+  .stack-x {
+    @apply flex gap-2;
+  }
+
+  .stack-y {
+    @apply flex flex-col gap-2;
+  }
+
+  .text-muted {
+    @apply text-base-content/40 dark:text-base-content/20;
+  }
+}
