@@ -31,13 +31,13 @@ ConVar cvars[Cvars];
 // variables
 bool  live, halfTime, overTime      = false;
 char  buffer[BUFFER_SIZE_MAX + 1]   = "";
-char  hostname[BUFFER_SIZE_SM +1 ]  = "";
-char  modelsTs[][]                  = { "models/player/t_guerilla.mdl", "models/player/t_leet.mdl", "models/player/t_phoenix.mdl" };
-char  modelsCTs[][]                 = { "models/player/ct_gign.mdl", "models/player/ct_gsg9.mdl", "models/player/ct_sas.mdl" };
-int   reasonWinCTs[]                = { 4, 5, 6, 7, 10, 11, 13, 16, 19 };
-int   reasonWinTs[]                 = { 0, 3, 8, 12, 17, 18 };
-int   score[]                       = { 0, 0 };
-int   scoreOverTime[]               = { 0, 0 };
+char  hostname[BUFFER_SIZE_SM + 1]  = "";
+char  modelsTs[][]                  = {"models/player/t_guerilla.mdl", "models/player/t_leet.mdl", "models/player/t_phoenix.mdl"};
+char  modelsCTs[][]                 = {"models/player/ct_gign.mdl", "models/player/ct_gsg9.mdl", "models/player/ct_sas.mdl"};
+int   reasonWinCTs[]                = {4, 5, 6, 7, 10, 11, 13, 16, 19};
+int   reasonWinTs[]                 = {0, 3, 8, 12, 17, 18};
+int   score[]                       = {0, 0};
+int   scoreOverTime[]               = {0, 0};
 
 
 /**

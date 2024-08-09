@@ -7,12 +7,14 @@
 #pragma semicolon 1;
 
 // constants
-int DELAY_GAME_OVER       = 10;
-int DELAY_WELCOME_MESSAGE = 5;
+const int BUFFER_SIZE_SM        = 63;
+const int BUFFER_SIZE_MAX       = 2047;
+const int DELAY_GAME_OVER       = 10;
+const int DELAY_WELCOME_MESSAGE = 5;
 
 // variables
-String:buffer[2048]       = "";
-String:hostname[64]       = "";
+char buffer[BUFFER_SIZE_MAX + 1]  = "";
+char hostname[BUFFER_SIZE_SM + 1] = "";
 
 /**
  * Plugin information.
@@ -93,13 +95,12 @@ public Action Timer_WelcomeMessage(Handle timer, int id) {
   return Plugin_Continue;
 }
 
-
-/*
-* Emulates the chat behavior from `rcon say` where the
-* server's hostname is prefixed before the message.
-*
-* @param message The message to print.
-*/
+/**
+ * Emulates the chat behavior from `rcon say` where the
+ * server's hostname is prefixed before the message.
+ *
+ * @param message The message to print.
+ */
 public void say(const char[] message, any ...) {
   VFormat(buffer, sizeof(buffer), message, 2);
   PrintToChatAll("<%s> %s", hostname, buffer);
