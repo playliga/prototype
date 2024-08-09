@@ -119,3 +119,57 @@ For VP9, the CRF can range from 0 (best quality) to 63 (smallest file size). It 
 ## Contributing
 
 This project adheres to the conventional commits specification which is outlined [here](https://www.conventionalcommits.org/en/v1.0.0/#summary).
+
+## Marketing
+
+The resolution used for games and the app should be set to `1280x960`.
+
+The game being demoed should also be running in window mode so that the transition between app and game is seamless when taking videos.
+
+Additionally, the following `diff` should be applied to ensure consistency between videos and screenshots.
+
+```diff
+diff --git a/src/backend/lib/window-manager.ts b/src/backend/lib/window-manager.ts
+index b6e60b1d..cc3a8b58 100644
+--- a/src/backend/lib/window-manager.ts
++++ b/src/backend/lib/window-manager.ts
+@@ -81,6 +81,8 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
+     url: is.main() && LANDING_WINDOW_WEBPACK_ENTRY,
+     options: {
+       ...baseWindowConfig,
++      width: 1280,
++      height: 960,
+     },
+   },
+   [Constants.WindowIdentifier.Main]: {
+@@ -88,6 +90,8 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
+     url: is.main() && MAIN_WINDOW_WEBPACK_ENTRY,
+     options: {
+       ...baseWindowConfig,
++      width: 1280,
++      height: 960,
+     },
+     buildMenu: () =>
+       Menu.buildFromTemplate([
+diff --git a/src/shared/constants.ts b/src/shared/constants.ts
+index f2921e5e..341e9403 100644
+--- a/src/shared/constants.ts
++++ b/src/shared/constants.ts
+@@ -442,15 +442,7 @@ export const IdiomaticTier: Record<TierSlug | string, string> = {
+  *
+  * @constant
+  */
+-export const MapPool = [
+-  'de_dust2',
+-  'de_inferno',
+-  'de_mirage',
+-  'de_nuke',
+-  'de_overpass',
+-  'de_train',
+-  'de_tuscan',
+-];
++export const MapPool = ['de_dust2'];
+
+ /**
+  * Replacement maps for game variants.
+```
