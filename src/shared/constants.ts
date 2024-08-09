@@ -111,7 +111,7 @@ export enum FederationSlug {
 export enum Game {
   CS16 = 'cs16',
   CSGO = 'csgo',
-  CSS = 'css',
+  CSS = 'cssource',
 }
 
 /**
@@ -398,6 +398,17 @@ export const GameSettings = {
   CSGO_LOGFILE: 'logs/liga.log',
   CSGO_SERVER_CONFIG_FILE: 'cfg/listenserver.cfg',
 
+  // cssource settings
+  CSSOURCE_APPID: 240,
+  CSSOURCE_BASEDIR: 'steamapps/common/Counter-Strike Source',
+  CSSOURCE_BOT_CONFIG: 'custom/liga/botprofile.db',
+  CSSOURCE_EXE: 'hl2.exe',
+  CSSOURCE_GAMEDIR: 'cstrike',
+  CSSOURCE_LOGFILE: 'logs/liga.log',
+  CSSOURCE_MOTD_HTML_FILE: 'cfg/motd.html',
+  CSSOURCE_MOTD_TXT_FILE: 'cfg/motd.txt',
+  CSSOURCE_SERVER_CONFIG_FILE: 'cfg/listenserver.cfg',
+
   // rcon settings
   RCON_MAX_ATTEMPTS: 15,
   RCON_PASSWORD: 'liga',
@@ -440,6 +451,23 @@ export const MapPool = [
   'de_train',
   'de_tuscan',
 ];
+
+/**
+ * Replacement maps for game variants.
+ *
+ * @constant
+ */
+export const MapPoolReplacements: Record<string, Record<string, string>> = {
+  [Game.CS16]: {
+    de_mirage: 'de_cpl_strike',
+    de_tuscan: 'de_cpl_mill',
+    de_overpass: 'de_cpl_fire',
+  },
+  [Game.CSS]: {
+    de_mirage: 'de_cpl_strike',
+    de_overpass: 'de_cbble',
+  },
+};
 
 /**
  * Eligible days of the week for competitions to hold matches.

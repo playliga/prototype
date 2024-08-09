@@ -70,7 +70,7 @@ export default function () {
               value={settings.general.game}
             >
               {Object.values(Constants.Game).map((game) => (
-                <option key={game} value={game} disabled={game === Constants.Game.CSS}>
+                <option key={game} value={game}>
                   {game}
                 </option>
               ))}

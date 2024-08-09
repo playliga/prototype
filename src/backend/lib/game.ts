@@ -62,6 +62,8 @@ export class Server {
   private gameClientProcess: ChildProcessWithoutNullStreams;
   private logFile: string;
   private match: Prisma.MatchGetPayload<typeof Eagers.match>;
+  private motdTxtFile: string;
+  private motdHTMLFile: string;
   private profile: Profile;
   private rcon: RCON.Client;
   private scorebot: Scorebot.Watcher;
@@ -87,7 +89,18 @@ export class Server {
         this.botConfigFile = Constants.GameSettings.CS16_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CS16_GAMEDIR;
         this.logFile = Constants.GameSettings.CS16_LOGFILE;
+        this.motdTxtFile = Constants.GameSettings.CS16_MOTD_TXT_FILE;
+        this.motdHTMLFile = Constants.GameSettings.CS16_MOTD_HTML_FILE;
         this.serverConfigFile = Constants.GameSettings.CS16_SERVER_CONFIG_FILE;
+        break;
+      case Constants.Game.CSS:
+        this.baseDir = Constants.GameSettings.CSSOURCE_BASEDIR;
+        this.botConfigFile = Constants.GameSettings.CSSOURCE_BOT_CONFIG;
+        this.gameDir = Constants.GameSettings.CSSOURCE_GAMEDIR;
+        this.logFile = Constants.GameSettings.CSSOURCE_LOGFILE;
+        this.motdTxtFile = Constants.GameSettings.CSSOURCE_MOTD_TXT_FILE;
+        this.motdHTMLFile = Constants.GameSettings.CSSOURCE_MOTD_HTML_FILE;
+        this.serverConfigFile = Constants.GameSettings.CSSOURCE_SERVER_CONFIG_FILE;
         break;
       default:
         this.baseDir = Constants.GameSettings.CSGO_BASEDIR;
@@ -252,7 +265,7 @@ export class Server {
   /**
    * Generates the MOTD text file.
    *
-   * @note cs16 only.
+   * @note cs16, css only.
    * @function
    */
   private async generateMOTDConfig() {
@@ -268,14 +281,14 @@ export class Server {
 
     // generate the motd text file which simply redirects
     // to the html one and bypasses the 1KB file limit
-    const txtSource = path.join(gameBasePath, Constants.GameSettings.CS16_MOTD_TXT_FILE);
+    const txtSource = path.join(gameBasePath, this.motdTxtFile);
     const txtTemplate = await fs.promises.readFile(txtSource, 'utf8');
     const txtContent = Sqrl.render(txtTemplate, {
-      target: path.join(gameBasePath, 'motd.html'),
+      target: path.join(gameBasePath, this.motdHTMLFile),
     });
 
     // generate the motd html file
-    const htmlSource = path.join(gameBasePath, Constants.GameSettings.CS16_MOTD_HTML_FILE);
+    const htmlSource = path.join(gameBasePath, this.motdHTMLFile);
     const htmlTemplate = await fs.promises.readFile(htmlSource, 'utf8');
     const htmlContent = Sqrl.render(htmlTemplate, {
       title: this.hostname.split('|')[0],
@@ -426,7 +439,7 @@ export class Server {
    *
    * @function
    */
-  private async launchClassicClient() {
+  private async launchClientCS16() {
     // grab map
     const [game1] = this.match.games;
 
@@ -464,7 +477,7 @@ export class Server {
    *
    * @function
    */
-  private launchCSGOClient() {
+  private launchClientCSGO() {
     // grab map
     const [game1] = this.match.games;
 
@@ -506,13 +519,63 @@ export class Server {
   }
 
   /**
+   * Launches the CSS game client.
+   *
+   * @function
+   */
+  private launchClientCSS() {
+    // grab map
+    const [game1] = this.match.games;
+
+    const commonFlags = [
+      '-usercon',
+      '-insecure',
+      '+ip',
+      this.getLocalIP(),
+      '+map',
+      game1.map,
+      '+maxplayers',
+      '12',
+    ];
+
+    if (is.osx()) {
+      this.gameClientProcess = spawn(
+        'open',
+        [`steam://rungameid/${Constants.GameSettings.CSSOURCE_APPID}//'${commonFlags.join(' ')}'`],
+        { shell: true },
+      );
+    } else {
+      this.gameClientProcess = spawn(
+        Constants.GameSettings.CSSOURCE_EXE,
+        ['-game', Constants.GameSettings.CSSOURCE_GAMEDIR, ...commonFlags],
+        {
+          cwd: path.join(this.settings.general.steamPath, Constants.GameSettings.CSSOURCE_BASEDIR),
+        },
+      );
+    }
+
+    return Promise.resolve();
+  }
+
+  /**
    * Sets up and configures the files that are
    * necessary for the game server to run.
    *
    * @function
    */
   private async prepare() {
-    const from = path.join(this.resourcesPath, Constants.GameSettings.GAMES_BASEDIR, this.gameDir);
+    // cs16 and css have the same `gamedir` value of `cstrike`
+    // so alias `css` to `cssource` only when copying the
+    // files from the resources dir to the steam dir
+    const localGameDir = (() => {
+      switch (this.settings.general.game) {
+        case Constants.Game.CSS:
+          return 'cssource';
+        default:
+          return this.gameDir;
+      }
+    })();
+    const from = path.join(this.resourcesPath, Constants.GameSettings.GAMES_BASEDIR, localGameDir);
     const to = path.join(this.settings.general.steamPath, this.baseDir, this.gameDir);
 
     // find and extract zip files
@@ -525,6 +588,7 @@ export class Server {
     // configure game files
     switch (this.settings.general.game) {
       case Constants.Game.CS16:
+      case Constants.Game.CSS:
         await this.generateMOTDConfig();
         break;
       default:
@@ -551,10 +615,13 @@ export class Server {
     // launch clients
     switch (this.settings.general.game) {
       case Constants.Game.CS16:
-        await this.launchClassicClient();
+        await this.launchClientCS16();
+        break;
+      case Constants.Game.CSS:
+        await this.launchClientCSS();
         break;
       default:
-        await this.launchCSGOClient();
+        await this.launchClientCSGO();
         break;
     }
 

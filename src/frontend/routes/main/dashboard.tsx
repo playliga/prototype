@@ -114,7 +114,7 @@ export default function () {
 
   // figure out which game is not installed
   const appStatusError = React.useMemo(() => {
-    const [, match] = state.appStatus?.match(/(csgo|hl)\.exe/) || [];
+    const [, match] = state.appStatus?.match(/(csgo|hl|hl2)\.exe/) || [];
     return match;
   }, [state.appStatus]);
 
@@ -135,6 +135,11 @@ export default function () {
           {!!Constants.GameSettings.CS16_EXE.includes(appStatusError) && (
             <p>
               Counter-Strike 1.6 not detected! Please install in order to play your matches in-game.
+            </p>
+          )}
+          {!!Constants.GameSettings.CSSOURCE_EXE.includes(appStatusError) && (
+            <p>
+              Counter-Strike Source not detected! Please install in order to play your matches in-game.
             </p>
           )}
           {!!Constants.GameSettings.CSGO_EXE.includes(appStatusError) && (

@@ -12,9 +12,6 @@ import * as Constants from './constants';
  * Returns the replacement map for the selected
  * game variant, if one is found.
  *
- * Otherwise, it will return the map that was
- * originally passed to the function.
- *
  * Can optionally return the map in URI format which
  * can be used when passing to image components.
  *
@@ -30,29 +27,16 @@ export function convertMapPool(map: (typeof Constants.MapPool)[number], game: st
     switch (game) {
       case Constants.Game.CS16:
         return '.cs16.png';
+      case Constants.Game.CSS:
+        return '.css.png';
       default:
         return '.png';
     }
   })();
 
-  // noop if csgo
-  if (game === Constants.Game.CSGO) {
-    return uri ? protocol + map + extension : map;
-  }
-
-  // figure out if we're doing replacements
-  //
-  // @todo: convert to switch statement
-  const disabled = ['de_mirage', 'de_tuscan', 'de_overpass'];
-  const replacements = ['de_cpl_strike', 'de_cpl_mill', 'de_cpl_fire'];
-
-  if (disabled.includes(map)) {
-    const replacement = replacements[disabled.findIndex((m) => m === map)];
-    return uri ? protocol + replacement + extension : replacement;
-  }
-
-  // otherwise noop
-  return uri ? protocol + map + extension : map;
+  // find a replacement if any
+  const replacement = Constants.MapPoolReplacements[game]?.[map] || map;
+  return uri ? protocol + replacement + extension : replacement;
 }
 
 /**

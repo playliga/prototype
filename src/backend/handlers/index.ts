@@ -53,6 +53,12 @@ export function IPCGenericHandler() {
             Constants.GameSettings.CS16_BASEDIR,
             Constants.GameSettings.CS16_EXE,
           );
+        case Constants.Game.CSS:
+          return path.join(
+            settings.general.steamPath,
+            Constants.GameSettings.CSSOURCE_BASEDIR,
+            Constants.GameSettings.CSSOURCE_EXE,
+          );
         default:
           return path.join(
             settings.general.steamPath,
