@@ -154,7 +154,7 @@ meter::-webkit-meter-bar {
 
       img,
       svg {
-        @apply inline-block size-16;
+        @apply inline-block size-8 xl:size-16;
       }
     }
 
