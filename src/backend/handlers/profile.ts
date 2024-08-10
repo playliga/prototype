@@ -261,7 +261,7 @@ export default function () {
       },
     });
   });
-  ipcMain.handle(Constants.IPCRoute.PROFILES_UPDATE, (_, query: Prisma.ProfileUpdateArgs) => {
+  ipcMain.handle(Constants.IPCRoute.PROFILES_UPDATE, async (_, query: Prisma.ProfileUpdateArgs) => {
     // reload logging level if that was updated
     if (query.data.settings) {
       const settings = JSON.parse(query.data.settings as string) as typeof Constants.Settings;
@@ -272,7 +272,21 @@ export default function () {
       }
     }
 
-    return DatabaseClient.prisma.profile.update(query);
+    // update the profile
+    await DatabaseClient.prisma.profile.update(query);
+
+    // send profile update to renderer
+    const profile = await DatabaseClient.prisma.profile.findFirst();
+    const mainWindow = WindowManager.get(Constants.WindowIdentifier.Main, false)?.webContents;
+
+    if (mainWindow) {
+      mainWindow.send(
+        Constants.IPCRoute.PROFILES_CURRENT,
+        profile,
+      );
+    }
+
+    return Promise.resolve(profile);
   });
 
   // save files management handlers
