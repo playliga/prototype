@@ -61,8 +61,8 @@ Configure the following, replacing the placeholder value with the path to your g
 ```json
 "amxxpawn.compiler.executablePath": "<path_to_cstrike>/addons/amxmodx/scripting/amxxpc.exe",
 "amxxpawn.compiler.includePaths": ["<path_to_cstrike>/addons/amxmodx/scripting/include"],
-"SourcePawnLanguageServer.spcompPath": "<path_to_csgo>/addons/sourcemod/scripting/spcomp.exe",
-"SourcePawnLanguageServer.includesDirectories": ["<path_to_csgo>/csgo/addons/sourcemod/scripting/include"],
+"SourcePawnLanguageServer.compiler.path": "<path_to_csgo>/addons/sourcemod/scripting/spcomp.exe",
+"SourcePawnLanguageServer.includeDirectories": ["<path_to_csgo>/csgo/addons/sourcemod/scripting/include"],
 "sourcepawn.outputDirectoryPath": "<path_to_project>/src/resources/games/csgo/addons/sourcemod/plugins/",
 ```
 
