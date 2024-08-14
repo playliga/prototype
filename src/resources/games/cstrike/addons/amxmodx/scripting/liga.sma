@@ -71,6 +71,7 @@ public client_putinserver(id) {
     return PLUGIN_HANDLED;
   }
 
+  server_cmd("exec liga-bots.cfg");
   set_task(float(DELAY_WELCOME_MESSAGE), "task_welcome_message", id);
   return PLUGIN_HANDLED;
 }

@@ -56,6 +56,7 @@ export async function discoverSteamPath() {
 export class Server {
   private allowDraw: boolean;
   private baseDir: string;
+  private botCommandFile: string;
   private botConfigFile: string;
   private competitors: Server['match']['competitors'];
   private gameDir: string;
@@ -86,6 +87,7 @@ export class Server {
     switch (this.settings.general.game) {
       case Constants.Game.CS16:
         this.baseDir = Constants.GameSettings.CS16_BASEDIR;
+        this.botCommandFile = Constants.GameSettings.CS16_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CS16_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CS16_GAMEDIR;
         this.logFile = Constants.GameSettings.CS16_LOGFILE;
@@ -95,6 +97,7 @@ export class Server {
         break;
       case Constants.Game.CSS:
         this.baseDir = Constants.GameSettings.CSSOURCE_BASEDIR;
+        this.botCommandFile = Constants.GameSettings.CSGO_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CSSOURCE_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CSSOURCE_GAMEDIR;
         this.logFile = Constants.GameSettings.CSSOURCE_LOGFILE;
@@ -104,6 +107,7 @@ export class Server {
         break;
       default:
         this.baseDir = Constants.GameSettings.CSGO_BASEDIR;
+        this.botCommandFile = Constants.GameSettings.CSSOURCE_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CSGO_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CSGO_GAMEDIR;
         this.logFile = Constants.GameSettings.CSGO_LOGFILE;
@@ -157,34 +161,6 @@ export class Server {
   }
 
   /**
-   * Adds bots to server.
-   *
-   * @function
-   */
-  private addBots() {
-    const cmd = this.competitors.map((competitor, idx) =>
-      competitor.team.players
-        .map((player) => {
-          const xp = new Bot.Exp(JSON.parse(player.stats));
-          return dedent`
-            bot_difficulty ${xp.getBotTemplate().difficulty};
-            bot_add_${idx === 0 ? 't' : 'ct'} "${player.name}"
-          `;
-        })
-        .join(';')
-        .replace(/\n/g, ''),
-    );
-
-    // for cs16 each rcon command much be run separately
-    if (this.settings.general.game === Constants.Game.CS16) {
-      const cmds = flatten(cmd.map((c) => c.split(';')));
-      return Promise.all(cmds.map((c) => this.rcon.send(c)));
-    }
-
-    return Promise.all(cmd.map((c) => this.rcon.send(c)));
-  }
-
-  /**
    * Cleans up processes and other things after
    * closing the game server or client.
    *
@@ -231,9 +207,9 @@ export class Server {
           home: home.team.players.map(this.generateBotDifficulty.bind(this)),
           away: away.team.players.map(this.generateBotDifficulty.bind(this)),
         },
-        // don't want to escape the double quotes
-        // when rendering the bot config
-        { autoEscape: false },
+        {
+          autoEscape: false,
+        },
       ),
     );
   }
@@ -370,6 +346,7 @@ export class Server {
    * @function
    */
   private async generateServerConfig() {
+    // set up the server config paths
     const original = path.join(
       this.settings.general.steamPath,
       this.baseDir,
@@ -378,6 +355,15 @@ export class Server {
     );
     const template = await fs.promises.readFile(original, 'utf8');
 
+    // set up the bot command config paths
+    const botCommandOriginal = path.join(
+      this.settings.general.steamPath,
+      this.baseDir,
+      this.gameDir,
+      this.botCommandFile,
+    );
+    const botsCommandTemplate = await fs.promises.readFile(botCommandOriginal, 'utf8');
+
     // get team positions
     const [home, away] = this.competitors;
     const [homeStats, awayStats] = [
@@ -385,30 +371,51 @@ export class Server {
       this.match.competition.competitors.find((competitor) => competitor.teamId === away.teamId),
     ];
 
-    return fs.promises.writeFile(
-      original,
-      Sqrl.render(template, {
-        // general
-        demo: true,
-        freezetime: this.settings.matchRules.freezeTime,
-        hostname: this.hostname,
-        logfile: this.logFile,
-        maxrounds: this.settings.matchRules.maxRounds,
-        ot: +this.allowDraw,
-        rcon_password: Constants.GameSettings.RCON_PASSWORD,
-        teamname_t: home.team.name,
-        teamname_ct: away.team.name,
-
-        // csgo only
-        match_stat: this.match.competition.tier.name,
-        teamflag_t: home.team.country.code,
-        teamflag_ct: away.team.country.code,
-        shortname_t: home.team.slug,
-        shortname_ct: away.team.slug,
-        stat_t: homeStats.position,
-        stat_ct: awayStats.position,
-      }),
+    // generate bot commands
+    const bots = flatten(
+      this.competitors.map((competitor, idx) =>
+        competitor.team.players.map((player) => {
+          const xp = new Bot.Exp(JSON.parse(player.stats));
+          return {
+            difficulty: xp.getBotTemplate().difficulty,
+            name: player.name,
+            team: idx === 0 ? 't' : 'ct',
+          };
+        }),
+      ),
     );
+
+    // write the config files
+    return Promise.all([
+      fs.promises.writeFile(
+        botCommandOriginal,
+        Sqrl.render(botsCommandTemplate, { bots }, { autoEscape: false }),
+      ),
+      fs.promises.writeFile(
+        original,
+        Sqrl.render(template, {
+          // general
+          demo: true,
+          freezetime: this.settings.matchRules.freezeTime,
+          hostname: this.hostname,
+          logfile: this.logFile,
+          maxrounds: this.settings.matchRules.maxRounds,
+          ot: +this.allowDraw,
+          rcon_password: Constants.GameSettings.RCON_PASSWORD,
+          teamname_t: home.team.name,
+          teamname_ct: away.team.name,
+
+          // csgo only
+          match_stat: this.match.competition.tier.name,
+          teamflag_t: home.team.country.code,
+          teamflag_ct: away.team.country.code,
+          shortname_t: home.team.slug,
+          shortname_ct: away.team.slug,
+          stat_t: homeStats.position,
+          stat_ct: awayStats.position,
+        }),
+      ),
+    ]);
   }
 
   /**
@@ -640,14 +647,10 @@ export class Server {
       await this.rcon.init();
     } catch (error) {
       this.log.error(error);
-      throw error;
     }
 
     // setup rcon handlers
     this.rcon.on(RCON.EventIdentifier.END, this.cleanup.bind(this));
-
-    // add bots
-    await this.addBots();
 
     // start the scorebot
     this.scorebot = new Scorebot.Watcher(

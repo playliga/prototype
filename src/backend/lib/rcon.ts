@@ -242,7 +242,7 @@ export class Client extends events.EventEmitter {
   public async init() {
     // retry until attempts are exhausted
     for (let i = 1; i <= this.options.retryMax; i++) {
-      this.log.info('Establishing connection (attempt #%d)...', i);
+      this.log.info('Establishing connection to %s:%d (attempt #%d)...', this.host, this.port, i);
       await Util.sleep(this.options.retryFrequency);
 
       // first ensure the rcon server can be pinged

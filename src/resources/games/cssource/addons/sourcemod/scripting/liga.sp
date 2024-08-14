@@ -84,6 +84,7 @@ public void OnClientPutInServer(int id) {
   }
 
   if(!IsFakeClient(id)) {
+    ServerCommand("exec liga-bots");
     CreateTimer(float(DELAY_WELCOME_MESSAGE), Timer_WelcomeMessage, id);
   }
 }

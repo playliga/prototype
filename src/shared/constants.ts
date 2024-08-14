@@ -377,6 +377,7 @@ export const GameSettings = {
   // cs16 settings
   CS16_APPID: 10,
   CS16_BASEDIR: 'steamapps/common/Half-Life',
+  CS16_BOT_COMMAND_FILE: 'liga-bots.cfg',
   CS16_BOT_CONFIG: 'botprofile.db',
   CS16_DLL_BOTS: 'dlls/liga.dll',
   CS16_DLL_METAMOD: 'addons/metamod/dlls/metamod.dll',
@@ -390,6 +391,7 @@ export const GameSettings = {
 
   // csgo settings
   CSGO_APPID: 730,
+  CSGO_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
   CSGO_BOT_CONFIG: 'botprofile.db',
   CSGO_BASEDIR: 'steamapps/common/Counter-Strike Global Offensive',
   CSGO_EXE: 'csgo.exe',
@@ -401,6 +403,7 @@ export const GameSettings = {
   // cssource settings
   CSSOURCE_APPID: 240,
   CSSOURCE_BASEDIR: 'steamapps/common/Counter-Strike Source',
+  CSSOURCE_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
   CSSOURCE_BOT_CONFIG: 'custom/liga/botprofile.db',
   CSSOURCE_EXE: 'hl2.exe',
   CSSOURCE_GAMEDIR: 'cstrike',
