@@ -372,6 +372,7 @@ export const GameSettings = {
   SERVER_CVAR_FREEZETIME: 15,
   SQUAD_STARTERS_NUM: 5,
   STEAM_EXE: 'steam.exe',
+  STEAM_LIBRARIES_FILE: 'steamapps/libraryfolders.vdf',
   WIN_AWARD_AMOUNT: 100,
 
   // cs16 settings
@@ -550,6 +551,7 @@ export const Settings = {
     logLevel: Application.LOGGING_LEVEL,
     simulationMode: SimulationMode.DEFAULT,
     steamPath: null as string,
+    gamePath: null as string,
   },
   calendar: {
     ignoreExits: false,

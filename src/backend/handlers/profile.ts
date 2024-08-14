@@ -208,13 +208,26 @@ export default function () {
       },
     });
 
-    // initialize user settings
+    // discover steam path
     const settings = JSON.parse(profile.settings) as typeof Constants.Settings;
 
     if (!settings.general.steamPath) {
       settings.general.steamPath = await Game.discoverSteamPath();
     }
 
+    // discover game path only if steam is installed
+    if (settings.general.steamPath && !settings.general.gamePath) {
+      try {
+        settings.general.gamePath = await Game.discoverGamePath(
+          settings.general.game,
+          settings.general.steamPath,
+        );
+      } catch (error) {
+        log.warn(error.message);
+      }
+    }
+
+    // update the settings
     return DatabaseClient.prisma.profile.update({
       where: { id: profile.id },
       data: { settings: JSON.stringify(settings) },
@@ -262,28 +275,41 @@ export default function () {
     });
   });
   ipcMain.handle(Constants.IPCRoute.PROFILES_UPDATE, async (_, query: Prisma.ProfileUpdateArgs) => {
-    // reload logging level if that was updated
-    if (query.data.settings) {
-      const settings = JSON.parse(query.data.settings as string) as typeof Constants.Settings;
+    const profile = await DatabaseClient.prisma.profile.findFirst();
+    const settings = JSON.parse(profile.settings) as typeof Constants.Settings;
+    const newSettings = JSON.parse(query.data.settings as string) as typeof Constants.Settings;
 
-      if (settings.general?.logLevel) {
-        log.transports.console.level = settings.general.logLevel as log.LogLevel;
-        log.transports.file.level = settings.general.logLevel as log.LogLevel;
+    // reload logging level if that was updated
+    if (newSettings.general.logLevel !== settings.general.logLevel) {
+      log.transports.console.level = newSettings.general.logLevel as log.LogLevel;
+      log.transports.file.level = newSettings.general.logLevel as log.LogLevel;
+    }
+
+    // rediscover game path if game mode was updated
+    if (newSettings.general.game !== settings.general.game && settings.general.steamPath) {
+      try {
+        newSettings.general.gamePath = await Game.discoverGamePath(
+          newSettings.general.game,
+          newSettings.general.steamPath,
+        );
+      } catch (error) {
+        log.warn(error.message);
       }
     }
 
     // update the profile
-    await DatabaseClient.prisma.profile.update(query);
+    await DatabaseClient.prisma.profile.update({
+      ...query,
+      data: {
+        settings: JSON.stringify(newSettings),
+      },
+    });
 
     // send profile update to renderer
-    const profile = await DatabaseClient.prisma.profile.findFirst();
     const mainWindow = WindowManager.get(Constants.WindowIdentifier.Main, false)?.webContents;
 
     if (mainWindow) {
-      mainWindow.send(
-        Constants.IPCRoute.PROFILES_CURRENT,
-        profile,
-      );
+      mainWindow.send(Constants.IPCRoute.PROFILES_CURRENT, profile);
     }
 
     return Promise.resolve(profile);

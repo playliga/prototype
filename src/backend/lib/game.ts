@@ -7,6 +7,7 @@ import * as FileManager from './file-manager';
 import * as RCON from './rcon';
 import * as Scorebot from './scorebot';
 import * as Sqrl from 'squirrelly';
+import * as VDF from '@node-steam/vdf';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -46,6 +47,52 @@ export async function discoverSteamPath() {
     shell: 'powershell.exe',
   });
   return stdout.trim();
+}
+
+/**
+ * Get a game's installation path by their enum id.
+ *
+ * @param enumId    The game enum id.
+ * @param steamPath The steam path.
+ * @function
+ */
+export async function discoverGamePath(enumId: string, steamPath?: string) {
+  if (!steamPath) {
+    steamPath = await discoverSteamPath();
+  }
+
+  // get the game app id from its short name
+  const id = (() => {
+    switch (enumId) {
+      case Constants.Game.CS16:
+        return Constants.GameSettings.CS16_APPID;
+      case Constants.Game.CSS:
+        return Constants.GameSettings.CSSOURCE_APPID;
+      default:
+        return Constants.GameSettings.CSGO_APPID;
+    }
+  })();
+
+  // the libraries manifest file contains a dictionary
+  // containing game installation folder paths
+  const librariesFileContent = await fs.promises.readFile(
+    path.join(steamPath, Constants.GameSettings.STEAM_LIBRARIES_FILE),
+    'utf8',
+  );
+  const { libraryfolders } = VDF.parse(librariesFileContent);
+
+  // find the folder containing the game id
+  const library = Object.values(libraryfolders).find((folder: Record<string, unknown>) => {
+    return Object.keys(folder.apps).includes(String(id));
+  }) as Record<string, unknown>;
+
+  // if none is found, throw an error
+  if (!library) {
+    throw Error(`${enumId} not found!`);
+  }
+
+  // otherwise return the path
+  return Promise.resolve(library.path as string);
 }
 
 /**
@@ -175,13 +222,13 @@ export class Server {
     // clean up the log file for cs16
     if (this.settings.general.game === Constants.Game.CS16) {
       await fs.promises.unlink(
-        path.join(this.settings.general.steamPath, this.baseDir, this.logFile),
+        path.join(this.settings.general.gamePath, this.baseDir, this.logFile),
       );
     }
 
     // restore files
     return FileManager.restore(
-      path.join(this.settings.general.steamPath, this.baseDir, this.gameDir),
+      path.join(this.settings.general.gamePath, this.baseDir, this.gameDir),
     );
   }
 
@@ -192,7 +239,7 @@ export class Server {
    */
   private async generateBotConfig() {
     const original = path.join(
-      this.settings.general.steamPath,
+      this.settings.general.gamePath,
       this.baseDir,
       this.gameDir,
       this.botConfigFile,
@@ -246,7 +293,7 @@ export class Server {
    */
   private async generateMOTDConfig() {
     // figure out paths
-    const gameBasePath = path.join(this.settings.general.steamPath, this.baseDir, this.gameDir);
+    const gameBasePath = path.join(this.settings.general.gamePath, this.baseDir, this.gameDir);
 
     // get team positions
     const [home, away] = this.competitors;
@@ -328,7 +375,7 @@ export class Server {
    */
   private async generateScoreboardConfig() {
     const original = path.join(
-      this.settings.general.steamPath,
+      this.settings.general.gamePath,
       this.baseDir,
       this.gameDir,
       Constants.GameSettings.CSGO_LANGUAGE_FILE,
@@ -348,7 +395,7 @@ export class Server {
   private async generateServerConfig() {
     // set up the server config paths
     const original = path.join(
-      this.settings.general.steamPath,
+      this.settings.general.gamePath,
       this.baseDir,
       this.gameDir,
       this.serverConfigFile,
@@ -357,7 +404,7 @@ export class Server {
 
     // set up the bot command config paths
     const botCommandOriginal = path.join(
-      this.settings.general.steamPath,
+      this.settings.general.gamePath,
       this.baseDir,
       this.gameDir,
       this.botCommandFile,
@@ -471,7 +518,7 @@ export class Server {
         '+map',
         Util.convertMapPool(game1.map, this.settings.general.game),
       ],
-      { cwd: path.join(this.settings.general.steamPath, Constants.GameSettings.CS16_BASEDIR) },
+      { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS16_BASEDIR) },
     );
 
     this.gameClientProcess.on('close', this.cleanup.bind(this));
@@ -504,7 +551,7 @@ export class Server {
     // and proper logging output like being able to specify log
     // location and dumping end of match statistics
     const fixedSteamPath = path.join(
-      this.settings.general.steamPath,
+      this.settings.general.gamePath,
       Constants.GameSettings.CSGO_BASEDIR,
     );
     commonFlags.unshift('-insecure');
@@ -556,7 +603,7 @@ export class Server {
         Constants.GameSettings.CSSOURCE_EXE,
         ['-game', Constants.GameSettings.CSSOURCE_GAMEDIR, ...commonFlags],
         {
-          cwd: path.join(this.settings.general.steamPath, Constants.GameSettings.CSSOURCE_BASEDIR),
+          cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CSSOURCE_BASEDIR),
         },
       );
     }
@@ -583,7 +630,7 @@ export class Server {
       }
     })();
     const from = path.join(this.resourcesPath, Constants.GameSettings.GAMES_BASEDIR, localGameDir);
-    const to = path.join(this.settings.general.steamPath, this.baseDir, this.gameDir);
+    const to = path.join(this.settings.general.gamePath, this.baseDir, this.gameDir);
 
     // find and extract zip files
     const zipFiles = await glob('**/*.zip', { cwd: from });
@@ -655,7 +702,7 @@ export class Server {
     // start the scorebot
     this.scorebot = new Scorebot.Watcher(
       path.join(
-        this.settings.general.steamPath,
+        this.settings.general.gamePath,
         this.baseDir,
         this.settings.general.game === Constants.Game.CS16 ? '' : this.gameDir,
         this.logFile,

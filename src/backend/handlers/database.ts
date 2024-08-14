@@ -6,7 +6,7 @@
 import log from 'electron-log';
 import { ipcMain } from 'electron';
 import { Prisma } from '@prisma/client';
-import { DatabaseClient } from '@liga/backend/lib';
+import { DatabaseClient, Game } from '@liga/backend/lib';
 import { Util, Constants, Eagers } from '@liga/shared';
 
 /**
@@ -32,10 +32,21 @@ export default function () {
       log.transports.console.level = settings.general.logLevel as log.LogLevel;
       log.transports.file.level = settings.general.logLevel as log.LogLevel;
 
+      // if no game path is set, rediscover it
+      //
+      // @note: this can be removed once out of alpha
+      if (!settings.general.gamePath) {
+        settings.general.gamePath = await Game.discoverGamePath(
+          settings.general.game,
+          settings.general.steamPath,
+        );
+      }
+
       return DatabaseClient.prisma.profile.update({
         where: { id: profile.id },
         data: {
           updatedAt: new Date().toISOString(),
+          settings: JSON.stringify(settings),
         },
       });
     }),

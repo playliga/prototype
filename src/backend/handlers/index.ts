@@ -49,19 +49,19 @@ export function IPCGenericHandler() {
       switch (settings.general.game) {
         case Constants.Game.CS16:
           return path.join(
-            settings.general.steamPath,
+            settings.general.gamePath,
             Constants.GameSettings.CS16_BASEDIR,
             Constants.GameSettings.CS16_EXE,
           );
         case Constants.Game.CSS:
           return path.join(
-            settings.general.steamPath,
+            settings.general.gamePath,
             Constants.GameSettings.CSSOURCE_BASEDIR,
             Constants.GameSettings.CSSOURCE_EXE,
           );
         default:
           return path.join(
-            settings.general.steamPath,
+            settings.general.gamePath,
             Constants.GameSettings.CSGO_BASEDIR,
             Constants.GameSettings.CSGO_EXE,
           );

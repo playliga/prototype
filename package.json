@@ -1,7 +1,7 @@
 {
   "name": "liga",
   "productName": "LIGA Esports Manager",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0-alpha.4",
   "description": "An immersive CS:GO Esports Simulator",
   "main": ".webpack/main",
   "author": "Steve Rivera",
@@ -91,6 +91,7 @@
     "@hookform/resolvers": "3.1.1",
     "@logdna/tail-file": "3.0.1",
     "@network-utils/tcp-ping": "1.2.3",
+    "@node-steam/vdf": "2.2.0",
     "@prisma/client": "5.1.0",
     "classnames": "2.5.1",
     "commander": "9.4.0",
