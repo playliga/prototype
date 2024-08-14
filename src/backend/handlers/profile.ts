@@ -309,7 +309,10 @@ export default function () {
     const mainWindow = WindowManager.get(Constants.WindowIdentifier.Main, false)?.webContents;
 
     if (mainWindow) {
-      mainWindow.send(Constants.IPCRoute.PROFILES_CURRENT, profile);
+      mainWindow.send(
+        Constants.IPCRoute.PROFILES_CURRENT,
+        await DatabaseClient.prisma.profile.findFirst(),
+      );
     }
 
     return Promise.resolve(profile);
