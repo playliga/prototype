@@ -9,6 +9,8 @@ jobs:
     name: Public Release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Download latest release
         uses: robinraju/release-downloader@v1.2
         with:
@@ -19,11 +21,14 @@ jobs:
           zipBall: false
           fileName: '*'
           out-file-path: 'dist'
+      - name: Generate changelog
+        run: npx conventional-changelog-cli -p conventionalcommits -o CHANGELOG.md
       - name: Upload to public releases repo
         uses: ncipollo/release-action@v1
         with:
           artifacts: 'dist/*'
-          prerelease: true
+          bodyFile: CHANGELOG.md
+          makeLatest: true
           repo: '${{ github.event.repository.name }}-public'
           tag: ${{ github.ref_name }}
           token: ${{ secrets.TARGET_GITHUB_TOKEN }}
