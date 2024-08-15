@@ -43,7 +43,7 @@ function XPBar(props: XPBarProps) {
       {!!props.title && (
         <div className="stack-x justify-between text-xs">
           <p className="capitalize">
-            {props.title}
+            {props.title.replace(/(delay|time)/i, 'speed')}
             {!!props.gains && (
               <span className="font-mono text-success">
                 &nbsp;+{Util.toOptionalDecimal(Math.abs(props.gains))}
