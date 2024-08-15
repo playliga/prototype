@@ -584,10 +584,11 @@ export class Server {
     const commonFlags = [
       '-usercon',
       '-insecure',
+      '-novid',
       '+ip',
       this.getLocalIP(),
       '+map',
-      game1.map,
+      Util.convertMapPool(game1.map, this.settings.general.game),
       '+maxplayers',
       '12',
     ];
