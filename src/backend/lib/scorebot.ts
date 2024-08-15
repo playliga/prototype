@@ -5,6 +5,7 @@
  * @see https://github.com/OpenSourceLAN/better-srcds-log-parser
  * @module
  */
+import * as FileManager from './file-manager';
 import events from 'node:events';
 import readline from 'node:readline';
 import log from 'electron-log';
@@ -84,12 +85,14 @@ export interface Watcher {
 
 /** @class */
 export class Watcher extends events.EventEmitter {
+  private file: string;
   private tail: Tail;
   private lineSplitter: readline.Interface;
   public log: log.LogFunctions;
 
   constructor(file: string) {
     super();
+    this.file = file;
     this.log = log.scope('scorebot');
     this.tail = new Tail(file, { encoding: 'utf8' });
     this.tail.on('tail_error', this.log.error);
@@ -174,11 +177,22 @@ export class Watcher extends events.EventEmitter {
    * @function
    */
   public async start() {
+    // handle race condition where this is called before the path
+    // to the log file can be created by the game server
+    try {
+      await FileManager.touch(this.file);
+    } catch (error) {
+      this.log.error(error);
+      throw error;
+    }
+
+    // if we got this far; we can tail the log file
     try {
       this.log.info('Starting...');
       await this.tail.start();
       this.lineSplitter = readline.createInterface({ input: this.tail });
       this.lineSplitter.on('line', this.onLine.bind(this));
+      this.log.info('Connected.');
       return Promise.resolve();
     } catch (error) {
       this.log.error(error);

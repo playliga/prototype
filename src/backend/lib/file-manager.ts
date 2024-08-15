@@ -74,6 +74,33 @@ export async function extract(from: string, to: string) {
 }
 
 /**
+ * Similar to bash's `touch` function with the added functionality
+ * that the path to the file is created if it isn't found.
+ *
+ * @param file The file path.
+ * @function
+ */
+export async function touch(file: string) {
+  // build directory tree to target path
+  const parents = path.dirname(file);
+
+  try {
+    await fs.promises.access(parents, fs.constants.F_OK);
+  } catch (error) {
+    await fs.promises.mkdir(parents, { recursive: true });
+  }
+
+  // now create the file if it doesn't exist
+  try {
+    await fs.promises.access(file, fs.constants.F_OK);
+  } catch (error) {
+    return (await fs.promises.open(file, 'w')).close();
+  }
+
+  return Promise.resolve();
+}
+
+/**
  * Restores every `.bak` file found in the specified directory.
  *
  * @param cwd     The current working directory in which to search
