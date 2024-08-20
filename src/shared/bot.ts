@@ -272,6 +272,40 @@ export class Exp {
   }
 
   /**
+   * Trains an array of player records.
+   *
+   * @param players The array of players to train.
+   * @param bonuses Training bonuses to apply.
+   * @function
+   */
+  public static trainAll(
+    players: Array<Prisma.PlayerGetPayload<unknown>>,
+    bonuses?: Array<Prisma.BonusGetPayload<unknown>>,
+  ) {
+    return players.map((player) => {
+      const xp = new Exp(JSON.parse(player.stats), bonuses);
+      const gains = player.gains ? JSON.parse(player.gains) : {};
+      xp.train();
+
+      // append gains to the current player total
+      Object.keys(xp.gains).forEach((stat) => {
+        if (!gains[stat]) {
+          gains[stat] = 0;
+        }
+        gains[stat] += xp.gains[stat];
+      });
+
+      return {
+        ...player,
+        xp: {
+          stats: JSON.stringify(xp.stats),
+          gains: JSON.stringify(gains),
+        },
+      };
+    });
+  }
+
+  /**
    * Grab stats that can still be trained for current rank.
    *
    * @function

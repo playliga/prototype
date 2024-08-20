@@ -242,27 +242,12 @@ export default function () {
 
     // train players first
     await DatabaseClient.prisma.$transaction(
-      profile.team.players.map((player) => {
-        const xp = new Bot.Exp(JSON.parse(player.stats), bonuses);
-        const gains = player.gains ? JSON.parse(player.gains) : {};
-        xp.train();
-
-        // append today's gains to the current player total
-        Object.keys(xp.gains).forEach((stat) => {
-          if (!gains[stat]) {
-            gains[stat] = 0;
-          }
-          gains[stat] += xp.gains[stat];
-        });
-
-        return DatabaseClient.prisma.player.update({
+      Bot.Exp.trainAll(profile.team.players, bonuses).map((player) =>
+        DatabaseClient.prisma.player.update({
           where: { id: player.id },
-          data: {
-            stats: JSON.stringify(xp.stats),
-            gains: JSON.stringify(gains),
-          },
-        });
-      }),
+          data: player.xp,
+        }),
+      ),
     );
 
     // and then update the profile record to rehydrate

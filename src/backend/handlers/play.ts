@@ -4,7 +4,7 @@
  * @module
  */
 import { ipcMain } from 'electron';
-import { Constants, Eagers } from '@liga/shared';
+import { Bot, Constants, Eagers } from '@liga/shared';
 import { DatabaseClient, Game, Simulator, WindowManager } from '@liga/backend/lib';
 
 /**
@@ -16,7 +16,7 @@ import { DatabaseClient, Game, Simulator, WindowManager } from '@liga/backend/li
  */
 async function handlePlayStart() {
   // grab today's match
-  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
   const entry = await DatabaseClient.prisma.calendar.findFirst({
     where: {
       date: profile.date,
@@ -61,6 +61,31 @@ async function handlePlayStart() {
       },
     },
   });
+
+  // give training boosts to squad if they won
+  const userTeam = match.competitors.find((competitor) => competitor.teamId === profile.teamId);
+  const matchResult = Simulator.getMatchResult(userTeam.id, finalScore);
+
+  if (matchResult === Constants.MatchResult.WIN) {
+    const bonuses = [
+      {
+        id: -1,
+        type: Constants.BonusType.SERVER,
+        name: 'Win Bonus',
+        stats: JSON.stringify({ skill: 5, agression: 5, reactionTime: 5, attackDelay: 5 }),
+        cost: -1,
+        profileId: -1,
+      },
+    ];
+    await DatabaseClient.prisma.$transaction(
+      Bot.Exp.trainAll(profile.team.players, bonuses).map((player) =>
+        DatabaseClient.prisma.player.update({
+          where: { id: player.id },
+          data: player.xp,
+        }),
+      ),
+    );
+  }
 
   // restore window and return
   mainWindow.restore();
