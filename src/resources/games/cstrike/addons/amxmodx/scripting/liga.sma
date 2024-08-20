@@ -11,7 +11,6 @@
 #define PLUGIN_VERSION                "1.0.0"
 #define PLUGIN_AUTHOR                 "LIGA Esports Manager"
 #define DELAY_WELCOME_MESSAGE         5
-#define DELAY_GAME_OVER               5
 #define LO3_LOOP_NUM                  3
 #define LO3_MODIFIER                  3
 #define LO3_PRINT_NUM                 4
@@ -27,6 +26,7 @@
 
 // cvars
 enum cvars {
+  DELAY_GAME_OVER,
   MAX_ROUNDS,
   OVERTIME_ENABLE,
   TEAM_NAME_T,
@@ -51,6 +51,7 @@ public plugin_init() {
   register_concmd("liga_announce", "command_announce", 0, "<message> - Announces a message to all players.");
   register_event("SendAudio", "event_end_round", "a", "2=%!MRAD_terwin", "2=%!MRAD_ctwin", "2=%!MRAD_rounddraw");
 
+  g_cvars[DELAY_GAME_OVER] = register_cvar("liga_gameover_delay", "5");
   g_cvars[MAX_ROUNDS] = register_cvar("liga_max_rounds", "30");
   g_cvars[OVERTIME_ENABLE] = register_cvar("liga_overtime_enable", "0");
   g_cvars[TEAM_NAME_T] = register_cvar("liga_teamname_t", "Terrorists");
@@ -199,9 +200,9 @@ public event_end_round() {
     score_ct == rounds_clinch
   ) {
     say("GAME OVER");
-    say("SHUTTING DOWN SERVER IN %ds...", DELAY_GAME_OVER);
+    say("SHUTTING DOWN SERVER IN %ds...", get_pcvar_num(g_cvars[DELAY_GAME_OVER]));
     server_cmd("bot_quota 0");
-    set_task(float(DELAY_GAME_OVER), "task_game_over");
+    set_task(float(get_pcvar_num(g_cvars[DELAY_GAME_OVER])), "task_game_over");
   }
 
   return PLUGIN_CONTINUE;

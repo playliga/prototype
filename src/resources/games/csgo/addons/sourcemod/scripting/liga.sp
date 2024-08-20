@@ -9,8 +9,13 @@
 // constants
 const int BUFFER_SIZE_SM        = 63;
 const int BUFFER_SIZE_MAX       = 2047;
-const int DELAY_GAME_OVER       = 10;
 const int DELAY_WELCOME_MESSAGE = 5;
+
+// cvars
+enum Cvars {
+  DELAY_GAME_OVER
+}
+ConVar cvars[Cvars];
 
 // variables
 char buffer[BUFFER_SIZE_MAX + 1]  = "";
@@ -33,8 +38,9 @@ public Plugin myinfo = {
  * @noreturn
  */
 public void OnPluginStart() {
-  HookEventEx("cs_win_panel_match", Event_GameOver);
+  HookEvent("cs_win_panel_match", Event_GameOver);
   RegConsoleCmd("ready", Command_ReadyUp, "Starts the match.");
+  cvars[DELAY_GAME_OVER] = CreateConVar("liga_gameover_delay", "5");
 }
 
 /**
@@ -45,8 +51,8 @@ public void OnPluginStart() {
  * @param dontBroadcast Whether to broadcast the event.
  */
 public void Event_GameOver(Event event, const char[] name, bool dontBroadcast) {
-  say("SHUTTING DOWN SERVER IN %ds", DELAY_GAME_OVER);
-  CreateTimer(float(DELAY_GAME_OVER), Timer_GameOver);
+  say("SHUTTING DOWN SERVER IN %ds", cvars[DELAY_GAME_OVER].IntValue);
+  CreateTimer(float(cvars[DELAY_GAME_OVER].IntValue), Timer_GameOver);
 }
 
 /**

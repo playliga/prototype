@@ -12,7 +12,6 @@
 const float LO3_INTERVAL          = 3.0;
 const int   BUFFER_SIZE_SM        = 63;
 const int   BUFFER_SIZE_MAX       = 2047;
-const int   DELAY_GAME_OVER       = 5;
 const int   DELAY_WELCOME_MESSAGE = 5;
 const int   LO3_LOOP_NUM          = 3;
 const int   LO3_PRINT_NUM         = 4;
@@ -21,6 +20,7 @@ const int   TEAM_CT               = 1;
 
 // cvars
 enum Cvars {
+  DELAY_GAME_OVER,
   MAX_ROUNDS,
   OVERTIME_ENABLE,
   TEAM_NAME_T,
@@ -60,6 +60,7 @@ public void OnPluginStart() {
   RegConsoleCmd("ready", Command_ReadyUp, "Starts the match.");
   RegConsoleCmd("score", Command_Score, "Shows the score.");
   RegAdminCmd("mp_swapteams", Command_SwapTeams, ADMFLAG_SLAY, "Swaps the teams.");
+  cvars[DELAY_GAME_OVER] = CreateConVar("liga_gameover_delay", "5");
   cvars[MAX_ROUNDS] = CreateConVar("liga_max_rounds", "30");
   cvars[OVERTIME_ENABLE] = CreateConVar("liga_overtime_enable", "0");
   cvars[TEAM_NAME_T] = CreateConVar("liga_teamname_t", "Terrorists");
@@ -185,8 +186,8 @@ public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason) {
     scoreCTs == roundsClinch
   ) {
     say("GAME OVER");
-    say("SHUTTING DOWN SERVER IN %ds...", DELAY_GAME_OVER);
-    CreateTimer(float(DELAY_GAME_OVER), Timer_GameOver);
+    say("SHUTTING DOWN SERVER IN %ds...", cvars[DELAY_GAME_OVER].IntValue);
+    CreateTimer(float(cvars[DELAY_GAME_OVER].IntValue), Timer_GameOver);
   }
 
   return Plugin_Continue;

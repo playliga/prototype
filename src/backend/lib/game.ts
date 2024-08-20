@@ -451,6 +451,7 @@ export class Server {
           rcon_password: Constants.GameSettings.RCON_PASSWORD,
           teamname_t: home.team.name,
           teamname_ct: away.team.name,
+          gameover_delay: Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY,
 
           // csgo only
           match_stat: this.match.competition.tier.name,
@@ -721,6 +722,17 @@ export class Server {
     return new Promise((resolve) => {
       this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, (payload) => {
         this.log.info('Final result: %O', payload);
+        // delay the game over event in cs:go because
+        // it prints it to console too quickly
+        if (this.settings.general.game === Constants.Game.CSGO) {
+          setTimeout(
+            () => resolve(payload),
+            Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000,
+          );
+          return;
+        }
+
+        // otherwise, we're good to resolve immediately
         resolve(payload);
       });
     });
