@@ -147,7 +147,9 @@ export enum LogLevel {
  */
 export enum IPCRoute {
   APP_DIALOG = '/app/dialog',
+  APP_EXTERNAL = '/app/external',
   APP_INFO = '/app/info',
+  APP_ISSUE = '/app/issue',
   APP_STATUS = '/app/status',
   BLAZONRY_ALL = '/blazonry/all',
   BONUS_ALL = '/bonus/all',
@@ -196,6 +198,12 @@ export enum IPCRoute {
   WINDOW_CLOSE = '/window/close',
   WINDOW_SEND = '/window/send',
   WINDOW_OPEN = '/window/open',
+}
+
+/** @enum */
+export enum IssueType {
+  BUG,
+  FEATURE,
 }
 
 /**

@@ -4,7 +4,8 @@
  * @module
  */
 import is from 'electron-is';
-import { BrowserWindow, Menu, screen } from 'electron';
+import AppInfo from 'package.json';
+import { BrowserWindow, Menu, screen, shell } from 'electron';
 import { Constants } from '@liga/shared';
 
 /**
@@ -125,6 +126,34 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
           ],
         },
         ...((is.dev() ? [{ role: 'viewMenu' }] : []) as Array<Electron.MenuItem>),
+        {
+          label: 'Help',
+          submenu: [
+            {
+              label: 'Report Issue',
+              click: () => {
+                // open up the modal and once it's ready
+                // we send the route we want to load
+                const win = get(Constants.WindowIdentifier.Modal);
+                const data: ModalRequest = { target: '/issue' };
+                win.once('ready-to-show', () =>
+                  win.webContents.send(Constants.IPCRoute.WINDOW_SEND, data),
+                );
+              },
+            },
+            {
+              label: 'Search Feature Requests',
+              click: async () => {
+                const query = new URLSearchParams('is:open is:issue label:feature-request');
+                await shell.openExternal(
+                  `${AppInfo.homepage}-public/issues?q=${query.toString().replace('=', '')}`,
+                );
+              },
+            },
+            { type: 'separator' },
+            { role: 'about' },
+          ],
+        },
       ]),
   },
   [Constants.WindowIdentifier.Modal]: {

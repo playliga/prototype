@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "ES6"
+    "target": "ES2018"
   },
   "include": ["src/**/*", "cli/**/*"],
   "ts-node": {

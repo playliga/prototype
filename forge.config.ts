@@ -3,11 +3,12 @@
  *
  * @module
  */
-import type { ForgeConfig } from '@electron-forge/shared-types';
+import 'dotenv/config';
 import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { ElectronMainWebpackConfig, ElectronRendererWebpackConfig } from './webpack.config';
+import type { ForgeConfig } from '@electron-forge/shared-types';
 
 /**
  * Electron Forge main configuration object.
@@ -34,6 +35,7 @@ const config: ForgeConfig = {
     {
       name: '@electron-forge/publisher-github',
       config: {
+        authToken: process.env.GITHUB_PUBLISH_API_KEY,
         prerelease: true,
         repository: {
           owner: 'lemonpole',

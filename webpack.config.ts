@@ -4,9 +4,11 @@
  *
  * @module
  */
+import 'dotenv/config';
 import path from 'path';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
+import { EnvironmentPlugin } from 'webpack';
 import type { Configuration, ModuleOptions } from 'webpack';
 
 /**
@@ -68,6 +70,7 @@ export const ElectronMainWebpackConfig: Configuration = {
   entry: './src/backend/index.ts',
   module: { rules: WebpackRulesConfig },
   plugins: [
+    new EnvironmentPlugin(['GITHUB_ISSUES_API_KEY']),
     new CopyPlugin({
       patterns: [{ from: './node_modules/.prisma/client' }],
     }),

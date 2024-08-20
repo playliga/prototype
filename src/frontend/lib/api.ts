@@ -27,7 +27,10 @@ export default {
         parentId,
         options,
       ) as Promise<Electron.OpenDialogReturnValue>,
+    external: (url: string) => ipcRenderer.invoke(Constants.IPCRoute.APP_EXTERNAL, url),
     info: () => ipcRenderer.invoke(Constants.IPCRoute.APP_INFO) as Promise<typeof AppInfo>,
+    issue: (data: unknown) =>
+      ipcRenderer.invoke(Constants.IPCRoute.APP_ISSUE, data) as Promise<unknown>,
     status: () => ipcRenderer.invoke(Constants.IPCRoute.APP_STATUS),
   },
   blazonry: {

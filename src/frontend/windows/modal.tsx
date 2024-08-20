@@ -32,6 +32,10 @@ const routes = createMemoryRouter([
         path: '/kb/csgo',
         element: <Routes.Modal.CSGO />,
       },
+      {
+        path: '/issue',
+        element: <Routes.Modal.Issue />,
+      },
     ],
   },
 ]);
