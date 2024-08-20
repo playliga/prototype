@@ -26,6 +26,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       setupIcon: './src/frontend/assets/icon.ico',
+      iconUrl: 'https://raw.githubusercontent.com/lemonpole/liga-public/main/public/favicon.ico',
     }),
     new MakerDMG({
       icon: './src/frontend/assets/icon.ico',
