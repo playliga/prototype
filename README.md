@@ -97,7 +97,7 @@ In order for the CI/CD process to mirror it into the [public releases repo](http
 
 Currently, the changelog is generated ad-hoc and manually added to the release notes body.
 
-This is because Github's changelog generation feature only picks up PRs and not individual commits.
+This is because [Github's changelog generation feature only picks up PRs and not individual commits](https://github.com/orgs/community/discussions/31628).
 
 > [!IMPORTANT]
 > Make sure to strip the changelog of links to the private repo.
