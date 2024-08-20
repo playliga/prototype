@@ -83,7 +83,7 @@ npm run make
 
 The publish command will build the application and publish it to Github as a draft release.
 
-```
+```bash
 export GITHUB_TOKEN="<...>"
 npm run publish
 ```
@@ -92,6 +92,19 @@ In order for the CI/CD process to mirror it into the [public releases repo](http
 
 - Publish the release.
 - Ensure it is _not_ a pre-release otherwise the CI/CD process will not pick it up.
+
+### Generating Changelog
+
+Currently, the changelog is generated ad-hoc and manually added to the release notes body.
+
+This is because Github's changelog generation feature only picks up PRs and not individual commits.
+
+> [!IMPORTANT]
+> Make sure to strip the changelog of links to the private repo.
+
+```bash
+npx conventional-changelog-cli -p conventionalcommits
+```
 
 ### Updating Application Icon
 
