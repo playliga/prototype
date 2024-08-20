@@ -462,6 +462,9 @@ export const MapPool = [
   'de_overpass',
   'de_train',
   'de_tuscan',
+  'de_ancient',
+  'de_anubis',
+  'de_vertigo',
 ];
 
 /**
@@ -472,12 +475,17 @@ export const MapPool = [
 export const MapPoolReplacements: Record<string, Record<string, string>> = {
   [Game.CS16]: {
     de_mirage: 'de_cpl_strike',
-    de_tuscan: 'de_cpl_mill',
     de_overpass: 'de_cpl_fire',
+    de_ancient: 'de_cpl_mill',
+    de_anubis: 'de_cbble',
+    de_vertigo: 'de_dust2',
   },
   [Game.CSS]: {
     de_mirage: 'de_cpl_strike',
-    de_overpass: 'de_cbble',
+    de_overpass: 'de_russka',
+    de_ancient: 'de_dust2',
+    de_anubis: 'de_cbble',
+    de_vertigo: 'de_dust2',
   },
 };
 
