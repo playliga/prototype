@@ -116,19 +116,6 @@ The installers only accept an `.ico` file so it must be manually converted from 
 npm run gen:icon
 ```
 
-## Transcoding Videos
-
-Ideally, `.webm` format should be used for videos such as the one used in the landing page because `.mp4` has stuttering and performance issues.
-
-VP9 prefers to encode in two passes so the first pass compiles a log file with statistics about the video file which is then used in the second pass to make the video.
-
-```bash
-ffmpeg -i landing.mp4 -b:v 0 -crf 30 -pass 1 -an -f webm -y /dev/null
-ffmpeg -i landing.mp4 -b:v 0 -crf 30 -pass 2 landing.webm
-```
-
-For VP9, the CRF can range from 0 (best quality) to 63 (smallest file size). It is set to `30` above for roughly, medium quality.
-
 ## Contributing
 
 This project adheres to the conventional commits specification which is outlined [here](https://www.conventionalcommits.org/en/v1.0.0/#summary).
@@ -185,4 +172,25 @@ index f2921e5e..341e9403 100644
 
  /**
   * Replacement maps for game variants.
+```
+
+## Transcoding Videos
+
+Ideally, `.webm` format should be used for videos such as the one used in the landing page because `.mp4` has stuttering and performance issues.
+
+VP9 prefers to encode in two passes so the first pass compiles a log file with statistics about the video file which is then used in the second pass to make the video.
+
+```bash
+ffmpeg -i landing.mp4 -b:v 0 -crf 30 -pass 1 -an -f webm -y /dev/null
+ffmpeg -i landing.mp4 -b:v 0 -crf 30 -pass 2 landing.webm
+```
+
+For VP9, the CRF can range from 0 (best quality) to 63 (smallest file size). It is set to `30` above for roughly, medium quality.
+
+## Converting PNG to SVG
+
+SVGs are great for responsive websites so if it's feasible, consider converting that PNG to an SVG using [ImageMagick](http://www.imagemagick.org/Usage/draw/#svg_output) and [AutoTrace](https://github.com/autotrace/autotrace).
+
+```bash
+convert autotrace:src/assets/logo.png src/icons/logo.svg
 ```
