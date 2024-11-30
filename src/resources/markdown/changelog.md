@@ -1,3 +1,9 @@
+## 3.0.0-beta.18 (2024-11-30)
+
+### Bug Fixes
+
+- fixed broken link when CS:GO is not installed
+
 ## 3.0.0-beta.16 (2024-11-20)
 
 ### Features
