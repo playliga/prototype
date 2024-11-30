@@ -45,7 +45,7 @@ Provides convenience wrappers and business logic for common development tasks.
 npm run cli help
 ```
 
-## Building Distributables
+## Building
 
 Generate platform specific distributables.
 
@@ -71,7 +71,7 @@ npm run publish
 
 Currently, the changelog is generated ad-hoc and manually added to the release notes body.
 
-This is because [Github's changelog generation feature only picks up PRs and not individual commits](https://github.com/orgs/community/discussions/31628).
+This is because Github's changelog generation feature only picks up PRs and not individual commits ([community/discussions/31628](https://github.com/orgs/community/discussions/31628)).
 
 ```bash
 npx conventional-changelog-cli -p conventionalcommits
@@ -97,7 +97,7 @@ The game being demoed should also be running in window mode so that the transiti
 
 ### Transcoding Videos
 
-Ideally, `.webm` format should be used for videos such as the one used in the landing page because `.mp4` has stuttering and performance issues.
+`.webm` format should be used for videos such as the one used in the landing page because `.mp4` has stuttering and performance issues.
 
 VP9 prefers to encode in two passes so the first pass compiles a log file with statistics about the video file which is then used in the second pass to make the video.
 
@@ -110,7 +110,7 @@ For VP9, the CRF can range from 0 (best quality) to 63 (smallest file size). It 
 
 ### Converting PNG to SVG
 
-SVGs are great for responsive websites so if it's feasible, consider converting that PNG to an SVG using [ImageMagick](http://www.imagemagick.org/Usage/draw/#svg_output) and [AutoTrace](https://github.com/autotrace/autotrace).
+SVGs are great for responsive apps so if it's feasible, consider converting that PNG to an SVG using [ImageMagick](http://www.imagemagick.org/Usage/draw/#svg_output) and [AutoTrace](https://github.com/autotrace/autotrace).
 
 ```bash
 convert autotrace:src/assets/logo.png src/icons/logo.svg
