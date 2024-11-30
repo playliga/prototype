@@ -45,7 +45,8 @@ const config: ForgeConfig = {
       name: '@electron-forge/publisher-github',
       config: {
         authToken: process.env.GITHUB_PUBLISH_API_KEY,
-        prerelease: true,
+        draft: false,
+        prerelease: false,
         repository: {
           owner: 'playliga',
           name: 'application',
