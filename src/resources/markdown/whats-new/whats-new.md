@@ -1,7 +1,5 @@
 # v3.0.0-beta.15
 
-- [View the full changelog](https://github.com/lemonpole/liga-public/releases/tag/v3.0.0-beta.15)
-
 ## Discord Server
 
 ![](resources://markdown/whats-new/discord.png)
