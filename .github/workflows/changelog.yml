@@ -1,15 +1,18 @@
 name: Changelog
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: Release
+    types: completed
 
 jobs:
   changelog:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - run: awk '/^## /{if (found) exit; found=1} found' src/resources/markdown/changelog.md > CHANGELOG.md
-      - run: gh release edit ${{ github.event.release.name }} --notes-file CHANGELOG.md
+      - run: echo "RELEASE_NAME=$(gh release list --json name,isLatest --jq '.[] | select(.isLatest)|.name')" >> $GITHUB_ENV
+      - run: gh release edit $RELEASE_NAME --notes-file CHANGELOG.md
