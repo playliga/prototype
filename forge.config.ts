@@ -44,7 +44,7 @@ const config: ForgeConfig = {
     {
       name: '@electron-forge/publisher-github',
       config: {
-        authToken: process.env.GITHUB_PUBLISH_API_KEY,
+        authToken: process.env.GH_PUBLISH_API_KEY,
         draft: false,
         prerelease: false,
         repository: {

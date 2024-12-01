@@ -44,7 +44,7 @@ export async function init() {
  */
 export async function download() {
   const github = new GitHub.Application(
-    process.env.GITHUB_ISSUES_CLIENT_ID,
+    process.env.GH_ISSUES_CLIENT_ID,
     'https://github.com/playliga/plugins.git',
   );
   const [latest] = await github.getAllReleases();
