@@ -62,7 +62,8 @@ export default function () {
           onClick={() =>
             api.emails.delete(selected).then(() => {
               dispatch(emailsDelete(state.emails.filter((email) => selected.includes(email.id))));
-              setSelected([]);
+              const [next] = state.emails.filter((email) => !selected.includes(email.id));
+              setSelected(next ? [next.id] : []);
             })
           }
         >
