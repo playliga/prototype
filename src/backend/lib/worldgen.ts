@@ -1059,6 +1059,55 @@ export async function syncTiers() {
 }
 
 /**
+ * Sync player wages.
+ *
+ * Currently, only the user's players can gain XP throughout the season
+ * but this may change in the future. At which point this function
+ * would be a mirror of the `061-wages.ts` seeder.
+ *
+ * @todo move the transaction logic to a shared function
+ * @function
+ */
+export async function syncWages() {
+  // get the user's squad
+  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+
+  // build a transaction for all the updates
+  const transaction = profile.team.players.map((player) => {
+    const xp = new Bot.Exp(JSON.parse(player.stats));
+    const tier = Constants.Prestige[xp.getBotTemplate().prestige];
+    const wageConfigs = Constants.PlayerWages[tier as keyof typeof Constants.PlayerWages];
+
+    if (!wageConfigs) {
+      return DatabaseClient.prisma.player.update({
+        where: { id: player.id },
+        data: { cost: 0, wages: 0 },
+      });
+    }
+
+    // build probability weights
+    const wagePbxWeight = {} as Parameters<typeof Chance.roll>[number];
+    wageConfigs.forEach((weight, idx) => (wagePbxWeight[idx] = weight.percent));
+
+    // pick the wage range for the player
+    const wageConfigIdx = Chance.roll(wagePbxWeight);
+    const wageConfig = wageConfigs[Number(wageConfigIdx)];
+
+    // calculate cost from wage
+    const wages = random(wageConfig.low, wageConfig.high);
+    const cost = wages * wageConfig.multiplier;
+
+    return DatabaseClient.prisma.player.update({
+      where: { id: player.id },
+      data: { cost, wages },
+    });
+  });
+
+  // run the transaction
+  return DatabaseClient.prisma.$transaction(transaction);
+}
+
+/**
  * Engine loop handler.
  *
  * Starts the provided competition.
@@ -1179,7 +1228,8 @@ export async function onSeasonStart() {
     .then(bumpSeasonNumber)
     .then(createCompetitions)
     .then(resetTrainingGains)
-    .then(syncTiers);
+    .then(syncTiers)
+    .then(syncWages);
 }
 
 /**

@@ -4,7 +4,7 @@
  * @module
  */
 import { PrismaClient } from '@prisma/client';
-import { Chance, Constants } from '@liga/shared';
+import { Bot, Chance, Constants } from '@liga/shared';
 import { random } from 'lodash';
 
 /**
@@ -24,11 +24,10 @@ export default async function (prisma: PrismaClient) {
   });
 
   const transaction = players.map((player) => {
-    const tier = Constants.Prestige[player.team.prestige];
+    const xp = new Bot.Exp(JSON.parse(player.stats));
+    const tier = Constants.Prestige[xp.getBotTemplate().prestige];
     const wageConfigs = Constants.PlayerWages[tier as keyof typeof Constants.PlayerWages];
 
-    // no wages or cost for this
-    // player's prestige level
     if (!wageConfigs) {
       return prisma.player.update({
         where: { id: player.id },
