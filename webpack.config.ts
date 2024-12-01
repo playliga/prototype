@@ -71,7 +71,7 @@ export const ElectronMainWebpackConfig: Configuration = {
   module: { rules: WebpackRulesConfig },
   plugins: [
     new EnvironmentPlugin([
-      'GITHUB_ISSUES_CLIENT_ID',
+      'GH_ISSUES_CLIENT_ID',
       'FIREBASE_CLIENT_EMAIL',
       'FIREBASE_KEY_ID',
       'FIREBASE_PROJECT_ID',

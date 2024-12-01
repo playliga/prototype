@@ -24,10 +24,7 @@ export default function () {
   ipcMain.handle(Constants.IPCRoute.ISSUES_ALL, async () => {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     const issues = Util.loadIssues(profile.issues);
-    const github = new GitHub.Application(
-      process.env.GITHUB_ISSUES_CLIENT_ID,
-      AppInfo.repository.url,
-    );
+    const github = new GitHub.Application(process.env.GH_ISSUES_CLIENT_ID, AppInfo.repository.url);
     return github.getIssuesByIds(issues);
   });
   ipcMain.handle(
@@ -101,7 +98,7 @@ export default function () {
 
       // create the issue
       const github = new GitHub.Application(
-        process.env.GITHUB_ISSUES_CLIENT_ID,
+        process.env.GH_ISSUES_CLIENT_ID,
         AppInfo.repository.url,
       );
       const issue = await github.createIssue({

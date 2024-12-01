@@ -15,7 +15,7 @@
 export enum Application {
   CALENDAR_DATE_FORMAT = 'yyyy/MM/dd',
   DATABASE_NAME_FORMAT = 'save_%s.db',
-  GITHUB_API_BODY_LIMIT = 65536,
+  GH_API_BODY_LIMIT = 65536,
   LOGGING_LEVEL = 'debug',
   SQUAD_MIN_LENGTH = 5,
   SEASON_START_DAY = 1,

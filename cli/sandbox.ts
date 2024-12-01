@@ -314,7 +314,7 @@ async function sandboxTraining() {
  * @function
  */
 async function sandboxGithub() {
-  new GitHub.Application(process.env.GITHUB_ISSUES_CLIENT_ID, AppInfo.repository.url);
+  new GitHub.Application(process.env.GH_ISSUES_CLIENT_ID, AppInfo.repository.url);
   return Promise.resolve();
 }
 
