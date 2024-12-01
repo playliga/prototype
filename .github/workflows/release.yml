@@ -1,7 +1,6 @@
 name: Release
 
 on:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -23,4 +22,6 @@ jobs:
           FIREBASE_KEY_ID: ${{ secrets.FIREBASE_KEY_ID }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           GH_ISSUES_CLIENT_ID: ${{ secrets.GH_ISSUES_CLIENT_ID }}
-      - run: ls out/alpha/make
+      - run: npm run publish -- --from-dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
