@@ -9,5 +9,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
-      - run: choco install python visualstudio2022-workload-vctools -y
-      - run: python3 --version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python --version
