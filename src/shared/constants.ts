@@ -861,6 +861,9 @@ export const TransferSettings = {
   RESPONSE_MIN_DAYS: 1,
   RESPONSE_MAX_DAYS: 3,
 
+  // how much percent to add (per dollar) over the wages
+  PBX_PLAYER_HIGHBALL_MODIFIER: 0.01,
+
   // is the player willing to lower their wages?
   PBX_PLAYER_LOWBALL_OFFER: 10,
 

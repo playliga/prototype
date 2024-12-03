@@ -355,9 +355,17 @@ function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eag
   }
 
   // roll if player is willing to relocate
+  //
+  // note that the player is willing to consider
+  // relocating if the wages are good enough
+  const modifier =
+    Constants.TransferSettings.PBX_PLAYER_RELOCATE *
+    Constants.TransferSettings.PBX_PLAYER_HIGHBALL_MODIFIER *
+    Math.max(0, offer.wages - transfer.target.wages);
+
   if (
     transfer.from.country.continentId !== transfer.target.country.continentId &&
-    !Chance.rollD2(Constants.TransferSettings.PBX_PLAYER_RELOCATE)
+    !Chance.rollD2(Math.floor(Constants.TransferSettings.PBX_PLAYER_RELOCATE + modifier))
   ) {
     Engine.Runtime.Instance.log.info(
       '%s rejected offer. Reason: Not willing to relocate.',
