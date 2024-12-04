@@ -49,7 +49,7 @@ model Calendar {
 model Competition {
   id                  Int                 @id @default(autoincrement())
   season              Int?                @default(1)
-  started             Boolean?            @default(false)
+  status              Int?                @default(0)
   tournament          String?
 
   // has many

@@ -273,7 +273,7 @@ export default function () {
                           : `Group ${Util.toAlpha(userTeam.group)}`
                       }
                       zones={
-                        standings.competition.started &&
+                        standings.competition.status === Constants.CompetitionStatus.STARTED &&
                         (Constants.TierZones[standings.competition.tier.slug] ||
                           Constants.TierZones.default)
                       }

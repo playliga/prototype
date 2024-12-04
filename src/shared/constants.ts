@@ -105,6 +105,17 @@ export enum CalendarUnit {
 }
 
 /**
+ * The possible status for a competition.
+ *
+ * @enum
+ */
+export enum CompetitionStatus {
+  SCHEDULED,
+  STARTED,
+  COMPLETED,
+}
+
+/**
  * Federation unique identifiers.
  *
  * @enum

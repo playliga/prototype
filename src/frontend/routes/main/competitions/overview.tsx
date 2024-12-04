@@ -305,7 +305,7 @@ export default function () {
           highlight={state.profile.teamId}
           competitors={group}
           zones={
-            competition.started &&
+            competition.status === Constants.CompetitionStatus.STARTED &&
             competition.tier.groupSize &&
             (Constants.TierZones[competition.tier.slug] || Constants.TierZones.default)
           }

@@ -129,7 +129,7 @@ export default function () {
               teamId: team.id,
             },
           },
-          started: true,
+          status: Constants.CompetitionStatus.COMPLETED,
         },
         orderBy: {
           season: 'desc',

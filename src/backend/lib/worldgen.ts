@@ -66,6 +66,7 @@ export async function createCompetitions() {
           const teams = await Autofill.parse(item, tier, federation);
           const competition = await DatabaseClient.prisma.competition.create({
             data: {
+              status: Constants.CompetitionStatus.SCHEDULED,
               season: profile.season,
               federation: {
                 connect: {
@@ -724,6 +725,9 @@ export async function recordMatchResults() {
       return DatabaseClient.prisma.competition.update({
         where: { id: Number(competitionId) },
         data: {
+          status: tournament.$base.isDone()
+            ? Constants.CompetitionStatus.COMPLETED
+            : Constants.CompetitionStatus.STARTED,
           tournament: JSON.stringify(tournament.save()),
           competitors: {
             update: tournament.competitors.map((id) => {
@@ -1206,7 +1210,7 @@ export async function onCompetitionStart(entry: Calendar) {
   return DatabaseClient.prisma.competition.update({
     where: { id: competition.id },
     data: {
-      started: true,
+      status: Constants.CompetitionStatus.STARTED,
       tournament: JSON.stringify(tournament.save()),
       competitors: {
         update: tournament.competitors.map((id) => ({
