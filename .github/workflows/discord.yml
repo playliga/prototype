@@ -1,0 +1,27 @@
+name: Announce in Discord
+
+on:
+  workflow_run:
+    workflows: Changelog
+    types: completed
+
+jobs:
+  discord:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "RELEASE_NAME=$(gh release list --json name,isLatest --jq '.[] | select(.isLatest)|.name')" >> $GITHUB_ENV
+      - run: gh release view $RELEASE_NAME --json body --jq '.body' >> CHANGELOG.md
+      - run: >
+          jq -n --arg content "$(cat CHANGELOG.md)" '{
+            content: $content,
+            flags: "4"
+          }' > data.json
+      - run: >
+          curl -sS ${{ secrets.DISCORD_WEBHOOK_URL }}
+          -d @data.json
+          -H "Content-Type: application/json"
+          -X POST
