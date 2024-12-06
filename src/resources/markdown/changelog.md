@@ -1,3 +1,15 @@
+## [3.0.0-beta.20](https://github.com/playliga/application/compare/v3.0.0-beta.19...v3.0.0-beta.20) (2024-12-06)
+
+### Features
+
+- players now reconsider if wages offered are high enough ([#226](https://github.com/playliga/application/issues/226)) ([24dce0f](https://github.com/playliga/application/commit/24dce0f7e2972439ba2da0a7e85c932240013703))
+
+### Bug Fixes
+
+- adjust player transfer and wages after each season ([#298](https://github.com/playliga/application/issues/298)) ([22748f5](https://github.com/playliga/application/commit/22748f56faed255f62884f252d792e4a47ff5e0e))
+- only consider honors for finished competitions ([#255](https://github.com/playliga/application/issues/255)) ([dd8cd5e](https://github.com/playliga/application/commit/dd8cd5e55e553f6cd17842b8bce462b980301201))
+- select next e-mail after deleting an e-mail ([#223](https://github.com/playliga/application/issues/223)) ([5dd869a](https://github.com/playliga/application/commit/5dd869a65bdd485380ee689337e217a62543ee97))
+
 ## 3.0.0-beta.18 (2024-11-30)
 
 ### Bug Fixes
