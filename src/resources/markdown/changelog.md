@@ -1,4 +1,4 @@
-## [3.0.0-beta.20](https://github.com/playliga/application/compare/v3.0.0-beta.19...v3.0.0-beta.20) (2024-12-06)
+## 3.0.0-beta.20 (2024-12-06)
 
 ### Features
 
