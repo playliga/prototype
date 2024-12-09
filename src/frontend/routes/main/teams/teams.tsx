@@ -14,6 +14,7 @@ import { findTeamOptionByValue, TeamSelect } from '@liga/frontend/components/sel
 enum TabIdentifier {
   OVERVIEW = '/teams',
   HISTORY = '/teams/history',
+  RESULTS = '/teams/results',
 }
 
 /**
@@ -98,6 +99,12 @@ export default function () {
           onClick={() => navigate(TabIdentifier.HISTORY)}
         >
           History
+        </button>
+        <button
+          className={cx(location.pathname === TabIdentifier.RESULTS && '!btn-active')}
+          onClick={() => navigate(TabIdentifier.RESULTS)}
+        >
+          Results
         </button>
       </header>
       <main>

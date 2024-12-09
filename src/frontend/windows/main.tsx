@@ -92,6 +92,10 @@ const routes = createMemoryRouter([
             path: 'history',
             element: <Routes.Main.Teams.History />,
           },
+          {
+            path: 'results',
+            element: <Routes.Main.Teams.Results />,
+          },
         ],
       },
     ],

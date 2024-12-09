@@ -5,6 +5,7 @@
  */
 import History from './history';
 import Overview from './overview';
+import Results from './results';
 import Teams from './teams';
 
 /**
@@ -15,5 +16,6 @@ import Teams from './teams';
 export default {
   History,
   Overview,
+  Results,
   Teams,
 };
