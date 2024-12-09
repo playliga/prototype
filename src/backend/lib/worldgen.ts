@@ -315,6 +315,68 @@ export async function createWelcomeEmail() {
 }
 
 /**
+ * Distributes prize pool on competition end.
+ *
+ * @param competition         The competition database record.
+ * @param preloadedTournament Tournament instance, if already loaded.
+ * @function
+ */
+export async function distributePrizePool(
+  competition: Prisma.CompetitionGetPayload<{ include: { competitors: true; tier: true } }>,
+  preloadedTournament?: Tournament,
+) {
+  // bail if competition is not done yet
+  const tournament = preloadedTournament || Tournament.restore(JSON.parse(competition.tournament));
+
+  if (!tournament.$base.isDone()) {
+    return Promise.resolve();
+  }
+
+  // bail if no prize pool
+  const prizePool = Constants.PrizePool[competition.tier.slug];
+
+  if (!prizePool || !prizePool.total || !prizePool.distribution.length) {
+    return Promise.resolve();
+  }
+
+  // loop through positions and assign their award
+  const winners: Array<[number, number]> = [];
+
+  for (const competitorId of tournament.competitors) {
+    const competitor = tournament.$base.resultsFor(tournament.getSeedByCompetitorId(competitorId));
+    const pos = (competitor.gpos || competitor.pos) - 1;
+    const prizeMoney = prizePool.total * ((prizePool.distribution[pos] || 0) / 100);
+    if (prizeMoney > 0) {
+      winners.push([competitorId, prizeMoney]);
+    }
+  }
+
+  if (!winners.length) {
+    return Promise.resolve();
+  }
+
+  // assign prize winnings to team earnings
+  const transaction = winners.map(([id, prizeMoney]) =>
+    DatabaseClient.prisma.competitionToTeam.update({
+      where: {
+        id,
+      },
+      data: {
+        team: {
+          update: {
+            earnings: {
+              increment: prizeMoney,
+            },
+          },
+        },
+      },
+    }),
+  );
+
+  return DatabaseClient.prisma.$transaction(transaction);
+}
+
+/**
  * Parses a transfer offer from the player's perspective.
  *
  * @param transfer The transfer offer to parse.
@@ -718,8 +780,11 @@ export async function recordMatchResults() {
         }
       }
 
-      // check if user won any awards
-      await sendUserAward(competition, tournament);
+      // awards and prize pool distribution
+      await Promise.all([
+        sendUserAward(competition, tournament),
+        distributePrizePool(competition, tournament),
+      ]);
 
       // update the competition database record
       return DatabaseClient.prisma.competition.update({

@@ -804,6 +804,29 @@ export const Prestige = [
 ];
 
 /**
+ * Prize pool distribution ranges.
+ *
+ * @constant
+ */
+export const PrizePool: Record<TierSlug | string, { total: number; distribution: Array<number> }> =
+  {
+    [TierSlug.CIRCUIT_OPEN]: { total: 0, distribution: [] },
+    [TierSlug.CIRCUIT_CLOSED]: { total: 0, distribution: [] },
+    [TierSlug.CIRCUIT_FINALS]: { total: 0, distribution: [] },
+    [TierSlug.CIRCUIT_PLAYOFFS]: { total: 25_000, distribution: [50, 35, 15] },
+    [TierSlug.ESWC_CHALLENGERS]: { total: 0, distribution: [] },
+    [TierSlug.ESWC_LEGENDS]: { total: 0, distribution: [] },
+    [TierSlug.ESWC_CHAMPIONS]: { total: 0, distribution: [] },
+    [TierSlug.ESWC_PLAYOFFS]: { total: 75_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_OPEN]: { total: 2_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_CUP]: { total: 5_000, distribution: [75, 25] },
+    [TierSlug.LEAGUE_INTERMEDIATE]: { total: 3_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_MAIN]: { total: 4_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_ADVANCED]: { total: 5_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_PREMIER]: { total: 10_000, distribution: [50, 35, 15] },
+  };
+
+/**
  * Settings for the application and their defaults.
  *
  * @constant

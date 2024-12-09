@@ -111,6 +111,12 @@ export default function () {
     [matches.length],
   );
 
+  // competition prize pool
+  const prizePool = React.useMemo(
+    () => !!competition && Constants.PrizePool[competition.tier.slug as Constants.TierSlug],
+    [competition],
+  );
+
   return (
     <section className="grid grid-cols-2 divide-x divide-base-content/10">
       <article>
@@ -165,10 +171,32 @@ export default function () {
                 </tr>
               )}
             </tbody>
+            <thead>
+              <tr>
+                <th>Prize Pool</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!prizePool.total && (
+                <tr>
+                  <td>N/A</td>
+                  <td>-</td>
+                </tr>
+              )}
+              {prizePool.distribution.map((value, idx) => {
+                return (
+                  <tr key={idx + '__prize_pool'}>
+                    <td>{Util.toOrdinalSuffix(idx + 1)}</td>
+                    <td>{Util.formatCurrency(prizePool.total * (value / 100))}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
         </aside>
         <aside>
-          <header className="heading prose max-w-none !border-t-0">
+          <header className={cx('heading prose max-w-none', !prizePool.total && '!border-t-0')}>
             <h2>Recent Match Results</h2>
           </header>
           <table className="table table-fixed">
