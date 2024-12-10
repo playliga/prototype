@@ -554,6 +554,15 @@ export class Server {
     const bots = flatten(
       this.competitors.map((competitor, idx) =>
         competitor.team.players.map((player) => {
+          // only check for difficulty modifier for cpu's team
+          if (this.settings.general.botDifficulty && competitor.teamId !== this.profile.teamId) {
+            player.stats = JSON.stringify(
+              Bot.Templates.find(
+                (template) => template.name === this.settings.general.botDifficulty,
+              ).stats,
+            );
+          }
+
           const xp = new Bot.Exp(JSON.parse(player.stats));
           return {
             difficulty: xp.getBotTemplate().difficulty,

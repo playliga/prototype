@@ -5,6 +5,7 @@
  * @module
  */
 import * as Chance from './chance';
+import * as Constants from './constants';
 import log from 'electron-log';
 import type { Prisma } from '@prisma/client';
 import { random, sampleSize } from 'lodash';
@@ -35,22 +36,6 @@ interface Template {
 }
 
 /**
- * Idiomatic bot difficulty names.
- *
- * @enum
- */
-enum Difficulty {
-  EASY = 'Easy',
-  FAIR = 'Fair',
-  NORMAL = 'Normal',
-  TOUGH = 'Tough',
-  HARD = 'Hard',
-  VERY_HARD = 'VeryHard',
-  EXPERT = 'Expert',
-  ELITE = 'Elite',
-}
-
-/**
  * Certain stats are better when you
  * subtract instead of add to them.
  *
@@ -70,7 +55,7 @@ export const StatModifiers = {
  */
 export const Templates: Array<Template> = [
   {
-    name: Difficulty.EASY,
+    name: Constants.BotDifficulty.EASY,
     prestige: 0,
     multiplier: 1,
     difficulty: 0,
@@ -82,7 +67,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.FAIR,
+    name: Constants.BotDifficulty.FAIR,
     prestige: 1,
     multiplier: 2,
     difficulty: 1,
@@ -94,7 +79,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.NORMAL,
+    name: Constants.BotDifficulty.NORMAL,
     prestige: 1,
     multiplier: 2,
     difficulty: 1,
@@ -106,7 +91,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.TOUGH,
+    name: Constants.BotDifficulty.TOUGH,
     prestige: 2,
     multiplier: 4,
     difficulty: 2,
@@ -118,7 +103,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.HARD,
+    name: Constants.BotDifficulty.HARD,
     prestige: 2,
     multiplier: 5,
     difficulty: 2,
@@ -130,7 +115,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.VERY_HARD,
+    name: Constants.BotDifficulty.VERY_HARD,
     prestige: 3,
     multiplier: 10,
     difficulty: 3,
@@ -142,7 +127,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.EXPERT,
+    name: Constants.BotDifficulty.EXPERT,
     prestige: 4,
     multiplier: 18,
     difficulty: 3,
@@ -154,7 +139,7 @@ export const Templates: Array<Template> = [
     },
   },
   {
-    name: Difficulty.ELITE,
+    name: Constants.BotDifficulty.ELITE,
     prestige: 4,
     multiplier: 20,
     difficulty: 3,

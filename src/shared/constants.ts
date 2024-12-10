@@ -55,6 +55,22 @@ export enum BotChatter {
 }
 
 /**
+ * Idiomatic bot difficulty names.
+ *
+ * @enum
+ */
+export enum BotDifficulty {
+  EASY = 'Easy',
+  FAIR = 'Fair',
+  NORMAL = 'Normal',
+  TOUGH = 'Tough',
+  HARD = 'Hard',
+  VERY_HARD = 'VeryHard',
+  EXPERT = 'Expert',
+  ELITE = 'Elite',
+}
+
+/**
  * Upper and lower bracket identifiers.
  *
  * @enum
@@ -841,6 +857,7 @@ export const Settings = {
     botChatter: BotChatter.RADIO,
     gameLaunchOptions: null as string,
     theme: ThemeType.SYSTEM,
+    botDifficulty: null as string,
   },
   calendar: {
     ignoreExits: false,

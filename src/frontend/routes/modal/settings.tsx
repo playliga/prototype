@@ -250,6 +250,32 @@ export default function () {
             </section>
             <section>
               <header>
+                <h3>Bot Difficulty</h3>
+              </header>
+              <article>
+                <select
+                  className="select w-full"
+                  onChange={(event) =>
+                    onSettingsUpdate(
+                      'general.botDifficulty',
+                      event.target.value === 'Default' ? null : event.target.value,
+                    )
+                  }
+                  value={
+                    isNull(settings.general.botDifficulty) ? '' : settings.general.botDifficulty
+                  }
+                >
+                  <option value={null}>Default</option>
+                  {Object.values(Constants.BotDifficulty).map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </article>
+            </section>
+            <section>
+              <header>
                 <h3>Theme</h3>
               </header>
               <article>
