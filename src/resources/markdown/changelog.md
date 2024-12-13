@@ -1,3 +1,15 @@
+## 3.0.0-beta.21 (2024-12-13)
+
+### Features
+
+- add prize pools to competitions ([#259](https://github.com/playliga/application/issues/259)) ([8dfc0cc](https://github.com/playliga/application/commit/8dfc0cc9555b45000ae0eef4c5d6d1d5240e723e))
+- added a bot difficulty setting ([#249](https://github.com/playliga/application/issues/249)) ([8e00044](https://github.com/playliga/application/commit/8e00044119f10ae996c9baa06483c33da5d81d32))
+- show match results for team on their team page ([#256](https://github.com/playliga/application/issues/256)) ([a1c51c4](https://github.com/playliga/application/commit/a1c51c4ff2d24cfec452e422e21cc656286e2d79))
+
+### Bug Fixes
+
+- tweaked and improved probability weights when simming games ([#306](https://github.com/playliga/application/issues/306)) ([47b56e0](https://github.com/playliga/application/commit/47b56e0d8c645fa9599eda0f68cbeb9fc1619397))
+
 ## 3.0.0-beta.20 (2024-12-06)
 
 ### Features
