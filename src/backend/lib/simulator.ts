@@ -62,7 +62,7 @@ function getTeamWinProbability(team: Team) {
   return team.players
     .slice(0, Constants.Application.SQUAD_MIN_LENGTH)
     .map((player) => new Bot.Exp(JSON.parse(player.stats)).getBotTemplate().multiplier)
-    .reduce((a, b) => a + b + team.prestige);
+    .reduce((a, b) => a + b + team.prestige + team.tier);
 }
 
 /**
