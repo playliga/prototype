@@ -100,7 +100,7 @@ async function handlePlayStart() {
         })),
       },
       players: {
-        connect: players,
+        connect: players.map((player) => ({ id: player.id })),
       },
       events: {
         create: gameServer.scorebotEvents.map((event) => {
