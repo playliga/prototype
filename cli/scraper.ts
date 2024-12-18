@@ -6,7 +6,7 @@
 import * as PandaScore from './generated/pandascore';
 import util from 'node:util';
 import log from 'electron-log';
-import { camelCase, chunk, sample, uniqBy, upperFirst } from 'lodash';
+import { camelCase, chunk, flatten, uniqBy, upperFirst } from 'lodash';
 import { Command } from 'commander';
 import { faker } from '@faker-js/faker';
 import { Prisma, PrismaClient } from '@prisma/client';
@@ -51,22 +51,31 @@ const DEFAULT_ARGS: CLIArguments = {
 };
 
 /**
- * Each continent in a Federation carries its own probability
- * weight that determines team and user nationalities.
+ * Country weights per region.
  *
  * @constant
  */
-const CONTINENT_WEIGHTS: Record<string, Record<string, number | 'auto'>> = {
+const COUNTRY_WEIGHTS: Record<string, Record<string, number | 'auto'>> = {
   [Constants.FederationSlug.ESPORTS_AMERICAS]: {
-    an: 'auto',
-    na: 66,
-    sa: 'auto',
+    br: 5,
+    ca: 5,
+    us: 85,
   },
   [Constants.FederationSlug.ESPORTS_EUROPA]: {
-    af: 'auto',
-    as: 'auto',
-    eu: 75,
-    oc: 'auto',
+    be: 5,
+    ch: 5,
+    de: 10,
+    dk: 5,
+    es: 5,
+    fi: 5,
+    fr: 5,
+    gb: 10,
+    kr: 5,
+    no: 5,
+    nz: 5,
+    sa: 5,
+    se: 10,
+    za: 5,
   },
 };
 
@@ -86,7 +95,7 @@ async function buildPrismaPayload(data: Array<TeamAPIResponse | PlayerAPIRespons
   const federations = await prisma.federation.findMany({
     where: {
       slug: {
-        in: Object.keys(CONTINENT_WEIGHTS),
+        in: Object.keys(COUNTRY_WEIGHTS),
       },
     },
     include: { continents: { include: { countries: true } } },
@@ -104,18 +113,20 @@ async function buildPrismaPayload(data: Array<TeamAPIResponse | PlayerAPIRespons
       return;
     }
 
-    // generate the prisma payloads
-    chunkData.forEach((item) => {
-      const continentPick = Chance.roll(CONTINENT_WEIGHTS[federation.slug]);
-      const continent = federation.continents.find(
-        (continent) => continent.code.toLowerCase() === continentPick.toLowerCase(),
-      );
+    // build probability table for the country
+    const countries = flatten(federation.continents.map((continent) => continent.countries));
+    const countryPbx = COUNTRY_WEIGHTS[federation.slug];
 
-      if (!continent) {
-        log.warn('Could not assign a nationality to %s.', item.slug);
-        return;
+    for (const country of countries) {
+      if (country.code.toLowerCase() in countryPbx) {
+        continue;
       }
 
+      countryPbx[country.code] = 'auto';
+    }
+
+    // generate the prisma payloads
+    chunkData.forEach((item) => {
       // create team payload
       if ('players' in item) {
         return payload.push({
@@ -124,11 +135,21 @@ async function buildPrismaPayload(data: Array<TeamAPIResponse | PlayerAPIRespons
           create: {
             name: item.name,
             slug: item.slug,
-            countryId: sample(continent.countries).id,
+            countryId: (() => {
+              const countryPick = Chance.roll(countryPbx);
+              return countries.find(
+                (country) => country.code.toLowerCase() === countryPick.toLowerCase(),
+              ).id;
+            })(),
             players: {
               create: item.players.map((player) => ({
                 name: player.name,
-                countryId: sample(continent.countries).id,
+                countryId: (() => {
+                  const countryPick = Chance.roll(countryPbx);
+                  return countries.find(
+                    (country) => country.code.toLowerCase() === countryPick.toLowerCase(),
+                  ).id;
+                })(),
               })),
             },
             personas: {
@@ -147,7 +168,12 @@ async function buildPrismaPayload(data: Array<TeamAPIResponse | PlayerAPIRespons
       payload.push({
         data: {
           name: item.name,
-          countryId: sample(continent.countries).id,
+          countryId: (() => {
+            const countryPick = Chance.roll(countryPbx);
+            return countries.find(
+              (country) => country.code.toLowerCase() === countryPick.toLowerCase(),
+            ).id;
+          })(),
         },
       });
     });
