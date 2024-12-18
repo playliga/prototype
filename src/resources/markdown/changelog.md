@@ -1,3 +1,11 @@
+## 3.0.0-beta.22 (2024-12-18)
+
+### Bug Fixes
+
+- fixed issue recording match results when bot difficulty is selected ([#311](https://github.com/playliga/application/issues/311)) ([0b1be09](https://github.com/playliga/application/commit/0b1be09782fb06fc10d559b19c3bacec430a17a7))
+- improved country selection among teams and players ([#310](https://github.com/playliga/application/issues/310)) ([a973c56](https://github.com/playliga/application/commit/a973c56b7c96bdc945b8d401883058bbc12d145b))
+- small cosmetic fix to match setup modal ([17aaf6e](https://github.com/playliga/application/commit/17aaf6e73a556b966329794398bb388fc933cedb))
+
 ## 3.0.0-beta.21 (2024-12-13)
 
 ### Features
