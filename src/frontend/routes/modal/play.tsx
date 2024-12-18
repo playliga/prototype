@@ -138,7 +138,7 @@ export default function () {
           <li>{Util.convertMapPool(game.map, settingsAll.general.game)}</li>
         </ul>
       </header>
-      <section className="card image-full h-16 rounded-none drop-shadow-md">
+      <section className="card image-full h-16 rounded-none drop-shadow-md before:!rounded-none">
         <figure>
           <Image
             className="h-full w-full"
