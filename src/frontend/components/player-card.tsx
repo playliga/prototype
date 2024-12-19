@@ -201,16 +201,19 @@ export default function (props: PlayerCardProps) {
         />
       </figure>
       {Object.keys(xp.stats).map((stat) => {
-        let current: string | number = xp.stats[stat];
+        let gain = gains[stat];
+        let value = xp.stats[stat];
         let max: string | number = Bot.Exp.getMaximumXPForStat(stat);
 
         // adjust values for inverted stats by normalizing
         // and clamping them into [0,1] range
         if (Bot.StatModifiers.SUBTRACT.includes(stat)) {
           const min = Bot.Templates[0].stats[stat];
-          const valueNormalized = (current - min) / (max - min);
-          const value = Math.max(0, Math.min(1, valueNormalized));
-          current = value.toFixed(2);
+          const valueNormalized = (value - min) / (max - min);
+          const valueClamped = Math.max(0, Math.min(1, valueNormalized));
+          const gainNormalized = gain / (max - min);
+          value = Number(valueClamped.toFixed(2));
+          gain = -gainNormalized;
           max = Number(1).toFixed(2);
         }
 
@@ -218,9 +221,9 @@ export default function (props: PlayerCardProps) {
           <figure key={`xp__${props.player.name}_${stat}`}>
             <XPBar
               title={`${startCase(stat)}`}
-              gains={gains[stat]}
-              subtitle={`${current}/${max}`}
-              value={Number(current)}
+              gains={gain}
+              subtitle={`${value}/${max}`}
+              value={value}
               max={Number(max)}
             />
           </figure>
