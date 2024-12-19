@@ -98,7 +98,7 @@ meter::-webkit-meter-bar {
 
 /** adjust flagpack stylings */
 .fp {
-  @apply box-content border-2 border-black;
+  @apply box-content border border-black;
 }
 
 /** components */
