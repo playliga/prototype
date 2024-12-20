@@ -47,13 +47,24 @@ export async function download() {
     process.env.GH_ISSUES_CLIENT_ID,
     'https://github.com/playliga/plugins.git',
   );
-  const [latest] = await github.getAllReleases();
-  const asset = latest.assets.find((asset) => asset.name.includes('.zip'));
+
+  // grab the latest plugins release
+  let latest: Awaited<ReturnType<typeof github.getAllReleases>>;
+
+  try {
+    latest = await github.getAllReleases();
+  } catch (error) {
+    return Promise.reject(error);
+  }
+
+  // bail if no assets are found in the release
+  const asset = latest[0].assets.find((asset) => asset.name.includes('.zip'));
 
   if (!asset) {
     return Promise.reject('Plugins not found.');
   }
 
+  // initialize the plugins dir
   const destination = path.join(getPath(), path.basename(asset.browser_download_url));
 
   try {
@@ -63,6 +74,7 @@ export async function download() {
     await init();
   }
 
+  // download the file and extract
   const response = await fetch(asset.browser_download_url);
   await pipeline(
     Readable.fromWeb(response.body as ReadableStream<Uint8Array>),

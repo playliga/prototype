@@ -158,7 +158,7 @@ export default function () {
       </dialog>
 
       {/** SETTINGS VALIDATION WARNING BANNER */}
-      {!!appStatusError && (
+      {(!!appStatusError || state.appStatus?.includes('plugins')) && (
         <section className="alert alert-warning flex h-8 justify-center rounded-none p-0">
           <FaExclamationTriangle />
           {!!Constants.GameSettings.CS16_EXE.includes(appStatusError) && (
@@ -186,6 +186,12 @@ export default function () {
                 Details
               </button>
             </React.Fragment>
+          )}
+          {!!state.appStatus?.includes('plugins') && (
+            <p>
+              Game plugins not installed! You will not be able to launch any games. Try restarting
+              the app to fix this issue.
+            </p>
           )}
         </section>
       )}
@@ -473,7 +479,9 @@ export default function () {
                     <button
                       title="Match Setup"
                       className="btn btn-square btn-ghost join-item hover:bg-transparent hover:text-secondary"
-                      disabled={disabled || !!appStatusError}
+                      disabled={
+                        disabled || !!appStatusError || state.appStatus?.includes('plugins')
+                      }
                       onClick={() =>
                         api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
                           target: '/play',
@@ -485,7 +493,9 @@ export default function () {
                     </button>
                     <button
                       className="btn btn-primary join-item btn-wide"
-                      disabled={disabled || !!appStatusError}
+                      disabled={
+                        disabled || !!appStatusError || state.appStatus?.includes('plugins')
+                      }
                       onClick={() => {
                         setPlaying(true);
                         Util.sleep(GAME_LAUNCH_DELAY)

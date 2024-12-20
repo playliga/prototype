@@ -41,6 +41,7 @@ enum UpdaterStatus {
 enum PluginStatus {
   Downloading = 'Downloading plugins...',
   Finished = 'Plugins download finished.',
+  Error = 'Error: Could not download plugins.',
 }
 
 /**
@@ -101,13 +102,14 @@ function Index() {
       .then(() => Util.sleep(FAUX_TIMEOUT))
       .then(() => {
         return Promise.resolve(setStatus(PluginStatus.Finished));
-      });
+      })
+      .catch(() => Promise.resolve(setStatus(PluginStatus.Error)));
   }, [status]);
 
   // if plugins were downloaded, we can
   // proceed connecting to the database
   React.useEffect(() => {
-    if (status !== PluginStatus.Finished) {
+    if (status !== PluginStatus.Finished && status !== PluginStatus.Error) {
       return;
     }
 

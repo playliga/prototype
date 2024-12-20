@@ -57,6 +57,7 @@ export function IPCGenericHandler() {
     try {
       await fs.promises.access(steamPath, fs.constants.F_OK);
       await fs.promises.access(gamePath, fs.constants.F_OK);
+      await fs.promises.access(PluginManager.getPath(), fs.constants.F_OK);
       return Promise.resolve();
     } catch (error) {
       return Promise.resolve(error.message);
