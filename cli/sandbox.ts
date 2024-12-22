@@ -22,7 +22,7 @@ import {
   FileManager,
   Firebase,
   GitHub,
-  PluginManager,
+  Plugins,
 } from '@liga/backend/lib';
 
 /**
@@ -324,7 +324,7 @@ async function sandboxGithub() {
  * @function
  */
 async function sandboxPluginManager() {
-  return PluginManager.download();
+  return Plugins.getPath();
 }
 
 /**

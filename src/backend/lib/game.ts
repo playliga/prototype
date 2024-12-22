@@ -4,7 +4,7 @@
  * @module
  */
 import * as FileManager from './file-manager';
-import * as PluginManager from './plugin-manager';
+import * as PluginManager from './plugins';
 import * as RCON from './rcon';
 import * as Scorebot from './scorebot';
 import * as Sqrl from 'squirrelly';

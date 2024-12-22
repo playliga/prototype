@@ -7,7 +7,7 @@ export * as Game from './game';
 export * as GitHub from './github';
 export * as ModManager from './mod-manager';
 export * as Ping from './ping';
-export * as PluginManager from './plugin-manager';
+export * as Plugins from './plugins';
 export * as RCON from './rcon';
 export * as Scorebot from './scorebot';
 export * as Simulator from './simulator';

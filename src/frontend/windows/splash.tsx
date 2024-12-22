@@ -39,10 +39,16 @@ enum UpdaterStatus {
  * @enum
  */
 enum PluginStatus {
-  Downloading = 'Downloading plugins...',
-  Finished = 'Plugins download finished.',
-  Error = 'Error: Could not download plugins.',
+  Checking = 'Checking for game plugins...',
+  Downloading = 'Downloading game plugins...',
+  Finished = 'Game plugins download finished.',
+  Installing = 'Installing game plugins...',
+  NoUpdates = 'No game plugin updates available.',
+  Error = 'Error: Could not download game plugins.',
 }
+
+/** @constant */
+const FAUX_TIMEOUT = 500;
 
 /**
  * The index component
@@ -53,8 +59,7 @@ function Index() {
   const [status, setStatus] = React.useState<DatabaseStatus | UpdaterStatus | PluginStatus>(
     UpdaterStatus.Checking,
   );
-
-  const FAUX_TIMEOUT = 500;
+  const [progress, setProgress] = React.useState<number>();
 
   // the updater is heavily event-driven so wrap it in a promise
   // to hold the app here while it runs through its lifecycle
@@ -86,24 +91,36 @@ function Index() {
     api.updater.install();
   }, [status]);
 
-  // if no updates were downloaded,
-  // we can now check for plugins
+  // the plugin manager is also event-driven so wrap it in a promise
+  // to hold the app here while it runs through its lifecycle
   React.useEffect(() => {
     if (status !== UpdaterStatus.NoUpdates) {
       return;
     }
 
-    Util.sleep(FAUX_TIMEOUT)
-      .then(() => {
-        setStatus(PluginStatus.Downloading);
-        return Util.sleep(FAUX_TIMEOUT);
-      })
-      .then(() => api.plugins.download())
-      .then(() => Util.sleep(FAUX_TIMEOUT))
-      .then(() => {
-        return Promise.resolve(setStatus(PluginStatus.Finished));
-      })
-      .catch(() => Promise.resolve(setStatus(PluginStatus.Error)));
+    Util.sleep(FAUX_TIMEOUT).then(
+      () =>
+        new Promise((resolve) => {
+          api.plugins.start();
+          api.ipc.on(Constants.IPCRoute.PLUGINS_CHECKING, () => setStatus(PluginStatus.Checking));
+          api.ipc.on(Constants.IPCRoute.PLUGINS_NO_UPDATE, () =>
+            resolve(setStatus(PluginStatus.NoUpdates)),
+          );
+          api.ipc.on(Constants.IPCRoute.PLUGINS_DOWNLOADING, () =>
+            setStatus(PluginStatus.Downloading),
+          );
+          api.ipc.on(Constants.IPCRoute.PLUGINS_DOWNLOAD_PROGRESS, setProgress);
+          api.ipc.on(Constants.IPCRoute.PLUGINS_INSTALLING, () =>
+            setStatus(PluginStatus.Installing),
+          );
+          api.ipc.on(Constants.IPCRoute.PLUGINS_FINISHED, () =>
+            resolve(setStatus(PluginStatus.Finished)),
+          );
+          api.ipc.on(Constants.IPCRoute.PLUGINS_ERROR, () =>
+            resolve(setStatus(PluginStatus.Error)),
+          );
+        }),
+    );
   }, [status]);
 
   // if plugins were downloaded, we can
@@ -130,15 +147,29 @@ function Index() {
       });
   }, [status]);
 
+  // for now hide the progress bar until plugin
+  // installation progress can be implemented
+  React.useEffect(() => {
+    if (status !== PluginStatus.Downloading && progress < 100) {
+      return;
+    }
+
+    setProgress(null);
+  }, [status]);
+
   return (
     <React.StrictMode>
       <main
-        className="center h-screen bg-cover bg-center"
+        className="center relative h-screen gap-5 bg-cover bg-center"
         style={{ backgroundImage: `url(${Background})` }}
       >
         <section className="center gap-5">
           <img src={Logo} className="size-32 object-cover" />
           <p>{status}</p>
+        </section>
+
+        <section className="relative w-2/3">
+          {!!progress && <progress className="progress absolute" value={progress} max="100" />}
         </section>
       </main>
     </React.StrictMode>

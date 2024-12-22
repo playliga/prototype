@@ -9,7 +9,7 @@ import is from 'electron-is';
 import AppInfo from 'package.json';
 import { app, dialog, ipcMain, shell } from 'electron';
 import { Constants, Util } from '@liga/shared';
-import { DatabaseClient, FileManager, Game, PluginManager, WindowManager } from '@liga/backend/lib';
+import { DatabaseClient, FileManager, Game, Plugins, WindowManager } from '@liga/backend/lib';
 
 export { default as IPCDatabaseHandler } from './database';
 export { default as IPCWIndowHandler } from './window';
@@ -21,6 +21,7 @@ export { default as IPCPlayHandler } from './play';
 export { default as IPCProfileHandler } from './profile';
 export { default as IPCTransferHandler } from './transfer';
 export { default as IPCIssuesHandler } from './issues';
+export { default as IPCPluginsHandler } from './plugins';
 
 /**
  * Gets application information such as name and
@@ -57,7 +58,7 @@ export function IPCGenericHandler() {
     try {
       await fs.promises.access(steamPath, fs.constants.F_OK);
       await fs.promises.access(gamePath, fs.constants.F_OK);
-      await fs.promises.access(PluginManager.getPath(), fs.constants.F_OK);
+      await fs.promises.access(Plugins.getPath(), fs.constants.F_OK);
       return Promise.resolve();
     } catch (error) {
       return Promise.resolve(error.message);
@@ -95,8 +96,5 @@ export function IPCGenericHandler() {
     // update the last seen version
     WindowManager.send(Constants.WindowIdentifier.Modal, { target: '/markdown/whats-new' });
     return fs.promises.writeFile(lastSeenVersionFilePath, whatsNewVersion, 'utf8');
-  });
-  ipcMain.handle(Constants.IPCRoute.PLUGINS_DOWNLOAD, async () => {
-    return PluginManager.download();
   });
 }

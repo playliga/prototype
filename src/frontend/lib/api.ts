@@ -133,7 +133,7 @@ export default {
     start: () => ipcRenderer.invoke(Constants.IPCRoute.PLAY_START),
   },
   plugins: {
-    download: () => ipcRenderer.invoke(Constants.IPCRoute.PLUGINS_DOWNLOAD),
+    start: () => ipcRenderer.send(Constants.IPCRoute.PLUGINS_START),
   },
   players: {
     all: <T = typeof Eagers.player>(query?: Prisma.PlayerFindManyArgs) =>
