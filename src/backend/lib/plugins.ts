@@ -1,5 +1,5 @@
 /**
- * Game plugin manager.
+ * Game plugins manager.
  *
  * @module
  */
@@ -8,11 +8,11 @@ import path from 'node:path';
 import fs from 'node:fs';
 import events from 'node:events';
 import log from 'electron-log';
+import compressing from 'compressing';
 import AppInfo from 'package.json';
 import { pipeline } from 'node:stream/promises';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
-import { extract } from './file-manager';
 
 /** @enum */
 export enum EventIdentifier {
@@ -23,6 +23,7 @@ export enum EventIdentifier {
   FINISHED = 'finished',
   INSTALL = 'installing',
   NO_UPDATE = 'no-updates',
+  UPDATE_AVAILABLE = 'update-available',
 }
 
 /** @interface */
@@ -34,6 +35,7 @@ export interface PluginEvents {
   [EventIdentifier.FINISHED]: () => void;
   [EventIdentifier.INSTALL]: () => void;
   [EventIdentifier.NO_UPDATE]: () => void;
+  [EventIdentifier.UPDATE_AVAILABLE]: () => void;
 }
 
 /**
@@ -63,6 +65,7 @@ export function getPath() {
  * @class
  */
 export class Manager extends events.EventEmitter {
+  private asset: GitHub.Asset;
   private github: GitHub.Application;
   public log: log.LogFunctions;
   public url: string;
@@ -72,6 +75,37 @@ export class Manager extends events.EventEmitter {
     this.github = new GitHub.Application(process.env.GH_ISSUES_CLIENT_ID, url);
     this.log = log.scope('plugins');
     this.url = url;
+  }
+
+  /**
+   * Getter for the path to the game
+   * plugins update zip file.
+   *
+   * @method
+   */
+  private get zipPath() {
+    return path.join(getPath(), path.basename(this.asset.browser_download_url));
+  }
+
+  /**
+   * Counts the number of headers (files) in a zip archive.
+   *
+   * @method
+   */
+  private async countFiles() {
+    let totalFiles = 0;
+
+    await new Promise((resolve, reject) => {
+      new compressing.zip.UncompressStream({ source: this.zipPath })
+        .on('error', reject)
+        .on('finish', resolve)
+        .on('entry', (_, __, next) => {
+          totalFiles++;
+          next();
+        });
+    });
+
+    return totalFiles;
   }
 
   /**
@@ -89,12 +123,12 @@ export class Manager extends events.EventEmitter {
   }
 
   /**
-   * Checks for updates and if any are found
-   * downloads the plugins from the repo.
+   * Checks for game plugins updates.
    *
+   * @param download Automatically download the update?
    * @method
    */
-  public async checkForUpdates() {
+  public async checkForUpdates(download = true) {
     this.emit(EventIdentifier.CHECKING);
 
     // grab latest release
@@ -104,37 +138,54 @@ export class Manager extends events.EventEmitter {
       latest = await this.github.getAllReleases();
     } catch (error) {
       this.log.error(error);
-      return this.emit(EventIdentifier.ERROR);
+      this.emit(EventIdentifier.ERROR);
+      return Promise.resolve();
     }
 
     // bail if no assets are found in the release
-    const asset = latest[0].assets.find((asset) => asset.name.includes('.zip'));
+    this.asset = latest[0].assets.find((asset) => asset.name.includes('.zip'));
 
-    if (!asset) {
-      return this.emit(EventIdentifier.NO_UPDATE);
+    if (!this.asset) {
+      this.emit(EventIdentifier.NO_UPDATE);
+      return Promise.resolve();
     }
 
     // initialize the plugins dir
-    const destination = path.join(getPath(), path.basename(asset.browser_download_url));
-
     try {
-      await fs.promises.access(destination, fs.constants.F_OK);
-      return this.emit(EventIdentifier.NO_UPDATE);
+      await fs.promises.access(this.zipPath, fs.constants.F_OK);
+      this.emit(EventIdentifier.NO_UPDATE);
+      return Promise.resolve();
     } catch (error) {
-      this.emit(EventIdentifier.DOWNLOADING);
       await this.init();
+      this.emit(EventIdentifier.UPDATE_AVAILABLE);
     }
 
+    // download and extract the plugins
+    if (download) {
+      await this.download();
+      await this.extract();
+    }
+  }
+
+  /**
+   * Downloads the plugins zip.
+   *
+   * @method
+   */
+  public async download() {
     // download the file
-    const response = await fetch(asset.browser_download_url);
+    const response = await fetch(this.asset.browser_download_url);
 
     if (!response.ok || !response.body) {
-      return this.emit(EventIdentifier.NO_UPDATE);
+      this.emit(EventIdentifier.NO_UPDATE);
+      return Promise.resolve();
+    } else {
+      this.emit(EventIdentifier.DOWNLOADING);
     }
 
     // track download progress
-    const totalSize = Number(response.headers.get('content-length'));
     const readableStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
+    const totalSize = Number(response.headers.get('content-length'));
     let downloadedSize = 0;
 
     readableStream.on('data', (chunk) => {
@@ -142,11 +193,72 @@ export class Manager extends events.EventEmitter {
       this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (downloadedSize / totalSize) * 100);
     });
 
-    // pipe the download to a file and extract
-    await pipeline(readableStream, fs.createWriteStream(destination));
-    this.emit(EventIdentifier.INSTALL);
+    // pipe the download to a file
+    return pipeline(readableStream, fs.createWriteStream(this.zipPath));
+  }
 
-    await extract(destination, path.dirname(getPath()));
-    this.emit(EventIdentifier.FINISHED);
+  /**
+   * Extracts the plugins zip.
+   *
+   * @method
+   */
+  public async extract() {
+    // in order to extract the file and provide progress, we need
+    // to first process the zip and count the number of files
+    let totalFiles = 0;
+
+    this.emit(EventIdentifier.INSTALL);
+    this.emit(EventIdentifier.DOWNLOAD_PROGRESS, 0.01);
+
+    try {
+      totalFiles = await this.countFiles();
+    } catch (error) {
+      this.log.error(error);
+      this.emit(EventIdentifier.ERROR);
+      return Promise.resolve();
+    }
+
+    // now we can extract the zip for real
+    // and track extraction progress
+    let processedFiles = 0;
+
+    new compressing.zip.UncompressStream({ source: this.zipPath })
+      .on('error', (error) => {
+        this.log.error(error);
+        this.emit(EventIdentifier.ERROR);
+      })
+      .on('finish', () => this.emit(EventIdentifier.FINISHED))
+      .on('entry', async (file, stream, next) => {
+        stream.on('end', () => {
+          processedFiles++;
+          this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (processedFiles / totalFiles) * 100);
+          next();
+        });
+
+        const to = path.join(path.dirname(getPath()), file.name);
+
+        // @todo: how to better handle race condition where
+        //        the file tree is not created in time
+        if (file.type === 'file') {
+          try {
+            await fs.promises.access(path.dirname(to), fs.constants.F_OK);
+          } catch (error) {
+            this.log.warn('could not process: %s', file.name);
+            await fs.promises.mkdir(path.dirname(to), { recursive: true });
+          }
+        }
+
+        try {
+          if (file.type === 'file') {
+            stream.pipe(fs.createWriteStream(to));
+          } else {
+            await fs.promises.mkdir(to, { recursive: true });
+            stream.resume();
+          }
+        } catch (error) {
+          this.log.error(error);
+          this.emit(EventIdentifier.ERROR);
+        }
+      });
   }
 }

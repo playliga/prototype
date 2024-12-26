@@ -126,7 +126,11 @@ function Index() {
   // if plugins were downloaded, we can
   // proceed connecting to the database
   React.useEffect(() => {
-    if (status !== PluginStatus.Finished && status !== PluginStatus.Error) {
+    if (
+      status !== PluginStatus.Finished &&
+      status !== PluginStatus.NoUpdates &&
+      status !== PluginStatus.Error
+    ) {
       return;
     }
 
@@ -145,16 +149,6 @@ function Index() {
         api.window.open(Constants.WindowIdentifier.Landing);
         api.window.close(Constants.WindowIdentifier.Splash);
       });
-  }, [status]);
-
-  // for now hide the progress bar until plugin
-  // installation progress can be implemented
-  React.useEffect(() => {
-    if (status !== PluginStatus.Downloading && progress < 100) {
-      return;
-    }
-
-    setProgress(null);
   }, [status]);
 
   return (
