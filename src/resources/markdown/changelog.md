@@ -1,3 +1,16 @@
+## 3.0.0-beta.23 (2024-12-31)
+
+### Features
+
+- added a mod manager ui ([#322](https://github.com/playliga/application/issues/322)) ([edc1686](https://github.com/playliga/application/commit/edc16865571a53393c6a52c0f8e8c9357dd5009c))
+- splash page now shows progress bar when downloading game plugins ([#260](https://github.com/playliga/application/issues/260)) ([dea03a6](https://github.com/playliga/application/commit/dea03a660f93fa823fa9c3c371755ae3d8370aee))
+
+### Bug Fixes
+
+- cosmetic adjustment to flag borders ([b736a4d](https://github.com/playliga/application/commit/b736a4d6f82c3a583cb8148aeba58490ff81dbde))
+- fix rounding errors with training exp ([#317](https://github.com/playliga/application/issues/317)) ([ca7f4f3](https://github.com/playliga/application/commit/ca7f4f33ea96bf3a3d632a0ebe5dd1933c036c07))
+- improved offline support ([#316](https://github.com/playliga/application/issues/316)) ([234a3f4](https://github.com/playliga/application/commit/234a3f41a6e92b676469fb40344178389054a2b3))
+
 ## 3.0.0-beta.22 (2024-12-18)
 
 ### Bug Fixes
