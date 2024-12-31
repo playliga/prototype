@@ -23,6 +23,7 @@ import {
   Firebase,
   GitHub,
   Plugins,
+  Mods,
 } from '@liga/backend/lib';
 
 /**
@@ -328,6 +329,16 @@ async function sandboxPluginManager() {
 }
 
 /**
+ * Tests the plugin-manager module.
+ *
+ * @function
+ */
+async function sandboxModManager() {
+  const mods = new Mods.Manager('https://github.com/playliga/mods.git');
+  return mods.all();
+}
+
+/**
  * Validates the provided sandbox type and runs it.
  *
  * @param type The type of sandbox to run.
@@ -350,6 +361,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'training',
     'github',
     'plugin-manager',
+    'mod-manager',
   ];
   const sandboxFns: Record<
     string,
@@ -362,6 +374,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxTraining
     | typeof sandboxGithub
     | typeof sandboxPluginManager
+    | typeof sandboxModManager
   > = {
     sandboxWorldgen,
     sandboxScore,
@@ -372,6 +385,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxTraining,
     sandboxGithub,
     sandboxPluginManager,
+    sandboxModManager,
   };
 
   if (!acceptedSandboxTypes.includes(type)) {

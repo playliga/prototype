@@ -129,6 +129,11 @@ export default {
         Array<Prisma.MatchGetPayload<T>>
       >,
   },
+  mods: {
+    all: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_ALL) as Promise<Array<ModMetadata>>,
+    download: (name: string) => ipcRenderer.send(Constants.IPCRoute.MODS_DOWNLOAD, name),
+    installed: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<string>,
+  },
   play: {
     start: () => ipcRenderer.invoke(Constants.IPCRoute.PLAY_START),
   },

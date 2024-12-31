@@ -5,7 +5,7 @@ export * as FileManager from './file-manager';
 export * as Firebase from './firebase';
 export * as Game from './game';
 export * as GitHub from './github';
-export * as ModManager from './mod-manager';
+export * as Mods from './mods';
 export * as Ping from './ping';
 export * as Plugins from './plugins';
 export * as RCON from './rcon';

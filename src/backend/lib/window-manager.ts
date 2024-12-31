@@ -235,17 +235,31 @@ export function create(id: string) {
   // load window details
   const { url, options, parentId, buildMenu } = WINDOW_CONFIGS[id];
 
+  // load parent window details
+  let parentWindow: BrowserWindow;
+
+  if (parentId) {
+    // if the provided parent id is not created, try to
+    // attach to whatever window is currently open
+    if (!get(parentId, false)) {
+      const [firstOpenWindow] = BrowserWindow.getAllWindows();
+      parentWindow = firstOpenWindow;
+    } else {
+      parentWindow = get(parentId);
+    }
+  }
+
   // determine screen size if none was
   // provided and it is not a modal
-  if (!parentId && !options.width && !options.height) {
+  if (!parentWindow && !options.width && !options.height) {
     const display = screen.getPrimaryDisplay();
     options.width = Math.floor(display.workArea.width * 0.85);
     options.height = Math.floor(display.workArea.height * 0.85);
   }
 
   // if it's a modal, base its size off of the parent
-  if (parentId && !options.width && !options.height) {
-    const [width, height] = get(parentId).getSize();
+  if (parentWindow && !options.width && !options.height) {
+    const [width, height] = parentWindow.getSize();
     options.width = Math.floor(width * 0.5);
     options.height = Math.floor(height * 0.85);
   }
@@ -255,8 +269,8 @@ export function create(id: string) {
     ...options,
     // have to set these in tandum otherwise the
     // parent window does not get disabled
-    parent: parentId && get(parentId),
-    modal: !!parentId,
+    parent: parentWindow,
+    modal: !!parentWindow,
   });
   window.loadURL(url);
   window.setMenu((!!buildMenu && buildMenu()) || null);

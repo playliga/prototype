@@ -32,6 +32,18 @@ interface GitHubIssueResponse {
   updated_at: string;
 }
 
+/**
+ * Mod's metadata file.
+ *
+ * @interface
+ */
+interface ModMetadata {
+  name: string;
+  author: string;
+  version: string;
+  description: string;
+}
+
 /** @namespace */
 declare namespace Clux {
   enum DuelBracketConfig {

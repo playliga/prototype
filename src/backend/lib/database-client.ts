@@ -33,7 +33,7 @@
  * @module
  */
 import * as sqlite3 from 'sqlite3';
-import * as ModManager from './mod-manager';
+import * as Mods from './mods';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -195,7 +195,7 @@ export default class DatabaseClient {
 
     // bail early if we're using a modded save
     try {
-      await ModManager.initModdedDatabase(newSavePath);
+      await Mods.Manager.initModdedDatabase(newSavePath);
       return Promise.resolve(newSavePath);
     } catch (error) {
       this.log.info(error);

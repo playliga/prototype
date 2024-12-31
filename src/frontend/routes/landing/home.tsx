@@ -8,6 +8,7 @@ import Logo from '@liga/frontend/assets/icon.png';
 import { formatRelative } from 'date-fns';
 import { upperFirst } from 'lodash';
 import { useNavigate } from 'react-router-dom';
+import { Constants } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { FaClock } from 'react-icons/fa';
 
@@ -67,8 +68,20 @@ export default function () {
             {item.label}
           </button>
         ))}
+        <span className="divider mb-0 mt-0" />
+        <button
+          className="btn btn-ghost btn-md btn-block"
+          onClick={() =>
+            api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+              target: '/mods',
+              payload: { parentId: Constants.WindowIdentifier.Landing },
+            })
+          }
+        >
+          Mod Manager
+        </button>
       </nav>
-      <footer className="w-full">
+      <footer className="w-full px-2">
         <span className="divider mb-0 mt-0" />
         <p>
           <small>{'v' + state.appInfo?.version}</small>
