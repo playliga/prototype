@@ -740,43 +740,44 @@ export async function recordMatchResults() {
             tier: true,
           },
         });
-        const date = addDays(today, triggeredCompetition.tier.triggerOffsetDays);
 
-        // bail if entry already exists
-        const existingEntry = await DatabaseClient.prisma.calendar.findFirst({
-          where: {
-            date: {
-              gte: today.toISOString(),
-              lte: date.toISOString(),
-            },
-            type: Constants.CalendarEntry.COMPETITION_START,
-            payload: triggeredCompetition.id.toString(),
-          },
-        });
-
-        if (existingEntry) {
-          return Promise.resolve();
-        }
-
-        Engine.Runtime.Instance.log.debug(
-          'Scheduling start date for %s on %s...',
-          triggeredCompetition.tier.name,
-          format(date, Constants.Application.CALENDAR_DATE_FORMAT),
-        );
-
-        try {
-          await DatabaseClient.prisma.calendar.create({
-            data: {
-              date: date.toISOString(),
+        if (triggeredCompetition) {
+          const date = addDays(today, triggeredCompetition.tier.triggerOffsetDays);
+          const existingEntry = await DatabaseClient.prisma.calendar.findFirst({
+            where: {
+              date: {
+                gte: today.toISOString(),
+                lte: date.toISOString(),
+              },
               type: Constants.CalendarEntry.COMPETITION_START,
               payload: triggeredCompetition.id.toString(),
             },
           });
-        } catch (e) {
-          Engine.Runtime.Instance.log.warn(
-            'Existing start date for %s found. Skipping...',
+
+          if (existingEntry) {
+            return Promise.resolve();
+          }
+
+          Engine.Runtime.Instance.log.debug(
+            'Scheduling start date for %s on %s...',
             triggeredCompetition.tier.name,
+            format(date, Constants.Application.CALENDAR_DATE_FORMAT),
           );
+
+          try {
+            await DatabaseClient.prisma.calendar.create({
+              data: {
+                date: date.toISOString(),
+                type: Constants.CalendarEntry.COMPETITION_START,
+                payload: triggeredCompetition.id.toString(),
+              },
+            });
+          } catch (e) {
+            Engine.Runtime.Instance.log.warn(
+              'Existing start date for %s found. Skipping...',
+              triggeredCompetition.tier.name,
+            );
+          }
         }
       }
 

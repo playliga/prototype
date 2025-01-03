@@ -327,11 +327,16 @@ export enum TierSlug {
   ESWC_CHAMPIONS = 'eswc:champions',
   ESWC_PLAYOFFS = 'eswc:playoffs',
   LEAGUE_ADVANCED = 'league:advanced',
+  LEAGUE_ADVANCED_PLAYOFFS = 'league:advanced:playoffs',
   LEAGUE_CUP = 'league:cup',
   LEAGUE_INTERMEDIATE = 'league:intermediate',
+  LEAGUE_INTERMEDIATE_PLAYOFFS = 'league:intermediate:playoffs',
   LEAGUE_MAIN = 'league:main',
+  LEAGUE_MAIN_PLAYOFFS = 'league:main:playoffs',
   LEAGUE_OPEN = 'league:open',
+  LEAGUE_OPEN_PLAYOFFS = 'league:open:playoffs',
   LEAGUE_PREMIER = 'league:premier',
+  LEAGUE_PREMIER_PLAYOFFS = 'league:premier:playoffs',
 }
 
 /**
@@ -433,7 +438,7 @@ export enum Zones {
   LEAGUE_PROMOTION_AUTO_END = 3,
   LEAGUE_PROMOTION_PLAYOFFS_START = 3,
   LEAGUE_PROMOTION_PLAYOFFS_END = 6,
-  LEAGUE_MID_TABLE_START = 4,
+  LEAGUE_MID_TABLE_START = 5,
   LEAGUE_MID_TABLE_END = 17,
   LEAGUE_RELEGATION_START = 18,
   LEAGUE_RELEGATION_END = 20,
@@ -461,14 +466,14 @@ export enum Zones {
 export const Awards = [
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_OPEN,
+    target: TierSlug.LEAGUE_OPEN_PLAYOFFS,
     type: AwardType.CHAMPION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_OPEN,
+    target: TierSlug.LEAGUE_OPEN_PLAYOFFS,
     type: AwardType.PROMOTION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
@@ -476,14 +481,14 @@ export const Awards = [
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_INTERMEDIATE,
+    target: TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
     type: AwardType.CHAMPION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_INTERMEDIATE,
+    target: TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
     type: AwardType.PROMOTION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
@@ -491,14 +496,14 @@ export const Awards = [
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_MAIN,
+    target: TierSlug.LEAGUE_MAIN_PLAYOFFS,
     type: AwardType.CHAMPION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_MAIN,
+    target: TierSlug.LEAGUE_MAIN_PLAYOFFS,
     type: AwardType.PROMOTION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
@@ -506,14 +511,14 @@ export const Awards = [
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_ADVANCED,
+    target: TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
     type: AwardType.CHAMPION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
   },
   {
     on: CalendarEntry.COMPETITION_END,
-    target: TierSlug.LEAGUE_ADVANCED,
+    target: TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
     type: AwardType.PROMOTION,
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: Zones.LEAGUE_PROMOTION_AUTO_START,
@@ -700,11 +705,16 @@ export const IdiomaticTier: Record<TierSlug | string, string> = {
   [TierSlug.ESWC_CHAMPIONS]: 'Champions Stage',
   [TierSlug.ESWC_PLAYOFFS]: 'Champions Stage Playoffs',
   [TierSlug.LEAGUE_OPEN]: 'Open Division',
+  [TierSlug.LEAGUE_OPEN_PLAYOFFS]: 'Open Division Playoffs',
   [TierSlug.LEAGUE_CUP]: 'Open Cup',
   [TierSlug.LEAGUE_INTERMEDIATE]: 'Intermediate Division',
+  [TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS]: 'Intermediate Division Playoffs',
   [TierSlug.LEAGUE_MAIN]: 'Main Division',
+  [TierSlug.LEAGUE_MAIN_PLAYOFFS]: 'Main Division Playoffs',
   [TierSlug.LEAGUE_ADVANCED]: 'Advanced Division',
+  [TierSlug.LEAGUE_ADVANCED_PLAYOFFS]: 'Advanced Division Playoffs',
   [TierSlug.LEAGUE_PREMIER]: 'Premier Division',
+  [TierSlug.LEAGUE_PREMIER_PLAYOFFS]: 'Premier Division Playoffs',
 };
 
 /** @constant */
@@ -850,11 +860,16 @@ export const PrizePool: Record<TierSlug | string, { total: number; distribution:
     [TierSlug.ESWC_CHAMPIONS]: { total: 0, distribution: [] },
     [TierSlug.ESWC_PLAYOFFS]: { total: 75_000, distribution: [50, 35, 15] },
     [TierSlug.LEAGUE_OPEN]: { total: 2_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_OPEN_PLAYOFFS]: { total: 0, distribution: [] },
     [TierSlug.LEAGUE_CUP]: { total: 5_000, distribution: [75, 25] },
     [TierSlug.LEAGUE_INTERMEDIATE]: { total: 3_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS]: { total: 0, distribution: [] },
     [TierSlug.LEAGUE_MAIN]: { total: 4_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_MAIN_PLAYOFFS]: { total: 0, distribution: [] },
     [TierSlug.LEAGUE_ADVANCED]: { total: 5_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_ADVANCED_PLAYOFFS]: { total: 0, distribution: [] },
     [TierSlug.LEAGUE_PREMIER]: { total: 10_000, distribution: [50, 35, 15] },
+    [TierSlug.LEAGUE_PREMIER_PLAYOFFS]: { total: 0, distribution: [] },
   };
 
 /**

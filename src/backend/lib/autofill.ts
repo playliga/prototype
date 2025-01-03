@@ -49,6 +49,13 @@ export const Items: Array<Item> = [
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_OPEN_PLAYOFFS,
+        start: -1,
+        season: -1,
+      },
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_OPEN,
         start: Constants.Zones.LEAGUE_MID_TABLE_START,
         season: -1,
@@ -65,6 +72,25 @@ export const Items: Array<Item> = [
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_OPEN,
         start: 0,
+      },
+    ],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_OPEN_PLAYOFFS,
+    on: Constants.CalendarEntry.SEASON_START,
+    entries: [],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_OPEN_PLAYOFFS,
+    on: Constants.CalendarEntry.COMPETITION_START,
+    entries: [
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_OPEN,
+        start: 0,
+        end: 4,
+        season: 0,
       },
     ],
   },
@@ -75,9 +101,16 @@ export const Items: Array<Item> = [
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
-        target: Constants.TierSlug.LEAGUE_OPEN,
+        target: Constants.TierSlug.LEAGUE_OPEN_PLAYOFFS,
         start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
+        start: -1,
         season: -1,
       },
       {
@@ -98,8 +131,35 @@ export const Items: Array<Item> = [
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_OPEN,
+        start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
+        end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_INTERMEDIATE,
         start: 0,
+      },
+    ],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
+    on: Constants.CalendarEntry.SEASON_START,
+    entries: [],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
+    on: Constants.CalendarEntry.COMPETITION_START,
+    entries: [
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_INTERMEDIATE,
+        start: 0,
+        end: 4,
+        season: 0,
       },
     ],
   },
@@ -110,9 +170,16 @@ export const Items: Array<Item> = [
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
-        target: Constants.TierSlug.LEAGUE_INTERMEDIATE,
+        target: Constants.TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
         start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_MAIN_PLAYOFFS,
+        start: -1,
         season: -1,
       },
       {
@@ -133,8 +200,35 @@ export const Items: Array<Item> = [
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_INTERMEDIATE,
+        start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
+        end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_MAIN,
         start: 0,
+      },
+    ],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_MAIN_PLAYOFFS,
+    on: Constants.CalendarEntry.SEASON_START,
+    entries: [],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_MAIN_PLAYOFFS,
+    on: Constants.CalendarEntry.COMPETITION_START,
+    entries: [
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_MAIN,
+        start: 0,
+        end: 4,
+        season: 0,
       },
     ],
   },
@@ -145,9 +239,16 @@ export const Items: Array<Item> = [
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
-        target: Constants.TierSlug.LEAGUE_MAIN,
+        target: Constants.TierSlug.LEAGUE_MAIN_PLAYOFFS,
         start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
+        start: -1,
         season: -1,
       },
       {
@@ -168,8 +269,35 @@ export const Items: Array<Item> = [
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_MAIN,
+        start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
+        end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_ADVANCED,
         start: 0,
+      },
+    ],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
+    on: Constants.CalendarEntry.SEASON_START,
+    entries: [],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
+    on: Constants.CalendarEntry.COMPETITION_START,
+    entries: [
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_ADVANCED,
+        start: 0,
+        end: 4,
+        season: 0,
       },
     ],
   },
@@ -180,25 +308,25 @@ export const Items: Array<Item> = [
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
+        start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
+        end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
+        season: -1,
+      },
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_PREMIER,
+        start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
+        end: Constants.Zones.LEAGUE_MID_TABLE_END,
+        season: -1,
+      },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_ADVANCED,
         start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
-        season: -1,
-      },
-      {
-        action: Action.INCLUDE,
-        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
-        target: Constants.TierSlug.LEAGUE_PREMIER,
-        start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
-        end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
-        season: -1,
-      },
-      {
-        action: Action.INCLUDE,
-        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
-        target: Constants.TierSlug.LEAGUE_PREMIER,
-        start: Constants.Zones.LEAGUE_MID_TABLE_START,
-        end: Constants.Zones.LEAGUE_MID_TABLE_END,
         season: -1,
       },
       {
@@ -206,6 +334,25 @@ export const Items: Array<Item> = [
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_PREMIER,
         start: 0,
+      },
+    ],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_PREMIER_PLAYOFFS,
+    on: Constants.CalendarEntry.SEASON_START,
+    entries: [],
+  },
+  {
+    tierSlug: Constants.TierSlug.LEAGUE_PREMIER_PLAYOFFS,
+    on: Constants.CalendarEntry.COMPETITION_START,
+    entries: [
+      {
+        action: Action.INCLUDE,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_PREMIER,
+        start: 0,
+        end: 4,
+        season: 0,
       },
     ],
   },
@@ -630,7 +777,7 @@ async function handleIncludeAction(
   }
 
   const competitors = competition.competitors.slice(
-    Math.max(0, entry.start - 1),
+    entry.start < 0 ? entry.start : Math.max(0, entry.start - 1),
     entry.end || undefined,
   );
 
@@ -727,17 +874,37 @@ export async function parse(
   // use the fallback entries to backfill the competitors list
   const quota = item.entries
     .filter((entry) => entry.action === Action.INCLUDE)
-    .map((entry) => (entry.end || tier.size) - Math.max(0, entry.start - 1))
+    .map((entry) =>
+      entry.start < 0
+        ? Math.abs(entry.start)
+        : (entry.end || tier.size) - Math.max(0, entry.start - 1),
+    )
     .reduce((a, b) => a + b, 0);
 
   if (!quota || competitors.length < quota) {
-    const fallbackList = flatten(
+    let fallbackList: Awaited<ReturnType<typeof handleIncludeAction>>;
+
+    // use the standard include action logic if the
+    // fallback entry contains a season property
+    fallbackList = flatten(
       await Promise.all(
         item.entries
-          .filter((entry) => entry.action === Action.FALLBACK)
-          .map((entry) => handleFallbackAction(entry, tier, federation)),
+          .filter((entry) => entry.action === Action.FALLBACK && 'season' in entry)
+          .map((entry) => handleIncludeAction(entry, federation)),
       ),
     );
+
+    // if that still doesn't meet the quota, then use the default fallback
+    if (!fallbackList.length || fallbackList.length < quota - competitors.length) {
+      fallbackList = flatten(
+        await Promise.all(
+          item.entries
+            .filter((entry) => entry.action === Action.FALLBACK)
+            .map((entry) => handleFallbackAction(entry, tier, federation)),
+        ),
+      );
+    }
+
     competitors.push(...differenceBy(fallbackList, competitors, 'id'));
   }
 
