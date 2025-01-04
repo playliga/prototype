@@ -198,7 +198,7 @@ export default function () {
         name: true,
       },
       where: {
-        prestige: Constants.Prestige.findIndex(
+        tier: Constants.Prestige.findIndex(
           (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
         ),
         country: {
