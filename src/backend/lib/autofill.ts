@@ -899,7 +899,7 @@ export async function parse(
       fallbackList = flatten(
         await Promise.all(
           item.entries
-            .filter((entry) => entry.action === Action.FALLBACK)
+            .filter((entry) => entry.action === Action.FALLBACK && !entry.season)
             .map((entry) => handleFallbackAction(entry, tier, federation)),
         ),
       );
