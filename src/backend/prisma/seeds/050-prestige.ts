@@ -36,6 +36,9 @@ export default async function (prisma: PrismaClient) {
   // different levels of prestige
   const tiers = await prisma.tier.findMany({
     where: {
+      slug: {
+        in: Constants.Prestige,
+      },
       league: {
         slug: Constants.LeagueSlug.ESPORTS_LEAGUE,
       },
