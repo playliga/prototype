@@ -230,7 +230,7 @@ export default function () {
             >
               <img
                 alt={tierSlug}
-                src={`resources://trophies/${tierSlug.replace(':', '-')}.svg`}
+                src={`resources://trophies/${tierSlug.replace(/:/gi, '-')}.svg`}
                 className="w-2/3"
               />
               <p className="text-4xl font-bold">{honors[tierSlug]}</p>
