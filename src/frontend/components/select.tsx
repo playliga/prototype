@@ -3,14 +3,12 @@
  *
  * @module
  */
+import React from 'react';
 import cx from 'classnames';
 import type { Prisma } from '@prisma/client';
 import ReactSelect, {
-  ControlProps as ReactSelectControlProps,
   GroupBase as ReactSelectGroupBase,
-  OptionProps as ReactSelectOptionProps,
   Props as ReactSelectProps,
-  components as ReactSelectComponents,
 } from 'react-select';
 
 /** @interface */
@@ -98,37 +96,12 @@ export function findTeamOptionByValue(
 export function CountrySelect(props: CountrySelectProps) {
   return (
     <Select
-      components={{
-        Control: (
-          innerProps: ReactSelectControlProps<
-            CountryOptionProps,
-            false,
-            ReactSelectGroupBase<CountryOptionProps>
-          >,
-        ) => {
-          const [selection] = innerProps.getValue();
-          return (
-            <ReactSelectComponents.Control {...innerProps}>
-              {!!selection && <span className={cx('fp', 'ml-4', selection.code.toLowerCase())} />}
-              {innerProps.children}
-            </ReactSelectComponents.Control>
-          );
-        },
-        Option: (
-          innerProps: ReactSelectOptionProps<
-            CountryOptionProps,
-            false,
-            ReactSelectGroupBase<CountryOptionProps>
-          >,
-        ) => {
-          return (
-            <ReactSelectComponents.Option {...innerProps}>
-              <span className={cx('fp', 'mr-2', innerProps.data.code.toLowerCase())} />
-              {innerProps.children}
-            </ReactSelectComponents.Option>
-          );
-        },
-      }}
+      formatOptionLabel={(option: CountryOptionProps) => (
+        <React.Fragment>
+          <span className={cx('fp', 'mr-2', option.code.toLowerCase())} />
+          <span>{option.name}</span>
+        </React.Fragment>
+      )}
       {...props}
     />
   );
@@ -143,37 +116,12 @@ export function CountrySelect(props: CountrySelectProps) {
 export function TeamSelect(props: TeamSelectProps) {
   return (
     <Select
-      components={{
-        Control: (
-          innerProps: ReactSelectControlProps<
-            TeamOptionProps,
-            false,
-            ReactSelectGroupBase<TeamOptionProps>
-          >,
-        ) => {
-          const [selection] = innerProps.getValue();
-          return (
-            <ReactSelectComponents.Control {...innerProps}>
-              {!!selection && <img src={selection.blazon} className="ml-4 inline-block size-4" />}
-              {innerProps.children}
-            </ReactSelectComponents.Control>
-          );
-        },
-        Option: (
-          innerProps: ReactSelectOptionProps<
-            TeamOptionProps,
-            false,
-            ReactSelectGroupBase<TeamOptionProps>
-          >,
-        ) => {
-          return (
-            <ReactSelectComponents.Option {...innerProps}>
-              <img src={innerProps.data.blazon} className="mr-2 inline-block size-4" />
-              {innerProps.children}
-            </ReactSelectComponents.Option>
-          );
-        },
-      }}
+      formatOptionLabel={(option: TeamOptionProps) => (
+        <React.Fragment>
+          <img src={option.blazon} className="mr-2 inline-block size-4" />
+          <span>{option.name}</span>
+        </React.Fragment>
+      )}
       {...props}
     />
   );
