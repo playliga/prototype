@@ -167,8 +167,9 @@ export default function () {
     // set the starters
     await DatabaseClient.prisma.player.updateMany({
       where: {
-        profile: null,
-        teamId: team.id,
+        id: {
+          in: squad.slice(0, Constants.Application.SQUAD_MIN_LENGTH - 1).map((player) => player.id),
+        },
       },
       data: {
         starter: true,
