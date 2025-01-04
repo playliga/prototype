@@ -67,7 +67,7 @@ function findSeasonDivision(
   const competition = competitions.find(
     (competition) =>
       competition.season === season &&
-      competition.tier.league.slug === Constants.LeagueSlug.ESPORTS_LEAGUE,
+      Constants.Prestige.includes(competition.tier.slug as Constants.TierSlug),
   );
 
   if (!competition) {
