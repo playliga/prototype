@@ -46,6 +46,7 @@ export const Items: Array<Item> = [
     tierSlug: Constants.TierSlug.LEAGUE_OPEN,
     on: Constants.CalendarEntry.SEASON_START,
     entries: [
+      // last place from playoffs (1 player)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -53,6 +54,7 @@ export const Items: Array<Item> = [
         start: -1,
         season: -1,
       },
+      // 5th thru 20th (16 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -60,6 +62,7 @@ export const Items: Array<Item> = [
         start: Constants.Zones.LEAGUE_MID_TABLE_START,
         season: -1,
       },
+      // 18th thru 20th (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -72,6 +75,15 @@ export const Items: Array<Item> = [
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_OPEN,
         start: 0,
+      },
+      // @todo: remove after beta
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_OPEN,
+        start: 4,
+        end: 4,
+        season: -1,
       },
     ],
   },
@@ -98,6 +110,7 @@ export const Items: Array<Item> = [
     tierSlug: Constants.TierSlug.LEAGUE_INTERMEDIATE,
     on: Constants.CalendarEntry.SEASON_START,
     entries: [
+      // 1st thru 3rd open playoffs (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -106,6 +119,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
         season: -1,
       },
+      // last place im playoffs (1 player)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -113,6 +127,7 @@ export const Items: Array<Item> = [
         start: -1,
         season: -1,
       },
+      // 5th thru 17th im (13 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -121,6 +136,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_MID_TABLE_END,
         season: -1,
       },
+      // 18th thru 20th main (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -128,6 +144,13 @@ export const Items: Array<Item> = [
         start: Constants.Zones.LEAGUE_RELEGATION_START,
         season: -1,
       },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_INTERMEDIATE,
+        start: 0,
+      },
+      // @todo: remove after beta
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -140,7 +163,9 @@ export const Items: Array<Item> = [
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_INTERMEDIATE,
-        start: 0,
+        start: 4,
+        end: 4,
+        season: -1,
       },
     ],
   },
@@ -167,6 +192,7 @@ export const Items: Array<Item> = [
     tierSlug: Constants.TierSlug.LEAGUE_MAIN,
     on: Constants.CalendarEntry.SEASON_START,
     entries: [
+      // 1st thru 3rd im playoffs (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -175,6 +201,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
         season: -1,
       },
+      // last place main playoffs (1 player)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -182,6 +209,7 @@ export const Items: Array<Item> = [
         start: -1,
         season: -1,
       },
+      // 5th thru 17th main (13 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -190,6 +218,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_MID_TABLE_END,
         season: -1,
       },
+      // 18th thru 20th advanced (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -197,6 +226,13 @@ export const Items: Array<Item> = [
         start: Constants.Zones.LEAGUE_RELEGATION_START,
         season: -1,
       },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_MAIN,
+        start: 0,
+      },
+      // @todo: remove after beta
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -209,7 +245,9 @@ export const Items: Array<Item> = [
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_MAIN,
-        start: 0,
+        start: 4,
+        end: 4,
+        season: -1,
       },
     ],
   },
@@ -236,6 +274,7 @@ export const Items: Array<Item> = [
     tierSlug: Constants.TierSlug.LEAGUE_ADVANCED,
     on: Constants.CalendarEntry.SEASON_START,
     entries: [
+      // 1st thru 3rd main playoffs (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -244,6 +283,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
         season: -1,
       },
+      // last place advanced playoffs (1 player)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -251,6 +291,7 @@ export const Items: Array<Item> = [
         start: -1,
         season: -1,
       },
+      // 5th thru 17th advanced (13 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -259,6 +300,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_MID_TABLE_END,
         season: -1,
       },
+      // 18th thru 20th premier (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -266,6 +308,13 @@ export const Items: Array<Item> = [
         start: Constants.Zones.LEAGUE_RELEGATION_START,
         season: -1,
       },
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_ADVANCED,
+        start: 0,
+      },
+      // @todo: remove after beta
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -278,7 +327,9 @@ export const Items: Array<Item> = [
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_ADVANCED,
-        start: 0,
+        start: 4,
+        end: 4,
+        season: -1,
       },
     ],
   },
@@ -305,6 +356,7 @@ export const Items: Array<Item> = [
     tierSlug: Constants.TierSlug.LEAGUE_PREMIER,
     on: Constants.CalendarEntry.SEASON_START,
     entries: [
+      // 1st thru 3rd advanced playoffs (3 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -313,6 +365,7 @@ export const Items: Array<Item> = [
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
         season: -1,
       },
+      // 1st thru 17th premier (17 players)
       {
         action: Action.INCLUDE,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
@@ -324,16 +377,17 @@ export const Items: Array<Item> = [
       {
         action: Action.FALLBACK,
         from: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        target: Constants.TierSlug.LEAGUE_PREMIER,
+        start: 0,
+      },
+      // @todo: remove after beta
+      {
+        action: Action.FALLBACK,
+        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
         target: Constants.TierSlug.LEAGUE_ADVANCED,
         start: Constants.Zones.LEAGUE_PROMOTION_AUTO_START,
         end: Constants.Zones.LEAGUE_PROMOTION_AUTO_END,
         season: -1,
-      },
-      {
-        action: Action.FALLBACK,
-        from: Constants.LeagueSlug.ESPORTS_LEAGUE,
-        target: Constants.TierSlug.LEAGUE_PREMIER,
-        start: 0,
       },
     ],
   },
