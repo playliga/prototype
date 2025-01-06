@@ -81,6 +81,18 @@ export const data: Array<Prisma.BonusCreateInput> = [
     name: 'de_tuscan',
     stats: JSON.stringify({ skill: 1 }),
   },
+  {
+    type: Constants.BonusType.FACILITY,
+    name: 'Small Training Facility',
+    stats: JSON.stringify({ skill: 1, aggression: 1, reactionTime: 1, attackDelay: 1 }),
+    cost: 250_000,
+  },
+  {
+    type: Constants.BonusType.FACILITY,
+    name: 'Esports Arena',
+    stats: JSON.stringify({ skill: 4, aggression: 4, reactionTime: 4, attackDelay: 4 }),
+    cost: 750_000,
+  },
 ];
 
 /**

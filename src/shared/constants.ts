@@ -44,6 +44,7 @@ export enum AwardType {
 export enum BonusType {
   MAP,
   SERVER,
+  FACILITY,
 }
 
 /** @enum */

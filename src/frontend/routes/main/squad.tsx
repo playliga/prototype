@@ -106,6 +106,9 @@ export default function () {
   const [trainingBonuses, setTrainingBonuses] = React.useState<
     Awaited<ReturnType<typeof api.bonus.all>>
   >([]);
+  const [trainingFacilityId, setTrainingFacilityId] = React.useState<number>(
+    Number(localStorage.getItem('trainingFacilityId')),
+  );
   const [trainingMapId, setTrainingMapId] = React.useState<number>(
     Number(localStorage.getItem('trainingMapId')),
   );
@@ -158,9 +161,17 @@ export default function () {
     () => trainingBonuses.filter((bonus) => bonus.type === Constants.BonusType.SERVER),
     [trainingBonuses],
   );
+  const trainingFacilities = React.useMemo(
+    () => trainingBonuses.filter((bonus) => bonus.type === Constants.BonusType.FACILITY),
+    [trainingBonuses],
+  );
   const trainingServersBuy = React.useMemo(
     () => trainingServers.filter((server) => server.cost && !server.profileId),
     [trainingServers],
+  );
+  const trainingFacilitiesBuy = React.useMemo(
+    () => trainingFacilities.filter((facility) => facility.cost && !facility.profileId),
+    [trainingFacilities],
   );
   const trainingAllowed = React.useMemo(
     () =>
@@ -181,6 +192,18 @@ export default function () {
       setTrainingServerId(trainingServers[0].id);
     }
   }, [trainingServers]);
+
+  React.useEffect(() => {
+    if (!trainingFacilities.length) {
+      return;
+    }
+
+    const trainingFacilitiesOwned = trainingFacilities.filter((facility) => facility.profileId);
+
+    if (trainingFacilitiesOwned.length && !trainingFacilityId) {
+      setTrainingFacilityId(trainingFacilitiesOwned[0].id);
+    }
+  }, [trainingFacilities]);
 
   return (
     <div className="dashboard">
@@ -401,13 +424,18 @@ export default function () {
                   onClick={async () => {
                     localStorage.setItem('trainingServerId', trainingServerId.toString());
                     localStorage.setItem('trainingMapId', trainingMapId.toString());
+                    localStorage.setItem('trainingFacilityId', trainingFacilityId.toString());
                     dispatch(workingUpdate(true));
 
                     for (const status of trainingStatuses) {
                       setTrainingStatus(status);
 
                       if (/drills/gi.test(status)) {
-                        await api.profiles.train([trainingServerId, trainingMapId]);
+                        await api.profiles.train([
+                          trainingServerId,
+                          trainingMapId,
+                          trainingFacilityId,
+                        ]);
                         continue;
                       }
 
@@ -475,6 +503,39 @@ export default function () {
                     </select>
                   </article>
                 </section>
+                <section>
+                  <header>
+                    <h3>Facility</h3>
+                    <BonusSummaryLabel
+                      data={trainingFacilities.find(
+                        (facility) => facility.id === trainingFacilityId,
+                      )}
+                    />
+                  </header>
+                  <article>
+                    <select
+                      className="select w-full"
+                      disabled={
+                        !trainingAllowed ||
+                        !!trainingStatus ||
+                        !trainingFacilities.filter((facility) => facility.profileId).length
+                      }
+                      onChange={(event) => setTrainingFacilityId(Number(event.target.value))}
+                      value={trainingFacilityId}
+                    >
+                      {!trainingFacilities.filter((facility) => facility.profileId).length && (
+                        <option value="">None</option>
+                      )}
+                      {trainingFacilities
+                        .filter((facility) => facility.profileId)
+                        .map((facility) => (
+                          <option key={facility.id} value={facility.id}>
+                            {facility.name}
+                          </option>
+                        ))}
+                    </select>
+                  </article>
+                </section>
               </fieldset>
             </form>
             <article className="stack-y !gap-0 !border-t-0">
@@ -515,6 +576,58 @@ export default function () {
                             }
                             onClick={() =>
                               api.bonus.buy(server.id).then(api.bonus.all).then(setTrainingBonuses)
+                            }
+                          >
+                            <FaShoppingBag />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </footer>
+            </article>
+            <article className="stack-y !gap-0 !border-t-0">
+              <header className="prose">
+                <h2>Facilities</h2>
+              </header>
+              <footer>
+                <table className="table table-fixed">
+                  <thead>
+                    <tr>
+                      <th title="Server Name" className="w-3/5">
+                        Name
+                      </th>
+                      <th className="w-1/5 text-center">Cost</th>
+                      <th className="w-1/5 text-center">Purchase</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trainingFacilitiesBuy.map((facility) => (
+                      <tr key={facility.id + '__facility'}>
+                        <td title={facility.name}>
+                          <p>{facility.name}</p>
+                          <BonusSummaryLabel data={facility} />
+                        </td>
+                        <td className="text-center">{Util.formatCurrency(facility.cost)}</td>
+                        <td
+                          className="text-center"
+                          title={
+                            state.profile && (state.profile.team.earnings || 0) < facility.cost
+                              ? 'Win more matches to earn more money and buy this training boost!'
+                              : ''
+                          }
+                        >
+                          <button
+                            className="btn btn-primary btn-sm"
+                            disabled={
+                              state.profile && (state.profile.team.earnings || 0) < facility.cost
+                            }
+                            onClick={() =>
+                              api.bonus
+                                .buy(facility.id)
+                                .then(api.bonus.all)
+                                .then(setTrainingBonuses)
                             }
                           >
                             <FaShoppingBag />

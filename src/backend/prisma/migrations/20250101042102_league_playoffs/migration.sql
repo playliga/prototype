@@ -4,7 +4,7 @@
  * Leverages `UNION ALL` to create virtual
  * tables to insert data dynamically.
  *
- * @todo: remove after beta when db is reset
+ * @todo: remove after beta
  */
 INSERT OR IGNORE INTO "Tier" (
   "name",
