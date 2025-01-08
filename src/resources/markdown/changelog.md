@@ -1,3 +1,18 @@
+## 3.0.0-beta.24 (2025-01-08)
+
+### Features
+
+- added league playoffs ([#237](https://github.com/playliga/application/issues/237)) ([3986a75](https://github.com/playliga/application/commit/3986a75b62fe2eb6b1cf668a9ca1d1fde7fcca18))
+- added facilities training bonus ([#327](https://github.com/playliga/application/issues/327)) ([2c49c4e](https://github.com/playliga/application/commit/2c49c4e7bf8fbafc55f591fe5a0c6647a0448282))
+
+### Bug Fixes
+
+- adjust prices for training bonuses ([#330](https://github.com/playliga/application/issues/330)) ([49413a9](https://github.com/playliga/application/commit/49413a9aa7fc30224f3c6944e5214d3307e5e8c7))
+- fix rare occurrences where user's team is not added to any competitions ([#242](https://github.com/playliga/application/issues/242)) ([4da9503](https://github.com/playliga/application/commit/4da95035fdd017a426b1913d74c8b9c363b91f18))
+- improved team and country dropdown performance ([#325](https://github.com/playliga/application/issues/325)) ([3289e65](https://github.com/playliga/application/commit/3289e657e981de726810983e941beea462e2659b))
+- only set 4 starters when creating new career ([#326](https://github.com/playliga/application/issues/326)) ([001633b](https://github.com/playliga/application/commit/001633b13b427ddb95997913020ef83e64413ba0))
+- tweaked team and player country distribution ([#319](https://github.com/playliga/application/issues/319)) ([eb8aa00](https://github.com/playliga/application/commit/eb8aa002fc64fe910fbf253903418225f093c32f))
+
 ## 3.0.0-beta.23 (2024-12-31)
 
 ### Features
