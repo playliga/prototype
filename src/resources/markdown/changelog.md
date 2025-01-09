@@ -1,3 +1,9 @@
+## 3.0.0-beta.25 (2025-01-18)
+
+### Features
+
+- updated what's new modal ([d5d2071](https://github.com/playliga/application/commit/d5d20712dcc7f64d742dd70f1af191b8add85e54))
+
 ## 3.0.0-beta.24 (2025-01-08)
 
 ### Features
