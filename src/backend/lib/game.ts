@@ -312,6 +312,19 @@ export class Server {
   }
 
   /**
+   * Gets the user's custom launch arguments.
+   *
+   * @function
+   */
+  private get userArgs() {
+    if (this.settings.general.gameLaunchOptions) {
+      return this.settings.general.gameLaunchOptions.split(' ');
+    }
+
+    return [];
+  }
+
+  /**
    * Cleans up processes and other things after
    * closing the game server or client.
    *
@@ -687,6 +700,7 @@ export class Server {
         '12',
         '+map',
         Util.convertMapPool(this.map, this.settings.general.game),
+        ...this.userArgs,
       ],
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS16_BASEDIR) },
     );
@@ -715,12 +729,6 @@ export class Server {
       Constants.GameSettings.CSGO_SERVER_CONFIG_FILE,
     ];
 
-    // user-defined launch args
-    let userArgs: Array<string> = [];
-    if (this.settings.general.gameLaunchOptions) {
-      userArgs = this.settings.general.gameLaunchOptions.split(' ');
-    }
-
     // this is a temporary workaround until cs2 fully supports custom bot names
     // and proper logging output like being able to specify log
     // location and dumping end of match statistics
@@ -739,7 +747,12 @@ export class Server {
     } else {
       this.gameClientProcess = spawn(
         Constants.GameSettings.CSGO_EXE,
-        ['-applaunch', Constants.GameSettings.CSGO_APPID.toString(), ...defaultArgs, ...userArgs],
+        [
+          '-applaunch',
+          Constants.GameSettings.CSGO_APPID.toString(),
+          ...defaultArgs,
+          ...this.userArgs,
+        ],
         { cwd: fixedSteamPath },
       );
     }
@@ -764,6 +777,7 @@ export class Server {
       Util.convertMapPool(this.map, this.settings.general.game),
       '+maxplayers',
       '12',
+      ...this.userArgs,
     ];
 
     if (is.osx()) {
@@ -811,6 +825,7 @@ export class Server {
         '12',
         '+map',
         Util.convertMapPool(this.map, this.settings.general.game),
+        ...this.userArgs,
       ],
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CZERO_BASEDIR) },
     );
