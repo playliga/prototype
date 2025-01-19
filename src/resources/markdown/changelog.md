@@ -1,3 +1,9 @@
+## 3.0.0-beta.26 (2025-01-19)
+
+### Bug Fixes
+
+- custom launch args now work for all games ([#335](https://github.com/playliga/application/issues/335)) ([65e7670](https://github.com/playliga/application/commit/65e7670c5447b81c39cdbd3f3d9784fb75c9e724))
+
 ## 3.0.0-beta.25 (2025-01-18)
 
 ### Features
