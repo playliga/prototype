@@ -1,3 +1,13 @@
+## 3.0.0-beta.27 (2025-01-21)
+
+### Features
+
+- added player stats to transfer modal ([#341](https://github.com/playliga/application/issues/341)) ([384c697](https://github.com/playliga/application/commit/384c6973030e025abef43a078515bc5e29b2bc6e))
+
+### Bug Fixes
+
+- fix edge case soft-locking users out of transfer market ([#338](https://github.com/playliga/application/issues/338)) ([7be4ddc](https://github.com/playliga/application/commit/7be4ddccc605ea92a35e55213439b9489948c4cb))
+
 ## 3.0.0-beta.26 (2025-01-19)
 
 ### Bug Fixes
