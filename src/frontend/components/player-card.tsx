@@ -15,13 +15,13 @@ type Player = Awaited<ReturnType<typeof api.players.all<typeof Eagers.player>>>[
 /** @interface */
 interface XPBarProps {
   max: number;
-  title: string;
   value: number;
   className?: string;
   gains?: number;
   high?: number;
   low?: number;
   subtitle?: string;
+  title?: string;
 }
 
 /** @interface */
@@ -45,7 +45,7 @@ interface PlayerCardProps extends React.ComponentProps<'article'> {
  * @component
  * @function
  */
-function XPBar(props: XPBarProps) {
+export function XPBar(props: XPBarProps) {
   return (
     <div className={cx('stack-y', props.className)}>
       {!!props.title && (
@@ -89,17 +89,20 @@ function XPBar(props: XPBarProps) {
 export default function (props: PlayerCardProps) {
   const [collapsed, setCollapsed] = React.useState(props.collapsed);
   const weapons = React.useMemo(() => Constants.WeaponTemplates[props.game], [props.game]);
-  const xp = React.useMemo(() => new Bot.Exp(JSON.parse(props.player.stats)), [props.player.stats]);
-  const gains = React.useMemo<(typeof xp)['gains']>(
-    () => JSON.parse(props.player.gains || '{}'),
-    [props.player.gains],
-  );
+  const xp = React.useMemo(() => {
+    if (!props.player) {
+      return;
+    }
+
+    const gains = JSON.parse(props.player.gains || '{}');
+    return new Bot.Exp(JSON.parse(props.player.stats), null, gains);
+  }, [props.player]);
   const gainsTotal = React.useMemo(
     () =>
-      Object.keys(gains)
-        .map((key) => gains[key])
+      Object.keys(xp.gains)
+        .map((key) => xp.gains[key])
         .reduce((total, current) => total + current, 0),
-    [gains],
+    [xp.gains],
   );
 
   React.useEffect(() => {
@@ -110,7 +113,14 @@ export default function (props: PlayerCardProps) {
 
   if (collapsed) {
     return (
-      <article className={cx('player-card', props.className, props.compact && 'compact')}>
+      <article
+        className={cx(
+          'player-card',
+          props.className,
+          props.collapsed && 'collapsed',
+          props.compact && 'compact',
+        )}
+      >
         <header className="grid grid-cols-4 items-center divide-x divide-base-content/10">
           <button
             title="Set as Starter"
@@ -154,7 +164,7 @@ export default function (props: PlayerCardProps) {
   }
 
   return (
-    <article className="player-card">
+    <article className={cx('player-card', props.className, props.compact && 'compact')}>
       <header>
         <h3>{props.player.name}</h3>
         <p>
@@ -201,21 +211,7 @@ export default function (props: PlayerCardProps) {
         />
       </figure>
       {Object.keys(xp.stats).map((stat) => {
-        let gain = gains[stat];
-        let value = xp.stats[stat];
-        let max: string | number = Bot.Exp.getMaximumXPForStat(stat);
-
-        // adjust values for inverted stats by normalizing
-        // and clamping them into [0,1] range
-        if (Bot.StatModifiers.SUBTRACT.includes(stat)) {
-          const min = Bot.Templates[0].stats[stat];
-          const valueNormalized = (value - min) / (max - min);
-          const valueClamped = Math.max(0, Math.min(1, valueNormalized));
-          const gainNormalized = gain / (max - min);
-          value = Number(valueClamped.toFixed(2));
-          gain = -gainNormalized;
-          max = Number(1).toFixed(2);
-        }
+        const { gain, value, max } = xp.normalize(stat);
 
         return (
           <figure key={`xp__${props.player.name}_${stat}`}>

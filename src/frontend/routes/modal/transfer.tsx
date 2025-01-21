@@ -5,11 +5,12 @@
  */
 import React from 'react';
 import cx from 'classnames';
-import { flatten } from 'lodash';
+import { flatten, startCase } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Constants, Eagers, Util } from '@liga/shared';
+import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { XPBar } from '@liga/frontend/components/player-card';
 import {
   FaBan,
   FaCheck,
@@ -176,6 +177,15 @@ export default function () {
     return state.profile.team.players.some((teammate) => teammate.id === player.id);
   }, [player]);
 
+  // load player stats
+  const xp = React.useMemo(() => {
+    if (!player) {
+      return;
+    }
+
+    return new Bot.Exp(JSON.parse(player.stats));
+  }, [player]);
+
   // load the default tab
   React.useEffect(() => {
     if (isTeammate) {
@@ -197,7 +207,7 @@ export default function () {
 
   return (
     <main className="flex h-screen w-screen flex-col divide-y divide-base-content/10">
-      <header className="stats w-full grid-cols-3 bg-base-200">
+      <header className="stats w-full grid-cols-3 rounded-none bg-base-200">
         <section className="stat">
           <figure className="stat-figure text-secondary">
             <FaWallet className="size-8" />
@@ -230,38 +240,45 @@ export default function () {
       <table className="table table-fixed">
         <thead>
           <tr>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{player.name}</td>
-          </tr>
-        </tbody>
-        <thead>
-          <tr>
+            <th colSpan={2}>Name</th>
             <th>Country</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
-              <span>{player.country.name}</span>
-            </td>
-          </tr>
-        </tbody>
-        <thead>
-          <tr>
             <th>Team</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td colSpan={2}>{player.name}</td>
+            <td>
+              <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
+              <span>{player.country.name}</span>
+            </td>
             <td>
               <img src={player.team.blazon} className="inline-block size-6" />
               <span>&nbsp;{player.team.name}</span>
             </td>
+          </tr>
+        </tbody>
+        <thead>
+          <tr>
+            <th colSpan={4}>Stats</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {Object.keys(xp.stats).map((stat) => {
+              const { value, max } = xp.normalize(stat);
+
+              return (
+                <td key={`xp__${player.name}_${stat}_value`}>
+                  <XPBar
+                    title={`${startCase(stat)}`}
+                    subtitle={`${value}/${max}`}
+                    value={value}
+                    max={Number(max)}
+                  />
+                </td>
+              );
+            })}
           </tr>
         </tbody>
       </table>

@@ -196,7 +196,11 @@ export class Exp {
   private bonuses: typeof this.gains;
   private log: log.LogFunctions;
 
-  constructor(stats?: Stats, bonuses?: Array<Prisma.BonusGetPayload<unknown>>) {
+  constructor(
+    stats?: Stats,
+    bonuses?: Array<Prisma.BonusGetPayload<unknown>>,
+    gains?: Partial<Stats>,
+  ) {
     // load base stats if none are provided
     if (!stats) {
       stats = Templates[0].stats;
@@ -207,7 +211,7 @@ export class Exp {
 
     // initialize objects
     this.bonuses = {};
-    this.gains = {};
+    this.gains = gains || {};
     this.log = log.scope('training');
 
     // initialize training bonuses
@@ -303,6 +307,36 @@ export class Exp {
         ? this.stats[key] > maxTemplate.stats[key]
         : this.stats[key] < maxTemplate.stats[key],
     );
+  }
+
+  /**
+   * Calculates the stats and gains by adjusting
+   * values for inverted stats by normalizing
+   * and clamping them into a [0,1] range.
+   *
+   * @param stat The stat to normalize.
+   * @function
+   */
+  public normalize(stat: string) {
+    let gain = this.gains[stat];
+    let value = this.stats[stat];
+    let max: string | number = Exp.getMaximumXPForStat(stat);
+
+    if (StatModifiers.SUBTRACT.includes(stat)) {
+      const min = Templates[0].stats[stat];
+      const valueNormalized = (value - min) / (max - min);
+      const valueClamped = Math.max(0, Math.min(1, valueNormalized));
+      const gainNormalized = gain / (max - min);
+      value = Number(valueClamped.toFixed(2));
+      gain = -gainNormalized;
+      max = Number(1).toFixed(2);
+    }
+
+    return {
+      gain,
+      value,
+      max,
+    };
   }
 
   /**

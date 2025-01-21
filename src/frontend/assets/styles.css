@@ -276,8 +276,14 @@ meter::-webkit-meter-bar {
   }
 
   .player-card.compact {
-    header {
-      @apply my-2;
+    header,
+    header + figure {
+      @apply hidden;
+    }
+
+    /** show the header only when collapsed */
+    &.collapsed > header {
+      @apply my-2 grid;
     }
 
     header > aside {
