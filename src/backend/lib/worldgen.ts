@@ -1539,9 +1539,14 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
         id: transfer.from.id,
       },
       data: {
-        earnings: {
-          decrement: offer.cost,
-        },
+        earnings:
+          // @todo: provide a better workaround for
+          //        double-transfer race condition
+          offer.cost > transfer.from.earnings
+            ? 0
+            : {
+                decrement: offer.cost,
+              },
       },
     }),
     DatabaseClient.prisma.team.update({
