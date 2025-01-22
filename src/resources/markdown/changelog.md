@@ -1,3 +1,14 @@
+## 3.0.0-beta.28 (2025-01-22)
+
+### Features
+
+- added ability to search for players by name ([#343](https://github.com/playliga/application/issues/343)) ([fd982ef](https://github.com/playliga/application/commit/fd982ef6a35dcbb5ed512b83b398446847744124))
+
+### Bug Fixes
+
+- fix tier filter not resetting in player search page ([#342](https://github.com/playliga/application/issues/342)) ([030d0cb](https://github.com/playliga/application/commit/030d0cb3fbacc1d6cb2c37aa4bd98b5216cc61d0))
+- improved error handling when detecting steam install path ([#340](https://github.com/playliga/application/issues/340)) ([2079cbf](https://github.com/playliga/application/commit/2079cbf94e9942a35c2863c5d8821df891ce99dc))
+
 ## 3.0.0-beta.27 (2025-01-21)
 
 ### Features
