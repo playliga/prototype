@@ -32,6 +32,7 @@ const PAGE_SIZE = 100;
  * @param tier            Limit search to a specific tier.
  * @param transferListed  Whether to search for only transfer listed players.
  * @param orderBy         Sorting direction.
+ * @param playerName      Filter by player name.
  * @function
  */
 function buildPlayerQuery(
@@ -41,11 +42,19 @@ function buildPlayerQuery(
   tier?: number,
   transferListed?: boolean,
   orderBy?: ExtractBaseType<Parameters<typeof api.players.all>[number]['orderBy']>,
+  playerName?: string,
 ): Parameters<typeof api.players.all>[number] {
   return {
     ...(orderBy ? { orderBy } : {}),
     where: {
       ...(transferListed ? { transferListed } : {}),
+      ...(playerName !== ''
+        ? {
+            name: {
+              contains: playerName,
+            },
+          }
+        : {}),
       country: {
         ...(countryId ? { id: countryId } : {}),
         ...(federationId
@@ -84,6 +93,7 @@ export default function () {
   const [selectedFederationId, setSelectedFederationId] = React.useState<number>();
   const [selectedCountry, setSelectedCountry] =
     React.useState<ReturnType<typeof findCountryOptionByValue>>();
+  const [selectedPlayerName, setSelectedPlayerName] = React.useState('');
   const [selectedTierId, setSelectedTierId] = React.useState<number>();
   const [selectedTransferStatus, setSelectedTransferStatus] = React.useState<boolean>();
   const [selectedTeam, setSelectedTeam] =
@@ -107,6 +117,7 @@ export default function () {
         selectedTierId,
         selectedTransferStatus,
         selectedPlayerOrderBy,
+        selectedPlayerName,
       ),
     [
       selectedFederationId,
@@ -115,6 +126,7 @@ export default function () {
       selectedTierId,
       selectedTransferStatus,
       selectedPlayerOrderBy,
+      selectedPlayerName,
     ],
   );
 
@@ -298,6 +310,20 @@ export default function () {
             </section>
             <section>
               <header>
+                <h3>Player</h3>
+              </header>
+              <article>
+                <input
+                  type="text"
+                  placeholder="Filter by Player name"
+                  className="input w-full"
+                  value={selectedPlayerName}
+                  onChange={(event) => setSelectedPlayerName(event.target.value)}
+                />
+              </article>
+            </section>
+            <section>
+              <header>
                 <h3>Transfer Status</h3>
               </header>
               <article>
@@ -327,6 +353,7 @@ export default function () {
                 onClick={() => {
                   setSelectedCountry(null);
                   setSelectedFederationId('' as unknown as number);
+                  setSelectedPlayerName('');
                   setSelectedTierId('' as unknown as number);
                   setSelectedTransferStatus(null);
                   setSelectedTeam(null);
