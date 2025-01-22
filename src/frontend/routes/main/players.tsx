@@ -261,7 +261,13 @@ export default function () {
               <article>
                 <select
                   className="select w-full"
-                  onChange={(event) => setSelectedTierId(Number(event.target.value))}
+                  onChange={(event) =>
+                    setSelectedTierId(
+                      event.target.value === ''
+                        ? ('' as unknown as number)
+                        : Number(event.target.value),
+                    )
+                  }
                   value={selectedTierId}
                 >
                   <option value="">Any</option>
