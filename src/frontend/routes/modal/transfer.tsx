@@ -269,7 +269,7 @@ export default function () {
               const { value, max } = xp.normalize(stat);
 
               return (
-                <td key={`xp__${player.name}_${stat}_value`}>
+                <td key={`xp__${player.name}_${stat}_value`} className="border-l border-base-content/10">
                   <XPBar
                     title={`${startCase(stat)}`}
                     subtitle={`${value}/${max}`}
