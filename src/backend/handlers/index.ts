@@ -53,7 +53,7 @@ export function IPCGenericHandler() {
   ipcMain.handle(Constants.IPCRoute.APP_STATUS, async () => {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     const settings = Util.loadSettings(profile.settings);
-    const steamPath = path.join(settings.general.steamPath, Constants.GameSettings.STEAM_EXE);
+    const steamPath = path.join(settings.general.steamPath || '', Constants.GameSettings.STEAM_EXE);
     const gamePath = Game.getGameExecutable(settings.general.game, settings.general.gamePath);
 
     try {

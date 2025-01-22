@@ -232,7 +232,11 @@ export default function () {
     const settings = Util.loadSettings(profile.settings);
 
     if (!settings.general.steamPath) {
-      settings.general.steamPath = await Game.discoverSteamPath();
+      try {
+        settings.general.steamPath = await Game.discoverSteamPath();
+      } catch (error) {
+        log.warn(error.message);
+      }
     }
 
     // discover game path only if steam is installed
