@@ -261,7 +261,7 @@ async function sandboxFirebase() {
   const settings = Util.loadSettings(profile.settings);
   const saveFilePath = DatabaseClient.path;
   const appLogsPath = log.transports.file.getFile().path;
-  const gameLogsPath = Game.getGameLogFile(settings.general.game, settings.general.gamePath);
+  const gameLogsPath = await Game.getGameLogFile(settings.general.game, settings.general.gamePath);
   const firebase = new Firebase.Storage(
     process.env.FIREBASE_CLIENT_EMAIL,
     process.env.FIREBASE_KEY_ID,

@@ -141,29 +141,56 @@ export function getGameExecutable(game: string, rootPath: string | null) {
  * @param rootPath  The game's root directory.
  * @function
  */
-export function getGameLogFile(game: string, rootPath: string | null) {
-  switch (game) {
-    case Constants.Game.CS16:
-      return path.join(
-        rootPath || '',
-        Constants.GameSettings.CS16_BASEDIR,
-        Constants.GameSettings.CS16_LOGFILE,
-      );
-    case Constants.Game.CSS:
-      return path.join(
-        rootPath || '',
-        Constants.GameSettings.CSSOURCE_BASEDIR,
-        Constants.GameSettings.CSSOURCE_GAMEDIR,
-        Constants.GameSettings.CSSOURCE_LOGFILE,
-      );
-    default:
-      return path.join(
-        rootPath || '',
-        Constants.GameSettings.CSGO_BASEDIR,
-        Constants.GameSettings.CSGO_GAMEDIR,
-        Constants.GameSettings.CSGO_LOGFILE,
-      );
+export async function getGameLogFile(game: string, rootPath: string) {
+  const basePath = (() => {
+    switch (game) {
+      case Constants.Game.CS16:
+        return path.join(
+          rootPath,
+          Constants.GameSettings.CS16_BASEDIR,
+          Constants.GameSettings.CS16_GAMEDIR,
+          Constants.GameSettings.LOGS_DIR,
+        );
+      case Constants.Game.CSS:
+        return path.join(
+          rootPath,
+          Constants.GameSettings.CSSOURCE_BASEDIR,
+          Constants.GameSettings.CSSOURCE_GAMEDIR,
+          Constants.GameSettings.LOGS_DIR,
+        );
+      case Constants.Game.CZERO:
+        return path.join(
+          rootPath,
+          Constants.GameSettings.CZERO_BASEDIR,
+          Constants.GameSettings.CZERO_GAMEDIR,
+          Constants.GameSettings.LOGS_DIR,
+        );
+      default:
+        return path.join(
+          rootPath,
+          Constants.GameSettings.CSGO_BASEDIR,
+          Constants.GameSettings.CSGO_GAMEDIR,
+          Constants.GameSettings.LOGS_DIR,
+        );
+    }
+  })();
+
+  // bail early if the logs path does not exist
+  try {
+    await fs.promises.access(basePath, fs.constants.F_OK);
+  } catch (error) {
+    return Promise.resolve('');
   }
+
+  // grab log files and sort by newest
+  const files = await glob('*.log', { cwd: basePath, withFileTypes: true, stat: true });
+  files.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+
+  if (!files.length) {
+    return '';
+  }
+
+  return files[0].fullpath();
 }
 
 /**
@@ -178,7 +205,6 @@ export class Server {
   private botConfigFile: string;
   private gameDir: string;
   private gameClientProcess: ChildProcessWithoutNullStreams;
-  private logFile: string;
   private match: Prisma.MatchGetPayload<typeof Eagers.match>;
   private motdTxtFile: string;
   private motdHTMLFile: string;
@@ -227,7 +253,6 @@ export class Server {
         this.botCommandFile = Constants.GameSettings.CS16_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CS16_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CS16_GAMEDIR;
-        this.logFile = Constants.GameSettings.CS16_LOGFILE;
         this.motdTxtFile = Constants.GameSettings.CS16_MOTD_TXT_FILE;
         this.motdHTMLFile = Constants.GameSettings.CS16_MOTD_HTML_FILE;
         this.serverConfigFile = Constants.GameSettings.CS16_SERVER_CONFIG_FILE;
@@ -237,7 +262,6 @@ export class Server {
         this.botCommandFile = Constants.GameSettings.CSGO_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CSSOURCE_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CSSOURCE_GAMEDIR;
-        this.logFile = Constants.GameSettings.CSSOURCE_LOGFILE;
         this.motdTxtFile = Constants.GameSettings.CSSOURCE_MOTD_TXT_FILE;
         this.motdHTMLFile = Constants.GameSettings.CSSOURCE_MOTD_HTML_FILE;
         this.serverConfigFile = Constants.GameSettings.CSSOURCE_SERVER_CONFIG_FILE;
@@ -247,7 +271,6 @@ export class Server {
         this.botCommandFile = Constants.GameSettings.CZERO_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CZERO_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CZERO_GAMEDIR;
-        this.logFile = Constants.GameSettings.CZERO_LOGFILE;
         this.motdTxtFile = Constants.GameSettings.CZERO_MOTD_TXT_FILE;
         this.motdHTMLFile = Constants.GameSettings.CZERO_MOTD_HTML_FILE;
         this.serverConfigFile = Constants.GameSettings.CZERO_SERVER_CONFIG_FILE;
@@ -257,7 +280,6 @@ export class Server {
         this.botCommandFile = Constants.GameSettings.CSSOURCE_BOT_COMMAND_FILE;
         this.botConfigFile = Constants.GameSettings.CSGO_BOT_CONFIG;
         this.gameDir = Constants.GameSettings.CSGO_GAMEDIR;
-        this.logFile = Constants.GameSettings.CSGO_LOGFILE;
         this.serverConfigFile = Constants.GameSettings.CSGO_SERVER_CONFIG_FILE;
         break;
     }
@@ -599,7 +621,6 @@ export class Server {
           demo: true,
           freezetime: this.settings.matchRules.freezeTime,
           hostname: this.hostname,
-          logfile: this.logFile,
           maxrounds: this.settings.matchRules.maxRounds,
           ot: +this.allowDraw,
           rcon_password: Constants.GameSettings.RCON_PASSWORD,
@@ -690,7 +711,6 @@ export class Server {
         Constants.GameSettings.CS16_DLL_METAMOD,
         '-beta',
         '-bots',
-        '-condebug',
         '+localinfo',
         'mm_gamedll',
         Constants.GameSettings.CS16_DLL_BOTS,
@@ -815,7 +835,6 @@ export class Server {
         '-dll',
         Constants.GameSettings.CZERO_DLL_METAMOD,
         '-beta',
-        '-condebug',
         '+localinfo',
         'mm_gamedll',
         Constants.GameSettings.CZERO_DLL_BOTS,
@@ -914,7 +933,9 @@ export class Server {
       Constants.GameSettings.RCON_PORT,
       Constants.GameSettings.RCON_PASSWORD,
       {
-        tcp: this.settings.general.game !== Constants.Game.CS16,
+        tcp:
+          this.settings.general.game !== Constants.Game.CS16 &&
+          this.settings.general.game !== Constants.Game.CZERO,
         retryMax: Constants.GameSettings.RCON_MAX_ATTEMPTS,
       },
     );
@@ -927,15 +948,7 @@ export class Server {
 
     // start the scorebot
     this.scorebot = new Scorebot.Watcher(
-      path.join(
-        this.settings.general.gamePath,
-        this.baseDir,
-        this.settings.general.game === Constants.Game.CS16 ||
-          this.settings.general.game === Constants.Game.CZERO
-          ? ''
-          : this.gameDir,
-        this.logFile,
-      ),
+      await getGameLogFile(this.settings.general.game, this.settings.general.gamePath),
     );
 
     try {

@@ -38,7 +38,10 @@ export default function () {
       const settings = Util.loadSettings(profile.settings);
       const issues = Util.loadIssues(profile.issues);
       const saveFilePath = DatabaseClient.path;
-      const gameLogsPath = Game.getGameLogFile(settings.general.game, settings.general.gamePath);
+      const gameLogsPath = await Game.getGameLogFile(
+        settings.general.game,
+        settings.general.gamePath,
+      );
       const appLogsPath = log.transports.file.getFile().path;
 
       // gather evidence
