@@ -1,3 +1,11 @@
+## 3.0.0-beta.29 (2025-01-26)
+
+- [View the Blog post](https://github.com/orgs/playliga/discussions/350)
+
+### Features
+
+- added cs2 support 🎉 ([#251](https://github.com/playliga/application/issues/251)) ([bd68905](https://github.com/playliga/application/commit/bd68905ae20dd922d8fecf522253fd9c50664c49))
+
 ## 3.0.0-beta.28 (2025-01-22)
 
 ### Features
