@@ -113,6 +113,12 @@ export function getGameExecutable(game: string, rootPath: string | null) {
         Constants.GameSettings.CS16_BASEDIR,
         Constants.GameSettings.CS16_EXE,
       );
+    case Constants.Game.CS2:
+      return path.join(
+        rootPath || '',
+        Constants.GameSettings.CS2_BASEDIR,
+        Constants.GameSettings.CS2_EXE,
+      );
     case Constants.Game.CSS:
       return path.join(
         rootPath || '',
@@ -149,6 +155,13 @@ export async function getGameLogFile(game: string, rootPath: string) {
           rootPath,
           Constants.GameSettings.CS16_BASEDIR,
           Constants.GameSettings.CS16_GAMEDIR,
+          Constants.GameSettings.LOGS_DIR,
+        );
+      case Constants.Game.CS2:
+        return path.join(
+          rootPath,
+          Constants.GameSettings.CS2_BASEDIR,
+          Constants.GameSettings.CS2_GAMEDIR,
           Constants.GameSettings.LOGS_DIR,
         );
       case Constants.Game.CSS:
@@ -256,6 +269,13 @@ export class Server {
         this.motdTxtFile = Constants.GameSettings.CS16_MOTD_TXT_FILE;
         this.motdHTMLFile = Constants.GameSettings.CS16_MOTD_HTML_FILE;
         this.serverConfigFile = Constants.GameSettings.CS16_SERVER_CONFIG_FILE;
+        break;
+      case Constants.Game.CS2:
+        this.baseDir = Constants.GameSettings.CS2_BASEDIR;
+        this.botCommandFile = Constants.GameSettings.CSSOURCE_BOT_COMMAND_FILE;
+        this.botConfigFile = Constants.GameSettings.CS2_BOT_CONFIG;
+        this.gameDir = Constants.GameSettings.CS2_GAMEDIR;
+        this.serverConfigFile = Constants.GameSettings.CS2_SERVER_CONFIG_FILE;
         break;
       case Constants.Game.CSS:
         this.baseDir = Constants.GameSettings.CSSOURCE_BASEDIR;
@@ -643,6 +663,97 @@ export class Server {
   }
 
   /**
+   * Generates the VPK for game customizations.
+   *
+   * @function
+   */
+  private async generateVPK() {
+    // copy botprofile to a temp folder which
+    // will hold our bot customizations
+    const botProfilePath = path.join(
+      this.settings.general.gamePath,
+      this.baseDir,
+      this.gameDir,
+      this.botConfigFile,
+    );
+    const vpkSource = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'liga'));
+
+    try {
+      await fs.promises.copyFile(
+        botProfilePath,
+        path.join(vpkSource, path.basename(botProfilePath)),
+      );
+    } catch (error) {
+      this.log.error(error);
+    }
+
+    // copy the language file with the patched bot prefix names
+    //
+    // @todo: extract the language file from the cs2 vpk
+    const languageFileSource = path.join(
+      PluginManager.getPath(),
+      Constants.Game.CS2,
+      Constants.GameSettings.CSGO_LANGUAGE_FILE,
+    );
+    const languageFileTarget = path.join(vpkSource, Constants.GameSettings.CSGO_LANGUAGE_FILE);
+    await FileManager.touch(languageFileTarget);
+    await fs.promises.copyFile(languageFileSource, languageFileTarget);
+
+    // generate the vpk
+    await new Promise((resolve, reject) =>
+      spawn(Constants.GameSettings.CS2_VPK_EXE, [vpkSource], {
+        cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS2_BASEDIR),
+        stdio: 'inherit',
+      })
+        .on('error', reject)
+        .on('close', resolve)
+        .on('exit', resolve),
+    );
+
+    // copy the vpk over to the game dir
+    const vpkTarget = path.join(path.dirname(botProfilePath), Constants.GameSettings.CS2_VPK_FILE);
+
+    try {
+      await FileManager.touch(vpkTarget);
+      await fs.promises.copyFile(vpkSource + '.vpk', vpkTarget);
+    } catch (error) {
+      this.log.error(error);
+    }
+
+    // clean up
+    return Promise.all([
+      fs.promises.rm(vpkSource, { recursive: true }),
+      fs.promises.rm(vpkSource + '.vpk', { recursive: true }),
+    ]);
+  }
+
+  /**
+   * Patches the `gameinfo.gi` file so that it
+   * can load our various game customizations
+   *
+   * @function
+   */
+  private async generateVPKGameInfo() {
+    const original = path.join(
+      this.settings.general.gamePath,
+      this.baseDir,
+      this.gameDir,
+      Constants.GameSettings.CS2_GAMEINFO_FILE,
+    );
+
+    // create a backup of this file which will be restored later on
+    await fs.promises.copyFile(original, original + '.bak');
+
+    // patch the `gameinfo.gi` file and append our custom vpk
+    const template = await fs.promises.readFile(original, 'utf8');
+    const content = template.replace(
+      /(Game_LowViolence.+)/g,
+      '$1\n\t\t\tGame\tcsgo/' + Constants.GameSettings.CS2_VPK_FILE,
+    );
+    return fs.promises.writeFile(original, content, 'utf8');
+  }
+
+  /**
    * Gets the local ip address.
    *
    * @function
@@ -696,6 +807,29 @@ export class Server {
   }
 
   /**
+   * This is only needed because cs2 will sometimes
+   * not log to file if the logs directory doesn't
+   * already exist before launching.
+   *
+   * @todo hopefully this can be removed... oneday.
+   * @function
+   */
+  private async initLogsDir() {
+    const logsPath = path.join(
+      this.settings.general.gamePath,
+      Constants.GameSettings.CS2_BASEDIR,
+      Constants.GameSettings.CS2_GAMEDIR,
+      Constants.GameSettings.LOGS_DIR,
+    );
+
+    try {
+      await fs.promises.mkdir(logsPath, { recursive: true });
+    } catch (error) {
+      this.log.warn(error);
+    }
+  }
+
+  /**
    * Launches the CS16 game client.
    *
    * @function
@@ -723,6 +857,37 @@ export class Server {
         ...this.userArgs,
       ],
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS16_BASEDIR) },
+    );
+
+    this.gameClientProcess.on('close', this.cleanup.bind(this));
+    return Promise.resolve();
+  }
+
+  /**
+   * Launches the CS2 game client.
+   *
+   * @function
+   */
+  private launchClientCS2() {
+    // launch the client
+    this.gameClientProcess = spawn(
+      Constants.GameSettings.CS2_EXE,
+      [
+        '+map',
+        Util.convertMapPool(this.map, this.settings.general.game),
+        '+game_mode',
+        '1',
+        '-novid',
+        '-usercon',
+        '-insecure',
+        '-novid',
+        '-maxplayers_override',
+        '12',
+        '+exec',
+        Constants.GameSettings.CS2_SERVER_CONFIG_FILE,
+        ...this.userArgs,
+      ],
+      { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS2_BASEDIR) },
     );
 
     this.gameClientProcess.on('close', this.cleanup.bind(this));
@@ -861,11 +1026,12 @@ export class Server {
    * @function
    */
   private async prepare() {
-    // cs16 and css have the same `gamedir` value of `cstrike`
-    // so alias `css` to `cssource` only when copying the
-    // files from the resources dir to the steam dir
+    // certain games have a different dirname from their game name
+    // so we must make sure to alias them correctly below
     const localGameDir = (() => {
       switch (this.settings.general.game) {
+        case Constants.Game.CS2:
+          return 'cs2';
         case Constants.Game.CSS:
           return 'cssource';
         default:
@@ -882,6 +1048,10 @@ export class Server {
     // copy plain files
     await FileManager.copy('**/!(*.zip)', from, to);
 
+    // generate server and bot configs
+    await this.generateServerConfig();
+    await this.generateBotConfig();
+
     // configure game files
     switch (this.settings.general.game) {
       case Constants.Game.CS16:
@@ -889,15 +1059,16 @@ export class Server {
       case Constants.Game.CZERO:
         await this.generateMOTDConfig();
         break;
+      case Constants.Game.CS2:
+        await this.generateVPK();
+        await this.generateVPKGameInfo();
+        await this.initLogsDir();
+        break;
       default:
         await this.generateInventoryConfig();
         await this.generateScoreboardConfig();
         break;
     }
-
-    // generate server and bot configs
-    await this.generateServerConfig();
-    await this.generateBotConfig();
   }
 
   /**
@@ -915,6 +1086,9 @@ export class Server {
     switch (this.settings.general.game) {
       case Constants.Game.CS16:
         await this.launchClientCS16();
+        break;
+      case Constants.Game.CS2:
+        await this.launchClientCS2();
         break;
       case Constants.Game.CSS:
         await this.launchClientCSS();
@@ -969,10 +1143,33 @@ export class Server {
       this.scorebotEvents.push({ type: Scorebot.EventIdentifier.ROUND_OVER, payload }),
     );
 
+    // @todo: remove when a liga source2mod or cssharp mod is implemented
+    this.scorebot.on(Scorebot.EventIdentifier.SAY, async (payload) => {
+      if (payload === '.ready' && this.settings.general.game === Constants.Game.CS2) {
+        this.rcon.send('mp_warmup_end');
+      }
+    });
+    this.scorebot.on(Scorebot.EventIdentifier.PLAYER_CONNECTED, async () => {
+      if (this.settings.general.game === Constants.Game.CS2) {
+        // small delay to avoid running this command too early
+        await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 400);
+        this.rcon.send('exec liga-bots');
+      }
+    });
+
     // scorebot game over handler resolves our promise
     return new Promise((resolve) => {
-      this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, (payload) => {
+      this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, async (payload) => {
         this.log.info('Final result: %O', payload);
+
+        // on cs2 we must sleep for 5s and quit
+        //
+        // @todo: remove when a liga source2mod or cssharp mod is implemented
+        if (this.settings.general.game === Constants.Game.CS2) {
+          await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000);
+          await this.rcon.send('quit');
+        }
+
         this.result = payload;
         resolve();
       });

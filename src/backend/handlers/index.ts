@@ -60,6 +60,18 @@ export function IPCGenericHandler() {
       await fs.promises.access(steamPath, fs.constants.F_OK);
       await fs.promises.access(gamePath, fs.constants.F_OK);
       await fs.promises.access(Plugins.getPath(), fs.constants.F_OK);
+
+      if (settings.general.game === Constants.Game.CS2) {
+        await fs.promises.access(
+          path.join(
+            settings.general.gamePath,
+            Constants.GameSettings.CS2_BASEDIR,
+            Constants.GameSettings.CS2_VPK_EXE,
+          ),
+          fs.constants.F_OK,
+        );
+      }
+
       return Promise.resolve();
     } catch (error) {
       return Promise.resolve(error.message);

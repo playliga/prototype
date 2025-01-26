@@ -15,6 +15,7 @@ import Tail from '@logdna/tail-file';
 export enum EventIdentifier {
   GAME_OVER = 'gameover',
   PLAYER_ASSISTED = 'playerassisted',
+  PLAYER_CONNECTED = 'playerconnected',
   PLAYER_KILLED = 'playerkilled',
   ROUND_OVER = 'roundover',
   SAY = 'say',
@@ -79,6 +80,7 @@ export interface EventPayloadRoundOver extends EventPayload {
 export interface ScorebotEvents {
   [EventIdentifier.GAME_OVER]: (payload: EventPayloadGameOver) => void;
   [EventIdentifier.PLAYER_ASSISTED]: (payload: EventPayloadPlayerAssisted) => void;
+  [EventIdentifier.PLAYER_CONNECTED]: () => void;
   [EventIdentifier.PLAYER_KILLED]: (payload: EventPayloadPlayerKilled) => void;
   [EventIdentifier.ROUND_OVER]: (payload: EventPayloadRoundOver) => void;
   [EventIdentifier.SAY]: (payload: string) => void;
@@ -95,6 +97,7 @@ export const RegexTypes = {
   HALF_TIME_SUFFIX_REGEX: new RegExp(/\s(?:Half:)\s"(\d)"$/i),
   GAME_OVER_REGEX: new RegExp(/(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2})\s?:\s?([\d]{1,2})/),
   PLAYER_ASSISTED_REGEX: new RegExp(/"(.+)" assisted killing "(.+)"/),
+  PLAYER_CONNECTED_REGEX: new RegExp(/"(?:.+)" connected, address "loopback:0"/),
   PLAYER_KILLED_REGEX: new RegExp(
     /"(.+)" (?:\[.+\]\s)?killed "(.+)" (?:\[.+\]\s)?with "(\S+)"\s+?(\(headshot\))?/,
   ),
@@ -147,7 +150,7 @@ export class Watcher extends events.EventEmitter {
 
     // grab halftime status information
     const halfRegexMatch = line.match(RegexTypes.HALF_TIME_SUFFIX_REGEX);
-    const half = halfRegexMatch !== null ? Number(halfRegexMatch[1]) : null;
+    const half = halfRegexMatch !== null ? Number(halfRegexMatch[1]) : -1;
 
     // look for SAY events
     let regexmatch = line.match(RegexTypes.SAY_REGEX);
@@ -239,6 +242,13 @@ export class Watcher extends events.EventEmitter {
         half,
         timestamp,
       });
+    }
+
+    // player connected event
+    regexmatch = line.match(RegexTypes.PLAYER_CONNECTED_REGEX);
+
+    if (regexmatch) {
+      this.emit(EventIdentifier.PLAYER_CONNECTED);
     }
   }
 

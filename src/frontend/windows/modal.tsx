@@ -75,6 +75,10 @@ const routes = createMemoryRouter([
             element: <Routes.Modal.Markdown.CSGO />,
           },
           {
+            path: 'vpk.exe',
+            element: <Routes.Modal.Markdown.CS2 />,
+          },
+          {
             path: 'whats-new',
             element: <Routes.Modal.Markdown.WhatsNew />,
           },

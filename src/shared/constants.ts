@@ -150,6 +150,7 @@ export enum FederationSlug {
  */
 export enum Game {
   CS16 = 'cs16',
+  CS2 = 'cs2',
   CSGO = 'csgo',
   CSS = 'cssource',
   CZERO = 'czero',
@@ -645,6 +646,19 @@ export const GameSettings = {
   CS16_SERVER_CONFIG_FILE: 'listenserver.cfg',
   CS16_SERVER_WARMUP_CONFIG_FILE: 'liga-warmup.cfg',
 
+  // cs2 settings
+  CS2_APPID: 730,
+  CS2_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
+  CS2_BOT_CONFIG: 'botprofile.db',
+  CS2_BASEDIR: 'steamapps/common/Counter-Strike Global Offensive',
+  CS2_EXE: 'game/bin/win64/cs2.exe',
+  CS2_GAMEDIR: 'game/csgo',
+  CS2_GAMEINFO_FILE: 'gameinfo.gi',
+  CS2_LOGFILE: 'console.log',
+  CS2_SERVER_CONFIG_FILE: 'cfg/listenserver.cfg',
+  CS2_VPK_FILE: 'overrides/liga.vpk',
+  CS2_VPK_EXE: 'bin/vpk.exe',
+
   // csgo settings
   CSGO_APPID: 730,
   CSGO_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
@@ -755,6 +769,9 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
     de_ancient: 'de_cpl_mill',
     de_anubis: 'de_cbble',
     de_vertigo: 'de_dust2',
+  },
+  [Game.CS2]: {
+    de_tuscan: 'de_dust2',
   },
   [Game.CSS]: {
     de_mirage: 'de_cpl_strike',
@@ -995,6 +1012,15 @@ export const WeaponTemplates = {
     [WeaponTemplate.POWER]: ['m249', 'xm1014', 'm3', 'famas', 'galil', 'mp5'],
     [WeaponTemplate.SHOTGUN]: ['xm1014', 'm3', 'famas', 'galil', 'mp5'],
     [WeaponTemplate.SPRAY]: ['p90', 'tmp', 'mac10', 'mp5'],
+  },
+  [Game.CS2]: {
+    [WeaponTemplate.AUTO]: [] as Array<string>,
+    [WeaponTemplate.RIFLE]: ['m4a1', 'ak47', 'famas', 'galilar', 'mp7'],
+    [WeaponTemplate.PUNCH]: ['aug', 'sg556', 'famas', 'galilar', 'mp7'],
+    [WeaponTemplate.SNIPER]: ['awp', 'famas', 'galilar', 'mp7'],
+    [WeaponTemplate.POWER]: ['m249', 'xm1014', 'nova', 'famas', 'galilar', 'mp7'],
+    [WeaponTemplate.SHOTGUN]: ['xm1014', 'nova', 'famas', 'galilar', 'mp7'],
+    [WeaponTemplate.SPRAY]: ['p90', 'mp9', 'mac10', 'mp7'],
   },
   [Game.CSGO]: {
     [WeaponTemplate.AUTO]: [] as Array<string>,

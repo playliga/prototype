@@ -323,7 +323,7 @@ export default function () {
               </thead>
               <tbody>
                 {match.events
-                  .filter((event) => event.half === half)
+                  .filter((event) => event.half === half || (half === 0 && event.half === -1))
                   .map((event) => {
                     const payload = JSON.parse(event.payload);
                     const action = event?.attacker ? 'killed' : 'assisted killing';

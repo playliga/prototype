@@ -86,7 +86,12 @@ export default function () {
             <section>
               <header>
                 <h3>Game</h3>
-                <p>This will launch the selected game when playing matches.</p>
+                {settings.general.game === Constants.Game.CS2 && (
+                  <p className="text-warning">Warning! CS2 support is experimental.</p>
+                )}
+                {settings.general.game !== Constants.Game.CS2 && (
+                  <p>This will launch the selected game when playing matches.</p>
+                )}
               </header>
               <article>
                 <select
