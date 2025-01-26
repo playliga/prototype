@@ -1,6 +1,30 @@
-# v3.0.0-beta.25
+# v3.0.0-beta.29
 
-## Improved Bot Mechanics
+## CS2 Support Added
+
+<video muted loop playsInline autoplay>
+  <source src="resources://markdown/whats-new/cs2.mp4#t=0.1" type="video/mp4" />
+</video>
+
+The long-awaited update is finally here!
+
+After months of waiting for CS2 to stabilize and previously removed features to be re-implemented, you can play your matches in CS2.
+
+However, please note that this feature is still _very experimental_. Many functionalities available in other versions of Counter-Strike are not yet fully supported.
+
+One of the most glaring issues is the state of bot mechanics in CS2. The current implementation falls short in terms of reaching feature-parity with CS:GO, with several limitations:
+
+- Bots often struggle with navigation; resulting in them getting stuck or failing to perform critical tasks.
+- Waypoints and pathfinding behavior remain inconsistent across various maps.
+- Bomb-related actions such as planting and defusing may fail in certain scenarios.
+
+### Other Known Issues
+
+- Ready-up messages are not printed out by the server.
+- Users are not automatically added to the correct team upon joining the server.
+- The postgame modal will render all match events under the first half.
+
+## Improved Bot Mechanics for CS:GO
 
 Big shoutout to the creator of the [CSGO Better Bots](https://github.com/manicogaming/CSGOBetterBots) SourceMod plugin.
 
