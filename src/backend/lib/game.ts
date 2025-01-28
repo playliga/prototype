@@ -668,15 +668,16 @@ export class Server {
    * @function
    */
   private async generateVPK() {
-    // copy botprofile to a temp folder which
-    // will hold our bot customizations
+    // create the temp folder we'll be making the VPK from
+    const vpkSource = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'liga'));
+
+    // copy bot profile
     const botProfilePath = path.join(
       this.settings.general.gamePath,
       this.baseDir,
       this.gameDir,
       this.botConfigFile,
     );
-    const vpkSource = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'liga'));
 
     try {
       await fs.promises.copyFile(
@@ -779,10 +780,11 @@ export class Server {
   /**
    * Gets the file path to a team's logo/blazon.
    *
-   * @param uri The uri of the logo/blazon.
+   * @param uri       The uri of the logo/blazon.
+   * @param useBase64 Return as a base64-encoded string.
    * @function
    */
-  private async getTeamLogo(uri: string) {
+  private async getTeamLogo(uri: string, useBase64 = true) {
     const { protocol, filePath } = /^(?<protocol>.+):\/\/(?<filePath>.+)/g.exec(uri).groups;
 
     if (!protocol || !filePath) {
@@ -794,16 +796,25 @@ export class Server {
       return '';
     }
 
+    // figure out the path to the file
+    let logoPath = '';
+
     switch (protocol) {
       case 'resources':
-        return fs.promises.readFile(path.join(this.resourcesPath, filePath), {
-          encoding: 'base64',
-        });
+        logoPath = path.join(this.resourcesPath, filePath);
+        break;
       case 'custom':
-        return fs.promises.readFile(path.join(app.getPath('userData'), protocol, filePath), {
-          encoding: 'base64',
-        });
+        logoPath = path.join(app.getPath('userData'), protocol, filePath);
+        break;
     }
+
+    if (useBase64) {
+      return fs.promises.readFile(logoPath, {
+        encoding: 'base64',
+      });
+    }
+
+    return logoPath;
   }
 
   /**
