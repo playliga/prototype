@@ -3,6 +3,7 @@
 ### Bug Fixes
 
 - removed dependency on cs:go sdk in order to play cs2 ([#355](https://github.com/playliga/application/issues/355)) ([2c00ca2](https://github.com/playliga/application/commit/2c00ca2d204f98f58dbf5eee3c5e9831dc5c266d))
+- adjusted some player names in the root save.
 
 ## 3.0.0-beta.29 (2025-01-26)
 
