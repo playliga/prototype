@@ -24,6 +24,7 @@ import {
   GitHub,
   Plugins,
   Mods,
+  VPK,
 } from '@liga/backend/lib';
 
 /**
@@ -339,6 +340,51 @@ async function sandboxModManager() {
 }
 
 /**
+ * Tests the VPK module.
+ *
+ * @function
+ */
+async function sandboxVpk() {
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const settings = Util.loadSettings(profile.settings);
+
+  const gameDir = path.join(
+    settings.general.gamePath,
+    Constants.GameSettings.CS2_BASEDIR,
+    Constants.GameSettings.CS2_GAMEDIR,
+  );
+
+  // create the temp folder we'll be making the VPK from
+  const vpkSource = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'liga-testing', 'liga'));
+
+  // copy bot profile
+  const botProfilePath = path.join(gameDir, Constants.GameSettings.CS2_BOT_CONFIG);
+
+  try {
+    await fs.promises.copyFile(botProfilePath, path.join(vpkSource, path.basename(botProfilePath)));
+  } catch (error) {
+    this.log.error(error);
+  }
+
+  // copy the language file with the patched bot prefix names
+  const languageFileSource = path.join(
+    Plugins.getPath(),
+    Constants.Game.CS2,
+    Constants.GameSettings.CSGO_LANGUAGE_FILE,
+  );
+  const languageFileTarget = path.join(vpkSource, Constants.GameSettings.CSGO_LANGUAGE_FILE);
+  await FileManager.touch(languageFileTarget);
+  await fs.promises.copyFile(languageFileSource, languageFileTarget);
+
+  // generate the vpk
+  const startTime = performance.now();
+  const vpk = new VPK.Parser(vpkSource);
+  await vpk.create();
+  const endTime = performance.now();
+  log.debug(`Function execution time: ${endTime - startTime} ms`);
+}
+
+/**
  * Validates the provided sandbox type and runs it.
  *
  * @param type The type of sandbox to run.
@@ -362,6 +408,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'github',
     'plugin-manager',
     'mod-manager',
+    'vpk',
   ];
   const sandboxFns: Record<
     string,
@@ -375,6 +422,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxGithub
     | typeof sandboxPluginManager
     | typeof sandboxModManager
+    | typeof sandboxVpk
   > = {
     sandboxWorldgen,
     sandboxScore,
@@ -386,6 +434,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxGithub,
     sandboxPluginManager,
     sandboxModManager,
+    sandboxVpk,
   };
 
   if (!acceptedSandboxTypes.includes(type)) {

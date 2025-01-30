@@ -9,6 +9,7 @@ import * as RCON from './rcon';
 import * as Scorebot from './scorebot';
 import * as Sqrl from 'squirrelly';
 import * as VDF from '@node-steam/vdf';
+import * as VPK from './vpk';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -701,15 +702,8 @@ export class Server {
     await fs.promises.copyFile(languageFileSource, languageFileTarget);
 
     // generate the vpk
-    await new Promise((resolve, reject) =>
-      spawn(Constants.GameSettings.CS2_VPK_EXE, [vpkSource], {
-        cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS2_BASEDIR),
-        stdio: 'inherit',
-      })
-        .on('error', reject)
-        .on('close', resolve)
-        .on('exit', resolve),
-    );
+    const vpk = new VPK.Parser(vpkSource);
+    await vpk.create();
 
     // copy the vpk over to the game dir
     const vpkTarget = path.join(path.dirname(botProfilePath), Constants.GameSettings.CS2_VPK_FILE);

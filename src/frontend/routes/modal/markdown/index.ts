@@ -4,7 +4,6 @@
  * @module
  */
 import Changelog from './changelog';
-import CS2 from './cs2';
 import CSGO from './csgo';
 import WhatsNew from './whats-new';
 
@@ -15,7 +14,6 @@ import WhatsNew from './whats-new';
  */
 export default {
   Changelog,
-  CS2,
   CSGO,
   WhatsNew,
 };

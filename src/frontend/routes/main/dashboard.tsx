@@ -143,7 +143,7 @@ export default function () {
 
   // figure out which game is not installed
   const appStatusError = React.useMemo(() => {
-    const [, match] = state.appStatus?.match(/((?:csgo|hl|hl2|vpk)\.exe)/) || [];
+    const [, match] = state.appStatus?.match(/((?:csgo|hl|hl2)\.exe)/) || [];
     return match;
   }, [state.appStatus]);
 
@@ -175,21 +175,6 @@ export default function () {
           {!!Constants.GameSettings.CSGO_EXE.includes(appStatusError) && (
             <React.Fragment>
               <p>CS:GO not detected! Enable CS:GO Legacy version from the Betas tab.</p>
-              <button
-                className="btn btn-neutral btn-sm rounded-none"
-                onClick={() => {
-                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                    target: '/markdown/' + appStatusError,
-                  });
-                }}
-              >
-                Details
-              </button>
-            </React.Fragment>
-          )}
-          {!!Constants.GameSettings.CS2_VPK_EXE.includes(appStatusError) && (
-            <React.Fragment>
-              <p>CS:GO SDK not detected! Please download the CS:GO SDK in order to play CS2.</p>
               <button
                 className="btn btn-neutral btn-sm rounded-none"
                 onClick={() => {
