@@ -132,6 +132,12 @@ export enum CompetitionStatus {
   COMPLETED,
 }
 
+/** @enum */
+export enum ErrorCode {
+  ENOENT = 'ENOENT',
+  ERUNNING = 'ERUNNING',
+}
+
 /**
  * Federation unique identifiers.
  *

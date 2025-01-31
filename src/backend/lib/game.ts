@@ -32,6 +32,25 @@ import { Constants, Bot, Chance, Util, Eagers } from '@liga/shared';
 const exec = util.promisify(execSync);
 
 /**
+ * Custom error to throw when a process
+ * has been detected as running.
+ *
+ * @class
+ */
+class ProcessRunningError extends Error {
+  errno: number;
+  code: string;
+  path: string;
+
+  constructor(message: string) {
+    super();
+    this.errno = -1337;
+    this.code = Constants.ErrorCode.ERUNNING;
+    this.path = message;
+  }
+}
+
+/**
  * Get Steam's installation path.
  *
  * @function
@@ -205,6 +224,22 @@ export async function getGameLogFile(game: string, rootPath: string) {
   }
 
   return files[0].fullpath();
+}
+
+/**
+ * Throws an exception if the specified game is running.
+ *
+ * @todo        add macos support
+ * @param name  The name of the process to look for.
+ * @function
+ */
+export async function isRunningAndThrow(name: string) {
+  const { stdout } = await exec('tasklist');
+  const isRunning = stdout.includes(path.basename(name));
+
+  if (isRunning) {
+    throw new ProcessRunningError(`${name} is running!`);
+  }
 }
 
 /**

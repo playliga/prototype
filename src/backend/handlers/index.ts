@@ -60,9 +60,10 @@ export function IPCGenericHandler() {
       await fs.promises.access(steamPath, fs.constants.F_OK);
       await fs.promises.access(gamePath, fs.constants.F_OK);
       await fs.promises.access(Plugins.getPath(), fs.constants.F_OK);
+      await Game.isRunningAndThrow(gamePath);
       return Promise.resolve();
     } catch (error) {
-      return Promise.resolve(error.message);
+      return Promise.resolve(JSON.stringify(error));
     }
   });
   ipcMain.handle(Constants.IPCRoute.APP_WHATS_NEW, async () => {

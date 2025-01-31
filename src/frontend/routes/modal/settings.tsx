@@ -26,7 +26,7 @@ export default function () {
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState(Tab.GENERAL);
   const [settings, setSettings] = React.useState(Constants.Settings);
-  const [appStatus, setAppStatus] = React.useState<string>();
+  const [appStatus, setAppStatus] = React.useState<NodeJS.ErrnoException>();
 
   // load settings
   React.useEffect(() => {
@@ -39,7 +39,7 @@ export default function () {
 
   // validate game installation path
   React.useEffect(() => {
-    api.app.status().then(setAppStatus);
+    api.app.status().then((status) => !!status && setAppStatus(JSON.parse(status)));
   }, [settings]);
 
   // handle settings updates
@@ -56,12 +56,18 @@ export default function () {
 
   // steam and game path validation
   const steamPathError = React.useMemo(() => {
-    const [, match] = appStatus?.match(/(steam\.exe)/) || [];
-    return match ? appStatus : '';
+    if (!appStatus) {
+      return;
+    }
+    const [, match] = appStatus.path.match(/(steam\.exe)/) || [];
+    return match ? appStatus.path : '';
   }, [appStatus]);
   const gamePathError = React.useMemo(() => {
-    const [, match] = appStatus?.match(/((?:csgo|hl|hl2)\.exe)/) || [];
-    return match ? appStatus : '';
+    if (!appStatus) {
+      return;
+    }
+    const [, match] = appStatus.path.match(/((?:csgo|hl|hl2)\.exe)/) || [];
+    return match ? appStatus.path : '';
   }, [appStatus]);
 
   return (

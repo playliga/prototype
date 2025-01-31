@@ -20,6 +20,11 @@ import {
   FaMapSigns,
 } from 'react-icons/fa';
 
+/** @interface */
+interface StatusBannerProps {
+  error: string;
+}
+
 /** @constant */
 const GAME_LAUNCH_DELAY = 1000;
 
@@ -28,6 +33,71 @@ const NUM_UPCOMING = 5 + 1; // adds an extra for "next match"
 
 /** @constant */
 const NUM_PREVIOUS = 5;
+
+/**
+ * Application status error banner.
+ *
+ * @param props The root props.
+ * @function
+ */
+export function StatusBanner(props: StatusBannerProps) {
+  if (!props.error) {
+    return null;
+  }
+
+  const error = React.useMemo(
+    () => JSON.parse(props.error) as NodeJS.ErrnoException,
+    [props.error],
+  );
+
+  // figure out which game is not installed
+  const message = React.useMemo(() => {
+    if (error.code !== Constants.ErrorCode.ENOENT && error.code !== Constants.ErrorCode.ERUNNING) {
+      return;
+    }
+
+    const [, match] = error.path.match(/((?:csgo|cs2|hl|hl2)\.exe)/) || [];
+    return match;
+  }, [error]);
+
+  return (
+    <section className="alert alert-warning flex h-8 justify-center rounded-none p-0">
+      <FaExclamationTriangle />
+      {error.code === Constants.ErrorCode.ENOENT &&
+        (message === Constants.GameSettings.CS16_EXE ||
+          message === Constants.GameSettings.CSSOURCE_EXE) && (
+          <p>{message} not detected! Please install in order to play your matches in-game.</p>
+        )}
+
+      {error.code === Constants.ErrorCode.ENOENT && message === Constants.GameSettings.CSGO_EXE && (
+        <React.Fragment>
+          <p>CS:GO not detected! Enable CS:GO Legacy version from the Betas tab.</p>
+          <button
+            className="btn btn-neutral btn-sm rounded-none"
+            onClick={() => {
+              api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                target: '/markdown/' + message,
+              });
+            }}
+          >
+            Details
+          </button>
+        </React.Fragment>
+      )}
+
+      {error.code === Constants.ErrorCode.ERUNNING && (
+        <p>{message} is running! Please close the game before playing your matches.</p>
+      )}
+
+      {!!error.path.includes('plugins') && (
+        <p>
+          Game plugins not installed! You will not be able to launch any games. Try restarting the
+          app to fix this issue.
+        </p>
+      )}
+    </section>
+  );
+}
 
 /**
  * Exports this module.
@@ -141,12 +211,6 @@ export default function () {
     return Promise.resolve();
   };
 
-  // figure out which game is not installed
-  const appStatusError = React.useMemo(() => {
-    const [, match] = state.appStatus?.match(/((?:csgo|hl|hl2)\.exe)/) || [];
-    return match;
-  }, [state.appStatus]);
-
   return (
     <div className="dashboard">
       {/** PLAYING MODAL */}
@@ -158,43 +222,7 @@ export default function () {
       </dialog>
 
       {/** SETTINGS VALIDATION WARNING BANNER */}
-      {(!!appStatusError || state.appStatus?.includes('plugins')) && (
-        <section className="alert alert-warning flex h-8 justify-center rounded-none p-0">
-          <FaExclamationTriangle />
-          {!!Constants.GameSettings.CS16_EXE.includes(appStatusError) && (
-            <p>
-              Counter-Strike 1.6 not detected! Please install in order to play your matches in-game.
-            </p>
-          )}
-          {!!Constants.GameSettings.CSSOURCE_EXE.includes(appStatusError) && (
-            <p>
-              Counter-Strike Source not detected! Please install in order to play your matches
-              in-game.
-            </p>
-          )}
-          {!!Constants.GameSettings.CSGO_EXE.includes(appStatusError) && (
-            <React.Fragment>
-              <p>CS:GO not detected! Enable CS:GO Legacy version from the Betas tab.</p>
-              <button
-                className="btn btn-neutral btn-sm rounded-none"
-                onClick={() => {
-                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                    target: '/markdown/' + appStatusError,
-                  });
-                }}
-              >
-                Details
-              </button>
-            </React.Fragment>
-          )}
-          {!!state.appStatus?.includes('plugins') && (
-            <p>
-              Game plugins not installed! You will not be able to launch any games. Try restarting
-              the app to fix this issue.
-            </p>
-          )}
-        </section>
-      )}
+      <StatusBanner error={state.appStatus} />
 
       {/** MAIN CONTENT */}
       <main>
@@ -479,9 +507,7 @@ export default function () {
                     <button
                       title="Match Setup"
                       className="btn btn-square btn-ghost join-item hover:bg-transparent hover:text-secondary"
-                      disabled={
-                        disabled || !!appStatusError || state.appStatus?.includes('plugins')
-                      }
+                      disabled={disabled || !!state.appStatus}
                       onClick={() =>
                         api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
                           target: '/play',
@@ -493,9 +519,7 @@ export default function () {
                     </button>
                     <button
                       className="btn btn-primary join-item btn-wide"
-                      disabled={
-                        disabled || !!appStatusError || state.appStatus?.includes('plugins')
-                      }
+                      disabled={disabled || !!state.appStatus}
                       onClick={() => {
                         setPlaying(true);
                         Util.sleep(GAME_LAUNCH_DELAY)
