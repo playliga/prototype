@@ -56,7 +56,7 @@ export function StatusBanner(props: StatusBannerProps) {
       return;
     }
 
-    const [, match] = error.path.match(/((?:csgo|cs2|hl|hl2)\.exe)/) || [];
+    const [, match] = error.path.match(/((?:csgo|cs2|hl|hl2|steam)\.exe)/) || [];
     return match;
   }, [error]);
 
@@ -65,7 +65,8 @@ export function StatusBanner(props: StatusBannerProps) {
       <FaExclamationTriangle />
       {error.code === Constants.ErrorCode.ENOENT &&
         (message === Constants.GameSettings.CS16_EXE ||
-          message === Constants.GameSettings.CSSOURCE_EXE) && (
+          message === Constants.GameSettings.CSSOURCE_EXE ||
+          message === Constants.GameSettings.STEAM_EXE) && (
           <p>{message} not detected! Please install in order to play your matches in-game.</p>
         )}
 
