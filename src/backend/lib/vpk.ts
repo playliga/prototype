@@ -10,6 +10,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import log from 'electron-log';
 
 /** @interface */
@@ -85,18 +86,6 @@ interface Tree {
 const ARCHIVE_INDEX_EMBEDDED = 0x7fff;
 
 /** @constant */
-const CRC32_BITS_PER_BYTE = 8;
-
-/** @constant */
-const CRC32_INITIAL_VALUE = 0xffffffff;
-
-/** @constant */
-const CRC32_POLYNOMIAL = 0xedb88320;
-
-/** @constant */
-const CRC32_TABLE_SIZE = 256;
-
-/** @constant */
 const DIRECTORY_ENTRY_SIZE_BYTES = 18;
 
 /** @constant */
@@ -118,61 +107,6 @@ const HEADER_VERSION_CS2 = 65548;
 const TERMINATOR = 0xffff;
 
 /**
- * Computes a 32-bit Cyclic Redundancy Check checksum.
- *
- * @class
- */
-class CRC32 {
-  /**
-   * Precomputed lookup table.
-   *
-   * @constant
-   */
-  private table: Array<number>;
-
-  /**
-   * Initializes the lookup table.
-   *
-   * @constructor
-   */
-  constructor() {
-    this.table = new Array<number>(CRC32_TABLE_SIZE);
-
-    for (let i = 0; i < CRC32_TABLE_SIZE; i++) {
-      let crc = i;
-      for (let j = 0; j < CRC32_BITS_PER_BYTE; j++) {
-        if (crc & 1) {
-          // the xor is where the actual CRC-32 computation takes place,
-          // using the polynomial to calculate the new CRC value.
-          crc = (crc >>> 1) ^ CRC32_POLYNOMIAL;
-        } else {
-          crc >>>= 1;
-        }
-      }
-      this.table[i] = crc >>> 0;
-    }
-  }
-
-  /**
-   * Computes the checksum for the provided buffer.
-   *
-   * @param buffer The buffer.
-   * @function
-   */
-  public generate(buffer: Buffer) {
-    let crc = CRC32_INITIAL_VALUE;
-
-    for (const byte of buffer) {
-      const tableIndex = (crc ^ byte) & 0xff;
-      crc = (crc >>> CRC32_BITS_PER_BYTE) ^ this.table[tableIndex];
-    }
-
-    // final XOR and ensure unsigned
-    return (crc ^ CRC32_INITIAL_VALUE) >>> 0;
-  }
-}
-
-/**
  * Parses the VPK archive.
  *
  * @class
@@ -184,13 +118,6 @@ export class Parser {
    * @constant
    */
   private buffer: Buffer;
-
-  /**
-   * The CRC32 checksum class.
-   *
-   * @constant
-   */
-  private crc: CRC32;
 
   /**
    * In-memory cache of file buffers.
@@ -232,7 +159,6 @@ export class Parser {
    * @constructor
    */
   constructor(vpk: string) {
-    this.crc = new CRC32();
     this.files = {};
     this.log = log.scope('vpk');
     this.tree = {};
@@ -307,7 +233,7 @@ export class Parser {
         }
 
         this.tree[extension][relativeDir][baseName] = {
-          CRC: this.crc.generate(buffer),
+          CRC: zlib.crc32(buffer),
           PreloadBytes: 0,
           ArchiveIndex: ARCHIVE_INDEX_EMBEDDED,
           EntryOffset: offset,
