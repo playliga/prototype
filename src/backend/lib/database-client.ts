@@ -34,7 +34,6 @@
  */
 import * as sqlite3 from 'sqlite3';
 import * as Mods from './mods';
-import * as FileManager from './file-manager';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -184,19 +183,6 @@ export default class DatabaseClient {
     const rootSavePath = path.join(DatabaseClient.localBasePath, rootSaveName);
     const newSaveName = Util.getSaveFileName(id);
     const newSavePath = path.join(DatabaseClient.basePath, newSaveName);
-
-    // migrate from `databases to `saves`
-    // due to a conflict with chromium
-    //
-    // @todo: remove after beta
-    try {
-      await FileManager.mv(
-        DatabaseClient.basePath.replace(Constants.Application.DATABASES_DIR, 'databases'),
-        DatabaseClient.basePath,
-      );
-    } catch (error) {
-      this.log.warn(error);
-    }
 
     // bail early if the file exists, otherwise
     // we build the file tree to the save file
@@ -375,5 +361,31 @@ export default class DatabaseClient {
    */
   public static get path() {
     return pool[activeId].path;
+  }
+
+  /**
+   * Renames the old `databases` folder to `saves` in
+   * order to resolve a naming collision with Chromium.
+   *
+   * @todo remove after beta
+   * @function
+   */
+  public static async patchForChromium() {
+    const oldPath = DatabaseClient.basePath.replace(
+      Constants.Application.DATABASES_DIR,
+      'databases',
+    );
+    const newPath = DatabaseClient.basePath;
+
+    // first check if the old path exists
+    // and if it doesn't we bail early
+    try {
+      await fs.promises.access(oldPath, fs.constants.F_OK);
+    } catch (error) {
+      return;
+    }
+
+    this.log.info('Moving "%s" to "%s"', oldPath, newPath);
+    return fs.promises.rename(oldPath, newPath);
   }
 }

@@ -10,7 +10,7 @@ import is from 'electron-is';
 import log from 'electron-log';
 import { app, protocol, BrowserWindow } from 'electron';
 import { Constants, Util } from '@liga/shared';
-import { WindowManager } from '@liga/backend/lib';
+import { DatabaseClient, WindowManager } from '@liga/backend/lib';
 
 /**
  * This method will be called when Electron has finished
@@ -21,6 +21,13 @@ import { WindowManager } from '@liga/backend/lib';
  * @function
  */
 async function handleOnReady() {
+  // @todo: remove after beta
+  try {
+    await DatabaseClient.patchForChromium();
+  } catch (error) {
+    log.warn(error);
+  }
+
   // register all ipc handlers
   Object.values(IPCHandlers).forEach((handler) => handler());
 
