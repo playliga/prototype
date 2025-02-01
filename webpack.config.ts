@@ -17,6 +17,7 @@ import type { Configuration, ModuleOptions } from 'webpack';
  * @constant
  */
 const WebpackSharedConfig: Partial<Configuration> = {
+  plugins: [new ForkTsCheckerWebpackPlugin({ logger: 'webpack-infrastructure' })],
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
     alias: {
@@ -114,5 +115,4 @@ export const ElectronRendererWebpackConfig: Configuration = {
       },
     ],
   },
-  plugins: [new ForkTsCheckerWebpackPlugin()],
 };

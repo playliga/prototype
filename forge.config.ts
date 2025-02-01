@@ -4,11 +4,14 @@
  * @module
  */
 import 'dotenv/config';
+import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
+import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import { FusesPlugin } from '@electron-forge/plugin-fuses';
+import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { ElectronMainWebpackConfig, ElectronRendererWebpackConfig } from './webpack.config';
-import type { ForgeConfig } from '@electron-forge/shared-types';
 
 /**
  * Electron Forge main configuration object.
@@ -18,6 +21,7 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 const config: ForgeConfig = {
   buildIdentifier: 'alpha',
   packagerConfig: {
+    asar: true,
     appBundleId: 'gg.playliga.application',
     appCopyright: 'Copyright © 2024 Steve Rivera',
     extraResource: [
@@ -55,6 +59,7 @@ const config: ForgeConfig = {
     },
   ],
   plugins: [
+    new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig: ElectronMainWebpackConfig,
       renderer: {
@@ -100,6 +105,17 @@ const config: ForgeConfig = {
           },
         ],
       },
+    }),
+    // fuses are used to enable/disable various Electron functionality
+    // at package time, before code signing the application
+    new FusesPlugin({
+      version: FuseVersion.V1,
+      [FuseV1Options.RunAsNode]: false,
+      [FuseV1Options.EnableCookieEncryption]: true,
+      [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+      [FuseV1Options.EnableNodeCliInspectArguments]: false,
+      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+      [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
 };
