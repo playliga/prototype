@@ -38,7 +38,7 @@ interface TokenResponse {
 
 /** @interface */
 interface UploadResponse {
-  name: 'databases.zip';
+  name: 'saves.zip';
   bucket: 'liga-esports-manager.appspot.com';
   contentType: 'application/zip';
   timeCreated: '2024-10-10T21:14:30.374Z';

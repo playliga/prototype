@@ -21,7 +21,7 @@ const config: ForgeConfig = {
     appBundleId: 'gg.playliga.application',
     appCopyright: 'Copyright © 2024 Steve Rivera',
     extraResource: [
-      './src/backend/prisma/databases',
+      './src/backend/prisma/saves',
       './src/backend/prisma/migrations',
       './src/resources/blazonry',
       './src/resources/maps',

@@ -10,7 +10,7 @@
  * %APPDATA%/
  * └── Roaming/
  *     └── <app>/
- *         └── databases/
+ *         └── saves/
  *             └── save_1.db    // DatabaseClient.connect(1)
  * ```
  *
@@ -34,6 +34,7 @@
  */
 import * as sqlite3 from 'sqlite3';
 import * as Mods from './mods';
+import * as FileManager from './file-manager';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -42,7 +43,7 @@ import log from 'electron-log';
 import { app } from 'electron';
 import { PrismaClient } from '@prisma/client';
 import { glob } from 'glob';
-import { Eagers, Util } from '@liga/shared';
+import { Constants, Eagers, Util } from '@liga/shared';
 
 /** @interface */
 interface PrismaMigration {
@@ -183,6 +184,19 @@ export default class DatabaseClient {
     const rootSavePath = path.join(DatabaseClient.localBasePath, rootSaveName);
     const newSaveName = Util.getSaveFileName(id);
     const newSavePath = path.join(DatabaseClient.basePath, newSaveName);
+
+    // migrate from `databases to `saves`
+    // due to a conflict with chromium
+    //
+    // @todo: remove after beta
+    try {
+      await FileManager.mv(
+        DatabaseClient.basePath.replace(Constants.Application.DATABASES_DIR, 'databases'),
+        DatabaseClient.basePath,
+      );
+    } catch (error) {
+      this.log.warn(error);
+    }
 
     // bail early if the file exists, otherwise
     // we build the file tree to the save file
@@ -329,8 +343,8 @@ export default class DatabaseClient {
    */
   public static get basePath() {
     return process.env['NODE_ENV'] === 'cli'
-      ? path.join(process.env.APPDATA, 'LIGA Esports Manager/databases')
-      : path.join(app.getPath('userData'), 'databases');
+      ? path.join(process.env.APPDATA, 'LIGA Esports Manager', Constants.Application.DATABASES_DIR)
+      : path.join(app.getPath('userData'), Constants.Application.DATABASES_DIR);
   }
 
   /**
@@ -341,12 +355,16 @@ export default class DatabaseClient {
    */
   public static get localBasePath() {
     if (process.env['NODE_ENV'] === 'cli') {
-      return path.join(__dirname, '../../../src/backend/prisma/databases');
+      return path.join(
+        __dirname,
+        '../../../src/backend/prisma',
+        Constants.Application.DATABASES_DIR,
+      );
     }
 
     return is.dev()
-      ? path.join(__dirname, '../../src/backend/prisma/databases')
-      : path.join(process.resourcesPath, 'databases');
+      ? path.join(__dirname, '../../src/backend/prisma', Constants.Application.DATABASES_DIR)
+      : path.join(process.resourcesPath, Constants.Application.DATABASES_DIR);
   }
 
   /**

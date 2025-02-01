@@ -16,7 +16,7 @@ import { pipeline } from 'node:stream/promises';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
 import { app } from 'electron';
-import { Util } from '@liga/shared';
+import { Constants, Util } from '@liga/shared';
 
 /** @enum */
 export enum EventIdentifier {
@@ -131,7 +131,11 @@ export class Manager extends events.EventEmitter {
     }
 
     // create the file tree if it doesn't already exist
-    const customSavePath = path.join(getPath(), 'databases', Util.getSaveFileName(0));
+    const customSavePath = path.join(
+      getPath(),
+      Constants.Application.DATABASES_DIR,
+      Util.getSaveFileName(0),
+    );
 
     try {
       await fs.promises.access(path.dirname(customSavePath), fs.constants.F_OK);

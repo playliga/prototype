@@ -15,6 +15,7 @@
 export enum Application {
   CALENDAR_DATE_FORMAT = 'yyyy/MM/dd',
   DATABASE_NAME_FORMAT = 'save_%s.db',
+  DATABASES_DIR = 'saves',
   GH_API_BODY_LIMIT = 65536,
   LOGGING_LEVEL = 'debug',
   SQUAD_MIN_LENGTH = 5,

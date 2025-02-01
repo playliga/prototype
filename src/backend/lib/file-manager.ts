@@ -26,7 +26,7 @@ export async function compress(source: string, remove = false) {
     await compressing.zip.compressFile(source, to);
   }
 
-  if(remove) {
+  if (remove) {
     await fs.promises.rm(source, { recursive: true });
   }
 
@@ -149,4 +149,23 @@ export async function restore(cwd: string) {
       return fs.promises.unlink(source);
     }),
   );
+}
+
+/**
+ * NodeJS equivalent of Linux's `mv` command.
+ *
+ * @param oldPath The old path.
+ * @param newPath The new path.
+ * @function
+ */
+export async function mv(oldPath: string, newPath: string) {
+  // first check if the old path exists
+  // and if it doesn't we bail early
+  try {
+    await fs.promises.access(oldPath, fs.constants.F_OK);
+  } catch (error) {
+    return;
+  }
+
+  return fs.promises.rename(oldPath, newPath);
 }

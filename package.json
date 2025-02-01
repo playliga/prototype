@@ -25,7 +25,7 @@
     "cli": "node --env-file .env -r ts-node/register -r tsconfig-paths/register cli",
     "cli:init": "openapi-typescript https://api.pandascore.co/openapi.json --output cli/generated/pandascore.ts",
     "docs": "npx typedoc --cleanOutputDir --entryPointStrategy expand src",
-    "db:clean": "shx rm -rf src/backend/prisma/databases/save_0.db",
+    "db:clean": "shx rm -rf src/backend/prisma/saves/save_0.db",
     "db:generate": "prisma generate --schema src/backend/prisma/schema.prisma",
     "db:init": "prisma migrate dev --schema src/backend/prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema src/backend/prisma/schema.prisma",

@@ -15,7 +15,7 @@ datasource db {
   provider  = "sqlite"
 
   // @note: setting connection limit fixes https://github.com/prisma/prisma/issues/9562
-  url       = "file:databases/save_0.db?connection_limit=1"
+  url       = "file:saves/save_0.db?connection_limit=1"
 }
 
 // ----------------------------------------------------------
