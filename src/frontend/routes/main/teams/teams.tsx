@@ -175,7 +175,7 @@ export default function () {
             <section>
               <button
                 type="button"
-                className="btn btn-primary btn-block !col-span-2 rounded-none"
+                className="btn btn-primary btn-block !col-span-2"
                 disabled={selectedFederationId < 0 || selectedTierId < 0 || !selectedTeam}
                 onClick={() => setTeam(teams.find((tteam) => tteam.id === selectedTeam.id))}
               >

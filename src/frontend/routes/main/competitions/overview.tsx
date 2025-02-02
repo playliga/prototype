@@ -307,7 +307,7 @@ export default function () {
         </header>
         <select
           className={cx(
-            'select w-full border-0 border-b border-base-content/10 bg-base-200',
+            'select w-full rounded-none border-0 border-b border-base-content/10 bg-base-200',
             'focus:border-0 focus:border-b disabled:bg-base-200 disabled:text-opacity-100',
           )}
           onChange={(event) => setSelectedGroup(Number(event.target.value))}

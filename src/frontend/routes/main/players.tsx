@@ -339,17 +339,17 @@ export default function () {
             </section>
           </fieldset>
           <fieldset>
-            <section>
+            <section className="join">
               <button
                 type="button"
-                className="btn btn-primary rounded-none"
+                className="btn btn-primary join-item"
                 onClick={triggerPlayerFetch}
               >
                 Apply
               </button>
               <button
                 type="button"
-                className="btn rounded-none"
+                className="btn join-item"
                 onClick={() => {
                   setSelectedCountry(null);
                   setSelectedFederationId('' as unknown as number);

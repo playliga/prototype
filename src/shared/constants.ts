@@ -366,8 +366,8 @@ export enum SimulationMode {
  * @enum
  */
 export enum ThemeSetting {
-  LIGHT = 'corporate',
-  DARK = 'business',
+  LIGHT = 'fantasy',
+  DARK = 'sunset',
 }
 
 /**

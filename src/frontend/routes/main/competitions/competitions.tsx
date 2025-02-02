@@ -218,7 +218,7 @@ export default function () {
             <section>
               <button
                 type="button"
-                className="btn btn-primary btn-block !col-span-2 rounded-none"
+                className="btn btn-primary btn-block !col-span-2"
                 disabled={selectedFederationId < 0 || selectedTierId < 0 || selectedSeasonId < 0}
                 onClick={() => api.competitions.find(competitionQuery).then(setCompetition)}
               >

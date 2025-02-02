@@ -419,7 +419,7 @@ export default function () {
             // or if there are no matches
             if (!spotlight) {
               return (
-                <section className="card image-full card-compact h-80 flex-grow rounded-none before:!rounded-none">
+                <section className="card image-full card-compact h-80 flex-grow rounded-none before:!rounded-none before:!opacity-50">
                   <figure>
                     <Image
                       className="h-full w-full"
@@ -449,7 +449,7 @@ export default function () {
             });
 
             return (
-              <section className="card image-full card-compact h-80 flex-grow rounded-none before:!rounded-none">
+              <section className="card image-full card-compact h-80 flex-grow rounded-none before:!rounded-none before:!opacity-50">
                 <figure className="border border-base-content/10">
                   <Image
                     className="h-full w-full"
@@ -507,7 +507,7 @@ export default function () {
                   <footer className="join justify-center">
                     <button
                       title="Match Setup"
-                      className="btn btn-square btn-ghost join-item hover:bg-transparent hover:text-secondary"
+                      className="btn join-item"
                       disabled={disabled || !!state.appStatus}
                       onClick={() =>
                         api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {

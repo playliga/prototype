@@ -644,7 +644,7 @@ export default function () {
         <section className="grid auto-rows-min grid-cols-2 gap-5 p-5 xl:grid-cols-3">
           <article className="col-span-2 xl:col-span-3">
             <button
-              className="btn rounded-none font-normal shadow-none"
+              className="btn font-normal shadow-none"
               onClick={() => setCollapsed(!collapsed)}
             >
               {collapsed ? <FaExpand /> : <FaCompress />}
