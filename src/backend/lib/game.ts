@@ -32,6 +32,15 @@ import { Constants, Bot, Chance, Util, Eagers } from '@liga/shared';
 const exec = util.promisify(execSync);
 
 /**
+ * Track the game process instance at the module level so
+ * other modules know if the app has launched the process
+ * or if it was launched by something else.
+ *
+ * @constant
+ */
+let gameClientProcess: ChildProcessWithoutNullStreams;
+
+/**
  * Custom error to throw when a process
  * has been detected as running.
  *
@@ -237,7 +246,7 @@ export async function isRunningAndThrow(name: string) {
   const { stdout } = await exec('tasklist');
   const isRunning = stdout.includes(path.basename(name));
 
-  if (isRunning) {
+  if (isRunning && !gameClientProcess) {
     throw new ProcessRunningError(`${name} is running!`);
   }
 }
@@ -413,6 +422,7 @@ export class Server {
 
     // clean up connections to processes and/or files
     await this.scorebot.quit();
+    gameClientProcess = null;
 
     // restore files
     return FileManager.restore(
@@ -876,7 +886,7 @@ export class Server {
    */
   private async launchClientCS16() {
     // launch the client
-    this.gameClientProcess = spawn(
+    gameClientProcess = spawn(
       Constants.GameSettings.CS16_EXE,
       [
         '-game',
@@ -899,7 +909,7 @@ export class Server {
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS16_BASEDIR) },
     );
 
-    this.gameClientProcess.on('close', this.cleanup.bind(this));
+    gameClientProcess.on('close', this.cleanup.bind(this));
     return Promise.resolve();
   }
 
@@ -910,7 +920,7 @@ export class Server {
    */
   private launchClientCS2() {
     // launch the client
-    this.gameClientProcess = spawn(
+    gameClientProcess = spawn(
       Constants.GameSettings.CS2_EXE,
       [
         '+map',
@@ -930,7 +940,7 @@ export class Server {
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS2_BASEDIR) },
     );
 
-    this.gameClientProcess.on('close', this.cleanup.bind(this));
+    gameClientProcess.on('close', this.cleanup.bind(this));
     return Promise.resolve();
   }
 
@@ -964,13 +974,13 @@ export class Server {
     defaultArgs.unshift('-insecure');
 
     if (is.osx()) {
-      this.gameClientProcess = spawn(
+      gameClientProcess = spawn(
         'open',
         [`steam://rungameid/${Constants.GameSettings.CSGO_APPID}//'${defaultArgs.join(' ')}'`],
         { shell: true },
       );
     } else {
-      this.gameClientProcess = spawn(
+      gameClientProcess = spawn(
         Constants.GameSettings.CSGO_EXE,
         [
           '-applaunch',
@@ -982,7 +992,7 @@ export class Server {
       );
     }
 
-    this.gameClientProcess.on('close', this.cleanup.bind(this));
+    gameClientProcess.on('close', this.cleanup.bind(this));
     return Promise.resolve();
   }
 
@@ -1006,13 +1016,13 @@ export class Server {
     ];
 
     if (is.osx()) {
-      this.gameClientProcess = spawn(
+      gameClientProcess = spawn(
         'open',
         [`steam://rungameid/${Constants.GameSettings.CSSOURCE_APPID}//'${commonFlags.join(' ')}'`],
         { shell: true },
       );
     } else {
-      this.gameClientProcess = spawn(
+      gameClientProcess = spawn(
         Constants.GameSettings.CSSOURCE_EXE,
         ['-game', Constants.GameSettings.CSSOURCE_GAMEDIR, ...commonFlags],
         {
@@ -1021,7 +1031,7 @@ export class Server {
       );
     }
 
-    this.gameClientProcess.on('close', this.cleanup.bind(this));
+    gameClientProcess.on('close', this.cleanup.bind(this));
     return Promise.resolve();
   }
 
@@ -1032,7 +1042,7 @@ export class Server {
    */
   private async launchClientCZERO() {
     // launch the client
-    this.gameClientProcess = spawn(
+    gameClientProcess = spawn(
       Constants.GameSettings.CZERO_EXE,
       [
         '-game',
@@ -1054,7 +1064,7 @@ export class Server {
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CZERO_BASEDIR) },
     );
 
-    this.gameClientProcess.on('close', this.cleanup.bind(this));
+    gameClientProcess.on('close', this.cleanup.bind(this));
 
     return Promise.resolve();
   }
