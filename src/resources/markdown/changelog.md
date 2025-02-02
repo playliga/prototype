@@ -1,3 +1,14 @@
+## 3.0.0-beta.31 (2025-02-02)
+
+### Features
+
+- updated light and dark themes ([#362](https://github.com/playliga/application/issues/362)) ([cd0c076](https://github.com/playliga/application/commit/cd0c0769ec6c308d38d467762c6e322025760f13))
+
+### Bug Fixes
+
+- show warning banner if game is already running ([#346](https://github.com/playliga/application/issues/346)) ([8a41672](https://github.com/playliga/application/commit/8a4167230fed1bfb1e245f1ea753c34fcd5d3807))
+- show warning banner when steam is not installed ([#357](https://github.com/playliga/application/issues/357)) ([62b6bda](https://github.com/playliga/application/commit/62b6bdad5787d90ca1f8ee093de0abe3845c9e50))
+
 ## 3.0.0-beta.30 (2025-01-30)
 
 ### Bug Fixes
