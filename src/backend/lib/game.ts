@@ -271,6 +271,7 @@ export class Server {
   private scorebot: Scorebot.Watcher;
   private serverConfigFile: string;
   private settings: typeof Constants.Settings;
+  private spectating?: boolean;
   private weaponPbxWeight: Record<string, number>;
 
   public competitors: Server['match']['competitors'];
@@ -290,7 +291,12 @@ export class Server {
       | Scorebot.EventPayloadRoundOver;
   }>;
 
-  constructor(profile: Server['profile'], match: Server['match'], gameOverride?: Constants.Game) {
+  constructor(
+    profile: Server['profile'],
+    match: Server['match'],
+    gameOverride?: Constants.Game,
+    spectating?: boolean,
+  ) {
     // set up plain properties
     this.allowDraw = false;
     this.log = log.scope('gameserver');
@@ -298,6 +304,7 @@ export class Server {
     this.profile = profile;
     this.settings = Util.loadSettings(profile.settings);
     this.scorebotEvents = [];
+    this.spectating = spectating;
 
     // handle game override
     if (gameOverride) {
@@ -349,12 +356,17 @@ export class Server {
         break;
     }
 
-    // trim and remove user from team squad
+    // build competitors data
     this.competitors = match.competitors.map((competitor) => ({
       ...competitor,
       team: {
         ...competitor.team,
-        players: Util.getSquad(competitor.team, this.profile),
+        players: Util.getSquad(
+          competitor.team,
+          this.profile,
+          false,
+          this.spectating && Constants.Application.SQUAD_MIN_LENGTH,
+        ),
       },
     }));
 
@@ -694,6 +706,7 @@ export class Server {
           teamname_ct: away.team.name,
           gameover_delay: Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY,
           bot_chatter: this.settings.general.botChatter,
+          spectating: +this.spectating,
 
           // csgo only
           match_stat: this.match.competition.tier.name,
@@ -701,8 +714,8 @@ export class Server {
           teamflag_ct: away.team.country.code,
           shortname_t: home.team.slug,
           shortname_ct: away.team.slug,
-          stat_t: homeStats.position,
-          stat_ct: awayStats.position,
+          stat_t: Util.toOrdinalSuffix(homeStats.position),
+          stat_ct: Util.toOrdinalSuffix(awayStats.position),
         }),
       ),
     ]);

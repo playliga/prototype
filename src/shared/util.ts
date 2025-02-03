@@ -264,15 +264,18 @@ export function sanitizeFileName(fileName: string) {
  * @param team        The team database record.
  * @param profile     The profile database record.
  * @param includeUser Whether to include the user in the squad.
+ * @param forceSize   Force the team size.
  * @function
  */
 export function getSquad(
   team: Prisma.TeamGetPayload<{ include: { players: { include: { country: true } } } }>,
   profile: Prisma.ProfileGetPayload<unknown>,
   includeUser = false,
+  forceSize?: number,
 ) {
   // target length for this team (excluding the user)
-  const size = Constants.GameSettings.SQUAD_STARTERS_NUM - +(team.id === profile.teamId);
+  const size =
+    forceSize || Constants.GameSettings.SQUAD_STARTERS_NUM - +(team.id === profile.teamId);
 
   // ensure the squad does not include the user
   let squad = team.players.filter((player) => player.id !== profile.playerId);

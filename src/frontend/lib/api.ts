@@ -135,7 +135,7 @@ export default {
     installed: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<string>,
   },
   play: {
-    start: () => ipcRenderer.invoke(Constants.IPCRoute.PLAY_START),
+    start: (spectating?: boolean) => ipcRenderer.invoke(Constants.IPCRoute.PLAY_START, spectating),
   },
   plugins: {
     start: () => ipcRenderer.send(Constants.IPCRoute.PLUGINS_START),

@@ -34,6 +34,7 @@ import {
  */
 const DEFAULT_ARGS = {
   game: Constants.Game.CS16,
+  spectate: false,
 };
 
 /**
@@ -159,7 +160,7 @@ async function sandboxGame(args?: typeof DEFAULT_ARGS) {
     },
     include: Eagers.match.include,
   });
-  const gs = new Game.Server(profile, match, args.game);
+  const gs = new Game.Server(profile, match, args.game, args.spectate);
   return gs.start();
 }
 
@@ -474,6 +475,7 @@ export default {
       .description('A sandbox module for testing common library functions.')
       .argument('<type>', 'The type of sandbox to run.')
       .option('-g --game <name>', 'The name of the game.', DEFAULT_ARGS.game)
+      .option('-s --spectate', 'Spectate the game.', DEFAULT_ARGS.spectate)
       .action(handleSandboxType);
   },
 };

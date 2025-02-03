@@ -18,6 +18,7 @@ import {
   FaExclamationTriangle,
   FaForward,
   FaMapSigns,
+  FaTv,
 } from 'react-icons/fa';
 
 /** @interface */
@@ -532,11 +533,25 @@ export default function () {
                       Play
                     </button>
                     <button
-                      className={cx('btn join-item btn-wide', disabled && 'btn-outline')}
+                      className="btn join-item btn-wide"
                       disabled={disabled}
                       onClick={() => api.calendar.sim().then(() => startEngineLoop(1))}
                     >
-                      Sim Match
+                      Simulate
+                    </button>
+                    <button
+                      title="Spectate Match"
+                      className="btn btn-secondary join-item"
+                      disabled={disabled || !!state.appStatus}
+                      onClick={() => {
+                        setPlaying(true);
+                        Util.sleep(GAME_LAUNCH_DELAY)
+                          .then(() => api.play.start(true))
+                          .then(() => startEngineLoop(1))
+                          .then(() => setPlaying(false));
+                      }}
+                    >
+                      <FaTv />
                     </button>
                   </footer>
                 </article>
