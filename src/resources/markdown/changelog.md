@@ -1,3 +1,9 @@
+## 3.0.0-beta.32 (2025-02-03)
+
+### Bug Fixes
+
+- fix plugins and mods not downloading ([#363](https://github.com/playliga/application/issues/363)) ([9234754](https://github.com/playliga/application/commit/9234754ffa0cf05c364a38ab17db8da580d726fb))
+
 ## 3.0.0-beta.31 (2025-02-02)
 
 ### Features
