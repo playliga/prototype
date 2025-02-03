@@ -10,9 +10,6 @@ import events from 'node:events';
 import log from 'electron-log';
 import compressing from 'compressing';
 import AppInfo from 'package.json';
-import { pipeline } from 'node:stream/promises';
-import { ReadableStream } from 'node:stream/web';
-import { Readable } from 'node:stream';
 
 /** @enum */
 export enum EventIdentifier {
@@ -184,17 +181,24 @@ export class Manager extends events.EventEmitter {
     }
 
     // track download progress
-    const readableStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
-    const totalSize = Number(response.headers.get('content-length'));
     let downloadedSize = 0;
+    const totalSize = Number(response.headers.get('content-length'));
+    const writableStream = fs.createWriteStream(this.zipPath);
+    const reader = response.body.getReader();
 
-    readableStream.on('data', (chunk) => {
-      downloadedSize += chunk.length;
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      downloadedSize += value.length;
+      writableStream.write(value);
       this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (downloadedSize / totalSize) * 100);
-    });
+    }
 
-    // pipe the download to a file
-    return pipeline(readableStream, fs.createWriteStream(this.zipPath));
+    writableStream.end();
   }
 
   /**

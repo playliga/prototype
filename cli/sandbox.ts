@@ -326,7 +326,8 @@ async function sandboxGithub() {
  * @function
  */
 async function sandboxPluginManager() {
-  return Plugins.getPath();
+  const plugins = new Plugins.Manager('https://github.com/playliga/plugins.git');
+  plugins.checkForUpdates();
 }
 
 /**
@@ -336,7 +337,10 @@ async function sandboxPluginManager() {
  */
 async function sandboxModManager() {
   const mods = new Mods.Manager('https://github.com/playliga/mods.git');
-  return mods.all();
+  log.info(await mods.all());
+
+  await mods.download('retro-strike');
+  await mods.extract();
 }
 
 /**

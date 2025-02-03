@@ -12,9 +12,6 @@ import fs from 'node:fs';
 import util from 'node:util';
 import compressing from 'compressing';
 import log from 'electron-log';
-import { pipeline } from 'node:stream/promises';
-import { ReadableStream } from 'node:stream/web';
-import { Readable } from 'node:stream';
 import { app } from 'electron';
 import { Constants, Util } from '@liga/shared';
 
@@ -53,7 +50,9 @@ export interface Manager {
  * @function
  */
 export function getPath() {
-  return path.join(app.getPath('userData'), 'custom');
+  return process.env['NODE_ENV'] === 'cli'
+    ? path.join(process.env.APPDATA, 'LIGA Esports Manager', 'custom')
+    : path.join(app.getPath('userData'), 'custom');
 }
 
 /**
@@ -93,7 +92,7 @@ export class Manager extends events.EventEmitter {
    * @method
    */
   private static getInstalledModFilePath() {
-    return path.join(app.getPath('userData'), 'InstalledMod');
+    return path.join(path.dirname(getPath()), 'InstalledMod');
   }
 
   /**
@@ -102,11 +101,6 @@ export class Manager extends events.EventEmitter {
    * @method
    */
   public static async init() {
-    // bail early if we're in cli mode
-    if (process.env['NODE_ENV'] === 'cli') {
-      return Promise.resolve();
-    }
-
     try {
       await fs.promises.access(getPath(), fs.constants.F_OK);
       return Promise.resolve();
@@ -266,17 +260,24 @@ export class Manager extends events.EventEmitter {
     }
 
     // track download progress
-    const readableStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
-    const totalSize = Number(response.headers.get('content-length'));
     let downloadedSize = 0;
+    const totalSize = Number(response.headers.get('content-length'));
+    const writableStream = fs.createWriteStream(this.zipPath);
+    const reader = response.body.getReader();
 
-    readableStream.on('data', (chunk) => {
-      downloadedSize += chunk.length;
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      downloadedSize += value.length;
+      writableStream.write(value);
       this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (downloadedSize / totalSize) * 100);
-    });
+    }
 
-    // pipe the download to a file
-    return pipeline(readableStream, fs.createWriteStream(this.zipPath));
+    writableStream.end();
   }
 
   /**
