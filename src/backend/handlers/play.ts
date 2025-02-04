@@ -182,7 +182,7 @@ export default function () {
           id: -1,
           type: Constants.BonusType.SERVER,
           name: 'Win Bonus',
-          stats: JSON.stringify({ skill: 5, agression: 5, reactionTime: 5, attackDelay: 5 }),
+          stats: JSON.stringify({ skill: 1, agression: 1, reactionTime: 1, attackDelay: 1 }),
           cost: -1,
           profileId: -1,
         },

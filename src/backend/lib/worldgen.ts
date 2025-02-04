@@ -1350,29 +1350,29 @@ export async function onMatchdayNPC(entry: Calendar) {
   }
 
   // load sim settings if this is a user matchday
-  const simulationSettings = {} as Partial<Parameters<typeof Simulator.score>['1']>;
+  const simulator = new Simulator.Score();
 
   if (entry.type === Constants.CalendarEntry.MATCHDAY_USER) {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     const settings = Util.loadSettings(profile.settings);
-    simulationSettings.userTeamId = profile.teamId;
-    simulationSettings.mode = settings.general.simulationMode;
+    simulator.mode = settings.general.simulationMode;
+    simulator.userPlayerId = profile.playerId;
+    simulator.userTeamId = profile.teamId;
   }
 
   // are draws allowed?
   if (!match.competition.tier.groupSize) {
-    simulationSettings.allowDraw = false;
+    simulator.allowDraw = false;
   }
 
   // sim the game
   const [home, away] = match.competitors;
-  const simulationResult = Simulator.score([home.team, away.team], simulationSettings);
+  const simulationResult = simulator.generate([home.team, away.team]);
 
   // check if we need to award earnings to user for a win
   if (
     entry.type === Constants.CalendarEntry.MATCHDAY_USER &&
-    Simulator.getMatchResult(simulationSettings.userTeamId, simulationResult) ===
-      Constants.MatchResult.WIN
+    Simulator.getMatchResult(simulator.userTeamId, simulationResult) === Constants.MatchResult.WIN
   ) {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     await DatabaseClient.prisma.team.update({

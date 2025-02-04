@@ -96,11 +96,11 @@ export default class DatabaseClient {
           // @todo: fix typings for eager loaded relations
           async findFirst({ args, query }) {
             if (pool[activeId].records.profile) {
-              DatabaseClient.log.debug('cache hit for profile.');
+              DatabaseClient.log.silly('cache hit for profile.');
               return pool[activeId].records.profile;
             }
 
-            DatabaseClient.log.debug('cache miss for profile.');
+            DatabaseClient.log.silly('cache miss for profile.');
             pool[activeId].records.profile = await query({
               ...args,
               ...Eagers.profile,
@@ -108,7 +108,7 @@ export default class DatabaseClient {
             return pool[activeId].records.profile;
           },
           async update({ args, query }) {
-            DatabaseClient.log.debug('hydrating profile cache...');
+            DatabaseClient.log.silly('hydrating profile cache...');
             pool[activeId].records.profile = await query({
               ...args,
               ...Eagers.profile,

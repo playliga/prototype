@@ -136,7 +136,8 @@ async function sandboxScore() {
   });
 
   const iterations = 10;
-  log.info([...Array(iterations)].map(() => Simulator.score([home, away])));
+  const simulator = new Simulator.Score();
+  log.info([...Array(iterations)].map(() => simulator.generate([home, away])));
   return Promise.resolve();
 }
 
