@@ -1,3 +1,13 @@
+## 3.0.0-beta.33 (2025-02-04)
+
+### Features
+
+- add a spectator mode ([#360](https://github.com/playliga/application/issues/360)) ([d99c3e0](https://github.com/playliga/application/commit/d99c3e01fa99f967056ba15491ad4333e0690d35))
+
+### Bug Fixes
+
+- various adjustments to simulation logic ([#364](https://github.com/playliga/application/issues/364)) ([aa7db6f](https://github.com/playliga/application/commit/aa7db6fd5dd0ded11736f193d48db168ea1e77e4))
+
 ## 3.0.0-beta.32 (2025-02-03)
 
 ### Bug Fixes
