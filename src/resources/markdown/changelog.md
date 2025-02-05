@@ -1,3 +1,14 @@
+## 3.0.0-beta.34 (2025-02-05)
+
+### Features
+
+- add ability to remove or uninstall mods ([#356](https://github.com/playliga/application/issues/356)) ([5d3d2d7](https://github.com/playliga/application/commit/5d3d2d7434c3d144e8a53f4e96586aa686382aa0))
+- apply bot difficulty override to user's team as well ([#365](https://github.com/playliga/application/issues/365)) ([ceac2dc](https://github.com/playliga/application/commit/ceac2dc84f76eb7fd22835743fedb29f9ea731c7))
+
+### Bug Fixes
+
+- allow csgobetterbots to detect elite-level bots as pros ([#353](https://github.com/playliga/application/issues/353)) ([628c022](https://github.com/playliga/application/commit/628c022fc8faf357a8a197683cf2f2c656726b75))
+
 ## 3.0.0-beta.33 (2025-02-04)
 
 ### Features
