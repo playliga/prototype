@@ -225,6 +225,27 @@ export class Manager extends events.EventEmitter {
   }
 
   /**
+   * Deletes the currently installed mod folders.
+   *
+   * @function
+   */
+  public async delete() {
+    // grab just the folders in the mods directory
+    const items = await fs.promises.readdir(getPath(), { withFileTypes: true });
+    const folders = items.filter((item) => item.isDirectory());
+
+    // empty out the installed mod file
+    await fs.promises.writeFile(Manager.getInstalledModFilePath(), '', 'utf8');
+
+    // remove them
+    return Promise.all(
+      folders.map((folder) =>
+        fs.promises.rm(path.join(folder.parentPath, folder.name), { recursive: true }),
+      ),
+    );
+  }
+
+  /**
    * Downloads the specified mod.
    *
    * @param name The name of the mod to download.

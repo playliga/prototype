@@ -131,6 +131,7 @@ export default {
   },
   mods: {
     all: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_ALL) as Promise<Array<ModMetadata>>,
+    delete: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_DELETE) as Promise<Array<void>>,
     download: (name: string) => ipcRenderer.send(Constants.IPCRoute.MODS_DOWNLOAD, name),
     installed: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<string>,
   },

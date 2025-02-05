@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { Constants } from '@liga/shared';
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload, FaTrashAlt } from 'react-icons/fa';
 
 /** @enum */
 enum Status {
@@ -94,11 +94,11 @@ export default function () {
                   <code>{mod.version}</code>
                 </td>
                 <td className="text-center">
-                  {(!downloading || (!!downloading && downloading !== mod.name)) && (
+                  {((!downloading && installed.replace('.zip', '') !== mod.name.toLowerCase()) ||
+                    (!!downloading && downloading !== mod.name)) && (
                     <button
                       title="Download and Install"
                       className="btn btn-primary btn-sm"
-                      disabled={installed.replace('.zip', '') === mod.name.toLowerCase()}
                       onClick={() => {
                         api.mods.download(mod.name);
                         setDownloading(mod.name);
@@ -109,6 +109,17 @@ export default function () {
                   )}
                   {!!downloading && downloading === mod.name && (
                     <progress className="progress" value={progress} max="100" />
+                  )}
+                  {!downloading && installed.replace('.zip', '') === mod.name.toLowerCase() && (
+                    <button
+                      title="Uninstall"
+                      className="btn btn-error btn-sm"
+                      onClick={() => {
+                        api.mods.delete().then(() => setInstalled(''));
+                      }}
+                    >
+                      <FaTrashAlt />
+                    </button>
                   )}
                 </td>
                 <td className="text-center">

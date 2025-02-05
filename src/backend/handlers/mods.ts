@@ -20,6 +20,10 @@ export default function () {
     const mods = new Mods.Manager(MODS_REPO_URL);
     return mods.all();
   });
+  ipcMain.handle(Constants.IPCRoute.MODS_DELETE, async () => {
+    const mods = new Mods.Manager(MODS_REPO_URL);
+    return mods.delete();
+  });
   ipcMain.on(Constants.IPCRoute.MODS_DOWNLOAD, async (event, data: string) => {
     // initialize the mod manager
     const mods = new Mods.Manager(MODS_REPO_URL);

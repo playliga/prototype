@@ -228,6 +228,7 @@ export enum IPCRoute {
   MATCHES_PREVIOUS = '/matches/previous',
   MATCHES_UPCOMING = '/matches/upcoming',
   MODS_ALL = '/mods/all',
+  MODS_DELETE = '/mods/delete',
   MODS_DOWNLOAD = '/mods/download',
   MODS_DOWNLOAD_PROGRESS = '/mods/download-progress',
   MODS_DOWNLOADING = '/mods/downloading',

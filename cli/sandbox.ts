@@ -343,6 +343,7 @@ async function sandboxModManager() {
 
   await mods.download('retro-strike');
   await mods.extract();
+  await mods.delete();
 }
 
 /**
