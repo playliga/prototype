@@ -21,7 +21,7 @@ import { spawn, ChildProcessWithoutNullStreams, exec as execSync } from 'node:ch
 import { app } from 'electron';
 import { glob } from 'glob';
 import { Prisma, Profile } from '@prisma/client';
-import { flatten, random, startCase, uniq } from 'lodash';
+import { compact, flatten, random, startCase, uniq } from 'lodash';
 import { Constants, Bot, Chance, Util, Eagers } from '@liga/shared';
 
 /**
@@ -440,6 +440,73 @@ export class Server {
     return FileManager.restore(
       path.join(this.settings.general.gamePath, this.baseDir, this.gameDir),
     );
+  }
+
+  /**
+   * Patches the `configs/bot_names.txt` file for the CSGOBetterBots plugin to
+   * pick up Elite-level bots as Pros and improve their aim and behaviors.
+   *
+   * @note csgo only.
+   * @function
+   */
+  private async generateBetterBotsConfig() {
+    // bail early if not csgo
+    if (this.settings.general.game !== Constants.Game.CSGO) {
+      return;
+    }
+
+    // bail early if the bot names txt file is not found
+    const original = path.join(
+      this.settings.general.gamePath,
+      this.baseDir,
+      this.gameDir,
+      Constants.GameSettings.CSGO_BETTER_BOTS_NAMES_FILE,
+    );
+
+    try {
+      await fs.promises.access(original, fs.constants.F_OK);
+    } catch (error) {
+      this.log.warn(error);
+      return;
+    }
+
+    // find the last occurrence of `}`
+    const content = await fs.promises.readFile(original, 'utf8');
+    const lastBracketIndex = content.lastIndexOf('}');
+
+    if (lastBracketIndex === -1) {
+      this.log.warn('Invalid bot_names.txt format: Missing closing bracket.');
+      return;
+    }
+
+    // create list of bots that are elite level and
+    // add them to the list of pro bot names
+    const names = flatten(this.competitors.map((competitor) => competitor.team.players)).map(
+      (player) => {
+        const xp = new Bot.Exp(JSON.parse(player.stats));
+        const difficulty = xp.getBotTemplate().name;
+
+        if (difficulty !== Constants.BotDifficulty.ELITE) {
+          return;
+        }
+
+        return `"${player.name}"\t\t\t"LIGA"`;
+      },
+    );
+
+    // bail early if there are no players to insert
+    if (!names.length) {
+      return;
+    }
+
+    // insert new names before the last `}`
+    const contentNew =
+      content.slice(0, lastBracketIndex) +
+      '\t' +
+      compact(names).join('\n\t') +
+      '\n' +
+      content.slice(lastBracketIndex);
+    return fs.promises.writeFile(original, contentNew, 'utf8');
   }
 
   /**
@@ -1134,6 +1201,7 @@ export class Server {
       default:
         await this.generateInventoryConfig();
         await this.generateScoreboardConfig();
+        await this.generateBetterBotsConfig();
         break;
     }
   }

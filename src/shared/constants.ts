@@ -668,6 +668,7 @@ export const GameSettings = {
 
   // csgo settings
   CSGO_APPID: 730,
+  CSGO_BETTER_BOTS_NAMES_FILE: 'addons/sourcemod/configs/bot_names.txt',
   CSGO_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
   CSGO_BOT_CONFIG: 'botprofile.db',
   CSGO_BASEDIR: 'steamapps/common/Counter-Strike Global Offensive',
