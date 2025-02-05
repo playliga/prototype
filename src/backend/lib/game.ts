@@ -667,8 +667,12 @@ export class Server {
     const bots = flatten(
       this.competitors.map((competitor, idx) =>
         competitor.team.players.map((player) => {
-          // only check for difficulty modifier for cpu's team
-          if (this.settings.general.botDifficulty && competitor.teamId !== this.profile.teamId) {
+          // difficulty modifiers do not apply to the user's
+          // team unless they are in spectating mode
+          if (
+            this.settings.general.botDifficulty &&
+            (competitor.teamId !== this.profile.teamId || this.spectating)
+          ) {
             player.stats = JSON.stringify(
               Bot.Templates.find(
                 (template) => template.name === this.settings.general.botDifficulty,
