@@ -5,18 +5,18 @@
  * @module
  */
 import 'dotenv/config';
+import type { Configuration } from 'webpack';
 import path from 'path';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import { EnvironmentPlugin } from 'webpack';
-import type { Configuration, ModuleOptions } from 'webpack';
 
 /**
  * Webpack shared configuration.
  *
  * @constant
  */
-const WebpackSharedConfig: Partial<Configuration> = {
+const WebpackSharedConfig = {
   plugins: [new ForkTsCheckerWebpackPlugin({ logger: 'webpack-infrastructure' })],
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
@@ -25,40 +25,36 @@ const WebpackSharedConfig: Partial<Configuration> = {
       'package.json': path.resolve(__dirname, 'package.json'),
     },
   },
+  module: {
+    rules: [
+      {
+        test: /native_modules\/.+\.node$/,
+        use: 'node-loader',
+      },
+      {
+        test: /\.(m?js|node)$/,
+        exclude: /\.prisma/,
+        parser: { amd: false },
+        use: {
+          loader: '@vercel/webpack-asset-relocator-loader',
+          options: {
+            outputAssetBase: 'native_modules',
+          },
+        },
+      },
+      {
+        test: /\.tsx?$/,
+        exclude: /(node_modules|\.webpack)/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+          },
+        },
+      },
+    ],
+  },
 };
-
-/**
- * Webpack module rules.
- *
- * @constant
- */
-const WebpackRulesConfig: Required<ModuleOptions>['rules'] = [
-  {
-    test: /native_modules\/.+\.node$/,
-    use: 'node-loader',
-  },
-  {
-    test: /\.(m?js|node)$/,
-    exclude: /\.prisma/,
-    parser: { amd: false },
-    use: {
-      loader: '@vercel/webpack-asset-relocator-loader',
-      options: {
-        outputAssetBase: 'native_modules',
-      },
-    },
-  },
-  {
-    test: /\.tsx?$/,
-    exclude: /(node_modules|\.webpack)/,
-    use: {
-      loader: 'ts-loader',
-      options: {
-        transpileOnly: true,
-      },
-    },
-  },
-];
 
 /**
  * Webpack configuration options for
@@ -69,8 +65,8 @@ const WebpackRulesConfig: Required<ModuleOptions>['rules'] = [
 export const ElectronMainWebpackConfig: Configuration = {
   ...WebpackSharedConfig,
   entry: './src/backend/index.ts',
-  module: { rules: WebpackRulesConfig },
   plugins: [
+    ...WebpackSharedConfig.plugins,
     new EnvironmentPlugin([
       'GH_ISSUES_CLIENT_ID',
       'FIREBASE_CLIENT_EMAIL',
@@ -93,7 +89,7 @@ export const ElectronRendererWebpackConfig: Configuration = {
   ...WebpackSharedConfig,
   module: {
     rules: [
-      ...WebpackRulesConfig,
+      ...WebpackSharedConfig.module.rules,
       {
         test: /\.css$/,
         use: [
@@ -103,7 +99,7 @@ export const ElectronRendererWebpackConfig: Configuration = {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: ['tailwindcss/nesting', 'tailwindcss', 'autoprefixer'],
+                plugins: ['tailwindcss/nesting', 'tailwindcss'],
               },
             },
           },
