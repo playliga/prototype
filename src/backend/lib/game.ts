@@ -304,7 +304,7 @@ export class Server {
     this.profile = profile;
     this.settings = Util.loadSettings(profile.settings);
     this.scorebotEvents = [];
-    this.spectating = spectating;
+    this.spectating = Boolean(spectating);
 
     // handle game override
     if (gameOverride) {
