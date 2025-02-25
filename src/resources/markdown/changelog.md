@@ -1,3 +1,9 @@
+## 3.0.0-beta.35 (2025-02-25)
+
+### Bug Fixes
+
+- fix cs:s stuck in spectator mode ([#375](https://github.com/playliga/application/issues/375)) ([2a0ca8f](https://github.com/playliga/application/commit/2a0ca8f33a50ce70051e65135a76621ceec571ba))
+
 ## 3.0.0-beta.34 (2025-02-05)
 
 ### Features
