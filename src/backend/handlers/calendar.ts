@@ -149,6 +149,14 @@ export default function () {
   Engine.Runtime.Instance.register(Constants.CalendarEntry.MATCHDAY_USER, Worldgen.onMatchdayUser);
   Engine.Runtime.Instance.register(Constants.CalendarEntry.SEASON_START, Worldgen.onSeasonStart);
   Engine.Runtime.Instance.register(
+    Constants.CalendarEntry.SPONSORSHIP_PARSE,
+    Worldgen.onSponsorshipOffer,
+  );
+  Engine.Runtime.Instance.register(
+    Constants.CalendarEntry.SPONSORSHIP_PAYMENT,
+    Worldgen.onSponsorshipPayment,
+  );
+  Engine.Runtime.Instance.register(
     Constants.CalendarEntry.TRANSFER_PARSE,
     Worldgen.onTransferOffer,
   );

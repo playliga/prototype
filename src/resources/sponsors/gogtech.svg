@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Main Rounded Rectangle Background -->
+  <rect x="60" y="100" width="280" height="100" rx="20" ry="20" fill="#1E1E1E"/>
+
+  <!-- Circuit Board Pattern (stylized) -->
+  <path d="M70 110 H330 M70 130 H330 M70 150 H330 M70 170 H330 M70 190 H330" stroke="#333333" stroke-width="1"/>
+  <path d="M80 110 V190 M120 110 V190 M160 110 V190 M200 110 V190 M240 110 V190 M280 110 V190 M320 110 V190" stroke="#333333" stroke-width="1"/>
+
+  <!-- Stylized "G" that forms a gaming headset shape -->
+  <path d="M150 125 Q130 150 150 175 H190 Q220 175 220 150 Q220 125 190 125 H180 V135 H190 Q210 135 210 150 Q210 165 190 165 H160 Q145 145 160 135 H170 V125 Z" fill="#00FFFF"/>
+
+  <!-- Tech dots in the negative space of the G -->
+  <circle cx="175" cy="145" r="4" fill="#1E1E1E"/>
+  <circle cx="190" cy="145" r="4" fill="#1E1E1E"/>
+  <circle cx="190" cy="155" r="4" fill="#1E1E1E"/>
+
+  <!-- Light Accents -->
+  <rect x="60" y="95" width="280" height="5" rx="2" ry="2" fill="#00FFFF" opacity="0.5"/>
+  <rect x="60" y="200" width="280" height="5" rx="2" ry="2" fill="#00FFFF" opacity="0.5"/>
+</svg>

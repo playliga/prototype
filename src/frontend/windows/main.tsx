@@ -81,6 +81,20 @@ const routes = createMemoryRouter([
         ],
       },
       {
+        path: '/sponsors',
+        element: <Routes.Main.Sponsors.Sponsors />,
+        children: [
+          {
+            element: <Routes.Main.Sponsors.Overview />,
+            index: true,
+          },
+          {
+            path: 'all',
+            element: <Routes.Main.Sponsors.All />,
+          },
+        ],
+      },
+      {
         path: '/teams',
         element: <Routes.Main.Teams.Teams />,
         children: [
@@ -156,7 +170,7 @@ function Root() {
 
       const [dialogue] = email.dialogues.slice(-1);
 
-      if (!/(accepted|rejected)/gi.test(dialogue.content)) {
+      if (!/^(accepted|rejected)/gi.test(dialogue.content)) {
         toast((data) => <ToastEmail {...data} email={email} />);
       }
     });
@@ -191,6 +205,7 @@ function Root() {
             ['/teams', 'Teams', useMatch('/teams/*')],
             ['/players', 'Players'],
             ['/competitions', 'Competitions', useMatch('/competitions/*')],
+            ['/sponsors', 'Sponsors', useMatch('/sponsors/*')],
           ].map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
             <button
               key={id}

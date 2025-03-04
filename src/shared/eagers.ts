@@ -109,6 +109,31 @@ export const profile = {
 };
 
 /** @constant */
+export const sponsor = {
+  include: {
+    sponsorships: {
+      include: {
+        offers: true,
+        team: true,
+      },
+    },
+  },
+};
+
+/** @constant */
+export const sponsorship = {
+  include: {
+    offers: true,
+    sponsor: true,
+    team: {
+      include: {
+        personas: true,
+      },
+    },
+  },
+};
+
+/** @constant */
 export const team = {
   include: { country: true, players: true },
 };

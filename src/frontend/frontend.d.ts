@@ -23,6 +23,11 @@ declare interface RouteContextCompetitions {
   >;
 }
 
+declare interface RouteContextSponsors {
+  hydrate: () => void;
+  sponsors: Awaited<ReturnType<typeof api.sponsors.all<typeof import('../shared/eagers').sponsor>>>;
+}
+
 /** @interface */
 declare interface RouteContextTeams {
   team: Awaited<ReturnType<typeof api.teams.all<typeof import('../shared/eagers').team>>>[number];

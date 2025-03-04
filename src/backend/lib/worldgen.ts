@@ -506,6 +506,73 @@ function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eag
 }
 
 /**
+ * Parses a sponsorship offer from the sponsor's perspective.
+ *
+ * @param sponsorship The sponsorship offer to parse.
+ * @function
+ */
+export function parseSponsorshipOffer(
+  sponsorship: Prisma.SponsorshipGetPayload<typeof Eagers.sponsorship>,
+): {
+  dialogue: Partial<Prisma.DialogueGetPayload<{ include: { from: true } }>>;
+  sponsorship: Partial<Prisma.SponsorshipGetPayload<typeof Eagers.sponsorship>>;
+  paperwork?: Array<Promise<unknown>>;
+} {
+  // who will be sending the response e-mail
+  const persona = sponsorship.team.personas.find(
+    (persona) =>
+      persona.role === Constants.PersonaRole.MANAGER ||
+      persona.role === Constants.PersonaRole.ASSISTANT,
+  );
+
+  // bail early if tier requirement not met
+  const contract = Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
+
+  if (!contract.tiers.includes(Constants.Prestige[sponsorship.team.tier])) {
+    Engine.Runtime.Instance.log.info(
+      '%s rejected the offer. Reason: Tier requirement not met.',
+      sponsorship.sponsor.name,
+    );
+
+    return {
+      dialogue: {
+        from: persona,
+        content: Dialogue.SponsorshipRejectedTier.CONTENT,
+      },
+      sponsorship: {
+        status: Constants.SponsorshipStatus.SPONSOR_REJECTED,
+      },
+    };
+  }
+
+  // got this far -- offer accepted!
+  Engine.Runtime.Instance.log.info('%s has accepted the offer.', sponsorship.sponsor.name);
+  return {
+    dialogue: {
+      from: persona,
+      content: Dialogue.SponsorshipAccepted.CONTENT,
+    },
+    paperwork: [],
+    sponsorship: {
+      status: Constants.SponsorshipStatus.SPONSOR_ACCEPTED,
+    },
+  };
+}
+
+/**
+ * Parses a sponsorship offer from the team's perspective.
+ *
+ * @function
+ */
+export function parseTeamSponsorshipOffer(): ReturnType<typeof parseSponsorshipOffer> {
+  return {
+    dialogue: {},
+    paperwork: [],
+    sponsorship: {},
+  };
+}
+
+/**
  * Parses a transfer offer from the team's perspective.
  *
  * @param transfer  The transfer offer to parse.
@@ -1094,6 +1161,170 @@ export async function sendUserTransferOffer() {
 }
 
 /**
+ * Checks if the user has met the contract
+ * conditions for their sponsorships.
+ *
+ * @function
+ */
+export async function sponsorshipCheck() {
+  // grab sponsorship info
+  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+  const sponsorships = await DatabaseClient.prisma.sponsorship.findMany({
+    where: {
+      teamId: profile.teamId,
+      status: {
+        in: [
+          Constants.SponsorshipStatus.SPONSOR_ACCEPTED,
+          Constants.SponsorshipStatus.TEAM_ACCEPTED,
+        ],
+      },
+    },
+    include: {
+      ...Eagers.sponsorship.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+
+  // bail early if user has no sponsorships
+  if (!sponsorships.length) {
+    return;
+  }
+
+  // who will be sending the response e-mail
+  const persona = profile.team.personas.find(
+    (persona) =>
+      persona.role === Constants.PersonaRole.MANAGER ||
+      persona.role === Constants.PersonaRole.ASSISTANT,
+  );
+
+  // grab the user's league position for this season
+  const competition = await DatabaseClient.prisma.competition.findFirst({
+    where: {
+      season: profile.season,
+      competitors: {
+        some: {
+          teamId: profile.teamId,
+        },
+      },
+      tier: {
+        slug: Constants.Prestige[profile.team.tier],
+        league: {
+          slug: Constants.LeagueSlug.ESPORTS_LEAGUE,
+        },
+      },
+    },
+    include: {
+      competitors: true,
+    },
+  });
+  const userTeamPosition = competition.competitors.find(
+    (competitor) => competitor.teamId === profile.teamId,
+  );
+
+  // check contract conditions
+  return flatten(
+    await Promise.all(
+      sponsorships.map((sponsorship) => {
+        let earnings = 0;
+        const contract =
+          Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
+        const requirements = contract.requirements
+          .map((requirement) => {
+            switch (requirement.type) {
+              case Constants.SponsorshipRequirement.PLACEMENT:
+              case Constants.SponsorshipRequirement.RELEGATION:
+                if (userTeamPosition.position > (requirement.condition as number)) {
+                  return Util.formatContractCondition(requirement);
+                }
+                return '';
+              default:
+                return '';
+            }
+          })
+          .filter(Boolean);
+        const bonuses = contract.bonuses
+          .map((bonus) => {
+            switch (bonus.type) {
+              case Constants.SponsorshipBonus.PLACEMENT:
+              case Constants.SponsorshipBonus.TOURNAMENT_WIN:
+                if (userTeamPosition.position < (bonus.condition as number)) {
+                  earnings += bonus.amount;
+                  return `${Util.formatContractCondition(bonus)} (${Util.formatCurrency(bonus.amount)})`;
+                }
+                return '';
+              default:
+                return '';
+            }
+          })
+          .filter(Boolean);
+
+        // stop here if user failed to meet any requirements
+        if (requirements.length) {
+          return Promise.all([
+            sendEmail(
+              Sqrl.render(Dialogue.SponsorshipTerminated.SUBJECT, { sponsorship }),
+              Sqrl.render(Dialogue.SponsorshipTerminated.CONTENT, {
+                sponsorship,
+                profile,
+                requirements,
+              }),
+              persona,
+              profile.date,
+            ),
+            DatabaseClient.prisma.sponsorship.update({
+              where: { id: sponsorship.id },
+              data: {
+                status: Constants.SponsorshipStatus.SPONSOR_TERMINATED,
+                offers: {
+                  update: {
+                    where: {
+                      id: sponsorship.offers[0].id,
+                    },
+                    data: {
+                      status: Constants.SponsorshipStatus.SPONSOR_TERMINATED,
+                    },
+                  },
+                },
+              },
+            }),
+          ]);
+        }
+
+        // stop here if no achieved bonuses
+        if (!bonuses.length) {
+          return Promise.resolve([]);
+        }
+
+        // let's show what end-of-season
+        // bonuses were distributed
+        return Promise.all([
+          sendEmail(
+            Sqrl.render(Dialogue.SponsorshipBonuses.SUBJECT, { sponsorship }),
+            Sqrl.render(Dialogue.SponsorshipBonuses.CONTENT, {
+              sponsorship,
+              profile,
+              bonuses,
+            }),
+            persona,
+            profile.date,
+          ),
+          DatabaseClient.prisma.team.update({
+            where: {
+              id: profile.teamId,
+            },
+            data: {
+              earnings: {
+                increment: earnings,
+              },
+            },
+          }),
+        ]);
+      }),
+    ),
+  );
+}
+
+/**
  * Sync teams to their current tier.
  *
  * By the time this function runs, the new season's league
@@ -1303,6 +1534,7 @@ export async function onSeasonStart() {
   Engine.Runtime.Instance.log.info('Starting the season...');
   return createWelcomeEmail()
     .then(scheduleNextSeasonStart)
+    .then(sponsorshipCheck)
     .then(bumpSeasonNumber)
     .then(createCompetitions)
     .then(resetTrainingGains)
@@ -1444,6 +1676,154 @@ export async function onMatchdayUser(entry: Calendar) {
   );
 
   return Promise.resolve(false);
+}
+
+/**
+ * Engine loop handler.
+ *
+ * Parses a sponsorship offer.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onSponsorshipOffer(entry: Partial<Calendar>) {
+  // parse payload
+  const [sponsorshipId] = isNaN(Number(entry.payload))
+    ? JSON.parse(entry.payload)
+    : [Number(entry.payload)];
+
+  // grab latest offer
+  const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+    where: {
+      id: sponsorshipId,
+    },
+    include: {
+      ...Eagers.sponsorship.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+  const [offer] = sponsorship.offers;
+
+  // who's parsing the offer?
+  let result: ReturnType<typeof parseSponsorshipOffer>;
+
+  switch (offer.status) {
+    case Constants.SponsorshipStatus.SPONSOR_PENDING:
+      result = parseSponsorshipOffer(sponsorship);
+      break;
+    case Constants.SponsorshipStatus.TEAM_PENDING:
+      result = parseTeamSponsorshipOffer();
+      break;
+    default:
+      return Promise.resolve();
+  }
+
+  // handle additional paperwork to finalize sponsorship
+  if (result.paperwork) {
+    await Promise.all(result.paperwork);
+  }
+
+  // update existing sponsorship and current offer
+  await DatabaseClient.prisma.sponsorship.update({
+    where: { id: sponsorship.id },
+    data: {
+      status: result.sponsorship.status,
+      offers: {
+        update: {
+          where: { id: offer.id },
+          data: {
+            status: result.sponsorship.status,
+          },
+        },
+      },
+    },
+  });
+
+  // send response e-mail
+  const email = await sendEmail(
+    Sqrl.render(Dialogue.SponsorshipGeneric.SUBJECT, { sponsorship }),
+    Sqrl.render(result.dialogue.content, { sponsorship, profile }),
+    result.dialogue.from,
+    profile.date,
+  );
+
+  // update existing dialogues attached to this sponsorship
+  // and toggle their action as completed
+  await DatabaseClient.prisma.dialogue.updateMany({
+    where: {
+      emailId: email.id,
+    },
+    data: {
+      completed: true,
+    },
+  });
+
+  // unless the offer was accepted, we have nothing else to do
+  if (
+    result.sponsorship.status !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED &&
+    result.sponsorship.status !== Constants.SponsorshipStatus.TEAM_ACCEPTED
+  ) {
+    return Promise.resolve();
+  }
+
+  // setup the scheduled payments
+  const payments: Array<Prisma.PrismaPromise<typeof entry>> = [];
+
+  while (offer.start <= offer.end) {
+    if (offer.start < profile.date) {
+      offer.start = addWeeks(offer.start, offer.frequency);
+      continue;
+    }
+
+    payments.push(
+      DatabaseClient.prisma.calendar.create({
+        data: {
+          type: Constants.CalendarEntry.SPONSORSHIP_PAYMENT,
+          date: offer.start.toISOString(),
+          payload: sponsorship.id.toString(),
+        },
+      }),
+    );
+
+    offer.start = addWeeks(offer.start, offer.frequency);
+  }
+
+  return DatabaseClient.prisma.$transaction(payments);
+}
+
+/**
+ * Engine loop handler.
+ *
+ * Distributes a scheduled sponsorship payment.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onSponsorshipPayment(entry: Partial<Calendar>) {
+  // grab latest offer
+  const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+    where: {
+      id: Number(entry.payload),
+    },
+    include: {
+      ...Eagers.sponsorship.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+  const [offer] = sponsorship.offers;
+
+  // update user earnings
+  return DatabaseClient.prisma.team.update({
+    where: {
+      id: sponsorship.teamId,
+    },
+    data: {
+      earnings: {
+        increment: offer.amount,
+      },
+    },
+  });
 }
 
 /**

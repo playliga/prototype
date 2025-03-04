@@ -107,7 +107,22 @@ export enum CalendarEntry {
   MATCHDAY_NPC = '/matchday/npc',
   MATCHDAY_USER = '/matchday/user',
   SEASON_START = '/season/start',
+  SPONSORSHIP_PARSE = '/sponsorship/parse',
+  SPONSORSHIP_PAYMENT = '/sponsorship/payment',
   TRANSFER_PARSE = '/transfer/parse',
+}
+
+/**
+ * How often something occurs based off of number of weeks.
+ *
+ * @enum
+ */
+export enum CalendarFrequency {
+  WEEKLY = 1,
+  BI_WEEKLY = 2,
+  MONTHLY = 4,
+  QUARTERLY = 12,
+  YEARLY = 52,
 }
 
 /**
@@ -254,6 +269,8 @@ export enum IPCRoute {
   PROFILES_UPDATE = '/profiles/update',
   SAVES_ALL = '/saves/all',
   SAVES_DELETE = '/saves/delete',
+  SPONSORS_ALL = '/sponsors/all',
+  SPONSORSHIP_CREATE = '/sponsorship/create',
   SQUAD_ALL = '/squad/all',
   SQUAD_UPDATE = '/squad/update',
   TEAMS_ALL = '/teams/all',
@@ -323,6 +340,75 @@ export enum PersonaRole {
 }
 
 /**
+ * Score simulation modes.
+ *
+ * @enum
+ */
+export enum SimulationMode {
+  DEFAULT = 'default',
+  DRAW = 'draw',
+  LOSE = 'lose',
+  WIN = 'win',
+}
+
+/**
+ * Sponsor unique identifiers.
+ *
+ * @enum
+ */
+export enum SponsorSlug {
+  ALOHA_ENERGY = 'aloha-energy',
+  BLUEQUIL = 'bluequil',
+  GOGTECH = 'gogtech',
+  HEAVENCASE = 'heavencase',
+  NINEKBET = '9kbet',
+  OWNERCARD = 'ownercard',
+  PREY = 'prey',
+  SKINARCH = 'skinarch',
+  WHITE_WOLF = 'white-wolf',
+  YNFO = 'ynfo',
+  YTL = 'ytl',
+}
+
+/**
+ * The types of bonuses that can be awarded by sponsors.
+ *
+ * @enum
+ */
+export enum SponsorshipBonus {
+  PLACEMENT = 'placement',
+  QUALIFY = 'qualify',
+  TOURNAMENT_WIN = 'tournament_win',
+  WIN_STREAK = 'win_streak',
+}
+
+/**
+ * Sponsor and team status types.
+ *
+ * @enum
+ */
+export enum SponsorshipStatus {
+  SPONSOR_ACCEPTED,
+  SPONSOR_PENDING,
+  SPONSOR_REJECTED,
+  SPONSOR_TERMINATED,
+  TEAM_ACCEPTED,
+  TEAM_PENDING,
+  TEAM_REJECTED,
+}
+
+/**
+ * Sponsor contract requirements.
+ *
+ * @enum
+ */
+export enum SponsorshipRequirement {
+  EARNINGS = 'earnings',
+  PLACEMENT = 'placement',
+  RELEGATION = 'relegation',
+}
+
+/**
  * Tier unique identifiers.
  *
  * @enum
@@ -347,18 +433,6 @@ export enum TierSlug {
   LEAGUE_OPEN_PLAYOFFS = 'league:open:playoffs',
   LEAGUE_PREMIER = 'league:premier',
   LEAGUE_PREMIER_PLAYOFFS = 'league:premier:playoffs',
-}
-
-/**
- * Score simulation modes.
- *
- * @enum
- */
-export enum SimulationMode {
-  DEFAULT = 'default',
-  DRAW = 'draw',
-  LOSE = 'lose',
-  WIN = 'win',
 }
 
 /**
@@ -737,6 +811,16 @@ export const IdiomaticTier: Record<TierSlug | string, string> = {
   [TierSlug.LEAGUE_PREMIER_PLAYOFFS]: 'Premier Division Playoffs',
 };
 
+export const IdiomaticSponsorshipStatus: Record<number, string> = {
+  [SponsorshipStatus.SPONSOR_ACCEPTED]: 'Sponsor Accepted',
+  [SponsorshipStatus.SPONSOR_PENDING]: 'Sponsor Pending',
+  [SponsorshipStatus.SPONSOR_REJECTED]: 'Sponsor Rejected',
+  [SponsorshipStatus.SPONSOR_TERMINATED]: 'Sponsor Terminated',
+  [SponsorshipStatus.TEAM_ACCEPTED]: 'Team Accepted',
+  [SponsorshipStatus.TEAM_PENDING]: 'Team Pending',
+  [SponsorshipStatus.TEAM_REJECTED]: 'Team Rejected',
+};
+
 /** @constant */
 export const IdiomaticTransferStatus: Record<number, string> = {
   [TransferStatus.PLAYER_ACCEPTED]: 'Player Accepted',
@@ -921,6 +1005,404 @@ export const Settings = {
     mapOverride: null as string,
     maxRounds: 6,
     freezeTime: 7,
+  },
+};
+
+/**
+ * Sponsor contract conditions.
+ *
+ * @constant
+ */
+export const SponsorContract: Record<
+  SponsorSlug,
+  {
+    bonuses: Array<{
+      type: SponsorshipBonus | SponsorshipRequirement;
+      condition?: string | number;
+      amount?: number;
+    }>;
+    requirements: Array<{
+      type: SponsorshipBonus | SponsorshipRequirement;
+      condition?: string | number;
+      amount?: number;
+    }>;
+    terms: Array<{
+      length: number;
+      frequency: CalendarFrequency;
+      amount: number;
+    }>;
+    tiers?: Array<TierSlug>;
+  }
+> = {
+  [SponsorSlug.ALOHA_ENERGY]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.QUALIFY,
+        condition: TierSlug.CIRCUIT_FINALS,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.PLACEMENT,
+        condition: 10,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_ADVANCED, TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.BLUEQUIL]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_END,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.TOURNAMENT_WIN,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_START,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.EARNINGS,
+        condition: 1000,
+      },
+      {
+        type: SponsorshipRequirement.RELEGATION,
+        condition: Zones.LEAGUE_RELEGATION_START,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.BI_WEEKLY,
+        amount: 2000,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.GOGTECH]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_END,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.TOURNAMENT_WIN,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_START,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.EARNINGS,
+        condition: 1000,
+      },
+      {
+        type: SponsorshipRequirement.RELEGATION,
+        condition: Zones.LEAGUE_RELEGATION_START,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.BI_WEEKLY,
+        amount: 2000,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.HEAVENCASE]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.QUALIFY,
+        condition: TierSlug.CIRCUIT_FINALS,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.PLACEMENT,
+        condition: 8,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_ADVANCED, TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.NINEKBET]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.QUALIFY,
+        condition: TierSlug.CIRCUIT_FINALS,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.PLACEMENT,
+        condition: 8,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_ADVANCED, TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.OWNERCARD]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_END,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.TOURNAMENT_WIN,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_START,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.EARNINGS,
+        condition: 1000,
+      },
+      {
+        type: SponsorshipRequirement.RELEGATION,
+        condition: Zones.LEAGUE_RELEGATION_START,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.PREY]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_END,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.TOURNAMENT_WIN,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_START,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.EARNINGS,
+        condition: 1000,
+      },
+      {
+        type: SponsorshipRequirement.RELEGATION,
+        condition: Zones.LEAGUE_RELEGATION_START,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.SKINARCH]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: 8,
+      },
+      {
+        type: SponsorshipBonus.QUALIFY,
+        condition: TierSlug.CIRCUIT_FINALS,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.PLACEMENT,
+        condition: 10,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_MAIN, TierSlug.LEAGUE_ADVANCED],
+  },
+  [SponsorSlug.WHITE_WOLF]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: 8,
+      },
+      {
+        type: SponsorshipBonus.QUALIFY,
+        condition: TierSlug.CIRCUIT_FINALS,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.PLACEMENT,
+        condition: 10,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_ADVANCED],
+  },
+  [SponsorSlug.YNFO]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_END,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.TOURNAMENT_WIN,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_START,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.EARNINGS,
+        condition: 1000,
+      },
+      {
+        type: SponsorshipRequirement.RELEGATION,
+        condition: Zones.LEAGUE_RELEGATION_START,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_PREMIER],
+  },
+  [SponsorSlug.YTL]: {
+    bonuses: [
+      {
+        type: SponsorshipBonus.PLACEMENT,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_END,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.TOURNAMENT_WIN,
+        condition: Zones.LEAGUE_PROMOTION_AUTO_START,
+        amount: 5000,
+      },
+      {
+        type: SponsorshipBonus.WIN_STREAK,
+        condition: 5,
+        amount: 5000,
+      },
+    ],
+    requirements: [
+      {
+        type: SponsorshipRequirement.EARNINGS,
+        condition: 1000,
+      },
+      {
+        type: SponsorshipRequirement.RELEGATION,
+        condition: Zones.LEAGUE_RELEGATION_START,
+      },
+    ],
+    terms: [
+      {
+        length: 2,
+        frequency: CalendarFrequency.MONTHLY,
+        amount: 500,
+      },
+    ],
+    tiers: [TierSlug.LEAGUE_PREMIER],
   },
 };
 
