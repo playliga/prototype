@@ -40,7 +40,7 @@ export default function () {
       <nav className="menu w-full gap-2">
         {!!profile && (
           <section
-            className="flex cursor-pointer items-center gap-5 bg-base-content/10 p-5 hover:bg-base-content/20"
+            className="flex cursor-pointer items-center gap-5 rounded-btn bg-base-content/10 p-5 hover:bg-base-content/20"
             onClick={() => navigate('/connect/' + profile.id)}
           >
             <figure>
