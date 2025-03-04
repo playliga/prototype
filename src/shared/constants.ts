@@ -847,6 +847,7 @@ export const MapPool = [
   'de_ancient',
   'de_anubis',
   'de_vertigo',
+  'de_cache',
 ];
 
 /**
@@ -861,8 +862,10 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
     de_ancient: 'de_cpl_mill',
     de_anubis: 'de_cbble',
     de_vertigo: 'de_dust2',
+    de_cache: 'de_dust2',
   },
   [Game.CS2]: {
+    de_cache: 'de_dust2',
     de_tuscan: 'de_dust2',
   },
   [Game.CSS]: {
@@ -871,6 +874,7 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
     de_ancient: 'de_dust2',
     de_anubis: 'de_cbble',
     de_vertigo: 'de_dust2',
+    de_cache: 'de_dust2',
   },
   [Game.CZERO]: {
     de_dust2: 'de_dust2_cz',
@@ -881,6 +885,7 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
     de_ancient: 'de_czl_karnak',
     de_anubis: 'de_czl_silo',
     de_vertigo: 'de_dust2_cz',
+    de_cache: 'de_dust2_cz',
   },
 };
 
