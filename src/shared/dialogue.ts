@@ -166,6 +166,62 @@ export enum OfferRejectedUser {
 }
 
 /** @enum */
+export enum SponsorshipAccepted {
+  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  CONTENT = `
+  Hi, {{it.profile.player.name}}.
+
+  Great news! **{{it.sponsorship.sponsor.name}}** has accepted our sponsorship application and will be supporting us moving forward.
+  `,
+}
+
+/** @enum */
+export enum SponsorshipBonuses {
+  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  CONTENT = `
+  Hey, {{it.profile.player.name}}.
+
+  Great job this season! **{{it.sponsorship.sponsor.name}}** is pleased with your team's performance and has awarded the following bonuses:
+
+  {{@each(it.bonuses) => bonus}}
+  - {{bonus}}
+  {{/each}}
+  `,
+}
+
+/** @enum */
+export enum SponsorshipGeneric {
+  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  CONTENT = '',
+}
+
+/** @enum */
+export enum SponsorshipRejectedTier {
+  SUBJECT = 'Sponsorship Offer to {{it.sponsorship.sponsor.name}}',
+  CONTENT = `
+  Hey {{it.profile.player.name}},
+
+  Unfortunately, **{{it.sponsorship.sponsor.name}}** has rejected our sponsorship offer as we do not meet their minimum league division requirement.
+  `,
+}
+
+/** @enum */
+export enum SponsorshipTerminated {
+  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  CONTENT = `
+  Hi, {{it.profile.player.name}}.
+
+  We've hit a bump in the road—**{{it.sponsorship.sponsor.name}}** has decided to terminate our sponsorship due to unmet contract requirements.
+
+  Here's what we fell short on:
+
+  {{@each(it.requirements) => requirement}}
+  - {{requirement}}
+  {{/each}}
+  `,
+}
+
+/** @enum */
 export enum WelcomeEmail {
   SUBJECT = 'Hey!',
   CONTENT = `

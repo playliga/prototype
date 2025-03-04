@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Background Shape -->
+  <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" style="stop-color:#121a2e" />
+    <stop offset="100%" style="stop-color:#0a0f1a" />
+  </linearGradient>
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="url(#backgroundGradient)" />
+
+  <!-- Logo Accent Line -->
+  <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#4deeea" />
+    <stop offset="50%" style="stop-color:#74efad" />
+    <stop offset="100%" style="stop-color:#a188ff" />
+  </linearGradient>
+  <rect x="50" y="80" width="300" height="8" rx="4" ry="4" fill="url(#accentGradient)" />
+
+  <!-- Number 9 -->
+  <path d="M120 125 Q120 115 130 115 Q140 115 140 125 Q140 135 130 135 Q125 135 122 133 L122 150 L115 150 L115 120 Q115 110 130 110 Q145 110 145 125 Q145 140 130 140 Q120 140 115 135 L120 130 Q123 135 130 135 Q135 135 135 125 Q135 120 130 120 Q125 120 125 125 Z" fill="#FFFFFF"/>
+
+  <!-- Letter k -->
+  <path d="M150 110 L160 110 L160 125 L170 110 L180 110 L167 128 L180 150 L170 150 L160 133 L160 150 L150 150 Z" fill="#FFFFFF"/>
+
+  <!-- Bet Text -->
+  <text x="210" y="140" font-family="Arial Black" font-size="40" fill="#FFFFFF">BET</text>
+
+  <!-- Controller Icons -->
+  <path d="M280 118 L295 118 L295 122 L288 122 L288 135 L295 122 L295 135 L288 135 L288 122 L280 122 Z" fill="#a188ff"/>
+  <circle cx="310" cy="128" r="8" fill="#74efad"/>
+  <circle cx="325" cy="118" r="6" fill="#4deeea"/>
+  <circle cx="325" cy="138" r="6" fill="#a188ff"/>
+
+  <!-- Tagline -->
+  <text x="200" y="170" font-family="Arial" font-size="14" fill="#74efad" text-anchor="middle">ESPORTS BETTING</text>
+
+  <!-- Decorative Elements -->
+  <rect x="195" y="110" width="2" height="30" fill="url(#accentGradient)" opacity="0.7"/>
+  <rect x="270" y="110" width="2" height="30" fill="url(#accentGradient)" opacity="0.7"/>
+</svg>

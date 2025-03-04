@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Dark Background -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="#1A1A2E"/>
+  
+  <!-- Arch Shape -->
+  <path d="M100 180 Q200 100 300 180" fill="none" stroke="#4ECDC4" stroke-width="8"/>
+  
+  <!-- Weapon Silhouette Fragments -->
+  <path d="M150 180 L160 140 L170 180 Z" fill="#FF6B6B"/>
+  <path d="M200 180 L210 120 L220 180 Z" fill="#A8DADC"/>
+  <path d="M250 180 L260 140 L270 180 Z" fill="#457B9D"/>
+  
+  <!-- Subtle Gradient Overlay -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="rgba(78,205,196,0.1)"/>
+  
+  <!-- Light Accents -->
+  <path d="M50 90 L70 110 M330 90 L310 110" stroke="#4ECDC4" stroke-width="2" opacity="0.5"/>
+  <path d="M50 210 L70 190 M330 210 L310 190" stroke="#4ECDC4" stroke-width="2" opacity="0.5"/>
+</svg>

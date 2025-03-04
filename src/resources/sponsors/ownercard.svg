@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Background -->
+  <rect x="50" y="100" width="300" height="100" rx="15" ry="15" fill="#1A1A2E"/>
+  
+  <!-- Overlapping Circles Inspired by MasterCard -->
+  <circle cx="150" cy="150" r="50" fill="#FF6B6B"/>
+  <circle cx="200" cy="150" r="50" fill="#4ECDC4"/>
+  
+  <!-- Overlap Effect -->
+  <path d="M150 100 A50 50 0 0 1 200 150 A50 50 0 0 1 150 200" fill="#2A9D8F"/>
+  
+  <!-- Card-like Details -->
+  <rect x="60" y="180" width="280" height="10" fill="#333333" rx="2" ry="2"/>
+  <rect x="60" y="195" width="280" height="5" fill="#555555" rx="2" ry="2"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Dark Background -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="#121212"/>
+  
+  <!-- Circuit Board Inspired Base -->
+  <path d="M100 120 L300 120 M100 160 L300 160" stroke="#00FFFF" stroke-width="2" opacity="0.3"/>
+  <path d="M100 120 V160 M150 120 V160 M200 120 V160 M250 120 V160 M300 120 V160" stroke="#00FFFF" stroke-width="1" opacity="0.2"/>
+  
+  <!-- Processor Core Representation -->
+  <rect x="150" y="130" width="100" height="40" fill="#00FFFF" opacity="0.7"/>
+  
+  <!-- Connection Points -->
+  <circle cx="140" cy="140" r="5" fill="#00FFFF"/>
+  <circle cx="140" cy="150" r="5" fill="#00FFFF"/>
+  <circle cx="260" cy="140" r="5" fill="#00FFFF"/>
+  <circle cx="260" cy="150" r="5" fill="#00FFFF"/>
+</svg>

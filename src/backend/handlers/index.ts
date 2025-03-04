@@ -23,6 +23,7 @@ export { default as IPCTransferHandler } from './transfer';
 export { default as IPCIssuesHandler } from './issues';
 export { default as IPCPluginsHandler } from './plugins';
 export { default as IPCModsHandler } from './mods';
+export { default as IPCSponsorsHandler } from './sponsors';
 
 /**
  * Gets application information such as name and

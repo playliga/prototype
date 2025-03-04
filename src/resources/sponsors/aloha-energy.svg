@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Background Lightning Bolt -->
+  <path d="M200 20 L160 120 L220 140 L180 280 L240 160 L180 140 L220 20" fill="#FFD700"/>
+
+  <!-- Can Shape -->
+  <path d="M160 80 Q160 60 180 60 L220 60 Q240 60 240 80 L240 220 Q240 240 220 240 L180 240 Q160 240 160 220 Z" fill="#1E90FF"/>
+
+  <!-- Hibiscus Flower -->
+  <path d="M190 100 C180 90 170 100 180 110 C170 120 180 130 190 120 C200 130 210 120 200 110 C210 100 200 90 190 100" fill="#FF69B4"/>
+
+  <!-- Text - Adjusted size and position -->
+  <text x="200" y="160" font-family="Arial Black" font-size="24" fill="white" text-anchor="middle">ALOHA</text>
+  <text x="200" y="190" font-family="Arial Black" font-size="20" fill="white" text-anchor="middle">ENERGY</text>
+
+  <!-- Wave Design -->
+  <path d="M165 210 C180 200 190 220 200 210 C210 200 220 220 235 210" stroke="white" fill="none" stroke-width="3"/>
+</svg>

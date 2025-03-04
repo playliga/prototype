@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Dark Background -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="#121212"/>
+  
+  <!-- Wolf Silhouette -->
+  <path d="M100 150 Q150 100 200 150 Q250 100 300 150 L280 180 Q200 130 120 180 Z" fill="#FFFFFF"/>
+  
+  <!-- Wolf Eye -->
+  <circle cx="200" cy="130" r="10" fill="#121212" stroke="#FFFFFF" stroke-width="3"/>
+  <circle cx="200" cy="130" r="5" fill="#FFFFFF"/>
+  
+  <!-- Dynamic Energy Lines -->
+  <path d="M150 190 Q200 170 250 190" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.7"/>
+  <path d="M160 200 Q200 180 240 200" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <!-- Subtle Gradient Overlay -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="rgba(255,255,255,0.1)"/>
+</svg>

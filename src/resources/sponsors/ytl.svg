@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Background -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="#FF6B6B"/>
+  
+  <!-- Angular Delivery Arrow -->
+  <path d="M100 150 L250 150 L220 120 M250 150 L220 180" stroke="#FFFFFF" stroke-width="10" fill="none"/>
+  
+  <!-- Speed Lines -->
+  <path d="M270 130 L300 150 L270 170" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.5"/>
+  <path d="M280 120 L310 150 L280 180" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.3"/>
+</svg>

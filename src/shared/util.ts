@@ -315,3 +315,34 @@ export function toAlpha(value: number | string) {
 export function getSaveFileName(id: number) {
   return Constants.Application.DATABASE_NAME_FORMAT.replace('%s', String(id));
 }
+
+/**
+ * Converts a contract bonus or requirement
+ * object into natural language format.
+ *
+ * @param contract The contract details.
+ * @function
+ */
+export function formatContractCondition(
+  contract: (typeof Constants.SponsorContract)[Constants.SponsorSlug][
+    | 'bonuses'
+    | 'requirements'][number],
+) {
+  switch (contract.type) {
+    case Constants.SponsorshipBonus.PLACEMENT:
+    case Constants.SponsorshipRequirement.PLACEMENT:
+      return `Place ${toOrdinalSuffix(contract.condition)} or better in league`;
+    case Constants.SponsorshipBonus.QUALIFY:
+      return `Qualify for ${Constants.IdiomaticTier[contract.condition]}`;
+    case Constants.SponsorshipBonus.TOURNAMENT_WIN:
+      return 'Win the league';
+    case Constants.SponsorshipBonus.WIN_STREAK:
+      return `${contract.condition}x win streak`;
+    case Constants.SponsorshipRequirement.EARNINGS:
+      return `Earn ${formatCurrency(contract.condition)}`;
+    case Constants.SponsorshipRequirement.RELEGATION:
+      return 'Avoid relegation in league';
+    default:
+      return '';
+  }
+}

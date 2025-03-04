@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Dark Background -->
+  <rect x="50" y="80" width="300" height="140" rx="15" ry="15" fill="#121212"/>
+  
+  <!-- Predatory Silhouette Shape -->
+  <path d="M100 120 Q150 80 200 120 Q250 80 300 120 L280 150 Q200 110 120 150 Z" fill="#00FFFF"/>
+  
+  <!-- Claw/Slash Marks -->
+  <path d="M150 140 L160 130 L170 150 L180 140" stroke="#00FFFF" stroke-width="3" fill="none"/>
+  <path d="M230 140 L240 130 L250 150 L260 140" stroke="#00FFFF" stroke-width="3" fill="none"/>
+  
+  <!-- Eye-like Detail -->
+  <circle cx="200" cy="120" r="10" fill="#121212" stroke="#00FFFF" stroke-width="3"/>
+  <circle cx="200" cy="120" r="5" fill="#00FFFF"/>
+  
+  <!-- Subtle Circuit Board Lines -->
+  <path d="M100 160 H300 M100 170 H300 M100 180 H300" stroke="#00FFFF" stroke-opacity="0.3" stroke-width="1"/>
+</svg>
