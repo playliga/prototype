@@ -1,3 +1,9 @@
+## 3.0.0-beta.37 (2025-03-04)
+
+### Bug Fixes
+
+- fix sponsor logos ([8b79341](https://github.com/playliga/application/commit/8b79341b3b1bfe8b3446c8152f59214e270858cd))
+
 ## 3.0.0-beta.36 (2025-03-04)
 
 ### Features
