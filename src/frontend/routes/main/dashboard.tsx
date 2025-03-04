@@ -57,7 +57,7 @@ export function StatusBanner(props: StatusBannerProps) {
       return;
     }
 
-    const [, match] = error.path.match(/((?:csgo|cs2|hl|hl2|steam)\.exe)/) || [];
+    const [, match] = error.path.match(/((?:csgo|cstrike|cs2|hl|steam)\.exe)/) || [];
     return match;
   }, [error]);
 

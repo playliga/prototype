@@ -758,7 +758,7 @@ export const GameSettings = {
   CSSOURCE_BASEDIR: 'steamapps/common/Counter-Strike Source',
   CSSOURCE_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
   CSSOURCE_BOT_CONFIG: 'custom/liga/botprofile.db',
-  CSSOURCE_EXE: 'hl2.exe',
+  CSSOURCE_EXE: 'cstrike.exe',
   CSSOURCE_GAMEDIR: 'cstrike',
   CSSOURCE_MOTD_HTML_FILE: 'cfg/motd.html',
   CSSOURCE_MOTD_TXT_FILE: 'cfg/motd.txt',
