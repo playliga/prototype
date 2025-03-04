@@ -1,3 +1,15 @@
+## 3.0.0-beta.36 (2025-03-04)
+
+### Features
+
+- add cache to csgo map pool ([#379](https://github.com/playliga/application/issues/379)) ([7b6d6b3](https://github.com/playliga/application/commit/7b6d6b3262798986d5667fe0d40bcb135279db49))
+- added ability to apply for team sponsors ([#307](https://github.com/playliga/application/issues/307)) ([c713fcc](https://github.com/playliga/application/commit/c713fccb72ed88dc05c41f6ae4e010f34b094362))
+
+### Bug Fixes
+
+- fix css after latest valve updates ([#371](https://github.com/playliga/application/issues/371)) ([5a76c16](https://github.com/playliga/application/commit/5a76c16f30487c633b12787c6c36fcd32f64d54f))
+- small cosmetic ui changes ([f9caa6f](https://github.com/playliga/application/commit/f9caa6f96c290f69c5d0fb84499c85c136aa1a65))
+
 ## 3.0.0-beta.35 (2025-02-25)
 
 ### Bug Fixes
