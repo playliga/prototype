@@ -1276,6 +1276,7 @@ export const SponsorContract: Record<
       {
         type: SponsorshipBonus.PLACEMENT,
         condition: 8,
+        amount: 5000,
       },
       {
         type: SponsorshipBonus.QUALIFY,
@@ -1308,6 +1309,7 @@ export const SponsorContract: Record<
       {
         type: SponsorshipBonus.PLACEMENT,
         condition: 8,
+        amount: 5000,
       },
       {
         type: SponsorshipBonus.QUALIFY,
