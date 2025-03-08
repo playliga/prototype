@@ -1,3 +1,9 @@
+## 3.0.0-beta.38 (2025-03-08)
+
+### Bug Fixes
+
+- fix missing sponsor bonus amount causing calendar to get stuck ([#385](https://github.com/playliga/application/issues/385)) ([bc02244](https://github.com/playliga/application/commit/bc02244c8edfabc00d107e244b2dc6b4d3e52bd8))
+
 ## 3.0.0-beta.37 (2025-03-04)
 
 ### Bug Fixes
