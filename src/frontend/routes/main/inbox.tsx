@@ -118,7 +118,7 @@ export default function () {
         <section className="stack-y p-5">
           {!state.emails.length && (
             <article className="center h-full gap-5">
-              <FaEnvelopeOpen className="size-24" />
+              <FaEnvelopeOpen className="text-muted size-24" />
               <p>You have no e-mails.</p>
             </article>
           )}
@@ -194,7 +194,7 @@ export default function () {
             })()}
           {selected.length > 1 && (
             <article className="center h-full gap-5">
-              <FaMailBulk className="size-24" />
+              <FaMailBulk className="text-muted size-24" />
               <p>{selected.length} conversations selected.</p>
             </article>
           )}

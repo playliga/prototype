@@ -35,7 +35,7 @@ export default function () {
   if (!userSponsors.length) {
     return (
       <section className="center">
-        <FaMoneyBillWave className="size-24" />
+        <FaMoneyBillWave className="text-muted size-24" />
         <p>Secure some sponsorships to fund your journey to the top!</p>
       </section>
     );
