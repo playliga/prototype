@@ -284,23 +284,75 @@ export class Application {
   /**
    * Creates an issue.
    *
-   * @param body  The issue body.
+   * @param data The issue data.
    * @function
    */
-  public async createIssue(body: unknown) {
+  public async createIssue(data: unknown) {
     const endpoint = `${this.apiBaseUrl}/repos/${this.repository.owner}/${this.repository.name}/issues`;
     return request<GitHubIssueResponse>(endpoint, {
       headers: {
         Authorization: `Bearer ${await this.getToken()}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(data),
     });
   }
 
   /**
-   * Gets the issues listed in the array of IDs.
+   * Creates an issue comment.
    *
-   * @param ids The list of issue IDs.
+   * @param id    The issue id.
+   * @param data  The comment data.
+   */
+  public async createIssueComment(id: number, data: unknown) {
+    const endpoint = `${this.apiBaseUrl}/repos/${this.repository.owner}/${this.repository.name}/issues/${id}/comments`;
+    return request<GitHubCommentResponse>(endpoint, {
+      headers: {
+        Authorization: `Bearer ${await this.getToken()}`,
+      },
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Gets an issue.
+   *
+   * @param id The issue id.
+   * @function
+   */
+  public async getIssue(id: number) {
+    const endpoint = new URL(
+      `${this.apiBaseUrl}/repos/${this.repository.owner}/${this.repository.name}/issues/${id}`,
+    );
+    return request<GitHubIssueResponse>(endpoint.href, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${await this.getToken()}`,
+      },
+    });
+  }
+
+  /**
+   * Gets an issue's comment thread.
+   *
+   * @param id The issue id.
+   * @function
+   */
+  public async getIssueComments(id: number) {
+    const endpoint = new URL(
+      `${this.apiBaseUrl}/repos/${this.repository.owner}/${this.repository.name}/issues/${id}/comments`,
+    );
+    return request<Array<GitHubCommentResponse>>(endpoint.href, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${await this.getToken()}`,
+      },
+    });
+  }
+
+  /**
+   * Gets the issues listed in the array of ids.
+   *
+   * @param ids The list of issue id.
    * @function
    */
   public async getIssuesByIds(ids: Array<number>) {
@@ -318,7 +370,7 @@ export class Application {
         Authorization: `Bearer ${await this.getToken()}`,
       },
     });
-    return issues.filter((issue) => ids.includes(issue.id));
+    return issues.filter((issue) => ids.includes(issue.number));
   }
 
   /**
@@ -332,6 +384,9 @@ export class Application {
     );
     return request<Array<ReleaseResponse>>(endpoint.href, {
       method: 'GET',
+      headers: {
+        Authorization: `Bearer ${await this.getToken()}`,
+      },
     });
   }
 }

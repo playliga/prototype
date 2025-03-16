@@ -3,8 +3,9 @@
  *
  * @module
  */
+import All from './all';
+import Comments from './comments';
 import Create from './create';
-import List from './list';
 
 /**
  * Exports this module.
@@ -12,6 +13,7 @@ import List from './list';
  * @exports
  */
 export default {
+  All,
+  Comments,
   Create,
-  List,
 };

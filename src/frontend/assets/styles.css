@@ -73,7 +73,8 @@ table {
 input:focus,
 select:focus,
 .input:focus,
-.input:focus-within {
+.input:focus-within,
+textarea {
   @apply !outline-none;
 }
 

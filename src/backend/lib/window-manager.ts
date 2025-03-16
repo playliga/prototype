@@ -131,12 +131,12 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
             },
             {
               label: 'My Reported Issues',
-              click: () => send(Constants.WindowIdentifier.Modal, { target: '/issues/list' }),
+              click: () => send(Constants.WindowIdentifier.Modal, { target: '/issues/all' }),
             },
             {
               label: 'Search Feature Requests',
               click: async () => {
-                const query = new URLSearchParams('is:open is:issue label:feature-request');
+                const query = new URLSearchParams('is:open is:issue type:feature');
                 await shell.openExternal(
                   `${AppInfo.repository.url.replace('.git', '')}/issues?q=${query.toString().replace('=', '')}`,
                 );

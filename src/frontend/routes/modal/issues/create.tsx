@@ -7,6 +7,7 @@ import * as Constants from '@liga/shared/constants';
 import React from 'react';
 import cx from 'classnames';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 /** @constant */
 const formDefaultValues = {
@@ -24,6 +25,7 @@ const formDefaultValues = {
  */
 export default function () {
   // track response info
+  const navigate = useNavigate();
   const [apiResponse, setAPIResponse] = React.useState<GitHubIssueResponse>();
 
   // form setup
@@ -59,7 +61,7 @@ export default function () {
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() => api.app.external(apiResponse.html_url)}
+                onClick={() => navigate('/issues/comments', { state: apiResponse.number })}
               >
                 View
               </button>

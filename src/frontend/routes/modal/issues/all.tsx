@@ -5,8 +5,10 @@
  */
 import React from 'react';
 import cx from 'classnames';
-import { formatRelative } from 'date-fns';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { format, formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { Constants } from '@liga/shared';
+import { FaComment } from 'react-icons/fa';
 
 /** @enum */
 enum State {
@@ -26,38 +28,39 @@ const StateTypes = {
  * @param props The root props.
  * @function
  */
-function Issue(props: GitHubIssueResponse) {
-  const date = formatRelative(new Date(props.created_at), Date.now());
-
+function Issue(props: GitHubIssueResponse & { onClick: () => void }) {
   return (
-    <tr
-      className="cursor-pointer last:border-b hover:bg-base-content/10"
-      onClick={() => api.app.external(props.html_url)}
-    >
+    <tr className="cursor-pointer last:border-b hover:bg-base-content/10" onClick={props.onClick}>
       <td className="truncate" title={props.title}>
         {props.title}
       </td>
-      <td className="truncate capitalize" title={date}>
-        {date}
+      <td
+        className="truncate capitalize"
+        title={format(new Date(props.created_at), Constants.Application.CALENDAR_DATE_FORMAT)}
+      >
+        {formatDistanceToNow(new Date(props.created_at), { addSuffix: true })}
       </td>
       <td className="truncate">
         {props.labels.map((label) => (
           <span
             key={label.id + '__label'}
-            className="badge badge-success badge-sm mr-1 capitalize"
+            className="badge badge-success mr-1"
             style={{ backgroundColor: `#${label.color}` }}
           >
-            {label.name}
+            {label.name.toLowerCase()}
           </span>
         ))}
       </td>
       <td className="text-center">
-        <span className={cx('badge badge-sm w-full capitalize', StateTypes[props.state as State])}>
-          {props.state}
+        <span className={cx('badge w-full', StateTypes[props.state as State])}>
+          {props.state.toLowerCase()}
         </span>
       </td>
-      <td className="center">
-        <FaExternalLinkAlt />
+      <td className="text-center">
+        <div className="stack-x items-center justify-center">
+          <FaComment />
+          {props.comments}
+        </div>
       </td>
     </tr>
   );
@@ -69,6 +72,7 @@ function Issue(props: GitHubIssueResponse) {
  * @exports
  */
 export default function () {
+  const navigate = useNavigate();
   const [issues, setIssues] = React.useState<Array<GitHubIssueResponse>>(null);
 
   React.useEffect(() => {
@@ -90,19 +94,23 @@ export default function () {
   }
 
   return (
-    <table className="table table-pin-rows table-xs table-fixed">
+    <table className="table table-pin-rows table-sm table-fixed">
       <thead>
         <tr>
-          <th className="w-4/12">Title</th>
-          <th className="w-2/12">Created</th>
-          <th className="w-4/12">Labels</th>
+          <th className="w-3/12">Title</th>
+          <th className="w-3/12">Created</th>
+          <th className="w-3/12">Labels</th>
           <th className="w-1/12 text-center">Status</th>
-          <th title="Open Link" className="w-1/12" />
+          <th className="w-2/12 text-center">Comments</th>
         </tr>
       </thead>
       <tbody>
         {issues.map((issue) => (
-          <Issue key={issue.id} {...issue} />
+          <Issue
+            {...issue}
+            key={issue.id}
+            onClick={() => navigate('/issues/comments', { state: issue.number })}
+          />
         ))}
       </tbody>
     </table>

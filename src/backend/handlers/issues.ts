@@ -27,6 +27,20 @@ export default function () {
     const github = new GitHub.Application(process.env.GH_ISSUES_CLIENT_ID, AppInfo.repository.url);
     return github.getIssuesByIds(issues);
   });
+  ipcMain.handle(Constants.IPCRoute.ISSUES_COMMENTS, async (_, id: number) => {
+    const github = new GitHub.Application(process.env.GH_ISSUES_CLIENT_ID, AppInfo.repository.url);
+    return github.getIssueComments(id);
+  });
+  ipcMain.handle(
+    Constants.IPCRoute.ISSUES_COMMENTS_CREATE,
+    async (_, id: number, data: unknown) => {
+      const github = new GitHub.Application(
+        process.env.GH_ISSUES_CLIENT_ID,
+        AppInfo.repository.url,
+      );
+      return github.createIssueComment(id, data);
+    },
+  );
   ipcMain.handle(
     Constants.IPCRoute.ISSUES_CREATE,
     async (
@@ -127,7 +141,7 @@ export default function () {
       });
 
       // record the issue in the database
-      issues.push(issue.id);
+      issues.push(issue.number);
       await DatabaseClient.prisma.profile.update({
         where: {
           id: profile.id,
@@ -141,4 +155,8 @@ export default function () {
       return Promise.resolve(issue);
     },
   );
+  ipcMain.handle(Constants.IPCRoute.ISSUES_FIND, async (_, id: number) => {
+    const github = new GitHub.Application(process.env.GH_ISSUES_CLIENT_ID, AppInfo.repository.url);
+    return github.getIssue(id);
+  });
 }

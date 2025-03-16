@@ -54,12 +54,16 @@ const routes = createMemoryRouter([
         path: '/issues',
         children: [
           {
-            path: 'create',
-            element: <Routes.Modal.Issues.Create />,
+            path: 'all',
+            element: <Routes.Modal.Issues.All />,
           },
           {
-            path: 'list',
-            element: <Routes.Modal.Issues.List />,
+            path: 'comments',
+            element: <Routes.Modal.Issues.Comments />,
+          },
+          {
+            path: 'create',
+            element: <Routes.Modal.Issues.Create />,
           },
         ],
       },

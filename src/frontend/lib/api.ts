@@ -106,8 +106,20 @@ export default {
   issues: {
     all: () =>
       ipcRenderer.invoke(Constants.IPCRoute.ISSUES_ALL) as Promise<Array<GitHubIssueResponse>>,
+    comments: (id: number) =>
+      ipcRenderer.invoke(Constants.IPCRoute.ISSUES_COMMENTS, id) as Promise<
+        Array<GitHubCommentResponse>
+      >,
     create: (data: unknown) =>
       ipcRenderer.invoke(Constants.IPCRoute.ISSUES_CREATE, data) as Promise<GitHubIssueResponse>,
+    createComment: (id: number, data: unknown) =>
+      ipcRenderer.invoke(
+        Constants.IPCRoute.ISSUES_COMMENTS_CREATE,
+        id,
+        data,
+      ) as Promise<GitHubCommentResponse>,
+    find: (id: number) =>
+      ipcRenderer.invoke(Constants.IPCRoute.ISSUES_FIND, id) as Promise<GitHubIssueResponse>,
   },
   matches: {
     all: <T = typeof Eagers.match>(query: Prisma.MatchFindManyArgs) =>

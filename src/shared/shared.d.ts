@@ -11,6 +11,44 @@
 type ExtractBaseType<T> = T extends unknown[] ? T[number] : T;
 
 /**
+ * GitHub API comment response body.
+ *
+ * @interface
+ */
+interface GitHubCommentResponse {
+  id: number;
+  url: string;
+  html_url: string;
+  issue_url: string;
+  user: {
+    login: string;
+    avatar_url: string;
+    url: string;
+    html_url: string;
+    type: string;
+  };
+  created_at: string;
+  updated_at: string;
+  author_association: string;
+  body: string;
+  performed_via_github_app?: {
+    id: number;
+    slug: string;
+    owner: {
+      login: string;
+      id: number;
+      url: string;
+      html_url: string;
+      type: string;
+      user_view_type: string;
+    };
+    name: string;
+    description: string;
+    html_url: string;
+  };
+}
+
+/**
  * GitHub API issues response body.
  *
  * @interface
@@ -30,6 +68,12 @@ interface GitHubIssueResponse {
   state: string;
   created_at: string;
   updated_at: string;
+  comments: number;
+  body: string;
+  assignee?: {
+    login: string;
+    type: string;
+  };
 }
 
 /**
