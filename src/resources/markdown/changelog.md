@@ -1,3 +1,15 @@
+## 3.0.0-beta.39 (2025-03-17)
+
+### Features
+
+- overtime mode always enabled and starting money is now 10k ([#384](https://github.com/playliga/application/issues/384)) ([eebcbfc](https://github.com/playliga/application/commit/eebcbfc04eeead5494cc6d68bf80a9894c118d8d))
+- improvements to bug reporting framework ([#383](https://github.com/playliga/application/issues/383)) ([e5598f2](https://github.com/playliga/application/commit/e5598f21495313f17493f146b608d59b04394000))
+
+### Bug Fixes
+
+- make finding free agents easier ([#373](https://github.com/playliga/application/issues/373)) ([59bb45d](https://github.com/playliga/application/commit/59bb45d8feacc4296c4398f645b99435e87378b8))
+- use muted colors for no-data icons ([#382](https://github.com/playliga/application/issues/382)) ([7f377f2](https://github.com/playliga/application/commit/7f377f209b787fae249ee123ee1be88b4cd3c79f))
+
 ## 3.0.0-beta.38 (2025-03-08)
 
 ### Bug Fixes
