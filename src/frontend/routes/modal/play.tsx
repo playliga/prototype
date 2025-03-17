@@ -266,6 +266,24 @@ export default function () {
           </article>
           <article>
             <header>
+              <h3>Starting Money</h3>
+            </header>
+            <aside>
+              <select
+                className="select w-full"
+                onChange={(event) => onSettingsUpdate('matchRules.startMoney', event.target.value)}
+                value={settings.matchRules.startMoney}
+              >
+                {[800, 10_000].map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </aside>
+          </article>
+          <article>
+            <header>
               <h3>Freeze Time</h3>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.freezeTime)}
@@ -314,6 +332,21 @@ export default function () {
                   </option>
                 ))}
               </select>
+            </aside>
+          </article>
+          <article>
+            <header>
+              <h3>Allow Overtime</h3>
+              <p>Whether to go into overtime if the game ends in a draw.</p>
+            </header>
+            <aside>
+              <input
+                type="checkbox"
+                className="toggle"
+                onChange={(event) => onSettingsUpdate('matchRules.overtime', event.target.checked)}
+                checked={settings.matchRules.overtime}
+                value={String(settings.matchRules.overtime)}
+              />
             </aside>
           </article>
         </fieldset>

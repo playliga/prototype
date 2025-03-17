@@ -1010,9 +1010,11 @@ export const Settings = {
     unit: CalendarUnit.DAY,
   },
   matchRules: {
+    freezeTime: 7,
     mapOverride: null as string,
     maxRounds: 6,
-    freezeTime: 7,
+    overtime: true,
+    startMoney: 10_000,
   },
 };
 

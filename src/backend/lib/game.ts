@@ -257,7 +257,6 @@ export async function isRunningAndThrow(name: string) {
  * @class
  */
 export class Server {
-  private allowDraw: boolean;
   private baseDir: string;
   private botCommandFile: string;
   private botConfigFile: string;
@@ -273,7 +272,6 @@ export class Server {
   private settings: typeof Constants.Settings;
   private spectating?: boolean;
   private weaponPbxWeight: Record<string, number>;
-
   public competitors: Server['match']['competitors'];
   public log: log.LogFunctions;
   public result: Scorebot.EventPayloadGameOver;
@@ -291,6 +289,14 @@ export class Server {
       | Scorebot.EventPayloadRoundOver;
   }>;
 
+  /**
+   * Constructor.
+   *
+   * @param profile       The user profile object.
+   * @param match         The match object.
+   * @param gameOverride  Game override.
+   * @param spectating    Whether user is spectating this match.
+   */
   constructor(
     profile: Server['profile'],
     match: Server['match'],
@@ -298,7 +304,6 @@ export class Server {
     spectating?: boolean,
   ) {
     // set up plain properties
-    this.allowDraw = false;
     this.log = log.scope('gameserver');
     this.match = match;
     this.profile = profile;
@@ -396,6 +401,20 @@ export class Server {
   private get map() {
     const [game1] = this.match.games;
     return this.settings.matchRules.mapOverride || game1.map;
+  }
+
+  /**
+   * Determines whether overtime is allowed.
+   *
+   * @function
+   */
+  private get overtime() {
+    // override if playoff match
+    if (!this.match.competition.tier.groupSize) {
+      return true;
+    }
+
+    return this.settings.matchRules.overtime;
   }
 
   /**
@@ -771,7 +790,7 @@ export class Server {
           freezetime: this.settings.matchRules.freezeTime,
           hostname: this.hostname,
           maxrounds: this.settings.matchRules.maxRounds,
-          ot: +this.allowDraw,
+          ot: +this.overtime,
           rcon_password: Constants.GameSettings.RCON_PASSWORD,
           teamname_t: home.team.name,
           teamname_ct: away.team.name,
