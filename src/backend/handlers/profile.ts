@@ -176,6 +176,18 @@ export default function () {
       },
     });
 
+    // make sure squad is not transfer listed
+    await DatabaseClient.prisma.player.updateMany({
+      where: {
+        id: {
+          in: squad.map((player) => player.id),
+        },
+      },
+      data: {
+        transferListed: false,
+      },
+    });
+
     // replace an existing team with user's team so
     // they get picked up by the autofill module
     //

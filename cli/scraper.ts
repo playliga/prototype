@@ -191,6 +191,7 @@ async function buildPrismaPayload(data: Array<TeamAPIResponse | PlayerAPIRespons
       payload.push({
         data: {
           name: item.name,
+          transferListed: true,
           countryId: (() => {
             const countryPick = Chance.roll(countryPbx);
             return countries.find(
