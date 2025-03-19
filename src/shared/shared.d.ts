@@ -74,6 +74,13 @@ interface GitHubIssueResponse {
     login: string;
     type: string;
   };
+  type?: {
+    id: number;
+    name: string;
+    description: string;
+    color: string;
+    is_enabled: true;
+  };
 }
 
 /**

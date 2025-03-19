@@ -11,15 +11,23 @@ import { Constants } from '@liga/shared';
 import { FaComment } from 'react-icons/fa';
 
 /** @enum */
-enum State {
+enum Status {
   OPEN = 'open',
   CLOSED = 'closed',
 }
 
+/** @enum */
+enum Type {
+  BUG = 'bug',
+  FEATURE = 'feature',
+}
+
 /** @constant */
-const StateTypes = {
-  [State.OPEN]: 'badge-success',
-  [State.CLOSED]: 'badge-warning',
+const Badge = {
+  [Status.OPEN]: 'badge-success',
+  [Status.CLOSED]: 'badge-warning',
+  [Type.BUG]: 'badge-warning',
+  [Type.FEATURE]: 'badge-info',
 };
 
 /**
@@ -40,7 +48,17 @@ function Issue(props: GitHubIssueResponse & { onClick: () => void }) {
       >
         {formatDistanceToNow(new Date(props.created_at), { addSuffix: true })}
       </td>
-      <td className="truncate">
+      <td className="text-center">
+        <span className={cx('badge', Badge[props.state as Status])}>
+          {props.state.toLowerCase()}
+        </span>
+      </td>
+      <td className="text-center">
+        <span className={cx('badge', Badge[props.type.name.toLowerCase() as Type])}>
+          {props.type.name.toLowerCase()}
+        </span>
+      </td>
+      <td className="truncate text-center">
         {props.labels.map((label) => (
           <span
             key={label.id + '__label'}
@@ -50,11 +68,6 @@ function Issue(props: GitHubIssueResponse & { onClick: () => void }) {
             {label.name.toLowerCase()}
           </span>
         ))}
-      </td>
-      <td className="text-center">
-        <span className={cx('badge w-full', StateTypes[props.state as State])}>
-          {props.state.toLowerCase()}
-        </span>
       </td>
       <td className="text-center">
         <div className="stack-x items-center justify-center">
@@ -97,11 +110,12 @@ export default function () {
     <table className="table table-pin-rows table-sm table-fixed">
       <thead>
         <tr>
-          <th className="w-3/12">Title</th>
-          <th className="w-3/12">Created</th>
-          <th className="w-3/12">Labels</th>
-          <th className="w-1/12 text-center">Status</th>
-          <th className="w-2/12 text-center">Comments</th>
+          <th>Title</th>
+          <th>Created</th>
+          <th className="text-center">Status</th>
+          <th className="text-center">Type</th>
+          <th className="text-center">Labels</th>
+          <th className="text-center">Comments</th>
         </tr>
       </thead>
       <tbody>

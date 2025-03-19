@@ -14,9 +14,15 @@ import { AppStateContext } from '@liga/frontend/redux';
 import { FaComment } from 'react-icons/fa';
 
 /** @enum */
-enum State {
+enum Status {
   OPEN = 'open',
   CLOSED = 'closed',
+}
+
+/** @enum */
+enum Type {
+  BUG = 'bug',
+  FEATURE = 'feature',
 }
 
 /** @constant */
@@ -25,9 +31,11 @@ const formDefaultValues = {
 };
 
 /** @constant */
-const StateTypes = {
-  [State.OPEN]: 'badge-success',
-  [State.CLOSED]: 'badge-warning',
+const Badge = {
+  [Status.OPEN]: 'badge-success',
+  [Status.CLOSED]: 'badge-warning',
+  [Type.BUG]: 'badge-warning',
+  [Type.FEATURE]: 'badge-info',
 };
 
 /**
@@ -97,8 +105,9 @@ export default function () {
           <tr>
             <th>Opened</th>
             <th>Assignee</th>
-            <th>Status</th>
-            <th>Labels</th>
+            <th className="text-center">Status</th>
+            <th className="text-center">Type</th>
+            <th className="text-center">Labels</th>
           </tr>
         </thead>
         <tbody>
@@ -115,12 +124,17 @@ export default function () {
               </time>
             </td>
             <td>{issue.assignee?.login || 'Unassigned'}</td>
-            <td>
-              <span className={cx('badge', StateTypes[issue.state as State])}>
+            <td className="text-center">
+              <span className={cx('badge', Badge[issue.state as Status])}>
                 {issue.state.toLowerCase()}
               </span>
             </td>
-            <td>
+            <td className="text-center">
+              <span className={cx('badge', Badge[issue.type.name.toLowerCase() as Type])}>
+                {issue.type.name.toLowerCase()}
+              </span>
+            </td>
+            <td className="text-center">
               {issue.labels.map((label) => (
                 <span
                   key={label.id + '__label'}

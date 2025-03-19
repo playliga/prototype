@@ -120,7 +120,7 @@ export default function () {
       );
       const issue = await github.createIssue({
         title: data.title,
-        labels: [Number(data.type) === Constants.IssueType.BUG ? 'bug' : 'feature-request'],
+        type: Number(data.type) === Constants.IssueType.BUG ? 'bug' : 'feature',
         body: Sqrl.render(
           Number(data.type) === Constants.IssueType.BUG ? textIssue : bodyFeature,
           {
