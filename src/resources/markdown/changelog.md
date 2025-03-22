@@ -1,3 +1,9 @@
+## 3.0.0-beta.40 (2025-03-22)
+
+### Bug Fixes
+
+- fix overtime scores not being recorded properly ([#401](https://github.com/playliga/application/issues/401)) ([8b20395](https://github.com/playliga/application/commit/8b203954004d3f0bf134687c2093845ba6cf3ac1))
+
 ## 3.0.0-beta.39 (2025-03-17)
 
 ### Features
