@@ -1314,8 +1314,6 @@ export class Server {
     // scorebot game over handler resolves our promise
     return new Promise((resolve) => {
       this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, async (payload) => {
-        this.log.info('Final result: %O', payload);
-
         // on cs2 we must sleep for 5s and quit
         //
         // @todo: remove when a liga source2mod or cssharp mod is implemented
@@ -1324,6 +1322,26 @@ export class Server {
           await this.rcon.send('quit');
         }
 
+        // in csgo and cs2, overtimes affect the order of the final
+        // scores reported so we must swap them accordingly
+        if (
+          this.settings.general.game === Constants.Game.CS2 ||
+          this.settings.general.game === Constants.Game.CSGO
+        ) {
+          const totalRoundsPlayed = payload.score.reduce((a, b) => a + b, 0);
+
+          if (totalRoundsPlayed > this.settings.matchRules.maxRounds) {
+            const totalRoundsOvertime = totalRoundsPlayed - this.settings.matchRules.maxRounds;
+            const overtimeCount = Math.ceil(totalRoundsOvertime / 6);
+
+            // swap score if overtime count is odd
+            if (overtimeCount % 2 === 1) {
+              payload.score.reverse();
+            }
+          }
+        }
+
+        this.log.info('Final result: %O', payload);
         this.result = payload;
         resolve();
       });
