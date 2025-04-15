@@ -18,6 +18,7 @@ export enum Application {
   DATABASES_DIR = 'saves',
   GH_API_BODY_LIMIT = 65536,
   LOGGING_LEVEL = 'debug',
+  PLUGINS_DIR = 'plugins',
   SQUAD_MIN_LENGTH = 5,
   SEASON_START_DAY = 1,
   SEASON_START_MONTH = 6,

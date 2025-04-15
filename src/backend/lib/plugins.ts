@@ -10,6 +10,8 @@ import events from 'node:events';
 import log from 'electron-log';
 import compressing from 'compressing';
 import AppInfo from 'package.json';
+import { app } from 'electron';
+import { Constants } from '@liga/shared';
 
 /** @enum */
 export enum EventIdentifier {
@@ -49,11 +51,12 @@ export interface Manager {
 /**
  * Gets the base path to the plugins folder.
  *
- * @todo add macos support
  * @function
  */
 export function getPath() {
-  return path.join(process.env.APPDATA, AppInfo.productName, 'plugins');
+  return process.env['NODE_ENV'] === 'cli'
+    ? path.join(process.env.APPDATA, AppInfo.productName, Constants.Application.PLUGINS_DIR)
+    : path.join(app.getPath('userData'), Constants.Application.PLUGINS_DIR);
 }
 
 /**
