@@ -1,3 +1,13 @@
+## 3.0.0-beta.41 (2025-04-17)
+
+### Features
+
+- add spanish translation ([#403](https://github.com/playliga/application/issues/403)) ([5550b55](https://github.com/playliga/application/commit/5550b55897e3dcc1b25550d4e193529d7c3ddfb4))
+
+### Bug Fixes
+
+- macos fixes ([64ee920](https://github.com/playliga/application/commit/64ee920971bc0dbaceebab0de49c50df666f3885))
+
 ## 3.0.0-beta.40 (2025-03-22)
 
 ### Bug Fixes
