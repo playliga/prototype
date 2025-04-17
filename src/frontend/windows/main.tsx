@@ -18,6 +18,7 @@ import {
   emailsUpdate,
   profileUpdate,
   appStatusUpdate,
+  localeUpdate,
 } from '@liga/frontend/redux/actions';
 import {
   createMemoryRouter,
@@ -163,6 +164,7 @@ function Root() {
     api.emails.all().then((emails) => dispatch(emailsUpdate(emails)));
     api.profiles.current().then((profile) => dispatch(profileUpdate(profile)));
     api.app.status().then((resp) => dispatch(appStatusUpdate(resp)));
+    api.app.locale().then((locale) => dispatch(localeUpdate(locale)));
 
     // handle incoming e-mail notifications
     api.ipc.on(Constants.IPCRoute.EMAILS_NEW, (email: (typeof state.emails)[number]) => {

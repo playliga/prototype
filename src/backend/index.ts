@@ -88,6 +88,11 @@ function handleOnActivate() {
     log.transports.file.level = Constants.Application.LOGGING_LEVEL as log.LevelOption;
   }
 
+  // language override
+  if (process.env.LANG) {
+    app.commandLine.appendSwitch('lang', process.env.LANG);
+  }
+
   // set up squirrelly custom filters
   Sqrl.filters.define('currency', Util.formatCurrency);
 

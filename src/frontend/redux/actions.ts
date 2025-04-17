@@ -12,6 +12,7 @@ export enum ReduxActions {
   CONTINENTS_UPDATE,
   EMAILS_UPDATE,
   EMAILS_DELETE,
+  LOCALE_UPDATE,
   PROFILE_UPDATE,
   PROFILES_DELETE,
   PROFILES_UPDATE,
@@ -70,6 +71,17 @@ export function emailsUpdate(payload: AppState['emails']) {
 export function emailsDelete(payload: AppState['emails']) {
   return {
     type: ReduxActions.EMAILS_DELETE,
+    payload,
+  };
+}
+
+/**
+ * @param payload The redux payload.
+ * @function
+ */
+export function localeUpdate(payload: AppState['locale']) {
+  return {
+    type: ReduxActions.LOCALE_UPDATE,
     payload,
   };
 }

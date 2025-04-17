@@ -9,7 +9,14 @@ import is from 'electron-is';
 import AppInfo from 'package.json';
 import { app, dialog, ipcMain, shell } from 'electron';
 import { Constants, Util } from '@liga/shared';
-import { DatabaseClient, FileManager, Game, Plugins, WindowManager } from '@liga/backend/lib';
+import {
+  DatabaseClient,
+  FileManager,
+  Game,
+  Plugins,
+  WindowManager,
+  getLocale,
+} from '@liga/backend/lib';
 
 export { default as IPCDatabaseHandler } from './database';
 export { default as IPCWIndowHandler } from './window';
@@ -51,6 +58,10 @@ export function IPCGenericHandler() {
   );
   ipcMain.handle(Constants.IPCRoute.APP_EXTERNAL, (_, url: string) => shell.openExternal(url));
   ipcMain.handle(Constants.IPCRoute.APP_INFO, () => Promise.resolve(getApplicationInfo()));
+  ipcMain.handle(Constants.IPCRoute.APP_LOCALE, async () => {
+    const profile = await DatabaseClient.prisma.profile.findFirst();
+    return getLocale(profile);
+  });
   ipcMain.handle(Constants.IPCRoute.APP_STATUS, async () => {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     const settings = Util.loadSettings(profile.settings);

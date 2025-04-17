@@ -7,6 +7,7 @@ import React from 'react';
 import cx from 'classnames';
 import { startCase } from 'lodash';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaCaretDown, FaCaretUp, FaFolderOpen, FaShoppingBag, FaStar } from 'react-icons/fa';
 
 /** @type {Player} */
@@ -87,6 +88,7 @@ export function XPBar(props: XPBarProps) {
  * @exports
  */
 export default function (props: PlayerCardProps) {
+  const t = useTranslation('components');
   const [collapsed, setCollapsed] = React.useState(props.collapsed);
   const weapons = React.useMemo(() => Constants.WeaponTemplates[props.game], [props.game]);
   const xp = React.useMemo(() => {
@@ -123,7 +125,7 @@ export default function (props: PlayerCardProps) {
       >
         <header className="grid grid-cols-4 items-center divide-x divide-base-content/10">
           <button
-            title="Set as Starter"
+            title={t('playerCard.setAsStarter')}
             className="hover:!bg-transparent disabled:!bg-transparent [&_svg]:hover:text-yellow-500"
             disabled={!props.onClickStarter}
             onClick={props.onClickStarter || null}
@@ -138,7 +140,7 @@ export default function (props: PlayerCardProps) {
             </p>
           </nav>
           <aside className="stack-y">
-            <p className="text-muted">Total XP</p>
+            <p className="text-muted">{t('playerCard.totalXP')}</p>
             <p className="!text-2xl font-black">
               {props.noStats ? '-' : Math.floor(Bot.Exp.getTotalXP(xp.stats))}
             </p>
@@ -174,7 +176,7 @@ export default function (props: PlayerCardProps) {
       </header>
       <figure>
         <label className="form-control text-xs">
-          <p>Weapon Preference</p>
+          <p>{t('shared.weaponPreference')}</p>
           <select
             className="select select-sm w-full bg-base-300"
             value={props.player.weapon || Constants.WeaponTemplate.AUTO}
@@ -204,7 +206,7 @@ export default function (props: PlayerCardProps) {
       </figure>
       <figure>
         <XPBar
-          title="Total XP"
+          title={t('playerCard.totalXP')}
           subtitle={`${Math.floor(Bot.Exp.getTotalXP(xp.stats))}/${Math.floor(Bot.Exp.getMaximumXP())}`}
           value={Bot.Exp.getTotalXP(xp.stats)}
           max={Bot.Exp.getMaximumXP()}
@@ -227,17 +229,17 @@ export default function (props: PlayerCardProps) {
       })}
       <aside className="grid grid-cols-3">
         <button
-          title="Set as Starter"
+          title={t('playerCard.setAsStarter')}
           className="disabled:!bg-transparent"
           disabled={!props.onClickStarter}
           onClick={props.onClickStarter || null}
         >
           <FaStar className={cx(props.player.starter && 'text-yellow-500')} />
         </button>
-        <button title="Add to Transfer List" onClick={props.onClickTransferListed}>
+        <button title={t('playerCard.addToTransferList')} onClick={props.onClickTransferListed}>
           <FaShoppingBag className={cx(props.player.transferListed && 'text-primary')} />
         </button>
-        <button title="View Offers" onClick={props.onClickViewOffers}>
+        <button title={t('playerCard.viewOffers')} onClick={props.onClickViewOffers}>
           <FaFolderOpen />
         </button>
       </aside>

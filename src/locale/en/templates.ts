@@ -1,5 +1,10 @@
 /**
- * Dialogue between the application and the user.
+ * Contains localized template strings used for
+ * dynamic content generation. These templates
+ * are rendered using Squirrelly.
+ *
+ * Used primarily for generating emails and
+ * rich-text messages within the application.
  *
  * @module
  */

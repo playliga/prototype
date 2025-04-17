@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import { cloneDeep, differenceBy, isNull, merge, pick, set } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Image, PlayerCard } from '@liga/frontend/components';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
@@ -49,6 +50,7 @@ function SettingsOverrideLabel(props: { left: unknown; right: unknown }) {
  */
 export default function () {
   const location = useLocation();
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [settings, setSettings] = React.useState(SETTINGS_DEFAULT);
   const [match, setMatch] = React.useState<Matches[number]>();
@@ -132,7 +134,7 @@ export default function () {
           </li>
           <li>
             {match.competition.tier.groupSize
-              ? `Matchday ${match.round}`
+              ? `${t('shared.matchday')} ${match.round}`
               : Util.parseCupRounds(match.round, match.totalRounds)}
           </li>
           <li>{Util.convertMapPool(game.map, settingsAll.general.game)}</li>
@@ -190,7 +192,7 @@ export default function () {
                     {squad[key as keyof typeof squad].map((player) => (
                       <tr key={player.id + '__squad'}>
                         <td
-                          title={player.id === state.profile.playerId ? 'This is you.' : undefined}
+                          title={player.id === state.profile.playerId ? t('shared.you') : undefined}
                           className={cx(
                             'p-0',
                             player.id === state.profile.playerId && 'bg-base-200/50',
@@ -228,7 +230,7 @@ export default function () {
                     {squad[key as keyof typeof squad].length === 0 && (
                       <tr>
                         <td className="h-[70px] text-center">
-                          <b>{team.name}</b> has nobody on the bench.
+                          <b>{team.name}</b> {t('shared.noBench')}
                         </td>
                       </tr>
                     )}
@@ -241,10 +243,10 @@ export default function () {
       </section>
       <form className="form-ios">
         <fieldset>
-          <legend className="!border-t-0">Match Rules</legend>
+          <legend className="!border-t-0">{t('play.matchRules')}</legend>
           <article>
             <header>
-              <h3>Max Rounds</h3>
+              <h3>{t('shared.maxRoundsTitle')}</h3>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.maxRounds)}
                 right={Number(settingsAll.matchRules.maxRounds)}
@@ -266,7 +268,7 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>Starting Money</h3>
+              <h3>{t('shared.startMoneyTitle')}</h3>
             </header>
             <aside>
               <select
@@ -284,7 +286,7 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>Freeze Time</h3>
+              <h3>{t('shared.freezeTimeTitle')}</h3>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.freezeTime)}
                 right={Number(settingsAll.matchRules.freezeTime)}
@@ -306,7 +308,7 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>Map Override</h3>
+              <h3>{t('shared.mapOverrideTitle')}</h3>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.mapOverride)}
                 right={Number(settingsAll.matchRules.mapOverride)}
@@ -336,8 +338,8 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>Allow Overtime</h3>
-              <p>Whether to go into overtime if the game ends in a draw.</p>
+              <h3>{t('shared.overtimeTitle')}</h3>
+              <p>{t('shared.overtimeSubtitle')}</p>
             </header>
             <aside>
               <input

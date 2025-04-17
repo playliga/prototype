@@ -9,10 +9,11 @@ import cx from 'classnames';
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { sample } from 'lodash';
+import { Constants } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
 import { AppState } from '@liga/frontend/redux/state';
-import { Constants } from '@liga/shared';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaRecycle } from 'react-icons/fa';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
@@ -34,6 +35,7 @@ const formDefaultValues: AppState['windowData'][Constants.WindowIdentifier.Landi
 export default function () {
   const navigate = useNavigate();
   const location = useLocation();
+  const t = useTranslation('windows');
   const { state, dispatch } = React.useContext(AppStateContext);
   const [blazonry, setBlazonry] = React.useState<string[]>([]);
   const [teamBlazon, setTeamBlazon] = React.useState('');
@@ -123,7 +125,7 @@ export default function () {
       <form className="stack-y">
         <section className="form-control w-full">
           <label className="label">
-            <span className="label-text">Team Name</span>
+            <span className="label-text">{t('landing.create.name')}</span>
           </label>
           <input
             {...register('name', { required: 'Required', pattern: /^[\w]+$/, maxLength: 15 })}
@@ -137,14 +139,14 @@ export default function () {
           />
           <footer className="label h-5">
             <span className="label-text-alt">
-              {formState.errors?.name?.type === 'required' && 'Required.'}
-              {formState.errors?.name?.type === 'pattern' && 'Special characters not supported.'}
+              {formState.errors?.name?.type === 'required' && t('landing.create.requiredError')}
+              {formState.errors?.name?.type === 'pattern' && t('landing.create.patternError')}
             </span>
           </footer>
         </section>
         <section className="form-control w-full">
           <label className="label">
-            <span className="label-text">Country</span>
+            <span className="label-text">{t('shared.country')}</span>
           </label>
           <Controller
             name="countryId"
@@ -173,7 +175,7 @@ export default function () {
           }
         >
           {!!formState.isSubmitting && <span className="loading loading-spinner"></span>}
-          Finish
+          {t('landing.create.finish')}
         </button>
       </form>
     </div>

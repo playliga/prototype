@@ -6,19 +6,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Constants } from '@liga/shared';
-
-/**
- * Status messages displayed to the user.
- *
- * Sorted by order of operations.
- *
- * @enum
- */
-enum Status {
-  Flushing = 'Flushing connections...',
-  Connecting = 'Connecting to database...',
-  Connected = 'Connected.',
-}
+import { useTranslation } from '@liga/frontend/hooks';
 
 /**
  * Exports this module.
@@ -26,15 +14,16 @@ enum Status {
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { id } = useParams();
-  const [status, setStatus] = React.useState(Status.Flushing);
+  const [status, setStatus] = React.useState('');
 
   React.useEffect(() => {
-    Promise.resolve(setStatus(Status.Flushing))
+    Promise.resolve(setStatus(t('landing.connect.flushing')))
       .then(() => api.database.disconnect())
-      .then(() => Promise.resolve(setStatus(Status.Connecting)))
+      .then(() => Promise.resolve(setStatus(t('shared.connectingToDatabase'))))
       .then(() => api.database.connect(id))
-      .then(() => Promise.resolve(setStatus(Status.Connected)))
+      .then(() => Promise.resolve(setStatus(t('landing.connect.connected'))))
       .then(() => {
         api.window.open(Constants.WindowIdentifier.Main);
         api.window.close(Constants.WindowIdentifier.Landing);

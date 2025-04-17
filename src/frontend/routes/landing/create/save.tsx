@@ -6,19 +6,7 @@
 import React from 'react';
 import { Constants } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
-
-/**
- * Status messages displayed to the user.
- *
- * Sorted by order of operations.
- *
- * @enum
- */
-enum Status {
-  Connecting = 'Connecting to database...',
-  Saving = 'Saving player and team data...',
-  Worldgen = 'Generating world...',
-}
+import { useTranslation } from '@liga/frontend/hooks';
 
 /**
  * Exports this module.
@@ -26,8 +14,9 @@ enum Status {
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
-  const [status, setStatus] = React.useState(Status.Connecting);
+  const [status, setStatus] = React.useState('');
   const windowData = state.windowData[Constants.WindowIdentifier.Landing];
 
   // get the latest profile id and
@@ -36,17 +25,17 @@ export default function () {
   const newSaveId = (isFinite(latestProfile) ? latestProfile : 0) + 1;
 
   React.useEffect(() => {
-    Promise.resolve()
+    Promise.resolve(setStatus(t('shared.connectingToDatabase')))
       // create new save and connect to it
       .then(() => api.database.connect(String(newSaveId)))
 
       // create the user's new profile
-      .then(() => Promise.resolve(setStatus(Status.Saving)))
+      .then(() => Promise.resolve(setStatus(t('landing.create.statusSaving'))))
       .then(() => api.profiles.create(windowData))
 
       // create calendar entry to start the season and
       // advance by one day to generate the world
-      .then(() => Promise.resolve(setStatus(Status.Worldgen)))
+      .then(() => Promise.resolve(setStatus(t('landing.create.statusWorldgen'))))
       .then(() =>
         api.calendar.create({
           date: windowData.today.toISOString(),

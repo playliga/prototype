@@ -3,29 +3,11 @@
  *
  * @module
  */
+import React from 'react';
 import cx from 'classnames';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaArrowLeft } from 'react-icons/fa';
-
-/**
- * Defines the steps for creating a new career.
- *
- * @constant
- */
-const steps = [
-  {
-    id: 'user-info',
-    title: 'User Information',
-  },
-  {
-    id: 'team-info',
-    title: 'Team Information',
-  },
-  {
-    id: 'finish',
-    title: 'Finish',
-  },
-];
 
 /**
  * Top-level create career component.
@@ -35,10 +17,32 @@ const steps = [
 export default function () {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [currentStep] = location.pathname
     .split('/')
     .slice(-1)
     .map((path) => parseInt(path) || 1);
+
+  const t = useTranslation('windows');
+
+  // the steps for creating a new career.
+  const steps = React.useMemo(
+    () => [
+      {
+        id: 'user-info',
+        title: t('landing.create.userInfo'),
+      },
+      {
+        id: 'team-info',
+        title: t('landing.create.teamInfo'),
+      },
+      {
+        id: 'finish',
+        title: t('landing.create.finish'),
+      },
+    ],
+    [t],
+  );
 
   return (
     <div className="frosted center h-full w-2/5 p-5 xl:w-1/3">

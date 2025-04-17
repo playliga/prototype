@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { random } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaSortAmountDown, FaSortAmountDownAlt } from 'react-icons/fa';
 import { Pagination } from '@liga/frontend/components';
 import {
@@ -79,6 +80,7 @@ function buildPlayerQuery(
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [numPlayers, setNumPlayers] = React.useState(0);
   const [numPage, setNumPage] = React.useState(1);
@@ -225,10 +227,10 @@ export default function () {
       <main>
         <form className="form-ios col-2">
           <fieldset>
-            <legend className="!border-t-0">Filters</legend>
+            <legend className="!border-t-0">{t('shared.filters')}</legend>
             <section>
               <header>
-                <h3>Federation</h3>
+                <h3>{t('shared.federation')}</h3>
               </header>
               <article>
                 <select
@@ -236,7 +238,7 @@ export default function () {
                   onChange={(event) => setSelectedFederationId(Number(event.target.value))}
                   value={selectedFederationId}
                 >
-                  <option value="">Any</option>
+                  <option value="">{t('shared.any')}</option>
                   {federations
                     .filter(
                       (federation) => federation.slug !== Constants.FederationSlug.ESPORTS_WORLD,
@@ -251,7 +253,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Country</h3>
+                <h3>{t('shared.country')}</h3>
               </header>
               <article>
                 <CountrySelect
@@ -268,7 +270,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Tier/Prestige</h3>
+                <h3>{t('shared.tierPrestige')}</h3>
               </header>
               <article>
                 <select
@@ -293,7 +295,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Team</h3>
+                <h3>{t('shared.team')}</h3>
               </header>
               <article>
                 <TeamSelect
@@ -310,12 +312,12 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Player</h3>
+                <h3>{t('main.players.player')}</h3>
               </header>
               <article>
                 <input
                   type="text"
-                  placeholder="Filter by Player name"
+                  placeholder={t('main.players.playerNameFilter')}
                   className="input w-full"
                   value={selectedPlayerName}
                   onChange={(event) => setSelectedPlayerName(event.target.value)}
@@ -324,7 +326,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Transfer Status</h3>
+                <h3>{t('main.players.transferStatus')}</h3>
               </header>
               <article>
                 <select
@@ -332,8 +334,8 @@ export default function () {
                   onChange={(event) => setSelectedTransferStatus(Boolean(event.target.value))}
                   value={String(selectedTransferStatus)}
                 >
-                  <option value="">Any</option>
-                  <option value="true">Transfer Listed</option>
+                  <option value="">{t('shared.any')}</option>
+                  <option value="true">{t('shared.transferListed')}</option>
                 </select>
               </article>
             </section>
@@ -345,7 +347,7 @@ export default function () {
                 className="btn btn-primary join-item"
                 onClick={triggerPlayerFetch}
               >
-                Apply
+                {t('shared.apply')}
               </button>
               <button
                 type="button"
@@ -359,7 +361,7 @@ export default function () {
                   setSelectedTeam(null);
                 }}
               >
-                Reset Filters
+                {t('main.players.reset')}
               </button>
             </section>
           </fieldset>
@@ -368,8 +370,8 @@ export default function () {
           <table className="table table-pin-rows table-xs h-full table-fixed">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Team</th>
+                <th>{t('shared.name')}</th>
+                <th>{t('shared.team')}</th>
                 <th
                   className="cursor-pointer hover:bg-base-300"
                   onClick={() =>
@@ -379,7 +381,7 @@ export default function () {
                   }
                 >
                   <header className="flex items-center justify-center gap-2">
-                    Tier
+                    {t('main.players.tier')}
                     <span className={cx(selectedPlayerOrderBy?.team?.tier && 'text-primary')}>
                       {selectedPlayerOrderBy?.team?.tier === 'desc' ? (
                         <FaSortAmountDown />
@@ -398,7 +400,7 @@ export default function () {
                   }
                 >
                   <header className="flex items-center justify-center gap-2">
-                    Cost
+                    {t('shared.cost')}
                     <span className={cx(selectedPlayerOrderBy?.cost && 'text-primary')}>
                       {selectedPlayerOrderBy?.cost === 'desc' ? (
                         <FaSortAmountDown />
@@ -417,7 +419,7 @@ export default function () {
                   }
                 >
                   <header className="flex items-center justify-center gap-2">
-                    Wages
+                    {t('main.players.wages')}
                     <span className={cx(selectedPlayerOrderBy?.wages && 'text-primary')}>
                       {selectedPlayerOrderBy?.wages === 'desc' ? (
                         <FaSortAmountDown />
@@ -427,7 +429,7 @@ export default function () {
                     </span>
                   </header>
                 </th>
-                <th className="w-1/12 text-center">Transfer Listed</th>
+                <th className="w-1/12 text-center">{t('shared.transferListed')}</th>
               </tr>
             </thead>
             <tbody>

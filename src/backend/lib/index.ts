@@ -14,4 +14,5 @@ export * as Simulator from './simulator';
 export * as VPK from './vpk';
 export * as WindowManager from './window-manager';
 export * as Worldgen from './worldgen';
+export { default as getLocale } from './locale';
 export { default as DatabaseClient } from './database-client';

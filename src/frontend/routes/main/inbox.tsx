@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { Constants } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { emailsDelete, emailsUpdate } from '@liga/frontend/redux/actions';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaBorderNone, FaEnvelopeOpen, FaMailBulk, FaTrash } from 'react-icons/fa';
 
 /**
@@ -20,6 +21,7 @@ import { FaBorderNone, FaEnvelopeOpen, FaMailBulk, FaTrash } from 'react-icons/f
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state, dispatch } = React.useContext(AppStateContext);
   const [selected, setSelected] = React.useState<Array<number>>([]);
   const [working, setWorking] = React.useState(false);
@@ -55,7 +57,7 @@ export default function () {
           onClick={() => setSelected(state.emails.map((email) => email.id))}
         >
           <FaBorderNone />
-          Select All
+          {t('main.inbox.selectAll')}
         </button>
         <button
           disabled={!selected.length}
@@ -68,7 +70,7 @@ export default function () {
           }
         >
           <FaTrash />
-          Delete
+          {t('shared.delete')}
         </button>
         <button
           disabled={
@@ -85,14 +87,14 @@ export default function () {
           }
         >
           <FaEnvelopeOpen />
-          Mark as Read
+          {t('main.inbox.markAsRead')}
         </button>
       </header>
       <main>
         <section className="divide-y divide-base-content/10">
           {!state.emails.length && (
             <article className="center h-full">
-              <p>All is quiet...</p>
+              <p>{t('main.inbox.noDataSidebar')}</p>
             </article>
           )}
           {state.emails.map((email) => (
@@ -119,7 +121,7 @@ export default function () {
           {!state.emails.length && (
             <article className="center h-full gap-5">
               <FaEnvelopeOpen className="text-muted size-24" />
-              <p>You have no e-mails.</p>
+              <p>{t('main.inbox.noData')}</p>
             </article>
           )}
           {!!selected &&
@@ -195,7 +197,9 @@ export default function () {
           {selected.length > 1 && (
             <article className="center h-full gap-5">
               <FaMailBulk className="text-muted size-24" />
-              <p>{selected.length} conversations selected.</p>
+              <p>
+                {selected.length} {t('main.inbox.selection')}
+              </p>
             </article>
           )}
         </section>

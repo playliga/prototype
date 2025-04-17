@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Historial, PlayerCard, Standings } from '@liga/frontend/components';
 import { FaChartBar } from 'react-icons/fa';
 import { addDays, format } from 'date-fns';
@@ -21,6 +22,7 @@ const NUM_PREVIOUS = 5;
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const { team } = useOutletContext<RouteContextTeams>();
   const [competition, setCompetition] =
@@ -106,7 +108,7 @@ export default function () {
     <section className="grid grid-cols-2 divide-x divide-base-content/10">
       <article>
         <header className="heading prose max-w-none !border-t-0">
-          <h2>Overview</h2>
+          <h2>{t('shared.overview')}</h2>
         </header>
         <aside className="flex divide-x divide-base-content/10">
           <figure className="center !place-content-evenly">
@@ -116,7 +118,7 @@ export default function () {
           <table className="table table-fixed">
             <thead>
               <tr>
-                <th>Name</th>
+                <th>{t('shared.name')}</th>
               </tr>
             </thead>
             <tbody>
@@ -126,7 +128,7 @@ export default function () {
             </tbody>
             <thead>
               <tr>
-                <th>Country</th>
+                <th>{t('shared.country')}</th>
               </tr>
             </thead>
             <tbody>
@@ -139,7 +141,7 @@ export default function () {
             </tbody>
             <thead>
               <tr>
-                <th>Division</th>
+                <th>{t('main.teams.division')}</th>
               </tr>
             </thead>
             <tbody>
@@ -156,14 +158,14 @@ export default function () {
         </aside>
         <aside>
           <header className="heading prose max-w-none !border-t-0">
-            <h2>Squad</h2>
+            <h2>{t('shared.squad')}</h2>
           </header>
           <table className="table table-xs table-fixed">
             <tbody>
               {squad.map((player) => (
                 <tr key={player.id + '__squad'}>
                   <td
-                    title={player.id === state.profile.playerId ? 'This is you.' : undefined}
+                    title={player.id === state.profile.playerId ? t('shared.you') : undefined}
                     className={cx('p-0', player.id === state.profile.playerId && 'bg-base-200/50')}
                   >
                     <PlayerCard
@@ -181,7 +183,7 @@ export default function () {
               {squad.length === 0 && (
                 <tr>
                   <td className="h-[70px] text-center">
-                    <b>{team.name}</b> has nobody on the bench.
+                    <b>{team.name}</b> {t('shared.noBench')}
                   </td>
                 </tr>
               )}
@@ -190,7 +192,7 @@ export default function () {
         </aside>
         <aside>
           <header className="heading prose max-w-none !border-t-0">
-            <h2>Recent Match Results</h2>
+            <h2>{t('shared.noRecentMatch')}</h2>
           </header>
           <table className="table table-fixed">
             <tbody>
@@ -257,7 +259,7 @@ export default function () {
                       : '-'}
                   </td>
                   <td className="w-4/12 text-center">-</td>
-                  <td className="w-4/12">No Recent Match</td>
+                  <td className="w-4/12">{t('shared.noRecentMatch')}</td>
                   <td className="w-3/12">-</td>
                 </tr>
               ))}
@@ -267,7 +269,7 @@ export default function () {
       </article>
       <article>
         <header className="heading prose max-w-none !border-t-0">
-          <h2>Standings</h2>
+          <h2>{t('shared.standings')}</h2>
         </header>
         <select
           disabled
@@ -279,7 +281,7 @@ export default function () {
         >
           {!group.length && (
             <option disabled value={-1}>
-              Competition not started.
+              {t('shared.competitionNotStarted')}
             </option>
           )}
           {!!group.length && (

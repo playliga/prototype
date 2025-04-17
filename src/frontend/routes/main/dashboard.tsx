@@ -9,6 +9,7 @@ import { addDays, format } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { workingUpdate } from '@liga/frontend/redux/actions';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Standings, Image, Historial } from '@liga/frontend/components';
 import {
   FaCalendarDay,
@@ -42,6 +43,8 @@ const NUM_PREVIOUS = 5;
  * @function
  */
 export function StatusBanner(props: StatusBannerProps) {
+  const t = useTranslation('windows');
+
   if (!props.error) {
     return null;
   }
@@ -68,12 +71,14 @@ export function StatusBanner(props: StatusBannerProps) {
         (message === Constants.GameSettings.CS16_EXE ||
           message === Constants.GameSettings.CSSOURCE_EXE ||
           message === Constants.GameSettings.STEAM_EXE) && (
-          <p>{message} not detected! Please install in order to play your matches in-game.</p>
+          <p>
+            {message} {t('main.dashboard.gameNotDetected')}
+          </p>
         )}
 
       {error.code === Constants.ErrorCode.ENOENT && message === Constants.GameSettings.CSGO_EXE && (
         <React.Fragment>
-          <p>CS:GO not detected! Enable CS:GO Legacy version from the Betas tab.</p>
+          <p>{t('main.dashboard.csgoNotDetected')}</p>
           <button
             className="btn btn-neutral btn-sm rounded-none"
             onClick={() => {
@@ -82,21 +87,18 @@ export function StatusBanner(props: StatusBannerProps) {
               });
             }}
           >
-            Details
+            {t('shared.details')}
           </button>
         </React.Fragment>
       )}
 
       {error.code === Constants.ErrorCode.ERUNNING && (
-        <p>{message} is running! Please close the game before playing your matches.</p>
-      )}
-
-      {!!error.path.includes('plugins') && (
         <p>
-          Game plugins not installed! You will not be able to launch any games. Try restarting the
-          app to fix this issue.
+          {message} {t('main.dashboard.runningError')}
         </p>
       )}
+
+      {!!error.path.includes('plugins') && <p>{t('main.dashboard.pluginsError')}</p>}
     </section>
   );
 }
@@ -107,6 +109,7 @@ export function StatusBanner(props: StatusBannerProps) {
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state, dispatch } = React.useContext(AppStateContext);
   const [playing, setPlaying] = React.useState(false);
   const [settings, setSettings] = React.useState(Constants.Settings);
@@ -218,8 +221,8 @@ export default function () {
       {/** PLAYING MODAL */}
       <dialog className={cx('modal', 'absolute', 'w-screen', playing && 'modal-open')}>
         <section className="modal-box">
-          <h3 className="text-lg">Playing Match</h3>
-          <p className="py-4">This modal will automatically close once your match is completed.</p>
+          <h3 className="text-lg">{t('main.dashboard.playingMatchTitle')}</h3>
+          <p className="py-4">{t('main.dashboard.playingMatchSubtitle')}</p>
         </section>
       </dialog>
 
@@ -232,7 +235,7 @@ export default function () {
         <div className="stack-y !gap-0">
           <section className="stack-y !gap-0">
             <header className="prose !border-t-0">
-              <h2>Upcoming Matches</h2>
+              <h2>{t('main.dashboard.headerUpcomingMatches')}</h2>
             </header>
             <table className="table table-fixed">
               <tbody>
@@ -274,7 +277,7 @@ export default function () {
                           )
                         : '-'}
                     </td>
-                    <td className="w-3/6 truncate">No Match Scheduled</td>
+                    <td className="w-3/6 truncate">{t('main.dashboard.noMatchScheduled')}</td>
                     <td className="w-2/6">-</td>
                   </tr>
                 ))}
@@ -283,12 +286,12 @@ export default function () {
           </section>
           <section className="stack-y !gap-0">
             <header className="prose">
-              <h2>Standings</h2>
+              <h2>{t('shared.standings')}</h2>
             </header>
             {!standings && (
               <article key="empty__standings" className="card h-32 rounded-none">
                 <aside className="card-body items-center justify-center">
-                  <p className="flex-grow-0">It's quiet... too quiet.</p>
+                  <p className="flex-grow-0">{t('main.dashboard.noStandings')}</p>
                 </aside>
               </article>
             )}
@@ -299,14 +302,12 @@ export default function () {
                     <Standings
                       compact
                       highlight={state.profile.teamId}
-                      // offset={userGroupCompetitors.length > 10 && userTeam.position > 10 && 10}
-                      // limit={10}
                       competitors={userGroupCompetitors}
                       title={
                         standings.competition.tier.league.slug ===
                         Constants.LeagueSlug.ESPORTS_LEAGUE
                           ? Constants.IdiomaticTier[standings.competition.tier.slug]
-                          : `Group ${Util.toAlpha(userTeam.group)}`
+                          : `${t('shared.group')} ${Util.toAlpha(userTeam.group)}`
                       }
                       zones={
                         standings.competition.status === Constants.CompetitionStatus.STARTED &&
@@ -344,7 +345,7 @@ export default function () {
                           });
                         }}
                       >
-                        View Bracket
+                        {t('main.dashboard.viewBracket')}
                       </button>
                     </footer>
                   </article>
@@ -357,7 +358,7 @@ export default function () {
         <div className="stack-y !gap-0">
           <section className="grid grid-cols-6 divide-x divide-base-content/10">
             <button
-              title="Advance Calendar"
+              title={t('main.dashboard.advanceCalendar')}
               className="day day-btn border-t-0"
               disabled={!state.profile || state.working || isMatchday}
               onClick={() => !state.working && !isMatchday && startEngineLoop()}
@@ -407,8 +408,8 @@ export default function () {
                       <h2>{format(today, 'd')}</h2>
                       <p>
                         {isActive && format(today, 'E')}
-                        {!isActive && opponent && 'match'}
-                        {!isActive && !opponent && 'rest'}
+                        {!isActive && opponent && t('main.dashboard.match')}
+                        {!isActive && !opponent && t('main.dashboard.rest')}
                       </p>
                     </aside>
                   </article>
@@ -428,7 +429,7 @@ export default function () {
                     />
                   </figure>
                   <article className="card-body items-center justify-center">
-                    No Upcoming Match
+                    {t('main.dashboard.noMatch')}
                   </article>
                 </section>
               );
@@ -488,7 +489,7 @@ export default function () {
                           <FaCalendarDay />
                           <span>
                             {spotlight.competition.tier.groupSize
-                              ? `Matchday ${spotlight.round}`
+                              ? `${t('shared.matchday')} ${spotlight.round}`
                               : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
                           </span>
                         </li>
@@ -507,7 +508,7 @@ export default function () {
                   </header>
                   <footer className="join justify-center">
                     <button
-                      title="Match Setup"
+                      title={t('main.dashboard.matchSetup')}
                       className="btn join-item"
                       disabled={disabled || !!state.appStatus}
                       onClick={() =>
@@ -530,17 +531,17 @@ export default function () {
                           .then(() => setPlaying(false));
                       }}
                     >
-                      Play
+                      {t('main.dashboard.play')}
                     </button>
                     <button
                       className="btn join-item btn-wide"
                       disabled={disabled}
                       onClick={() => api.calendar.sim().then(() => startEngineLoop(1))}
                     >
-                      Simulate
+                      {t('main.dashboard.simulate')}
                     </button>
                     <button
-                      title="Spectate Match"
+                      title={t('main.dashboard.spectateMatch')}
                       className="btn btn-secondary join-item"
                       disabled={disabled || !!state.appStatus}
                       onClick={() => {
@@ -570,7 +571,8 @@ export default function () {
                   >
                     <header className="prose !border-t-0">
                       <h4 className="truncate">
-                        {competitor?.team?.name ? `${competitor.team.name}'s` : ''} Recent Matches
+                        {competitor?.team?.name ? `${competitor.team.name}'s` : ''}&nbsp;
+                        {t('main.dashboard.headerRecentMatches')}
                       </h4>
                     </header>
                     <table className="table table-fixed">
@@ -603,7 +605,11 @@ export default function () {
                               >
                                 <td
                                   className={cx('w-1/12', !onClick && 'text-muted')}
-                                  title={onClick ? 'View Match Details' : 'No Match Details'}
+                                  title={
+                                    onClick
+                                      ? t('shared.viewMatchDetails')
+                                      : t('shared.noMatchDetails')
+                                  }
                                 >
                                   <FaChartBar />
                                 </td>
@@ -656,7 +662,7 @@ export default function () {
                                 : '-'}
                             </td>
                             <td className="w-4/12 text-center">-</td>
-                            <td className="w-4/12">No Recent Match</td>
+                            <td className="w-4/12">{t('shared.noRecentMatch')}</td>
                             <td className="w-3/12">-</td>
                           </tr>
                         ))}

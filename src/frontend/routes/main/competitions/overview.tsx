@@ -10,6 +10,7 @@ import { groupBy } from 'lodash';
 import { useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Standings } from '@liga/frontend/components';
 import { FaChartBar } from 'react-icons/fa';
 
@@ -22,6 +23,7 @@ const NUM_PREVIOUS = 5;
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const { competition } = useOutletContext<RouteContextCompetitions>();
   const [competitionDates, setCompetitionDates] = React.useState<
@@ -122,12 +124,12 @@ export default function () {
       <article>
         <aside>
           <header className="heading prose max-w-none !border-t-0">
-            <h2>Overview</h2>
+            <h2>{t('shared.overview')}</h2>
           </header>
           <table className="table table-fixed">
             <thead>
               <tr>
-                <th colSpan={2}>Name</th>
+                <th colSpan={2}>{t('shared.name')}</th>
               </tr>
             </thead>
             <tbody>
@@ -141,8 +143,8 @@ export default function () {
             </tbody>
             <thead>
               <tr>
-                <th>Start Date</th>
-                <th>End Date</th>
+                <th>{t('main.competitions.startDate')}</th>
+                <th>{t('main.competitions.endDate')}</th>
               </tr>
             </thead>
             <tbody>
@@ -153,34 +155,36 @@ export default function () {
             </tbody>
             <thead>
               <tr>
-                <th>Title Holders</th>
-                <th>Season</th>
+                <th>{t('main.competitions.titleHolders')}</th>
+                <th>{t('shared.season')}</th>
               </tr>
             </thead>
             <tbody>
               {!winners.length && (
                 <tr>
-                  <td>N/A</td>
+                  <td>{t('main.competitions.notApplicable')}</td>
                   <td>-</td>
                 </tr>
               )}
               {winners.length > 0 && (
                 <tr>
                   <td>{winners[0].team.name}</td>
-                  <td>Season {competition.season - 1}</td>
+                  <td>
+                    {t('shared.season')} {competition.season - 1}
+                  </td>
                 </tr>
               )}
             </tbody>
             <thead>
               <tr>
-                <th>Prize Pool</th>
-                <th>Amount</th>
+                <th>{t('main.competitions.prizePool')}</th>
+                <th>{t('shared.amount')}</th>
               </tr>
             </thead>
             <tbody>
               {!prizePool.total && (
                 <tr>
-                  <td>N/A</td>
+                  <td>{t('main.competitions.notApplicable')}</td>
                   <td>-</td>
                 </tr>
               )}
@@ -197,16 +201,16 @@ export default function () {
         </aside>
         <aside>
           <header className={cx('heading prose max-w-none', !prizePool.total && '!border-t-0')}>
-            <h2>Recent Match Results</h2>
+            <h2>{t('shared.recentMatchResults')}</h2>
           </header>
           <table className="table table-fixed">
             <thead>
               <tr>
                 <th title="Match Details" className="w-1/12" />
-                <th className="w-1/12 text-center">Date</th>
-                <th className="w-4/12 text-right">Home</th>
-                <th className="w-2/12 text-center">Score</th>
-                <th className="w-4/12">Away</th>
+                <th className="w-1/12 text-center">{t('shared.date')}</th>
+                <th className="w-4/12 text-right">{t('shared.home')}</th>
+                <th className="w-2/12 text-center">{t('shared.score')}</th>
+                <th className="w-4/12">{t('shared.away')}</th>
               </tr>
             </thead>
             <tbody>
@@ -228,7 +232,7 @@ export default function () {
                   >
                     <td
                       className={cx(!onClick && 'text-muted')}
-                      title={onClick ? 'View Match Details' : 'No Match Details'}
+                      title={onClick ? t('shared.viewMatchDetails') : t('shared.noMatchDetails')}
                     >
                       <FaChartBar className="mx-auto" />
                     </td>
@@ -266,7 +270,7 @@ export default function () {
                   <td className="w-1/12" />
                   <td className="w-1/12 text-center">-</td>
                   <td colSpan={3} className="w-10/12 text-center">
-                    No Recent Match
+                    {t('shared.noRecentMatch')}
                   </td>
                 </tr>
               ))}
@@ -275,26 +279,28 @@ export default function () {
         </aside>
         <aside>
           <header className="heading prose max-w-none">
-            <h2>Past Winners</h2>
+            <h2>{t('main.competitions.pastWinners')}</h2>
           </header>
           <table className="table table-fixed">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Season</th>
+                <th>{t('shared.name')}</th>
+                <th>{t('shared.season')}</th>
               </tr>
             </thead>
             <tbody>
               {!winners.length && (
                 <tr>
-                  <td>N/A</td>
+                  <td>{t('main.competitions.notApplicable')}</td>
                   <td>-</td>
                 </tr>
               )}
               {winners.map((winner, idx) => (
                 <tr key={winner.id + '__winner'}>
                   <td>{winner.team.name}</td>
-                  <td>Season {competition.season - (idx + 1)}</td>
+                  <td>
+                    {t('shared.season')} {competition.season - (idx + 1)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -303,7 +309,7 @@ export default function () {
       </article>
       <article>
         <header className="heading prose max-w-none !border-t-0">
-          <h2>Standings</h2>
+          <h2>{t('shared.standings')}</h2>
         </header>
         <select
           className={cx(
@@ -316,7 +322,7 @@ export default function () {
         >
           {!group.length && (
             <option disabled value={-1}>
-              Competition not started.
+              {t('shared.competitionNotStarted')}
             </option>
           )}
           {competition.tier.league.slug === Constants.LeagueSlug.ESPORTS_LEAGUE ? (
@@ -324,7 +330,7 @@ export default function () {
           ) : (
             Object.keys(groupBy(competition.competitors, 'group')).map((groupKey) => (
               <option key={groupKey + '__select'} value={groupKey}>
-                Group {Util.toAlpha(groupKey)}
+                {t('shared.group')} {Util.toAlpha(groupKey)}
               </option>
             ))
           )}

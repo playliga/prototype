@@ -8,6 +8,7 @@ import { useOutletContext } from 'react-router-dom';
 import { groupBy } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Brackets, Standings } from '@liga/frontend/components';
 
 /**
@@ -26,6 +27,7 @@ function PureBrackets(props: React.ComponentProps<typeof Brackets>) {
  * @exports
  */
 export default function () {
+  const t = useTranslation();
   const { state } = React.useContext(AppStateContext);
   const { competition } = useOutletContext<RouteContextCompetitions>();
   const [bracket, setBracket] =
@@ -62,7 +64,7 @@ export default function () {
             title={
               competition.tier.league.slug === Constants.LeagueSlug.ESPORTS_LEAGUE
                 ? Constants.IdiomaticTier[competition.tier.slug]
-                : `Group ${Util.toAlpha(group)}`
+                : `${t('shared.group')} ${Util.toAlpha(group)}`
             }
             zones={
               competition.status === Constants.CompetitionStatus.STARTED &&
@@ -78,7 +80,7 @@ export default function () {
     return (
       <section className="center h-full">
         {!bracket && <span className="loading loading-bars" />}
-        {!!bracket && !bracket.length && <span>Competition not started.</span>}
+        {!!bracket && !bracket.length && <span>{t('shared.competitionNotStarted')}</span>}
       </section>
     );
   }

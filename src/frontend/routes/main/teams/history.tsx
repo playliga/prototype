@@ -10,6 +10,7 @@ import { countBy } from 'lodash';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 
 /** @constant */
 const CHART_CONFIG: Pick<ChartConfiguration<'line'>, 'type' | 'options'> = {
@@ -111,6 +112,7 @@ function buildChartDataset(
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const { team } = useOutletContext<RouteContextTeams>();
   const [competitions, setCompetitions] =
@@ -206,18 +208,16 @@ export default function () {
     <section className="flex flex-col !overflow-y-hidden">
       <article className="flex h-2/5 flex-col">
         <header className="heading prose max-w-none !border-t-0">
-          <h2>Honors</h2>
+          <h2>{t('main.teams.honors')}</h2>
         </header>
         <aside className="grid h-0 flex-grow grid-cols-8 place-content-center place-items-baseline gap-4">
           {!Object.keys(honors).length && (
             <footer className="col-span-8 flex h-full w-full flex-col items-center justify-center text-center">
-              <p>It's looking a bit empty here!</p>
-              {team.id === state.profile.teamId && (
-                <p>Start stacking up those trophies—your collection awaits!</p>
-              )}
+              <p>{t('main.teams.noHonorsTitle')}</p>
+              {team.id === state.profile.teamId && <p>{t('main.teams.noHonorsSubtitle')}</p>}
               {team.id !== state.profile.teamId && (
                 <p>
-                  <strong>{team.name}</strong> has not won anything... yet.
+                  <strong>{team.name}</strong> {t('main.teams.noHonorsSubtitleAlt')}
                 </p>
               )}
             </footer>
@@ -242,7 +242,7 @@ export default function () {
       <article className="grid h-0 flex-grow grid-cols-2 divide-x divide-base-content/10">
         <aside className="flex flex-col">
           <header className="heading prose max-w-none !border-t-0">
-            <h2>League History</h2>
+            <h2>{t('main.teams.leagueHistory')}</h2>
           </header>
           {seasons.length > 1 && (
             <figure className="relative h-0 flex-grow">
@@ -251,21 +251,14 @@ export default function () {
           )}
           {seasons.length <= 1 && (
             <figure className="flex h-0 flex-grow flex-col items-center justify-center p-4 text-center">
-              {team.id !== state.profile.teamId && (
-                <p>Not enough historical data to generate a graph.</p>
-              )}
-              {team.id === state.profile.teamId && (
-                <p>
-                  After one more season, there will be enough data to show you a cool graph of your
-                  progress!
-                </p>
-              )}
+              {team.id !== state.profile.teamId && <p>{t('main.teams.noDataHistory')}</p>}
+              {team.id === state.profile.teamId && <p>{t('main.teams.noDataHistoryAlt')}</p>}
             </figure>
           )}
         </aside>
         <aside className="flex flex-col">
           <header className="heading prose max-w-none !border-t-0">
-            <h2>Competitions</h2>
+            <h2>{t('main.teams.competitions')}</h2>
           </header>
           <select
             className={cx(
@@ -277,7 +270,7 @@ export default function () {
           >
             {seasons.map((_, idx) => (
               <option key={idx + 1 + '__season'} value={idx + 1}>
-                Season {idx + 1} -&nbsp;
+                {t('shared.season')} {idx + 1} -&nbsp;
                 {
                   Constants.IdiomaticTier[
                     findSeasonDivision(competitions, idx + 1) || Constants.Prestige[team.tier]
@@ -290,21 +283,21 @@ export default function () {
             <table className="table table-pin-rows table-fixed">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th title="Position" className="w-1/12 text-center">
-                    P
+                  <th>{t('shared.name')}</th>
+                  <th title={t('main.teams.position')} className="w-1/12 text-center">
+                    {t('main.teams.positionAlt')}
                   </th>
-                  <th title="Win" className="w-1/12 text-center">
-                    W
+                  <th title={t('main.teams.win')} className="w-1/12 text-center">
+                    {t('main.teams.winAlt')}
                   </th>
-                  <th title="Loss" className="w-1/12 text-center">
-                    L
+                  <th title={t('main.teams.loss')} className="w-1/12 text-center">
+                    {t('main.teams.lossAlt')}
                   </th>
-                  <th title="Draw" className="w-1/12 text-center">
-                    D
+                  <th title={t('main.teams.draw')} className="w-1/12 text-center">
+                    {t('main.teams.drawAlt')}
                   </th>
-                  <th title="Total Points" className="w-1/12 text-center">
-                    Pts
+                  <th title={t('main.teams.points')} className="w-1/12 text-center">
+                    {t('main.teams.pointsAlt')}
                   </th>
                 </tr>
               </thead>

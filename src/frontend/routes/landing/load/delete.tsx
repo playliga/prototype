@@ -7,6 +7,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppStateContext } from '@liga/frontend/redux';
 import { profilesDelete } from '@liga/frontend/redux/actions';
+import { useTranslation } from '@liga/frontend/hooks';
 
 /**
  * Exports this module.
@@ -18,6 +19,7 @@ export default function () {
   const { dispatch, state } = React.useContext(AppStateContext);
   const [deleting, setDeleting] = React.useState(false);
   const navigate = useNavigate();
+  const t = useTranslation('windows');
 
   // refresh profile when attempting delete
   const profile = React.useMemo(
@@ -37,15 +39,15 @@ export default function () {
   return (
     <dialog className="modal modal-open absolute w-screen">
       <section className="modal-box">
-        <h3 className="text-lg">Delete Saved Career</h3>
-        <p className="py-4">Are you sure? You can't undo this action afterwards.</p>
+        <h3 className="text-lg">{t('landing.delete.title')}</h3>
+        <p className="py-4">{t('landing.delete.subtitle')}</p>
         <article className="modal-action">
           <button className="btn" onClick={() => navigate(-1)}>
-            Cancel
+            {t('landing.delete.cancel')}
           </button>
           <button className="btn btn-error" onClick={handleDeleteProfile}>
             {!!deleting && <span className="loading loading-spinner"></span>}
-            Delete
+            {t('shared.delete')}
           </button>
         </article>
       </section>

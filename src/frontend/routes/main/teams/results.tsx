@@ -9,6 +9,7 @@ import { random } from 'lodash';
 import { format } from 'date-fns';
 import { useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Pagination } from '@liga/frontend/components';
 import { FaChartBar, FaSortAmountDown, FaSortAmountDownAlt } from 'react-icons/fa';
 
@@ -46,6 +47,7 @@ function getCompetitionLabel(
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { team } = useOutletContext<RouteContextTeams>();
   const [matches, setMatches] = React.useState<
     Awaited<ReturnType<typeof api.matches.all<typeof Eagers.match>>>
@@ -117,23 +119,23 @@ export default function () {
       <table className="table table-pin-rows table-xs h-full table-fixed">
         <thead>
           <tr>
-            <th className="w-1/12 text-center">Match Details</th>
+            <th className="w-1/12 text-center">{t('shared.matchDetails')}</th>
             <th
               className="w-1/12 cursor-pointer hover:bg-base-300"
               onClick={() => setOrderBy(Util.parseSortingDirection('date', orderBy?.date))}
             >
               <header className="flex items-center justify-center gap-2">
-                Date
+                {t('shared.date')}
                 <span className={cx(orderBy?.date && 'text-primary')}>
                   {orderBy?.date === 'desc' ? <FaSortAmountDown /> : <FaSortAmountDownAlt />}
                 </span>
               </header>
             </th>
-            <th className="w-2/12 text-right">Home</th>
-            <th className="w-1/12 text-center">Score</th>
-            <th className="w-2/12">Away</th>
-            <th className="w-4/12">Competition</th>
-            <th className="w-1/12 text-center">Season</th>
+            <th className="w-2/12 text-right">{t('shared.home')}</th>
+            <th className="w-1/12 text-center">{t('shared.score')}</th>
+            <th className="w-2/12">{t('shared.away')}</th>
+            <th className="w-4/12">{t('shared.competition')}</th>
+            <th className="w-1/12 text-center">{t('shared.season')}</th>
           </tr>
         </thead>
         <tbody>
@@ -164,7 +166,7 @@ export default function () {
                 >
                   <td
                     className={cx(!onClick && 'text-muted')}
-                    title={onClick ? 'View Match Details' : 'No Match Details'}
+                    title={onClick ? t('shared.viewMatchDetails') : t('shared.noMatchDetails')}
                   >
                     <FaChartBar className="mx-auto" />
                   </td>
@@ -197,7 +199,9 @@ export default function () {
                   <td className="truncate" title={getCompetitionLabel(match)}>
                     {getCompetitionLabel(match)}
                   </td>
-                  <td className="text-center">Season {match.competition.season}</td>
+                  <td className="text-center">
+                    {t('shared.season')} {match.competition.season}
+                  </td>
                 </tr>
               );
             })}
@@ -219,7 +223,9 @@ export default function () {
                 onClick={setNumPage}
               />
             </th>
-            <th className="text-right font-mono">{numMatches} Results</th>
+            <th className="text-right font-mono">
+              {numMatches} {t('shared.results')}
+            </th>
           </tr>
         </tfoot>
       </table>

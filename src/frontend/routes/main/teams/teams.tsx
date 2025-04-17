@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { findTeamOptionByValue, TeamSelect } from '@liga/frontend/components/select';
 
 /** @enum */
@@ -25,6 +26,7 @@ enum TabIdentifier {
 export default function () {
   const navigate = useNavigate();
   const location = useLocation();
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [federations, setFederations] = React.useState<
     Awaited<ReturnType<typeof api.federations.all>>
@@ -92,28 +94,28 @@ export default function () {
           className={cx(location.pathname === TabIdentifier.OVERVIEW && '!btn-active')}
           onClick={() => navigate(TabIdentifier.OVERVIEW)}
         >
-          Overview
+          {t('shared.overview')}
         </button>
         <button
           className={cx(location.pathname === TabIdentifier.HISTORY && '!btn-active')}
           onClick={() => navigate(TabIdentifier.HISTORY)}
         >
-          History
+          {t('main.teams.history')}
         </button>
         <button
           className={cx(location.pathname === TabIdentifier.RESULTS && '!btn-active')}
           onClick={() => navigate(TabIdentifier.RESULTS)}
         >
-          Results
+          {t('shared.results')}
         </button>
       </header>
       <main>
         <form className="form-ios col-2">
           <fieldset>
-            <legend className="!border-t-0">Filters</legend>
+            <legend className="!border-t-0">{t('shared.filters')}</legend>
             <section>
               <header>
-                <h3>Federation</h3>
+                <h3>{t('shared.federation')}</h3>
               </header>
               <article>
                 <select
@@ -121,7 +123,7 @@ export default function () {
                   onChange={(event) => setSelectedFederationId(Number(event.target.value))}
                   value={selectedFederationId}
                 >
-                  <option value="">Any</option>
+                  <option value="">{t('shared.any')}</option>
                   {federations
                     .filter(
                       (federation) => federation.slug !== Constants.FederationSlug.ESPORTS_WORLD,
@@ -136,7 +138,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Tier/Prestige</h3>
+                <h3>{t('shared.tierPrestige')}</h3>
               </header>
               <article>
                 <select
@@ -144,7 +146,7 @@ export default function () {
                   onChange={(event) => setSelectedTierId(Number(event.target.value))}
                   value={selectedTierId}
                 >
-                  <option value="">Any</option>
+                  <option value="">{t('shared.any')}</option>
                   {Constants.Prestige.map((prestige, prestigeId) => (
                     <option key={prestige} value={prestigeId}>
                       {Constants.IdiomaticTier[prestige]}
@@ -155,7 +157,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Team</h3>
+                <h3>{t('shared.team')}</h3>
               </header>
               <article>
                 <TeamSelect
@@ -179,7 +181,7 @@ export default function () {
                 disabled={selectedFederationId < 0 || selectedTierId < 0 || !selectedTeam}
                 onClick={() => setTeam(teams.find((tteam) => tteam.id === selectedTeam.id))}
               >
-                Apply
+                {t('shared.apply')}
               </button>
             </section>
           </fieldset>

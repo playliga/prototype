@@ -8,6 +8,7 @@ import { upperFirst } from 'lodash';
 import { formatRelative } from 'date-fns';
 import { useNavigate, Outlet } from 'react-router-dom';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 
 /**
@@ -18,6 +19,7 @@ import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 export default function () {
   const navigate = useNavigate();
   const { state } = React.useContext(AppStateContext);
+  const t = useTranslation('windows');
 
   return (
     <main className="frosted center h-full w-2/5 p-5 xl:w-1/3">
@@ -28,9 +30,9 @@ export default function () {
       <table className="table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Last Updated</th>
-            <th className="text-center">Delete</th>
+            <th>{t('shared.name')}</th>
+            <th>{t('landing.load.lastUpdated')}</th>
+            <th className="text-center">{t('shared.delete')}</th>
           </tr>
         </thead>
         <tbody>

@@ -10,7 +10,7 @@ import { createMemoryRouter, RouterProvider, Outlet, useNavigate } from 'react-r
 import { Constants } from '@liga/shared';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
 import { useTheme } from '@liga/frontend/hooks';
-import { profileUpdate } from '@liga/frontend/redux/actions';
+import { profileUpdate, localeUpdate } from '@liga/frontend/redux/actions';
 import '@liga/frontend/assets/styles.css';
 
 /**
@@ -115,6 +115,9 @@ function Root() {
       setLoaded(true);
       navigate(data.target, { state: data.payload });
     });
+
+    // load translations
+    api.app.locale().then((locale) => dispatch(localeUpdate(locale)));
   }, []);
 
   if (!loaded) {

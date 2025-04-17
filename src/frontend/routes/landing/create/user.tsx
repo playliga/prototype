@@ -8,10 +8,11 @@ import React from 'react';
 import cx from 'classnames';
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Constants } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { AppState } from '@liga/frontend/redux/state';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
-import { Constants } from '@liga/shared';
+import { useTranslation } from '@liga/frontend/hooks';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
 /**
@@ -32,6 +33,7 @@ const formDefaultValues: AppState['windowData'][Constants.WindowIdentifier.Landi
 export default function () {
   const navigate = useNavigate();
   const location = useLocation();
+  const t = useTranslation('windows');
   const { state, dispatch } = React.useContext(AppStateContext);
   const windowData = state.windowData.landing;
 
@@ -80,7 +82,7 @@ export default function () {
     <form className="stack-y">
       <section className="form-control w-full">
         <label className="label">
-          <span className="label-text">Alias</span>
+          <span className="label-text">{t('landing.create.alias')}</span>
         </label>
         <input
           {...register('name', { required: true, pattern: /^[\w]+$/, maxLength: 15 })}
@@ -94,14 +96,14 @@ export default function () {
         />
         <footer className="label h-5">
           <span className="label-text-alt">
-            {formState.errors?.name?.type === 'required' && 'Required.'}
-            {formState.errors?.name?.type === 'pattern' && 'Special characters not supported.'}
+            {formState.errors?.name?.type === 'required' && t('landing.create.requiredError')}
+            {formState.errors?.name?.type === 'pattern' && t('landing.create.patternError')}
           </span>
         </footer>
       </section>
       <section className="form-control w-full">
         <label className="label">
-          <span className="label-text">Country</span>
+          <span className="label-text">{t('shared.country')}</span>
         </label>
         <Controller
           name="countryId"
@@ -130,7 +132,7 @@ export default function () {
         }
       >
         {!!formState.isSubmitting && <span className="loading loading-spinner"></span>}
-        Next
+        {t('landing.create.next')}
       </button>
     </form>
   );

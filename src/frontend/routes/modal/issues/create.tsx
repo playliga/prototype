@@ -8,6 +8,7 @@ import React from 'react';
 import cx from 'classnames';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@liga/frontend/hooks';
 
 /** @constant */
 const formDefaultValues = {
@@ -26,6 +27,7 @@ const formDefaultValues = {
 export default function () {
   // track response info
   const navigate = useNavigate();
+  const t = useTranslation('windows');
   const [apiResponse, setAPIResponse] = React.useState<GitHubIssueResponse>();
 
   // form setup
@@ -46,24 +48,29 @@ export default function () {
         <dialog className="modal modal-open">
           <section className="modal-box">
             <h3 className="text-lg">
-              Your {type === Constants.IssueType.BUG ? 'bug report' : 'feature'} has been filed
+              {t('issues.create.your')}&nbsp;
+              {type === Constants.IssueType.BUG
+                ? t('issues.create.bugReport')
+                : t('issues.create.featureRequest')}
+              &nbsp;
+              {t('issues.create.beenFiled')}
             </h3>
             <article className="prose max-w-none py-4">
-              <p>Thank you for taking the time to file a bug report or feature request.</p>
-              <p>To follow its progress please click the button below.</p>
+              <p>{t('issues.create.thanksTitle')}</p>
+              <p>{t('issues.create.thanksSubtitle')}</p>
             </article>
             <article className="modal-action">
               <button
                 className="btn"
                 onClick={() => api.window.close(Constants.WindowIdentifier.Modal)}
               >
-                Close
+                {t('issues.create.close')}
               </button>
               <button
                 className="btn btn-primary"
                 onClick={() => navigate('/issues/comments', { state: apiResponse.number })}
               >
-                View
+                {t('issues.create.view')}
               </button>
             </article>
           </section>
@@ -71,26 +78,28 @@ export default function () {
       )}
       <form className="form-ios h-full" onSubmit={handleSubmit(onSubmit)}>
         <fieldset>
-          <legend>Overview</legend>
+          <legend>{t('shared.overview')}</legend>
           <section>
             <header className="!col-span-1">
-              <h3>Type</h3>
+              <h3>{t('shared.type')}</h3>
             </header>
             <article className="!col-span-2">
               <select className="select w-full" {...register('type')}>
-                <option value={Constants.IssueType.BUG}>Bug Report</option>
-                <option value={Constants.IssueType.FEATURE}>Feature Request</option>
+                <option value={Constants.IssueType.BUG}>{t('issues.create.bugReport')}</option>
+                <option value={Constants.IssueType.FEATURE}>
+                  {t('issues.create.featureRequest')}
+                </option>
               </select>
             </article>
           </section>
           <section>
             <header className="!col-span-1">
-              <h3>Title</h3>
+              <h3>{t('shared.title')}</h3>
             </header>
             <article className="!col-span-2">
               <input
                 type="text"
-                placeholder="Please enter a title"
+                placeholder={t('issues.create.titlePlaceholder')}
                 className={cx('input w-full', formState.errors?.title && 'input-error')}
                 {...register('title')}
               />
@@ -100,29 +109,20 @@ export default function () {
             <header className="!col-span-3">
               {type === Constants.IssueType.BUG && (
                 <React.Fragment>
-                  <h3>Steps to Reproduce</h3>
-                  <p>
-                    A clear and concise description of what the bug is. Please share the steps to
-                    reproduce and what the expected behavior is. If applicable, add screenshots to
-                    help explain your problem. Markdown is supported. You will be able to edit your
-                    issue and add screenshots after submission.
-                  </p>
+                  <h3>{t('issues.create.stepsTitle')}</h3>
+                  <p>{t('issues.create.stepsSubtitle')}</p>
                 </React.Fragment>
               )}
               {type === Constants.IssueType.FEATURE && (
                 <React.Fragment>
-                  <h3>Description</h3>
-                  <p>
-                    Please describe the feature you would like to see. A clear and concise
-                    description of what you want to happen. Markdown is supported. You will be able
-                    to edit your issue and add screenshots after submission.
-                  </p>
+                  <h3>{t('shared.description')}</h3>
+                  <p>{t('issues.create.descriptionSubtitle')}</p>
                 </React.Fragment>
               )}
             </header>
             <article className="!col-span-3">
               <textarea
-                placeholder="Please enter details."
+                placeholder={t('issues.create.detailsPlaceholder')}
                 className={cx('textarea h-64 w-full', formState.errors?.text && 'input-error')}
                 {...register('text')}
               />
@@ -131,11 +131,11 @@ export default function () {
         </fieldset>
         {type === Constants.IssueType.BUG && (
           <fieldset>
-            <legend>Support Data</legend>
+            <legend>{t('issues.create.supportDataTitle')}</legend>
             <section>
               <header>
-                <h3>Include system information</h3>
-                <p>Operating system, application version, etc.</p>
+                <h3>{t('issues.create.systemInfoTitle')}</h3>
+                <p>{t('issues.create.systemInfoSubtitle')}</p>
               </header>
               <article>
                 <input type="checkbox" className="toggle" {...register('info')} />
@@ -143,8 +143,8 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Include Logs</h3>
-                <p>Application logs, game logs.</p>
+                <h3>{t('issues.create.logsTitle')}</h3>
+                <p>{t('issues.create.logsSubtitle')}</p>
               </header>
               <article>
                 <input type="checkbox" className="toggle" {...register('logs')} />
@@ -164,7 +164,7 @@ export default function () {
             }
           >
             {!!formState.isSubmitting && <span className="loading loading-spinner"></span>}
-            Submit
+            {t('shared.submit')}
           </button>
         </section>
       </form>

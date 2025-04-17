@@ -4,6 +4,7 @@
  * @module
  */
 import type AppInfo from 'package.json';
+import Locale from '@liga/locale';
 import { Constants, Eagers } from '@liga/shared';
 
 /** @interface */
@@ -20,6 +21,7 @@ export interface AppState {
     Awaited<ReturnType<typeof api.continents.all<typeof Eagers.continent>>>[number]
   >;
   emails: Awaited<ReturnType<typeof api.emails.all<typeof Eagers.email>>>;
+  locale: Awaited<ReturnType<typeof api.app.locale>>;
   profile: Awaited<ReturnType<typeof api.profiles.current<typeof Eagers.profile>>>;
   profiles: Array<AppState['profile']>;
   windowData: Partial<{
@@ -40,6 +42,7 @@ export const InitialState: AppState = {
   appStatus: null,
   continents: [],
   emails: [],
+  locale: Locale.en,
   profile: null,
   profiles: [],
   windowData: {

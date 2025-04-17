@@ -5,8 +5,9 @@
  */
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { AppStateContext } from '@liga/frontend/redux';
 import { Constants } from '@liga/shared';
+import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { SponsorCard } from '@liga/frontend/components';
 import { FaMoneyBillWave } from 'react-icons/fa';
 
@@ -16,6 +17,7 @@ import { FaMoneyBillWave } from 'react-icons/fa';
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const { sponsors } = useOutletContext<RouteContextSponsors>();
 
@@ -36,7 +38,7 @@ export default function () {
     return (
       <section className="center">
         <FaMoneyBillWave className="text-muted size-24" />
-        <p>Secure some sponsorships to fund your journey to the top!</p>
+        <p>{t('main.sponsors.noSponsorships')}</p>
       </section>
     );
   }

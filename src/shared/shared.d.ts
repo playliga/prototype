@@ -1,12 +1,3 @@
-/**
- * This namespace contains the base tournament module and supporting data
- * structures that the groupstage and duel modules inherit from.
- *
- * It is named after the creator of these modules.
- *
- * @namespace
- */
-
 /** @type {ExtractBaseType} */
 type ExtractBaseType<T> = T extends unknown[] ? T[number] : T;
 
@@ -95,7 +86,14 @@ interface ModMetadata {
   description: string;
 }
 
-/** @namespace */
+/**
+ * This namespace contains the base tournament module and supporting data
+ * structures that the groupstage and duel modules inherit from.
+ *
+ * It is named after the creator of these modules.
+ *
+ * @namespace
+ */
 declare namespace Clux {
   enum DuelBracketConfig {
     WB = 1,

@@ -10,10 +10,11 @@ import * as WindowManager from './window-manager';
 import * as Engine from './engine';
 import Tournament from '@liga/shared/tournament';
 import DatabaseClient from './database-client';
+import getLocale from './locale';
 import { addDays, addWeeks, addYears, format, setDay } from 'date-fns';
 import { compact, differenceBy, flatten, groupBy, random, sample, shuffle } from 'lodash';
 import { Calendar, Prisma } from '@prisma/client';
-import { Constants, Dialogue, Chance, Bot, Eagers, Util } from '@liga/shared';
+import { Constants, Chance, Bot, Eagers, Util } from '@liga/shared';
 
 /**
  * Bumps the current season number by one.
@@ -296,12 +297,13 @@ async function createMatchdays(
  */
 export async function createWelcomeEmail() {
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  const locale = getLocale(profile);
 
   if (new Date().getFullYear() === profile.date.getFullYear()) {
     const [persona] = profile.team.personas;
     await sendEmail(
-      Dialogue.WelcomeEmail.SUBJECT,
-      Sqrl.render(Dialogue.WelcomeEmail.CONTENT, {
+      locale.templates.WelcomeEmail.SUBJECT,
+      Sqrl.render(locale.templates.WelcomeEmail.CONTENT, {
         profile,
         persona,
       }),
@@ -379,10 +381,14 @@ export async function distributePrizePool(
 /**
  * Parses a transfer offer from the player's perspective.
  *
- * @param transfer The transfer offer to parse.
+ * @param transfer  The transfer offer to parse.
+ * @param locale    The locale.
  * @function
  */
-function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eagers.transfer>): {
+function parsePlayerTransferOffer(
+  transfer: Prisma.TransferGetPayload<typeof Eagers.transfer>,
+  locale: LocaleData,
+): {
   dialogue: Partial<Prisma.DialogueGetPayload<{ include: { from: true } }>>;
   transfer: Partial<Prisma.TransferGetPayload<typeof Eagers.transfer>>;
   paperwork?: Array<Promise<unknown>>;
@@ -412,7 +418,7 @@ function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eag
       },
       dialogue: {
         from: persona,
-        content: Dialogue.OfferRejectedEmailWages.CONTENT,
+        content: locale.templates.OfferRejectedEmailWages.CONTENT,
       },
     };
   }
@@ -440,7 +446,7 @@ function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eag
       },
       dialogue: {
         from: persona,
-        content: Dialogue.OfferRejectedEmailRelocate.CONTENT,
+        content: locale.templates.OfferRejectedEmailRelocate.CONTENT,
       },
     };
   }
@@ -453,7 +459,7 @@ function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eag
     },
     dialogue: {
       from: persona,
-      content: Dialogue.OfferAcceptedPlayer.CONTENT,
+      content: locale.templates.OfferAcceptedPlayer.CONTENT,
     },
     paperwork: [
       DatabaseClient.prisma.player.update({
@@ -509,10 +515,12 @@ function parsePlayerTransferOffer(transfer: Prisma.TransferGetPayload<typeof Eag
  * Parses a sponsorship offer from the sponsor's perspective.
  *
  * @param sponsorship The sponsorship offer to parse.
+ * @param locale      The locale.
  * @function
  */
 export function parseSponsorshipOffer(
   sponsorship: Prisma.SponsorshipGetPayload<typeof Eagers.sponsorship>,
+  locale: LocaleData,
 ): {
   dialogue: Partial<Prisma.DialogueGetPayload<{ include: { from: true } }>>;
   sponsorship: Partial<Prisma.SponsorshipGetPayload<typeof Eagers.sponsorship>>;
@@ -537,7 +545,7 @@ export function parseSponsorshipOffer(
     return {
       dialogue: {
         from: persona,
-        content: Dialogue.SponsorshipRejectedTier.CONTENT,
+        content: locale.templates.SponsorshipRejectedTier.CONTENT,
       },
       sponsorship: {
         status: Constants.SponsorshipStatus.SPONSOR_REJECTED,
@@ -550,7 +558,7 @@ export function parseSponsorshipOffer(
   return {
     dialogue: {
       from: persona,
-      content: Dialogue.SponsorshipAccepted.CONTENT,
+      content: locale.templates.SponsorshipAccepted.CONTENT,
     },
     paperwork: [],
     sponsorship: {
@@ -577,12 +585,14 @@ export function parseTeamSponsorshipOffer(): ReturnType<typeof parseSponsorshipO
  *
  * @param transfer  The transfer offer to parse.
  * @param profile   The active user profile.
+ * @param locale    The locale.
  * @param status    Force accepts or rejects the transfer.
  * @function
  */
 export function parseTeamTransferOffer(
   transfer: Prisma.TransferGetPayload<typeof Eagers.transfer>,
   profile: Prisma.ProfileGetPayload<unknown>,
+  locale: LocaleData,
   status?: Constants.TransferStatus,
 ): ReturnType<typeof parsePlayerTransferOffer> {
   // get most recent offer
@@ -626,8 +636,8 @@ export function parseTeamTransferOffer(
   if (typeof status === 'number') {
     const email =
       status === Constants.TransferStatus.TEAM_ACCEPTED
-        ? Dialogue.OfferAcceptedUser
-        : Dialogue.OfferRejectedUser;
+        ? locale.templates.OfferAcceptedUser
+        : locale.templates.OfferRejectedUser;
     return {
       transfer: { status },
       dialogue: {
@@ -650,7 +660,7 @@ export function parseTeamTransferOffer(
       },
       dialogue: {
         from: persona,
-        content: Dialogue.OfferRejectedEmailSquadDepth.CONTENT,
+        content: locale.templates.OfferRejectedEmailSquadDepth.CONTENT,
       },
     };
   }
@@ -667,7 +677,7 @@ export function parseTeamTransferOffer(
       },
       dialogue: {
         from: persona,
-        content: Dialogue.OfferRejectedEmailCost.CONTENT,
+        content: locale.templates.OfferRejectedEmailCost.CONTENT,
       },
     };
   }
@@ -692,7 +702,7 @@ export function parseTeamTransferOffer(
       },
       dialogue: {
         from: persona,
-        content: Dialogue.OfferRejectedEmailUnlisted.CONTENT,
+        content: locale.templates.OfferRejectedEmailUnlisted.CONTENT,
       },
     };
   }
@@ -705,7 +715,7 @@ export function parseTeamTransferOffer(
     },
     dialogue: {
       from: persona,
-      content: Dialogue.OfferAcceptedTeam.CONTENT,
+      content: locale.templates.OfferAcceptedTeam.CONTENT,
     },
     paperwork: paperwork(),
   };
@@ -1018,17 +1028,18 @@ export async function sendUserAward(
   }
 
   // figure out the type of e-mail to send
-  let email: (typeof Dialogue)[keyof typeof Dialogue];
+  const locale = getLocale(profile);
+  let email: (typeof locale.templates)[keyof typeof locale.templates];
 
   switch (award.type) {
     case Constants.AwardType.CHAMPION:
-      email = Dialogue.AwardTypeChampion;
+      email = locale.templates.AwardTypeChampion;
       break;
     case Constants.AwardType.PROMOTION:
-      email = Dialogue.AwardTypePromotion;
+      email = locale.templates.AwardTypePromotion;
       break;
     case Constants.AwardType.QUALIFY:
-      email = Dialogue.AwardTypeQualify;
+      email = locale.templates.AwardTypeQualify;
       break;
     default:
       Engine.Runtime.Instance.log.warn('Award type %s not implemented.', award.type);
@@ -1142,9 +1153,10 @@ export async function sendUserTransferOffer() {
   });
 
   // send e-mail
+  const locale = getLocale(profile);
   await sendEmail(
-    Sqrl.render(Dialogue.OfferIncoming.SUBJECT, { transfer }),
-    Sqrl.render(Dialogue.OfferIncoming.CONTENT, { transfer, profile }),
+    Sqrl.render(locale.templates.OfferIncoming.SUBJECT, { transfer }),
+    Sqrl.render(locale.templates.OfferIncoming.CONTENT, { transfer, profile }),
     from.personas.find((persona) => persona.role === Constants.PersonaRole.MANAGER),
     profile.date,
   );
@@ -1222,6 +1234,8 @@ export async function sponsorshipCheck() {
   );
 
   // check contract conditions
+  const locale = getLocale(profile);
+
   return flatten(
     await Promise.all(
       sponsorships.map((sponsorship) => {
@@ -1262,8 +1276,8 @@ export async function sponsorshipCheck() {
         if (requirements.length) {
           return Promise.all([
             sendEmail(
-              Sqrl.render(Dialogue.SponsorshipTerminated.SUBJECT, { sponsorship }),
-              Sqrl.render(Dialogue.SponsorshipTerminated.CONTENT, {
+              Sqrl.render(locale.templates.SponsorshipTerminated.SUBJECT, { sponsorship }),
+              Sqrl.render(locale.templates.SponsorshipTerminated.CONTENT, {
                 sponsorship,
                 profile,
                 requirements,
@@ -1299,8 +1313,8 @@ export async function sponsorshipCheck() {
         // bonuses were distributed
         return Promise.all([
           sendEmail(
-            Sqrl.render(Dialogue.SponsorshipBonuses.SUBJECT, { sponsorship }),
-            Sqrl.render(Dialogue.SponsorshipBonuses.CONTENT, {
+            Sqrl.render(locale.templates.SponsorshipBonuses.SUBJECT, { sponsorship }),
+            Sqrl.render(locale.templates.SponsorshipBonuses.CONTENT, {
               sponsorship,
               profile,
               bonuses,
@@ -1692,8 +1706,11 @@ export async function onSponsorshipOffer(entry: Partial<Calendar>) {
     ? JSON.parse(entry.payload)
     : [Number(entry.payload)];
 
-  // grab latest offer
+  // load user locale
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  const locale = getLocale(profile);
+
+  // grab latest offer
   const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
     where: {
       id: sponsorshipId,
@@ -1710,7 +1727,7 @@ export async function onSponsorshipOffer(entry: Partial<Calendar>) {
 
   switch (offer.status) {
     case Constants.SponsorshipStatus.SPONSOR_PENDING:
-      result = parseSponsorshipOffer(sponsorship);
+      result = parseSponsorshipOffer(sponsorship, locale);
       break;
     case Constants.SponsorshipStatus.TEAM_PENDING:
       result = parseTeamSponsorshipOffer();
@@ -1742,7 +1759,7 @@ export async function onSponsorshipOffer(entry: Partial<Calendar>) {
 
   // send response e-mail
   const email = await sendEmail(
-    Sqrl.render(Dialogue.SponsorshipGeneric.SUBJECT, { sponsorship }),
+    Sqrl.render(locale.templates.SponsorshipGeneric.SUBJECT, { sponsorship }),
     Sqrl.render(result.dialogue.content, { sponsorship, profile }),
     result.dialogue.from,
     profile.date,
@@ -1840,8 +1857,11 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
     ? JSON.parse(entry.payload)
     : [Number(entry.payload)];
 
-  // grab latest offer
+  // load user locale
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  const locale = getLocale(profile);
+
+  // grab latest offer
   const transfer = await DatabaseClient.prisma.transfer.findFirst({
     where: {
       id: transferId,
@@ -1858,10 +1878,10 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
 
   switch (offer.status) {
     case Constants.TransferStatus.TEAM_PENDING:
-      result = parseTeamTransferOffer(transfer, profile, transferStatus);
+      result = parseTeamTransferOffer(transfer, profile, locale, transferStatus);
       break;
     case Constants.TransferStatus.PLAYER_PENDING:
-      result = parsePlayerTransferOffer(transfer);
+      result = parsePlayerTransferOffer(transfer, locale);
       break;
     default:
       return Promise.resolve();
@@ -1890,7 +1910,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
 
   // send response e-mail
   const email = await sendEmail(
-    Sqrl.render(Dialogue.OfferGeneric.SUBJECT, { transfer }),
+    Sqrl.render(locale.templates.OfferGeneric.SUBJECT, { transfer }),
     Sqrl.render(result.dialogue.content, { transfer, profile }),
     result.dialogue.from,
     profile.date,

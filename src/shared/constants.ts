@@ -16,6 +16,7 @@ export enum Application {
   CALENDAR_DATE_FORMAT = 'yyyy/MM/dd',
   DATABASE_NAME_FORMAT = 'save_%s.db',
   DATABASES_DIR = 'saves',
+  LOCALE_DIR = 'locale',
   GH_API_BODY_LIMIT = 65536,
   LOGGING_LEVEL = 'debug',
   PLUGINS_DIR = 'plugins',
@@ -206,6 +207,16 @@ export enum LogLevel {
 }
 
 /**
+ * Support locale types.
+ *
+ * @enum
+ */
+export enum LocaleIdentifier {
+  EN = 'en',
+  ES = 'es',
+}
+
+/**
  * IPC listener route names.
  *
  * @enum
@@ -213,6 +224,7 @@ export enum LogLevel {
 export enum IPCRoute {
   APP_DIALOG = '/app/dialog',
   APP_EXTERNAL = '/app/external',
+  APP_LOCALE = '/app/locale',
   APP_INFO = '/app/info',
   APP_STATUS = '/app/status',
   APP_WHATS_NEW = '/app/whatsNew',
@@ -1004,6 +1016,7 @@ export const Settings = {
     gameLaunchOptions: null as string,
     theme: ThemeType.SYSTEM,
     botDifficulty: null as string,
+    locale: null as LocaleIdentifier,
   },
   calendar: {
     ignoreExits: false,

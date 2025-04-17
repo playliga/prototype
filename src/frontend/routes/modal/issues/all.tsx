@@ -9,6 +9,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Constants } from '@liga/shared';
 import { FaComment } from 'react-icons/fa';
+import { useTranslation } from '@liga/frontend/hooks';
 
 /** @enum */
 enum Status {
@@ -86,6 +87,7 @@ function Issue(props: GitHubIssueResponse & { onClick: () => void }) {
  */
 export default function () {
   const navigate = useNavigate();
+  const t = useTranslation('windows');
   const [issues, setIssues] = React.useState<Array<GitHubIssueResponse>>(null);
 
   React.useEffect(() => {
@@ -99,7 +101,7 @@ export default function () {
           {!issues ? (
             <span className="loading loading-bars" />
           ) : (
-            <span>You have no reported issues or feature requests.</span>
+            <span>{t('issues.all.noIssues')}</span>
           )}
         </section>
       </main>
@@ -110,12 +112,12 @@ export default function () {
     <table className="table table-pin-rows table-sm table-fixed">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Created</th>
-          <th className="text-center">Status</th>
-          <th className="text-center">Type</th>
-          <th className="text-center">Labels</th>
-          <th className="text-center">Comments</th>
+          <th>{t('shared.title')}</th>
+          <th>{t('shared.created')}</th>
+          <th className="text-center">{t('shared.status')}</th>
+          <th className="text-center">{t('shared.type')}</th>
+          <th className="text-center">{t('shared.labels')}</th>
+          <th className="text-center">{t('shared.comments')}</th>
         </tr>
       </thead>
       <tbody>

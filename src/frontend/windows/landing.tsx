@@ -11,7 +11,12 @@ import LandingVideo from '@liga/frontend/assets/landing.webm';
 import { createMemoryRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { Constants, Eagers } from '@liga/shared';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
-import { appInfoUpdate, continentsUpdate, profilesUpdate } from '@liga/frontend/redux/actions';
+import {
+  appInfoUpdate,
+  continentsUpdate,
+  localeUpdate,
+  profilesUpdate,
+} from '@liga/frontend/redux/actions';
 import { VideoBackground } from '@liga/frontend/components';
 import '@liga/frontend/assets/styles.css';
 
@@ -88,6 +93,7 @@ function Root() {
     api.continents
       .all(Eagers.continent)
       .then((continents) => dispatch(continentsUpdate(continents)));
+    api.app.locale().then((locale) => dispatch(localeUpdate(locale)));
   }, []);
 
   return (

@@ -8,6 +8,7 @@ import cx from 'classnames';
 import Image from './image';
 import { startCase } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaAward, FaCheckCircle, FaExclamationCircle, FaScroll } from 'react-icons/fa';
 
 /** @type {ContractCondition} */
@@ -61,6 +62,8 @@ function ContractCondition(props: ContractCondition) {
  * @exports
  */
 export default function (props: Props) {
+  const t = useTranslation('components');
+
   const hasPendingOffer = React.useMemo(
     () =>
       props.sponsor.sponsorships.some((sponsorship) =>
@@ -115,9 +118,9 @@ export default function (props: Props) {
           <div className="stack-x items-center">
             <FaScroll className="inline-block text-secondary" />
             <span>
-              Length:&nbsp;
+              {t('sponsorCard.length')}&nbsp;
               {contract.terms[0].length}
-              &nbsp;year(s)
+              &nbsp;{t('sponsorCard.years')}
             </span>
           </div>
           <div className="stack-x items-center">
@@ -138,7 +141,7 @@ export default function (props: Props) {
         </aside>
         <aside>
           <p>
-            <em>The above conditions apply on a per-season basis.</em>
+            <em>{t('sponsorCard.conditions')}</em>
           </p>
         </aside>
         {!!props.onApply && (
@@ -147,7 +150,7 @@ export default function (props: Props) {
               className={cx('btn btn-primary btn-block', hasPendingOffer && 'btn-disabled')}
               onClick={props.onApply}
             >
-              Apply
+              {t('shared.apply')}
             </button>
           </footer>
         )}

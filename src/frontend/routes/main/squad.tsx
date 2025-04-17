@@ -10,6 +10,7 @@ import { differenceInDays } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { profileUpdate, workingUpdate } from '@liga/frontend/redux/actions';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Image, PlayerCard } from '@liga/frontend/components';
 import {
   FaBan,
@@ -93,6 +94,7 @@ function BonusSummaryLabel(props: BonusSummaryLabelProps) {
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { dispatch, state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState<TabIdentifier>(TabIdentifier.SQUAD);
   const [collapsed, setCollapsed] = React.useState(false);
@@ -213,14 +215,14 @@ export default function () {
           onClick={() => setActiveTab(TabIdentifier.SQUAD)}
         >
           <FaUsers />
-          Squad
+          {t('shared.squad')}
         </button>
         <button
           className={cx(activeTab === TabIdentifier.TRAINING && '!btn-active')}
           onClick={() => setActiveTab(TabIdentifier.TRAINING)}
         >
           <FaStopwatch />
-          Training
+          {t('main.squad.training')}
         </button>
       </header>
       <main>
@@ -228,20 +230,20 @@ export default function () {
           <section className="divide-y divide-base-content/10">
             <article className="stack-y !gap-0">
               <header className="prose !border-t-0">
-                <h2>Starters</h2>
+                <h2>{t('main.squad.starters')}</h2>
               </header>
               {!!starters.length && (
                 <footer>
                   <table className="table table-fixed">
                     <thead>
                       <tr>
-                        <th className="w-3/5" title="Player Name">
-                          Name
+                        <th className="w-3/5" title={t('main.squad.playerName')}>
+                          {t('shared.name')}
                         </th>
-                        <th className="w-1/5" title="Weapon Preference">
-                          Weapon
+                        <th className="w-1/5" title={t('shared.weaponPreference')}>
+                          {t('main.squad.weapon')}
                         </th>
-                        <th className="text-center">Remove</th>
+                        <th className="text-center">{t('main.squad.remove')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -278,24 +280,24 @@ export default function () {
               )}
               {!starters.length && (
                 <footer className="center h-32">
-                  <p>All is quiet...</p>
+                  <p>{t('main.squad.noStarters')}</p>
                 </footer>
               )}
             </article>
             <article className="stack-y !gap-0 !border-t-0">
               <header className="prose">
-                <h2>Transfer Listed</h2>
+                <h2>{t('shared.transferListed')}</h2>
               </header>
               {!!transferListed.length && (
                 <footer>
                   <table className="table table-fixed">
                     <thead>
                       <tr>
-                        <th className="w-3/5" title="Player Name">
-                          Name
+                        <th className="w-3/5" title={t('main.squad.playerName')}>
+                          {t('shared.name')}
                         </th>
                         <th className="w-1/5 text-center" />
-                        <th className="text-center">Remove</th>
+                        <th className="text-center">{t('main.squad.remove')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -306,7 +308,7 @@ export default function () {
                           </td>
                           <td className="text-muted text-center italic">
                             {!!Object.keys(transfersByPlayer).includes(player.id.toString()) &&
-                              `${transfersByPlayer[player.id].length} offers`}
+                              `${transfersByPlayer[player.id].length} ${t('main.squad.offers')}`}
                           </td>
                           <td className="text-center">
                             <button
@@ -333,23 +335,23 @@ export default function () {
               )}
               {!transferListed.length && (
                 <footer className="center h-32">
-                  <p>All is quiet...</p>
+                  <p>{t('main.squad.noTransferListed')}</p>
                 </footer>
               )}
             </article>
             <article className="stack-y !gap-0 !border-t-0">
               <header className="prose">
-                <h2>Incoming Offers</h2>
+                <h2>{t('main.squad.incomingOffers')}</h2>
               </header>
               {!!transfers.length && (
                 <footer>
                   <table className="table table-fixed">
                     <thead>
                       <tr>
-                        <th className="w-1/4">From</th>
-                        <th className="w-1/4">For</th>
-                        <th className="w-1/4 text-center">Amount</th>
-                        <th className="w-1/4 text-center" title="Accept/Reject" />
+                        <th className="w-1/4">{t('main.squad.from')}</th>
+                        <th className="w-1/4">{t('main.squad.for')}</th>
+                        <th className="w-1/4 text-center">{t('shared.amount')}</th>
+                        <th className="w-1/4 text-center" title={t('main.squad.acceptOrReject')} />
                       </tr>
                     </thead>
                     <tbody>
@@ -366,7 +368,7 @@ export default function () {
                           </td>
                           <td className="join-vertical text-center">
                             <button
-                              title="Accept Offer"
+                              title={t('main.squad.acceptOffer')}
                               className="btn btn-success join-item btn-sm"
                               onClick={() =>
                                 api.transfers
@@ -378,7 +380,7 @@ export default function () {
                               <FaCheck />
                             </button>
                             <button
-                              title="Reject Offer"
+                              title={t('main.squad.rejectOffer')}
                               className="btn btn-error join-item btn-sm"
                               onClick={() =>
                                 api.transfers
@@ -398,7 +400,7 @@ export default function () {
               )}
               {!transfers.length && (
                 <footer className="center h-32">
-                  <p>All is quiet...</p>
+                  <p>{t('main.squad.noTransfers')}</p>
                 </footer>
               )}
             </article>
@@ -446,7 +448,7 @@ export default function () {
                   }}
                 >
                   <FaBolt />
-                  Sim Training
+                  {t('main.squad.simTraining')}
                 </button>
                 <p className="absolute bottom-4 font-mono">
                   {!!trainingAllowed && trainingStatus}
@@ -456,10 +458,10 @@ export default function () {
             </article>
             <form className="form-ios">
               <fieldset>
-                <legend>Overview</legend>
+                <legend>{t('shared.overview')}</legend>
                 <section>
                   <header>
-                    <h3>Server</h3>
+                    <h3>{t('main.squad.server')}</h3>
                     <BonusSummaryLabel
                       data={trainingServers.find((server) => server.id === trainingServerId)}
                     />
@@ -483,7 +485,7 @@ export default function () {
                 </section>
                 <section>
                   <header>
-                    <h3>Map</h3>
+                    <h3>{t('main.squad.map')}</h3>
                     <BonusSummaryLabel
                       data={trainingMaps.find((map) => map.id === trainingMapId)}
                     />
@@ -540,17 +542,17 @@ export default function () {
             </form>
             <article className="stack-y !gap-0 !border-t-0">
               <header className="prose">
-                <h2>Servers</h2>
+                <h2>{t('main.squad.servers')}</h2>
               </header>
               <footer>
                 <table className="table table-fixed">
                   <thead>
                     <tr>
-                      <th title="Server Name" className="w-3/5">
-                        Name
+                      <th title={t('main.squad.serverName')} className="w-3/5">
+                        {t('shared.name')}
                       </th>
-                      <th className="w-1/5 text-center">Cost</th>
-                      <th className="w-1/5 text-center">Purchase</th>
+                      <th className="w-1/5 text-center">{t('shared.cost')}</th>
+                      <th className="w-1/5 text-center">{t('main.squad.purchase')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -566,7 +568,7 @@ export default function () {
                           title={
                             state.profile &&
                             (state.profile.team.earnings || 0) < server.cost &&
-                            'Win more matches to earn more money and buy this training boost!'
+                            t('main.squad.winMore')
                           }
                         >
                           <button
@@ -589,17 +591,17 @@ export default function () {
             </article>
             <article className="stack-y !gap-0 !border-t-0">
               <header className="prose">
-                <h2>Facilities</h2>
+                <h2>{t('main.squad.facilities')}</h2>
               </header>
               <footer>
                 <table className="table table-fixed">
                   <thead>
                     <tr>
                       <th title="Server Name" className="w-3/5">
-                        Name
+                        {t('shared.name')}
                       </th>
-                      <th className="w-1/5 text-center">Cost</th>
-                      <th className="w-1/5 text-center">Purchase</th>
+                      <th className="w-1/5 text-center">{t('shared.cost')}</th>
+                      <th className="w-1/5 text-center">{t('main.squad.purchase')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -614,7 +616,7 @@ export default function () {
                           className="text-center"
                           title={
                             state.profile && (state.profile.team.earnings || 0) < facility.cost
-                              ? 'Win more matches to earn more money and buy this training boost!'
+                              ? t('main.squad.winMore')
                               : ''
                           }
                         >
@@ -648,7 +650,7 @@ export default function () {
               onClick={() => setCollapsed(!collapsed)}
             >
               {collapsed ? <FaExpand /> : <FaCompress />}
-              {collapsed ? 'Expand All' : 'Collapse All'}
+              {collapsed ? t('main.squad.expandAll') : t('main.squad.collapseAll')}
             </button>
           </article>
           {squad

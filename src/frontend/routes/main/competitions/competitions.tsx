@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Constants, Eagers } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 
 /** @enum */
 enum TabIdentifier {
@@ -24,6 +25,7 @@ enum TabIdentifier {
 export default function () {
   const location = useLocation();
   const navigate = useNavigate();
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [competition, setCompetition] =
     React.useState<Awaited<ReturnType<typeof api.competitions.find<typeof Eagers.competition>>>>();
@@ -130,19 +132,19 @@ export default function () {
           className={cx(location.pathname === TabIdentifier.OVERVIEW && '!btn-active')}
           onClick={() => navigate(TabIdentifier.OVERVIEW)}
         >
-          Overview
+          {t('shared.overview')}
         </button>
         <button
           className={cx(location.pathname === TabIdentifier.STANDINGS && '!btn-active')}
           onClick={() => navigate(TabIdentifier.STANDINGS)}
         >
-          Standings
+          {t('shared.standings')}
         </button>
         <button
           className={cx(location.pathname === TabIdentifier.RESULTS && '!btn-active')}
           onClick={() => navigate(TabIdentifier.RESULTS)}
         >
-          Results
+          {t('shared.results')}
         </button>
       </header>
       <main>
@@ -151,7 +153,7 @@ export default function () {
             <legend className="!border-t-0">Filters</legend>
             <section>
               <header>
-                <h3>Federation</h3>
+                <h3>{t('shared.federation')}</h3>
               </header>
               <article>
                 <select
@@ -160,7 +162,7 @@ export default function () {
                   value={selectedFederationId || -1}
                 >
                   <option disabled value={-1}>
-                    Select
+                    {t('main.competitions.select')}
                   </option>
                   {federations.map((federation) => (
                     <option key={federation.id} value={federation.id}>
@@ -172,7 +174,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Competition</h3>
+                <h3>{t('shared.competition')}</h3>
               </header>
               <article>
                 <select
@@ -182,7 +184,7 @@ export default function () {
                   disabled={selectedFederationId < 0}
                 >
                   <option disabled value={-1}>
-                    Select
+                    {t('main.competitions.select')}
                   </option>
                   {tiers.map((tier) => (
                     <option key={tier.id} value={tier.id}>
@@ -194,7 +196,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Season</h3>
+                <h3>{t('shared.season')}</h3>
               </header>
               <article>
                 <select
@@ -203,11 +205,11 @@ export default function () {
                   value={selectedSeasonId || -1}
                 >
                   <option disabled value={-1}>
-                    Select
+                    {t('main.competitions.select')}
                   </option>
                   {seasons.map((_, idx) => (
                     <option key={idx + 1 + '__season'} value={idx + 1}>
-                      Season {idx + 1}
+                      {t('shared.season')} {idx + 1}
                     </option>
                   ))}
                 </select>
@@ -222,7 +224,7 @@ export default function () {
                 disabled={selectedFederationId < 0 || selectedTierId < 0 || selectedSeasonId < 0}
                 onClick={() => api.competitions.find(competitionQuery).then(setCompetition)}
               >
-                Apply
+                {t('shared.apply')}
               </button>
             </section>
           </fieldset>

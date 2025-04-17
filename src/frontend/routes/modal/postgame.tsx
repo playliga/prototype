@@ -9,6 +9,7 @@ import { intersectionBy } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Image } from '@liga/frontend/components';
 import { FaBomb, FaSkull, FaTools } from 'react-icons/fa';
 
@@ -78,6 +79,7 @@ function getRoundWinIcon(result: string, side: number, half: number) {
  * @param props Root props.
  */
 function Scoreboard(props: ScoreboardProps) {
+  const t = useTranslation('windows');
   const players = React.useMemo(
     () => intersectionBy(props.competitor.team.players, props.match.players, 'name'),
     [props.competitor.team.players, props.match.players],
@@ -99,20 +101,20 @@ function Scoreboard(props: ScoreboardProps) {
               {props.competitor.team.name}
             </p>
           </th>
-          <th title="Kills" className="w-[10%] text-center">
-            K
+          <th title={t('postgame.kills')} className="w-[10%] text-center">
+            {t('postgame.killsAlt')}
           </th>
-          <th title="Deaths" className="w-[10%] text-center">
-            D
+          <th title={t('postgame.deaths')} className="w-[10%] text-center">
+            {t('postgame.deathsAlt')}
           </th>
-          <th title="Assists" className="w-[10%] text-center">
-            A
+          <th title={t('postgame.assists')} className="w-[10%] text-center">
+            {t('postgame.assistsAlt')}
           </th>
-          <th title="Headshot Percentage" className="w-[10%] text-center">
-            HS %
+          <th title={t('postgame.headshots')} className="w-[10%] text-center">
+            {t('postgame.headshotsAlt')}
           </th>
-          <th title="Kills and Deaths Difference" className="w-[10%] text-center">
-            +/-
+          <th title={t('postgame.kd')} className="w-[10%] text-center">
+            {t('postgame.kdAlt')}
           </th>
         </tr>
       </thead>
@@ -163,6 +165,7 @@ function Scoreboard(props: ScoreboardProps) {
  */
 export default function () {
   const location = useLocation();
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [settings, setSettings] = React.useState(Constants.Settings);
   const [match, setMatch] = React.useState<Matches<typeof Eagers.matchEvents>[number]>();
@@ -218,7 +221,7 @@ export default function () {
           </li>
           <li>
             {match.competition.tier.groupSize
-              ? `Matchday ${match.round}`
+              ? `${t('shared.matchday')} ${match.round}`
               : Util.parseCupRounds(match.round, match.totalRounds)}
           </li>
           <li>{Util.convertMapPool(game.map, settings.general.game)}</li>
@@ -271,7 +274,7 @@ export default function () {
       <table className="table table-xs">
         <thead>
           <tr className="border-t border-t-base-content/10">
-            <th colSpan={3}>Timeline</th>
+            <th colSpan={3}>{t('postgame.timeline')}</th>
           </tr>
         </thead>
         <tbody>
@@ -293,7 +296,7 @@ export default function () {
                         .map((event, round) => (
                           <article
                             key={competitor.team.name + event.id}
-                            title={'Round ' + (round + 1)}
+                            title={t('postgame.round') + ' ' + (round + 1)}
                             className="center basis-4"
                           >
                             {event.winnerId === competitor.id ? (
@@ -318,7 +321,9 @@ export default function () {
             <React.Fragment key={half + '__match_log'}>
               <thead>
                 <tr className="border-t border-t-base-content/10">
-                  <th>Match Log - {Util.toOrdinalSuffix(half + 1)} Half</th>
+                  <th>
+                    {t('postgame.matchLog')} - {Util.toOrdinalSuffix(half + 1)} {t('postgame.half')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -326,7 +331,7 @@ export default function () {
                   .filter((event) => event.half === half || (half === 0 && event.half === -1))
                   .map((event) => {
                     const payload = JSON.parse(event.payload);
-                    const action = event?.attacker ? 'killed' : 'assisted killing';
+                    const action = event?.attacker ? t('postgame.killed') : t('postgame.assisted');
                     return (
                       <tr
                         key={event.id + '__match_log'}
@@ -335,7 +340,7 @@ export default function () {
                         <td>
                           {event.winnerId ? (
                             <span>
-                              {event.winner.team.name} won the round.&nbsp;
+                              {event.winner.team.name} {t('postgame.wonRound')}&nbsp;
                               {JSON.stringify(payload.payload.score)}
                             </span>
                           ) : (
@@ -343,8 +348,12 @@ export default function () {
                               {event.attacker?.name || event.assist?.name}&nbsp;
                               {action}&nbsp;
                               {event.victim.name}&nbsp;
-                              {!!event.weapon && <span>with {event.weapon}&nbsp;</span>}
-                              {!!event.headshot && <span>(headshot)</span>}
+                              {!!event.weapon && (
+                                <span>
+                                  {t('postgame.with')} {event.weapon}&nbsp;
+                                </span>
+                              )}
+                              {!!event.headshot && <span>({t('postgame.headshot')})</span>}
                             </span>
                           )}
                         </td>

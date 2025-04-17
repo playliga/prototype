@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { startCase } from 'lodash';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { useTranslation } from '@liga/frontend/hooks';
 
 /** @enum */
 enum TabIdentifier {
@@ -23,6 +24,7 @@ enum TabIdentifier {
 export default function () {
   const navigate = useNavigate();
   const location = useLocation();
+  const t = useTranslation('windows');
   const [sponsors, setSponsors] = React.useState<RouteContextSponsors['sponsors']>([]);
 
   // child routes can use this function to trigger
@@ -69,24 +71,24 @@ export default function () {
           className={cx(location.pathname === TabIdentifier.MY_SPONSORS && '!btn-active')}
           onClick={() => navigate(TabIdentifier.MY_SPONSORS)}
         >
-          My Sponsors
+          {t('main.sponsors.mySponsors')}
         </button>
         <button
           className={cx(location.pathname === TabIdentifier.ALL_SPONSORS && '!btn-active')}
           onClick={() => navigate(TabIdentifier.ALL_SPONSORS)}
         >
-          All Sponsors
+          {t('main.sponsors.allSponsors')}
         </button>
       </header>
       <main>
         <section className="divide-y divide-base-content/10">
           <article className="stack-y !gap-0">
             <header className="prose !border-t-0">
-              <h2>Pending Offers</h2>
+              <h2>{t('main.sponsors.pendingOffers')}</h2>
             </header>
             {!pendingOffers.length && (
               <footer className="center h-32">
-                <p>No pending offers.</p>
+                <p>{t('main.sponsors.noPendingOffers')}</p>
               </footer>
             )}
             {!!pendingOffers.length && (
@@ -94,8 +96,8 @@ export default function () {
                 <table className="table table-fixed">
                   <thead>
                     <tr>
-                      <th className="w-1/2">To</th>
-                      <th className="w-1/2 text-center">Terms</th>
+                      <th className="w-1/2">{t('main.sponsors.to')}</th>
+                      <th className="w-1/2 text-center">{t('main.sponsors.terms')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -126,11 +128,11 @@ export default function () {
           </article>
           <article className="stack-y !gap-0">
             <header className="prose !border-t-0">
-              <h2>Past Offers</h2>
+              <h2>{t('main.sponsors.pastOffers')}</h2>
             </header>
             {!pastOffers.length && (
               <footer className="center h-32">
-                <p>No past offers.</p>
+                <p>{t('main.sponsors.noPastOffers')}</p>
               </footer>
             )}
             {!!pastOffers.length && (
@@ -138,8 +140,8 @@ export default function () {
                 <table className="table table-fixed">
                   <thead>
                     <tr>
-                      <th className="w-1/2">To</th>
-                      <th className="w-1/2 text-center">Status</th>
+                      <th className="w-1/2">{t('main.sponsors.to')}</th>
+                      <th className="w-1/2 text-center">{t('shared.status')}</th>
                     </tr>
                   </thead>
                   <tbody>

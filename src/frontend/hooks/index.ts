@@ -8,10 +8,18 @@ import { Constants, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 
 /**
+ * Exports the translation hook.
+ *
+ * @exports
+ */
+export * from './use-translation';
+
+/**
  * Theme provider simply modifies the root container's `data-theme`
  * field dynamically when a theme setting change is detected.
  *
  * @function
+ * @exports
  */
 export function useTheme() {
   const { state } = React.useContext(AppStateContext);

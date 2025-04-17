@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { cloneDeep, isNull, set } from 'lodash';
 import { Constants, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { FaExclamationTriangle, FaFolderOpen } from 'react-icons/fa';
 
 /** @enum */
@@ -23,6 +24,7 @@ enum Tab {
  * @exports
  */
 export default function () {
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState(Tab.GENERAL);
   const [settings, setSettings] = React.useState(Constants.Settings);
@@ -91,12 +93,12 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>Game</h3>
+                <h3>{t('settings.gameTitle')}</h3>
                 {settings.general.game === Constants.Game.CS2 && (
-                  <p className="text-warning">Warning! CS2 support is experimental.</p>
+                  <p className="text-warning">{t('settings.gameSubtitleCS2')}</p>
                 )}
                 {settings.general.game !== Constants.Game.CS2 && (
-                  <p>This will launch the selected game when playing matches.</p>
+                  <p>{t('settings.gameSubtitle')}</p>
                 )}
               </header>
               <article>
@@ -115,7 +117,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Simulation Mode</h3>
+                <h3>{t('settings.simTitle')}</h3>
               </header>
               <article>
                 <select
@@ -135,7 +137,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Log Level</h3>
+                <h3>{t('settings.logLevelTitle')}</h3>
               </header>
               <article>
                 <select
@@ -153,7 +155,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Steam Path</h3>
+                <h3>{t('settings.steamTitle')}</h3>
                 <p>
                   e.g.: <code>C:\Program Files\Steam</code>
                 </p>
@@ -191,8 +193,8 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Game Library Path</h3>
-                <p>Useful if your games are installed on a different drive.</p>
+                <h3>{t('settings.gamePathTitle')}</h3>
+                <p>{t('settings.gamePathSubtitle')}</p>
                 {!!gamePathError && (
                   <span className="tooltip" data-tip={String(gamePathError)}>
                     <FaExclamationTriangle className="text-error" />
@@ -227,8 +229,8 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Launch Options</h3>
-                <p>Advanced users only. Use with caution!</p>
+                <h3>{t('settings.launchOptionsTitle')}</h3>
+                <p>{t('settings.launchOptionsSubtitle')}</p>
               </header>
               <article>
                 <input
@@ -243,7 +245,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Bot Chatter</h3>
+                <h3>{t('settings.botChatterTitle')}</h3>
               </header>
               <article>
                 <select
@@ -261,7 +263,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Bot Difficulty</h3>
+                <h3>{t('settings.botDifficultyTitle')}</h3>
               </header>
               <article>
                 <select
@@ -287,7 +289,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Theme</h3>
+                <h3>{t('settings.themeTitle')}</h3>
               </header>
               <article>
                 <select
@@ -309,7 +311,7 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>Max Rounds</h3>
+                <h3>{t('shared.maxRoundsTitle')}</h3>
               </header>
               <article>
                 <select
@@ -327,7 +329,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Starting Money</h3>
+                <h3>{t('shared.startMoneyTitle')}</h3>
               </header>
               <article>
                 <select
@@ -347,7 +349,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Freeze Time</h3>
+                <h3>{t('shared.freezeTimeTitle')}</h3>
               </header>
               <article>
                 <select
@@ -367,7 +369,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Map Override</h3>
+                <h3>{t('shared.mapOverrideTitle')}</h3>
               </header>
               <article>
                 <select
@@ -393,8 +395,8 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Allow Overtime</h3>
-                <p>Whether to go into overtime if the game ends in a draw.</p>
+                <h3>{t('shared.overtimeTitle')}</h3>
+                <p>{t('shared.overtimeSubtitle')}</p>
               </header>
               <article>
                 <input
@@ -414,7 +416,7 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>Loop Until</h3>
+                <h3>{t('settings.loopTitle')}</h3>
               </header>
               <article className="stack-x join">
                 <input
@@ -441,8 +443,8 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Ignore Loop Exits</h3>
-                <p>Usually the calendar loop is stopped for things like matchdays and e-mails.</p>
+                <h3>{t('settings.loopExitTitle')}</h3>
+                <p>{t('settings.loopExitSubtitle')}</p>
               </header>
               <article>
                 <input
