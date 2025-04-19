@@ -40,7 +40,7 @@ You can now create custom database entries and team logos, then publish them for
 
 This opens the door for the community to craft mods—like adding real pro-team names and logos—and makes it effortless for users to discover, download, and install them directly from within the app.
 
-Interested in creating your own mod? Check out the [modding docs](https://github.com/playliga/application/wiki/Modding) for all the details on customizing databases and team logos.
+Interested in creating your own mod? Check out the [modding docs](https://github.com/playliga/prototype/wiki/Modding) for all the details on customizing databases and team logos.
 
 _Please note the above docs are still a work-in-progress!_
 

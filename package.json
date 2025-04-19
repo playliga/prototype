@@ -9,10 +9,10 @@
   "homepage": "https://playliga.gg",
   "repository": {
     "type": "git",
-    "url": "https://github.com/playliga/application.git"
+    "url": "https://github.com/playliga/prototype.git"
   },
   "bugs": {
-    "url": "https://github.com/playliga/application/issues"
+    "url": "https://github.com/playliga/prototype/issues"
   },
   "keywords": [
     "manager",
