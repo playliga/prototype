@@ -5,8 +5,10 @@
  */
 import * as TemplatesEn from './en/templates';
 import * as TemplatesEs from './es/templates';
+import * as TemplatesFr from './fr/templates';
 import TranslationsEn from './en/translations.json';
 import TranslationsEs from './es/translations.json';
+import TranslationsFr from './fr/translations.json';
 import { Constants } from '@liga/shared';
 
 /**
@@ -22,5 +24,9 @@ export default {
   [Constants.LocaleIdentifier.ES]: {
     templates: TemplatesEs,
     translations: TranslationsEs,
+  },
+  [Constants.LocaleIdentifier.FR]: {
+    templates: TemplatesFr,
+    translations: TranslationsFr,
   },
 };
