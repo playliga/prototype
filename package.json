@@ -1,7 +1,7 @@
 {
   "name": "liga",
   "productName": "LIGA Esports Manager",
-  "version": "3.0.0-beta.42",
+  "version": "3.0.0-beta.43",
   "description": "An immersive CS:GO Esports Simulator",
   "main": ".webpack/main",
   "author": "Steve Rivera",
@@ -9,10 +9,10 @@
   "homepage": "https://playliga.gg",
   "repository": {
     "type": "git",
-    "url": "https://github.com/playliga/application.git"
+    "url": "https://github.com/playliga/prototype.git"
   },
   "bugs": {
-    "url": "https://github.com/playliga/application/issues"
+    "url": "https://github.com/playliga/prototype/issues"
   },
   "keywords": [
     "manager",
