@@ -1,3 +1,13 @@
+## 3.0.0-beta.43 (2025-04-25)
+
+### Features
+
+- added french support ([#406](https://github.com/playliga/prototype/issues/406)) ([c4373c4](https://github.com/playliga/prototype/commit/c4373c49803373e1bfaf6e51e902fc2f6b0f6ed7))
+
+### New Contributors
+
+- @SmokyBird made their first contribution in [#406](https://github.com/playliga/prototype/pull/406).
+
 ## 3.0.0-beta.41 (2025-04-17)
 
 ### Features
