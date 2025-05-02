@@ -88,6 +88,10 @@ function handleOnActivate() {
     log.transports.file.level = Constants.Application.LOGGING_LEVEL as log.LevelOption;
   }
 
+  // catch runtime exceptions and route to logging
+  process.on('uncaughtException', log.error);
+  process.on('unhandledRejection', log.error);
+
   // language override
   if (process.env.LANG) {
     app.commandLine.appendSwitch('lang', process.env.LANG);

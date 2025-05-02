@@ -245,6 +245,11 @@ export class Application {
         Authorization: `Bearer ${await this.getJwt()}`,
       },
     });
+
+    if (!data || !data?.expires_at || !data?.token) {
+      throw new Error(`could not generate token: ${JSON.stringify(data)}`);
+    }
+
     this.log.debug('Token created. Expires: %s', data.expires_at);
     cache.token = data.token;
     cache.tokenExpiry = new Date(data.expires_at);
