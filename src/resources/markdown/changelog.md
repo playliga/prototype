@@ -1,3 +1,13 @@
+## 3.0.0-beta.44 (2025-05-02)
+
+### Features
+
+- added tournaments hosted by sponsors ([#378](https://github.com/playliga/prototype/issues/378)) ([ef80e15](https://github.com/playliga/prototype/commit/ef80e15461d713286b3365f09dd7dac913fdacb9))
+
+### Bug Fixes
+
+- improve error handling ([#407](https://github.com/playliga/prototype/issues/407)) ([a98aef3](https://github.com/playliga/prototype/commit/a98aef3b2e8876bb0740f344634a4511e502a787))
+
 ## 3.0.0-beta.43 (2025-04-25)
 
 ### Features
