@@ -201,6 +201,35 @@ export enum SponsorshipGeneric {
 }
 
 /** @enum */
+export enum SponsorshipInvite {
+  SUBJECT = 'Invitación al torneo de {{it.sponsorship.sponsor.name}}',
+  CONTENT = `
+  ¡Hola {{it.profile.player.name}}!
+
+  Hemos recibido una invitación para competir en **{{it.idiomaticTier}}**, cortesía de nuestro patrocinador **{{it.sponsorship.sponsor.name}}**.
+
+  Tú decides — dime si crees que deberíamos aceptar.
+
+  ---
+
+  <button className="btn btn-primary" data-ipc-route="/sponsorship/invite/accept" data-payload="{{it.sponsorship.id}}">Aceptar invitación</button>
+  <button className="btn btn-ghost" data-ipc-route="/sponsorship/invite/reject" data-payload="{{it.sponsorship.id}}">Rechazar invitación</button>
+  `,
+}
+
+/** @enum */
+export enum SponsorshipInviteAcceptedUser {
+  SUBJECT = 'Invitación al torneo de {{it.sponsorship.sponsor.name}}',
+  CONTENT = 'Has aceptado la invitación de {{it.sponsorship.sponsor.name}}.',
+}
+
+/** @enum */
+export enum SponsorshipInviteRejectedUser {
+  SUBJECT = 'Invitación al torneo de {{it.sponsorship.sponsor.name}}',
+  CONTENT = 'Has rechazado la invitación de {{it.sponsorship.sponsor.name}}.',
+}
+
+/** @enum */
 export enum SponsorshipRejectedTier {
   SUBJECT = 'Oferta de Patrocinio a {{it.sponsorship.sponsor.name}}',
   CONTENT = `

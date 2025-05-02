@@ -145,6 +145,7 @@ export default function () {
     Constants.CalendarEntry.COMPETITION_START,
     Worldgen.onCompetitionStart,
   );
+  Engine.Runtime.Instance.register(Constants.CalendarEntry.EMAIL_SEND, Worldgen.onEmailSend);
   Engine.Runtime.Instance.register(Constants.CalendarEntry.MATCHDAY_NPC, Worldgen.onMatchdayNPC);
   Engine.Runtime.Instance.register(Constants.CalendarEntry.MATCHDAY_USER, Worldgen.onMatchdayUser);
   Engine.Runtime.Instance.register(Constants.CalendarEntry.SEASON_START, Worldgen.onSeasonStart);

@@ -11,7 +11,7 @@ import * as Engine from './engine';
 import Tournament from '@liga/shared/tournament';
 import DatabaseClient from './database-client';
 import getLocale from './locale';
-import { addDays, addWeeks, addYears, format, setDay } from 'date-fns';
+import { addDays, addWeeks, addYears, differenceInDays, format, setDay } from 'date-fns';
 import { compact, differenceBy, flatten, groupBy, random, sample, shuffle } from 'lodash';
 import { Calendar, Prisma } from '@prisma/client';
 import { Constants, Chance, Bot, Eagers, Util } from '@liga/shared';
@@ -560,7 +560,7 @@ export function parseSponsorshipOffer(
       from: persona,
       content: locale.templates.SponsorshipAccepted.CONTENT,
     },
-    paperwork: [],
+    paperwork: [sponsorshipInvite(sponsorship.id, Constants.SponsorshipStatus.SPONSOR_ACCEPTED)],
     sponsorship: {
       status: Constants.SponsorshipStatus.SPONSOR_ACCEPTED,
     },
@@ -932,7 +932,7 @@ export async function scheduleNextSeasonStart() {
  * @param notify    Notify the main window.
  * @function
  */
-async function sendEmail(
+export async function sendEmail(
   subject: string,
   content: string,
   persona: Prisma.PersonaGetPayload<unknown>,
@@ -1209,10 +1209,10 @@ export async function sponsorshipCheck() {
       persona.role === Constants.PersonaRole.ASSISTANT,
   );
 
-  // grab the user's league position for this season
+  // grab the user's league position for last season
   const competition = await DatabaseClient.prisma.competition.findFirst({
     where: {
-      season: profile.season,
+      season: profile.season - 1,
       competitors: {
         some: {
           teamId: profile.teamId,
@@ -1238,7 +1238,7 @@ export async function sponsorshipCheck() {
 
   return flatten(
     await Promise.all(
-      sponsorships.map((sponsorship) => {
+      sponsorships.map((sponsorship): Promise<unknown> => {
         let earnings = 0;
         const contract =
           Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
@@ -1306,12 +1306,12 @@ export async function sponsorshipCheck() {
 
         // stop here if no achieved bonuses
         if (!bonuses.length) {
-          return Promise.resolve([]);
+          return Promise.all([sponsorshipInvite(sponsorship.id)]);
         }
 
-        // let's show what end-of-season
-        // bonuses were distributed
+        // distribute end-of-season bonuses
         return Promise.all([
+          sponsorshipInvite(sponsorship.id),
           sendEmail(
             Sqrl.render(locale.templates.SponsorshipBonuses.SUBJECT, { sponsorship }),
             Sqrl.render(locale.templates.SponsorshipBonuses.CONTENT, {
@@ -1336,6 +1336,159 @@ export async function sponsorshipCheck() {
       }),
     ),
   );
+}
+
+/**
+ * Sends sponsor tournament invites out the user.
+ *
+ * @param id      The sponsorhip id.
+ * @param status  Sponsorship status override.
+ * @function
+ */
+export async function sponsorshipInvite(id: number, status?: Constants.SponsorshipStatus) {
+  // load user locale
+  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+  const locale = getLocale(profile);
+
+  // load sponsorship contract info
+  const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+    ...Eagers.sponsorship,
+    where: { id },
+  });
+  const contract = Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
+
+  // bail if no tournament
+  if (!contract.tournament) {
+    Engine.Runtime.Instance.log.info(
+      '%s has no tournament. skipping invite...',
+      sponsorship.sponsor.name,
+    );
+    return;
+  }
+
+  // bail if sponsorship status is not active
+  if ((status ?? sponsorship.status) !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED) {
+    Engine.Runtime.Instance.log.warn(
+      'contract between %s and %s is not active. skipping invite...',
+      sponsorship.sponsor.name,
+      profile.name,
+    );
+    return;
+  }
+
+  // load sponsorship tier info
+  const tier = await DatabaseClient.prisma.tier.findFirst({
+    where: {
+      slug: contract.tournament,
+    },
+  });
+
+  if (!tier) {
+    Engine.Runtime.Instance.log.warn(
+      'could not load tier information for %s. skipping invite...',
+      sponsorship.sponsor.name,
+    );
+    return;
+  }
+
+  // build competition query and modify as needed if this
+  // sponsor's tournament is triggered by another's
+  // in which case we'd want the "root" tournament
+  const competitionQuery: Prisma.CompetitionFindFirstArgs = {
+    where: {
+      season: profile.season,
+      status: {
+        not: Constants.CompetitionStatus.STARTED,
+      },
+      tier: {
+        slug: contract.tournament,
+      },
+    },
+  };
+
+  if (tier.triggerOffsetDays) {
+    // here we get the "root" tourney's start date instead
+    const triggeringTier = await DatabaseClient.prisma.tier.findFirst({
+      where: {
+        triggerOffsetDays: null,
+        league: {
+          slug: Constants.LeagueSlug.SPONSORS,
+        },
+      },
+    });
+
+    if (!triggeringTier) {
+      Engine.Runtime.Instance.log.warn(
+        'could not find root tournament for %s. skipping invite...',
+        sponsorship.sponsor.name,
+      );
+      return;
+    }
+
+    competitionQuery.where.tier.slug = triggeringTier.slug;
+  }
+
+  // bail if competition is not found or already started
+  const competition = await DatabaseClient.prisma.competition.findFirst(competitionQuery);
+
+  if (!competition) {
+    Engine.Runtime.Instance.log.warn(
+      '%s already started their tournament or was not found. skipping invite...',
+      sponsorship.sponsor.name,
+    );
+    return;
+  }
+
+  // grab when tournament is supposed to start and
+  // we'll send an invite between now and then
+  const entry = await DatabaseClient.prisma.calendar.findFirst({
+    where: {
+      completed: false,
+      payload: competition.id.toString(),
+      type: Constants.CalendarEntry.COMPETITION_START,
+    },
+  });
+
+  if (!entry) {
+    Engine.Runtime.Instance.log.warn(
+      'could not find start date for %s',
+      Constants.IdiomaticTier[contract.tournament],
+    );
+    return;
+  }
+
+  // grab the number of days we have to send an invite
+  const days = differenceInDays(entry.date, profile.date);
+
+  if (days <= 0) {
+    Engine.Runtime.Instance.log.warn(
+      '%s already started their tournament: %s (days left = %d)',
+      sponsorship.sponsor.name,
+      Constants.IdiomaticTier[contract.tournament],
+      days,
+    );
+    return;
+  }
+
+  // send an invite between today and start date
+  const inviteDate = addDays(profile.date, random(1, days));
+  return DatabaseClient.prisma.calendar.create({
+    data: {
+      type: Constants.CalendarEntry.EMAIL_SEND,
+      date: inviteDate,
+      payload: JSON.stringify([
+        Sqrl.render(locale.templates.SponsorshipInvite.SUBJECT, { sponsorship }),
+        Sqrl.render(locale.templates.SponsorshipInvite.CONTENT, {
+          sponsorship,
+          profile,
+          idiomaticTier: Constants.IdiomaticTier[contract.tournament],
+        }),
+        profile.team.personas[0],
+        inviteDate,
+        true,
+      ]),
+    },
+  });
 }
 
 /**
@@ -1539,6 +1692,19 @@ export async function onCompetitionStart(entry: Calendar) {
 /**
  * Engine loop handler.
  *
+ * Sends a scheduled e-mail.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onEmailSend(entry: Calendar) {
+  const payload = JSON.parse(entry.payload) as Parameters<typeof sendEmail>;
+  return sendEmail(...payload);
+}
+
+/**
+ * Engine loop handler.
+ *
  * Runs all actionable items that are required
  * when starting a new season.
  *
@@ -1548,10 +1714,10 @@ export async function onSeasonStart() {
   Engine.Runtime.Instance.log.info('Starting the season...');
   return createWelcomeEmail()
     .then(scheduleNextSeasonStart)
-    .then(sponsorshipCheck)
     .then(bumpSeasonNumber)
     .then(createCompetitions)
     .then(resetTrainingGains)
+    .then(sponsorshipCheck)
     .then(syncTiers)
     .then(syncWages);
 }

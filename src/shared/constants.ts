@@ -190,6 +190,7 @@ export enum LeagueSlug {
   ESPORTS_LEAGUE = 'esl',
   ESPORTS_LEAGUE_CUP = 'eslc',
   ESPORTS_WORLD_CUP = 'eswc',
+  SPONSORS = 'sponsors',
 }
 
 /**
@@ -288,6 +289,8 @@ export enum IPCRoute {
   SAVES_DELETE = '/saves/delete',
   SPONSORS_ALL = '/sponsors/all',
   SPONSORSHIP_CREATE = '/sponsorship/create',
+  SPONSORSHIP_INVITE_ACCEPT = '/sponsorship/invite/accept',
+  SPONSORSHIP_INVITE_REJECT = '/sponsorship/invite/reject',
   SQUAD_ALL = '/squad/all',
   SQUAD_UPDATE = '/squad/update',
   TEAMS_ALL = '/teams/all',
@@ -450,6 +453,11 @@ export enum TierSlug {
   LEAGUE_OPEN_PLAYOFFS = 'league:open:playoffs',
   LEAGUE_PREMIER = 'league:premier',
   LEAGUE_PREMIER_PLAYOFFS = 'league:premier:playoffs',
+  SPONSORS_BLUEQUIL = 'sponsors:bluequil',
+  SPONSORS_HEAVENCASE = 'sponsors:heavencase',
+  SPONSORS_NINEKBET = 'sponsors:9kbet',
+  SPONSORS_SKINARCH = 'sponsors:skinarch',
+  SPONSORS_WHITE_WOLF = 'sponsors:white-wolf',
 }
 
 /**
@@ -708,6 +716,41 @@ export const Awards = [
     action: [AwardAction.CONFETTI, AwardAction.EMAIL],
     start: 1,
   },
+  {
+    on: CalendarEntry.COMPETITION_END,
+    target: TierSlug.SPONSORS_BLUEQUIL,
+    type: AwardType.CHAMPION,
+    action: [AwardAction.CONFETTI, AwardAction.EMAIL],
+    start: 1,
+  },
+  {
+    on: CalendarEntry.COMPETITION_END,
+    target: TierSlug.SPONSORS_HEAVENCASE,
+    type: AwardType.CHAMPION,
+    action: [AwardAction.CONFETTI, AwardAction.EMAIL],
+    start: 1,
+  },
+  {
+    on: CalendarEntry.COMPETITION_END,
+    target: TierSlug.SPONSORS_NINEKBET,
+    type: AwardType.CHAMPION,
+    action: [AwardAction.CONFETTI, AwardAction.EMAIL],
+    start: 1,
+  },
+  {
+    on: CalendarEntry.COMPETITION_END,
+    target: TierSlug.SPONSORS_SKINARCH,
+    type: AwardType.CHAMPION,
+    action: [AwardAction.CONFETTI, AwardAction.EMAIL],
+    start: 1,
+  },
+  {
+    on: CalendarEntry.COMPETITION_END,
+    target: TierSlug.SPONSORS_WHITE_WOLF,
+    type: AwardType.CHAMPION,
+    action: [AwardAction.CONFETTI, AwardAction.EMAIL],
+    start: 1,
+  },
 ];
 
 /**
@@ -826,6 +869,11 @@ export const IdiomaticTier: Record<TierSlug | string, string> = {
   [TierSlug.LEAGUE_ADVANCED_PLAYOFFS]: 'Advanced Division Playoffs',
   [TierSlug.LEAGUE_PREMIER]: 'Premier Division',
   [TierSlug.LEAGUE_PREMIER_PLAYOFFS]: 'Premier Division Playoffs',
+  [TierSlug.SPONSORS_BLUEQUIL]: 'BlueQuil Invitational',
+  [TierSlug.SPONSORS_HEAVENCASE]: 'HeavenCase Challenge',
+  [TierSlug.SPONSORS_NINEKBET]: '9kBet Cup',
+  [TierSlug.SPONSORS_SKINARCH]: 'SkinArch Showdown',
+  [TierSlug.SPONSORS_WHITE_WOLF]: 'WhiteWolf Invitational',
 };
 
 export const IdiomaticSponsorshipStatus: Record<number, string> = {
@@ -933,6 +981,10 @@ export const MatchDayWeights: Record<string, Record<number, number | 'auto'>> = 
     6: 'auto', // saturday
     0: 'auto', // sunday
   },
+  [LeagueSlug.SPONSORS]: {
+    1: 50, // monday
+    2: 'auto', // tuesday
+  },
 };
 
 /**
@@ -999,6 +1051,11 @@ export const PrizePool: Record<TierSlug | string, { total: number; distribution:
     [TierSlug.LEAGUE_ADVANCED_PLAYOFFS]: { total: 0, distribution: [] },
     [TierSlug.LEAGUE_PREMIER]: { total: 10_000, distribution: [50, 35, 15] },
     [TierSlug.LEAGUE_PREMIER_PLAYOFFS]: { total: 0, distribution: [] },
+    [TierSlug.SPONSORS_BLUEQUIL]: { total: 8000, distribution: [50, 35, 15] },
+    [TierSlug.SPONSORS_HEAVENCASE]: { total: 6000, distribution: [50, 35, 15] },
+    [TierSlug.SPONSORS_NINEKBET]: { total: 6000, distribution: [50, 35, 15] },
+    [TierSlug.SPONSORS_SKINARCH]: { total: 3000, distribution: [50, 35, 15] },
+    [TierSlug.SPONSORS_WHITE_WOLF]: { total: 5000, distribution: [50, 35, 15] },
   };
 
 /**
@@ -1057,6 +1114,7 @@ export const SponsorContract: Record<
       amount: number;
     }>;
     tiers?: Array<TierSlug>;
+    tournament?: TierSlug;
   }
 > = {
   [SponsorSlug.ALOHA_ENERGY]: {
@@ -1123,6 +1181,7 @@ export const SponsorContract: Record<
       },
     ],
     tiers: [TierSlug.LEAGUE_PREMIER],
+    tournament: TierSlug.SPONSORS_BLUEQUIL,
   },
   [SponsorSlug.GOGTECH]: {
     bonuses: [
@@ -1188,6 +1247,7 @@ export const SponsorContract: Record<
       },
     ],
     tiers: [TierSlug.LEAGUE_ADVANCED, TierSlug.LEAGUE_PREMIER],
+    tournament: TierSlug.SPONSORS_HEAVENCASE,
   },
   [SponsorSlug.NINEKBET]: {
     bonuses: [
@@ -1216,6 +1276,7 @@ export const SponsorContract: Record<
       },
     ],
     tiers: [TierSlug.LEAGUE_ADVANCED, TierSlug.LEAGUE_PREMIER],
+    tournament: TierSlug.SPONSORS_NINEKBET,
   },
   [SponsorSlug.OWNERCARD]: {
     bonuses: [
@@ -1323,6 +1384,7 @@ export const SponsorContract: Record<
       },
     ],
     tiers: [TierSlug.LEAGUE_MAIN, TierSlug.LEAGUE_ADVANCED],
+    tournament: TierSlug.SPONSORS_SKINARCH,
   },
   [SponsorSlug.WHITE_WOLF]: {
     bonuses: [
@@ -1356,6 +1418,7 @@ export const SponsorContract: Record<
       },
     ],
     tiers: [TierSlug.LEAGUE_ADVANCED],
+    tournament: TierSlug.SPONSORS_WHITE_WOLF,
   },
   [SponsorSlug.YNFO]: {
     bonuses: [

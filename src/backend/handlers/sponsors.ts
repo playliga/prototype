@@ -3,12 +3,14 @@
  *
  * @module
  */
+import * as Sqrl from 'squirrelly';
+import log from 'electron-log';
 import { ipcMain } from 'electron';
 import { Prisma } from '@prisma/client';
-import { random } from 'lodash';
+import { random, sample } from 'lodash';
 import { addDays, addYears } from 'date-fns';
-import { Constants } from '@liga/shared';
-import { DatabaseClient } from '@liga/backend/lib';
+import { Constants, Eagers } from '@liga/shared';
+import { DatabaseClient, getLocale, Worldgen } from '@liga/backend/lib';
 
 /**
  * Register the IPC event handlers.
@@ -101,4 +103,104 @@ export default function () {
       });
     },
   );
+  ipcMain.handle(Constants.IPCRoute.SPONSORSHIP_INVITE_ACCEPT, async (_, id: string) => {
+    // load user locale
+    const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+    const locale = getLocale(profile);
+
+    // load sponsorship record
+    const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+      ...Eagers.sponsorship,
+      where: { id: Number(id) },
+    });
+
+    if (!sponsorship) {
+      log.warn('sponsorship (id=%d) not found.', id);
+      return;
+    }
+
+    // bail if contract is not active
+    const contract = Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
+
+    if (sponsorship.status !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED) {
+      log.warn('contract between %s and %s is not active.', sponsorship.sponsor.name, profile.name);
+      return;
+    }
+
+    // load competition record
+    const competition = await DatabaseClient.prisma.competition.findFirst({
+      ...Eagers.competition,
+      where: {
+        season: profile.season,
+        status: {
+          not: Constants.CompetitionStatus.STARTED,
+        },
+        tier: {
+          slug: contract.tournament,
+        },
+      },
+    });
+
+    if (!competition) {
+      log.warn('competition for %s not found or already started.', sponsorship.sponsor.name);
+      return;
+    }
+
+    // bail if user's team is already in the competition
+    const team = competition.competitors.find((competitor) => competitor.teamId === profile.teamId);
+
+    if (team) {
+      log.warn('user team already in %s. skipping...', sponsorship.sponsor.name);
+    }
+
+    // replace random team with user's team
+    // and send an accepted response
+    return Promise.all([
+      DatabaseClient.prisma.competition.update({
+        where: { id: competition.id },
+        data: {
+          competitors: {
+            update: {
+              where: {
+                id: sample(competition.competitors).id,
+              },
+              data: {
+                teamId: profile.teamId,
+              },
+            },
+          },
+        },
+      }),
+      Worldgen.sendEmail(
+        Sqrl.render(locale.templates.SponsorshipInvite.SUBJECT, { sponsorship }),
+        Sqrl.render(locale.templates.SponsorshipInviteAcceptedUser.CONTENT, { sponsorship }),
+        profile.team.personas[0],
+        profile.date,
+      ),
+    ]);
+  });
+  ipcMain.handle(Constants.IPCRoute.SPONSORSHIP_INVITE_REJECT, async (_, id: string) => {
+    // load user locale
+    const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+    const locale = getLocale(profile);
+
+    // load sponsorship record
+    const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+      ...Eagers.sponsorship,
+      where: { id: Number(id) },
+    });
+
+    if (!sponsorship) {
+      log.warn('sponsorship (id=%d) not found.', id);
+      return;
+    }
+
+    // send rejected response
+    return Worldgen.sendEmail(
+      Sqrl.render(locale.templates.SponsorshipInvite.SUBJECT, { sponsorship }),
+      Sqrl.render(locale.templates.SponsorshipInviteRejectedUser.CONTENT, { sponsorship }),
+      profile.team.personas[0],
+      profile.date,
+    );
+  });
 }

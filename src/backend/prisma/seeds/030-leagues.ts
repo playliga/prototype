@@ -189,6 +189,47 @@ const data: Array<LeagueSeedData> = [
       },
     ],
   },
+  {
+    name: 'Sponsor Tournaments',
+    slug: Constants.LeagueSlug.SPONSORS,
+    startOffsetDays: 180,
+    federations: [Constants.FederationSlug.ESPORTS_WORLD],
+    tiers: [
+      {
+        name: Constants.IdiomaticTier[Constants.TierSlug.SPONSORS_BLUEQUIL],
+        slug: Constants.TierSlug.SPONSORS_BLUEQUIL,
+        size: 8,
+        triggerTierSlug: Constants.TierSlug.SPONSORS_HEAVENCASE,
+      },
+      {
+        name: Constants.IdiomaticTier[Constants.TierSlug.SPONSORS_HEAVENCASE],
+        slug: Constants.TierSlug.SPONSORS_HEAVENCASE,
+        size: 8,
+        triggerOffsetDays: 1,
+        triggerTierSlug: Constants.TierSlug.SPONSORS_NINEKBET,
+      },
+      {
+        name: Constants.IdiomaticTier[Constants.TierSlug.SPONSORS_NINEKBET],
+        slug: Constants.TierSlug.SPONSORS_NINEKBET,
+        size: 8,
+        triggerOffsetDays: 1,
+        triggerTierSlug: Constants.TierSlug.SPONSORS_SKINARCH,
+      },
+      {
+        name: Constants.IdiomaticTier[Constants.TierSlug.SPONSORS_SKINARCH],
+        slug: Constants.TierSlug.SPONSORS_SKINARCH,
+        size: 8,
+        triggerOffsetDays: 1,
+        triggerTierSlug: Constants.TierSlug.SPONSORS_WHITE_WOLF,
+      },
+      {
+        name: Constants.IdiomaticTier[Constants.TierSlug.SPONSORS_WHITE_WOLF],
+        slug: Constants.TierSlug.SPONSORS_WHITE_WOLF,
+        size: 8,
+        triggerOffsetDays: 1,
+      },
+    ],
+  },
 ];
 
 /**
