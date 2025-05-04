@@ -6,8 +6,8 @@ An immersive CS:GO Esports Simulator.
 
 ## APIs and Technologies
 
-- Node `v20.18.x`.
-- Electron `v34.x`.
+- Node `v22.14.x`.
+- Electron `v36.x`.
 - SQLite `v5.x`.
   - On Windows, Python `3.10` or above [is required](https://github.com/nodejs/node-gyp#on-windows).
 
