@@ -49,7 +49,7 @@ export default function () {
       settingsLocalStorage = await mainWindow.webContents.executeJavaScript(
         'localStorage.getItem("settings");',
       );
-    } catch (error) {
+    } catch (_) {
       log.warn('Could not load on-the-fly settings.');
     }
 
@@ -76,7 +76,7 @@ export default function () {
     if (settingsLocalStorage) {
       try {
         await mainWindow.webContents.executeJavaScript('localStorage.removeItem("settings");');
-      } catch (error) {
+      } catch (_) {
         log.warn('Could not remove on-the-fly settings.');
       }
     }

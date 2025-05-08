@@ -55,7 +55,7 @@ export async function copy(pattern: string, cwd: string, to: string, backup = tr
       // build directory tree to target path
       try {
         await fs.promises.access(parents, fs.constants.F_OK);
-      } catch (error) {
+      } catch (_) {
         await fs.promises.mkdir(parents, { recursive: true });
       }
 
@@ -90,7 +90,7 @@ export async function copy(pattern: string, cwd: string, to: string, backup = tr
 export async function extract(from: string, to: string) {
   try {
     await fs.promises.access(to, fs.constants.F_OK);
-  } catch (error) {
+  } catch (_) {
     await fs.promises.mkdir(to, { recursive: true });
   }
 
@@ -110,14 +110,14 @@ export async function touch(file: string) {
 
   try {
     await fs.promises.access(parents, fs.constants.F_OK);
-  } catch (error) {
+  } catch (_) {
     await fs.promises.mkdir(parents, { recursive: true });
   }
 
   // now create the file if it doesn't exist
   try {
     await fs.promises.access(file, fs.constants.F_OK);
-  } catch (error) {
+  } catch (_) {
     return (await fs.promises.open(file, 'w')).close();
   }
 

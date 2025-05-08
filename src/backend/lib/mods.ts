@@ -104,7 +104,7 @@ export class Manager extends events.EventEmitter {
     try {
       await fs.promises.access(getPath(), fs.constants.F_OK);
       return Promise.resolve();
-    } catch (error) {
+    } catch (_) {
       await fs.promises.mkdir(getPath(), { recursive: true });
     }
   }
@@ -133,14 +133,14 @@ export class Manager extends events.EventEmitter {
 
     try {
       await fs.promises.access(path.dirname(customSavePath), fs.constants.F_OK);
-    } catch (error) {
+    } catch (_) {
       await fs.promises.mkdir(path.dirname(customSavePath), { recursive: true });
     }
 
     // do we have a modded database?
     try {
       await fs.promises.access(customSavePath, fs.constants.F_OK);
-    } catch (error) {
+    } catch (_) {
       return Promise.reject('No modded database found.');
     }
 
@@ -161,7 +161,7 @@ export class Manager extends events.EventEmitter {
     try {
       await fs.promises.copyFile(customSavePath, newSavePath);
       return Promise.resolve();
-    } catch (error) {
+    } catch (_) {
       return Promise.reject(util.format('Could not copy modded database to: %s', newSavePath));
     }
   }
@@ -350,7 +350,7 @@ export class Manager extends events.EventEmitter {
         if (file.type === 'file') {
           try {
             await fs.promises.access(path.dirname(to), fs.constants.F_OK);
-          } catch (error) {
+          } catch (_) {
             this.log.warn('could not process: %s', file.name);
             await fs.promises.mkdir(path.dirname(to), { recursive: true });
           }

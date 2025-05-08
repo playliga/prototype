@@ -152,7 +152,6 @@ export default function () {
                       </header>
                       <footer className="prose max-w-none py-5">
                         <ReactMarkdown
-                          children={dedent(dialogue.content)}
                           rehypePlugins={
                             [rehypeRaw] as Parameters<typeof ReactMarkdown>[number]['remarkPlugins']
                           }
@@ -188,7 +187,9 @@ export default function () {
                               );
                             },
                           }}
-                        />
+                        >
+                          {dedent(dialogue.content)}
+                        </ReactMarkdown>
                       </footer>
                     </article>
                   ),

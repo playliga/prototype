@@ -23,7 +23,6 @@ export default function () {
   return (
     <main className="prose max-w-none px-2">
       <ReactMarkdown
-        children={content}
         components={{
           a(props) {
             return (
@@ -46,7 +45,9 @@ export default function () {
             );
           },
         }}
-      />
+      >
+        {content}
+      </ReactMarkdown>
     </main>
   );
 }

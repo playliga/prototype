@@ -22,7 +22,7 @@ export default function () {
 
   return (
     <main className="prose max-w-none p-2">
-      <ReactMarkdown children={content} />
+      <ReactMarkdown>{content}</ReactMarkdown>
     </main>
   );
 }

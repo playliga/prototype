@@ -94,7 +94,7 @@ const routes = createMemoryRouter([
  * @component
  */
 function Root() {
-  const { dispatch, state } = React.useContext(AppStateContext);
+  const { dispatch } = React.useContext(AppStateContext);
   const [loaded, setLoaded] = React.useState(false);
   const navigate = useNavigate();
 
@@ -106,8 +106,9 @@ function Root() {
     api.profiles.current().then((profile) => dispatch(profileUpdate(profile)));
 
     // handle incoming profile updates
-    api.ipc.on(Constants.IPCRoute.PROFILES_CURRENT, (profile: typeof state.profile) =>
-      dispatch(profileUpdate(profile)),
+    api.ipc.on(
+      Constants.IPCRoute.PROFILES_CURRENT,
+      (profile: Parameters<typeof profileUpdate>[0]) => dispatch(profileUpdate(profile)),
     );
 
     // navigate to the modal route being requested

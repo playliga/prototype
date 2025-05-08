@@ -158,7 +158,7 @@ export default function () {
         </thead>
       </table>
       <section className="prose max-w-none border-b border-base-content/10 p-4">
-        <ReactMarkdown children={issue.body} />
+        <ReactMarkdown>{issue.body}</ReactMarkdown>
       </section>
       <table className="table">
         <thead>
@@ -192,7 +192,7 @@ export default function () {
               </time>
             </header>
             <aside className="prose chat-bubble">
-              <ReactMarkdown children={comment.body} />
+              <ReactMarkdown>{comment.body}</ReactMarkdown>
             </aside>
             <footer className="chat-footer opacity-50">{t('issues.comments.delivered')}</footer>
           </article>

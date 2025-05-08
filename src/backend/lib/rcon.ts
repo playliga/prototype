@@ -249,7 +249,7 @@ export class Client extends events.EventEmitter {
       if (this.options.tcp) {
         try {
           await ping({ address: this.host, port: this.port, attempts: 1 });
-        } catch (error) {
+        } catch (_) {
           continue;
         }
       }
@@ -262,7 +262,7 @@ export class Client extends events.EventEmitter {
           this.connect();
         });
         return Promise.resolve();
-      } catch (error) {
+      } catch (_) {
         continue;
       }
     }

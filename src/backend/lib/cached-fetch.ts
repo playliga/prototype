@@ -28,7 +28,7 @@ async function initCacheDirectory() {
 
   try {
     await fs.promises.access(cacheDir, fs.constants.F_OK);
-  } catch (error) {
+  } catch (_) {
     await fs.promises.mkdir(cacheDir);
   }
 
@@ -63,7 +63,7 @@ export async function get(url: RequestInfo, opts?: RequestInit) {
     // that didn't fail, so read from cache and return
     const data = await fs.promises.readFile(file, 'utf-8');
     return Promise.resolve(JSON.parse(data));
-  } catch (error) {
+  } catch (_) {
     // that failed so continue and fetch the live data
     log.warn('Cache miss for: %s', file);
   }

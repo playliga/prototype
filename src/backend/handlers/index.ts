@@ -88,7 +88,7 @@ export function IPCGenericHandler() {
     // bail if the what's new file does not exist
     try {
       await fs.promises.access(whatsNewFile, fs.constants.F_OK);
-    } catch (error) {
+    } catch (_) {
       return Promise.resolve();
     }
 

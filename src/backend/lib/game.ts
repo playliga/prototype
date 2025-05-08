@@ -220,7 +220,7 @@ export async function getGameLogFile(game: string, rootPath: string) {
   // bail early if the logs path does not exist
   try {
     await fs.promises.access(basePath, fs.constants.F_OK);
-  } catch (error) {
+  } catch (_) {
     return Promise.resolve('');
   }
 

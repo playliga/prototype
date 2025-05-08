@@ -189,7 +189,7 @@ export default class DatabaseClient {
     try {
       await fs.promises.access(newSavePath, fs.constants.F_OK);
       return Promise.resolve(newSavePath);
-    } catch (error) {
+    } catch (_) {
       await fs.promises.mkdir(path.dirname(newSavePath), { recursive: true });
     }
 
@@ -224,7 +224,7 @@ export default class DatabaseClient {
     // bail if target db doesn't exist
     try {
       await fs.promises.access(targetDBPath, fs.constants.F_OK);
-    } catch (error) {
+    } catch (_) {
       DatabaseClient.log.warn('Database %s does not exist. Skipping migration.', targetDBPath);
       return Promise.resolve(false);
     }
@@ -381,7 +381,7 @@ export default class DatabaseClient {
     // and if it doesn't we bail early
     try {
       await fs.promises.access(oldPath, fs.constants.F_OK);
-    } catch (error) {
+    } catch (_) {
       return;
     }
 

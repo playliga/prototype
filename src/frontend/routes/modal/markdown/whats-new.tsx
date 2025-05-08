@@ -24,7 +24,6 @@ export default function () {
   return (
     <main className="prose max-w-none px-2">
       <ReactMarkdown
-        children={content}
         rehypePlugins={[rehypeRaw] as Parameters<typeof ReactMarkdown>[number]['remarkPlugins']}
         components={{
           a(props) {
@@ -55,7 +54,9 @@ export default function () {
             );
           },
         }}
-      />
+      >
+        {content}
+      </ReactMarkdown>
     </main>
   );
 }

@@ -117,7 +117,7 @@ export class Manager extends events.EventEmitter {
     try {
       await fs.promises.access(getPath(), fs.constants.F_OK);
       return Promise.resolve();
-    } catch (error) {
+    } catch (_) {
       await fs.promises.mkdir(getPath(), { recursive: true });
     }
   }
@@ -155,7 +155,7 @@ export class Manager extends events.EventEmitter {
       await fs.promises.access(this.zipPath, fs.constants.F_OK);
       this.emit(EventIdentifier.NO_UPDATE);
       return Promise.resolve();
-    } catch (error) {
+    } catch (_) {
       await this.init();
       this.emit(EventIdentifier.UPDATE_AVAILABLE);
     }
@@ -249,7 +249,7 @@ export class Manager extends events.EventEmitter {
         if (file.type === 'file') {
           try {
             await fs.promises.access(path.dirname(to), fs.constants.F_OK);
-          } catch (error) {
+          } catch (_) {
             this.log.warn('could not process: %s', file.name);
             await fs.promises.mkdir(path.dirname(to), { recursive: true });
           }

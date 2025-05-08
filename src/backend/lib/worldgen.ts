@@ -849,7 +849,7 @@ export async function recordMatchResults() {
                 payload: triggeredCompetition.id.toString(),
               },
             });
-          } catch (e) {
+          } catch (_) {
             Engine.Runtime.Instance.log.warn(
               'Existing start date for %s found. Skipping...',
               triggeredCompetition.tier.name,

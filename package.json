@@ -32,7 +32,6 @@
     "db:reset": "npm run db:clean && npm run db:init",
     "db:studio": "prisma studio --schema src/backend/prisma/schema.prisma",
     "gen:icon": "magick src/frontend/assets/icon.png -background none -resize 256x256 src/frontend/assets/icon.ico",
-    "lint": "eslint --ext .ts,.tsx .",
     "make": "electron-forge make",
     "package": "electron-forge package",
     "postinstall": "npm run db:migrate && npm run cli:init",
@@ -41,7 +40,9 @@
   },
   "prettier": {
     "singleQuote": true,
-    "plugins": ["prettier-plugin-tailwindcss"]
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ]
   },
   "prisma": {
     "seed": "ts-node -r tsconfig-paths/register src/backend/prisma/seeds"
@@ -55,23 +56,22 @@
     "@electron-forge/plugin-webpack": "7.8.0",
     "@electron-forge/publisher-github": "7.8.0",
     "@electron/fuses": "1.8.0",
+    "@eslint/js": "9.26.0",
     "@tailwindcss/typography": "0.5.10",
     "@types/lodash": "4.14.202",
     "@types/react": "18.0.20",
     "@types/react-dom": "18.0.6",
-    "@typescript-eslint/eslint-plugin": "5.60.1",
-    "@typescript-eslint/parser": "5.60.1",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "copy-webpack-plugin": "11.0.0",
     "css-loader": "6.7.1",
     "daisyui": "4.6.2",
     "dotenv": "16.4.5",
     "electron": "36.1.0",
-    "eslint": "8.44.0",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-import-resolver-typescript": "3.5.5",
-    "eslint-plugin-import": "2.27.5",
-    "eslint-plugin-jsdoc": "46.4.3",
+    "eslint": "9.26.0",
+    "eslint-import-resolver-typescript": "4.3.4",
+    "eslint-plugin-import": "2.31.0",
+    "eslint-plugin-jsdoc": "50.6.11",
+    "eslint-plugin-react": "7.37.5",
     "fork-ts-checker-webpack-plugin": "7.2.13",
     "node-loader": "2.0.0",
     "openapi-typescript": "5.4.1",
@@ -85,7 +85,8 @@
     "ts-loader": "9.4.4",
     "ts-node": "10.9.1",
     "tsconfig-paths": "4.2.0",
-    "typescript": "4.9.4"
+    "typescript": "4.9.4",
+    "typescript-eslint": "8.32.0"
   },
   "dependencies": {
     "@faker-js/faker": "7.6.0",

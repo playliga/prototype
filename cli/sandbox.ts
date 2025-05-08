@@ -275,7 +275,7 @@ async function sandboxFirebase() {
 
   try {
     await fs.promises.access(zipPath, fs.constants.F_OK);
-  } catch (error) {
+  } catch (_) {
     await fs.promises.mkdir(zipPath);
   }
 
@@ -284,7 +284,7 @@ async function sandboxFirebase() {
       try {
         await fs.promises.access(file, fs.constants.F_OK);
         await fs.promises.copyFile(file, path.join(zipPath, path.basename(file)));
-      } catch (error) {
+      } catch (_) {
         log.warn('%s not found. skipping...', file);
         return Promise.resolve();
       }

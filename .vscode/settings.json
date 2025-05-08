@@ -2,6 +2,11 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
+  "eslint.execArgv": ["--experimental-strip-types"],
+  "eslint.options": {
+    "flags": ["unstable_native_nodejs_ts_config"]
+  },
+  "eslint.runtime": "node",
   "files.associations": {
     "*.css": "tailwindcss"
   }

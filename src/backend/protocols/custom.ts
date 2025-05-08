@@ -37,7 +37,7 @@ export function handler() {
     try {
       await fs.promises.access(targetPath, fs.constants.F_OK);
       return net.fetch(url.pathToFileURL(targetPath).toString());
-    } catch (error) {
+    } catch (_) {
       return new Response('', { status: 404 });
     }
   });
