@@ -392,7 +392,8 @@ export default function () {
   });
   ipcMain.handle(Constants.IPCRoute.SQUAD_UPDATE, async (_, query: Prisma.PlayerUpdateArgs) => {
     const { id: profileId } = await DatabaseClient.prisma.profile.findFirst();
-    const profile = await DatabaseClient.prisma.profile.update<typeof Eagers.profile>({
+    const profile = await DatabaseClient.prisma.profile.update({
+      ...Eagers.profile,
       where: { id: profileId },
       data: {
         team: {
