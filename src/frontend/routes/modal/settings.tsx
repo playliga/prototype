@@ -74,7 +74,7 @@ export default function () {
 
   return (
     <main>
-      <header role="tablist" className="tabs-boxed tabs sticky left-0 top-0">
+      <header role="tablist" className="tabs-box tabs sticky top-0 left-0 rounded-none">
         {Object.keys(Tab)
           .filter((tabKey) => isNaN(Number(tabKey)))
           .map((tabKey: keyof typeof Tab) => (
@@ -93,7 +93,7 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>{t('settings.gameTitle')}</h3>
+                <p>{t('settings.gameTitle')}</p>
                 {settings.general.game === Constants.Game.CS2 && (
                   <p className="text-warning">{t('settings.gameSubtitleCS2')}</p>
                 )}
@@ -103,7 +103,7 @@ export default function () {
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => onSettingsUpdate('general.game', event.target.value)}
                   value={settings.general.game}
                 >
@@ -117,11 +117,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.simTitle')}</h3>
+                <p>{t('settings.simTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) =>
                     onSettingsUpdate('general.simulationMode', event.target.value)
                   }
@@ -137,11 +137,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.logLevelTitle')}</h3>
+                <p>{t('settings.logLevelTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => onSettingsUpdate('general.logLevel', event.target.value)}
                   value={settings.general.logLevel}
                 >
@@ -155,7 +155,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.steamTitle')}</h3>
+                <p>{t('settings.steamTitle')}</p>
                 <p>
                   e.g.: <code>C:\Program Files\Steam</code>
                 </p>
@@ -169,7 +169,7 @@ export default function () {
                 <input
                   readOnly
                   type="text"
-                  className="input join-item w-full cursor-default bg-base-200 text-sm"
+                  className="input join-item bg-base-200 cursor-default text-sm"
                   value={settings.general.steamPath || ''}
                 />
                 <button
@@ -193,7 +193,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.gamePathTitle')}</h3>
+                <p>{t('settings.gamePathTitle')}</p>
                 <p>{t('settings.gamePathSubtitle')}</p>
                 {!!gamePathError && (
                   <span className="tooltip" data-tip={String(gamePathError)}>
@@ -205,7 +205,7 @@ export default function () {
                 <input
                   readOnly
                   type="text"
-                  className="input join-item w-full cursor-default bg-base-200 text-sm"
+                  className="input join-item bg-base-200 cursor-default text-sm"
                   value={settings.general.gamePath || ''}
                 />
                 <button
@@ -229,13 +229,13 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.launchOptionsTitle')}</h3>
+                <p>{t('settings.launchOptionsTitle')}</p>
                 <p>{t('settings.launchOptionsSubtitle')}</p>
               </header>
               <article>
                 <input
                   type="text"
-                  className="input join-item w-full bg-base-200 text-sm"
+                  className="input join-item bg-base-200 text-sm"
                   value={settings.general.gameLaunchOptions || ''}
                   onChange={(event) =>
                     onSettingsUpdate('general.gameLaunchOptions', event.target.value)
@@ -245,11 +245,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.botChatterTitle')}</h3>
+                <p>{t('settings.botChatterTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => onSettingsUpdate('general.botChatter', event.target.value)}
                   value={settings.general.botChatter}
                 >
@@ -263,11 +263,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.botDifficultyTitle')}</h3>
+                <p>{t('settings.botDifficultyTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) =>
                     onSettingsUpdate(
                       'general.botDifficulty',
@@ -289,11 +289,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.themeTitle')}</h3>
+                <p>{t('settings.themeTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => onSettingsUpdate('general.theme', event.target.value)}
                   value={settings.general.theme || Constants.ThemeType.SYSTEM}
                 >
@@ -311,11 +311,11 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>{t('shared.maxRoundsTitle')}</h3>
+                <p>{t('shared.maxRoundsTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => onSettingsUpdate('matchRules.maxRounds', event.target.value)}
                   value={settings.matchRules.maxRounds}
                 >
@@ -329,11 +329,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.startMoneyTitle')}</h3>
+                <p>{t('shared.startMoneyTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) =>
                     onSettingsUpdate('matchRules.startMoney', event.target.value)
                   }
@@ -349,11 +349,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.freezeTimeTitle')}</h3>
+                <p>{t('shared.freezeTimeTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) =>
                     onSettingsUpdate('matchRules.freezeTime', event.target.value)
                   }
@@ -369,11 +369,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.mapOverrideTitle')}</h3>
+                <p>{t('shared.mapOverrideTitle')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) =>
                     onSettingsUpdate(
                       'matchRules.mapOverride',
@@ -395,7 +395,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.overtimeTitle')}</h3>
+                <p>{t('shared.overtimeTitle')}</p>
                 <p>{t('shared.overtimeSubtitle')}</p>
               </header>
               <article>
@@ -416,20 +416,20 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>{t('settings.loopTitle')}</h3>
+                <p>{t('settings.loopTitle')}</p>
               </header>
               <article className="stack-x join">
                 <input
                   type="number"
                   min="1"
-                  className="input join-item w-full"
+                  className="input join-item"
                   value={settings.calendar.maxIterations}
                   onChange={(event) =>
                     onSettingsUpdate('calendar.maxIterations', event.target.value)
                   }
                 />
                 <select
-                  className="join-item select w-full"
+                  className="join-item select"
                   onChange={(event) => onSettingsUpdate('calendar.unit', event.target.value)}
                   value={settings.calendar.unit}
                 >
@@ -443,7 +443,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('settings.loopExitTitle')}</h3>
+                <p>{t('settings.loopExitTitle')}</p>
                 <p>{t('settings.loopExitSubtitle')}</p>
               </header>
               <article>

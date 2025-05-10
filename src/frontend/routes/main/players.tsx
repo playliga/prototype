@@ -225,16 +225,16 @@ export default function () {
   return (
     <div className="dashboard">
       <main>
-        <form className="form-ios col-2">
+        <form className="form-ios form-ios-col-2">
           <fieldset>
-            <legend className="!border-t-0">{t('shared.filters')}</legend>
+            <legend className="border-t-0!">{t('shared.filters')}</legend>
             <section>
               <header>
-                <h3>{t('shared.federation')}</h3>
+                <p>{t('shared.federation')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => setSelectedFederationId(Number(event.target.value))}
                   value={selectedFederationId}
                 >
@@ -253,13 +253,12 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.country')}</h3>
+                <p>{t('shared.country')}</p>
               </header>
               <article>
                 <CountrySelect
                   className="w-full"
-                  backgroundColor="oklch(var(--b2))"
-                  borderColor="transparent"
+                  backgroundColor="var(--color-base-200)"
                   options={countrySelectorData}
                   value={selectedCountry}
                   onChange={(option) =>
@@ -270,11 +269,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.tierPrestige')}</h3>
+                <p>{t('shared.tierPrestige')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) =>
                     setSelectedTierId(
                       event.target.value === ''
@@ -295,13 +294,12 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.team')}</h3>
+                <p>{t('shared.team')}</p>
               </header>
               <article>
                 <TeamSelect
                   className="w-full"
-                  backgroundColor="oklch(var(--b2))"
-                  borderColor="transparent"
+                  backgroundColor="var(--color-base-200)"
                   options={teamSelectorData}
                   value={selectedTeam}
                   onChange={(option) =>
@@ -312,13 +310,13 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('main.players.player')}</h3>
+                <p>{t('main.players.player')}</p>
               </header>
               <article>
                 <input
                   type="text"
                   placeholder={t('main.players.playerNameFilter')}
-                  className="input w-full"
+                  className="input"
                   value={selectedPlayerName}
                   onChange={(event) => setSelectedPlayerName(event.target.value)}
                 />
@@ -326,11 +324,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('main.players.transferStatus')}</h3>
+                <p>{t('main.players.transferStatus')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => setSelectedTransferStatus(Boolean(event.target.value))}
                   value={String(selectedTransferStatus)}
                 >
@@ -367,13 +365,13 @@ export default function () {
           </fieldset>
         </form>
         <section>
-          <table className="table table-pin-rows table-xs h-full table-fixed">
+          <table className="table-pin-rows table-xs table h-full table-fixed">
             <thead>
               <tr>
                 <th>{t('shared.name')}</th>
                 <th>{t('shared.team')}</th>
                 <th
-                  className="cursor-pointer hover:bg-base-300"
+                  className="hover:bg-base-300 cursor-pointer"
                   onClick={() =>
                     setSelectedPlayerOrderBy(
                       Util.parseSortingDirection('team.tier', selectedPlayerOrderBy?.team?.tier),
@@ -392,7 +390,7 @@ export default function () {
                   </header>
                 </th>
                 <th
-                  className="w-1/12 cursor-pointer hover:bg-base-300"
+                  className="hover:bg-base-300 cursor-pointer"
                   onClick={() =>
                     setSelectedPlayerOrderBy(
                       Util.parseSortingDirection('cost', selectedPlayerOrderBy?.cost),
@@ -411,7 +409,7 @@ export default function () {
                   </header>
                 </th>
                 <th
-                  className="w-1/12 cursor-pointer hover:bg-base-300"
+                  className="hover:bg-base-300 cursor-pointer"
                   onClick={() =>
                     setSelectedPlayerOrderBy(
                       Util.parseSortingDirection('wages', selectedPlayerOrderBy?.wages),
@@ -429,7 +427,7 @@ export default function () {
                     </span>
                   </header>
                 </th>
-                <th className="w-1/12 text-center">{t('shared.transferListed')}</th>
+                <th className="text-center">{t('shared.transferListed')}</th>
               </tr>
             </thead>
             <tbody>
@@ -444,7 +442,7 @@ export default function () {
                 players.map((player) => (
                   <tr
                     key={player.name}
-                    className="cursor-pointer hover:bg-base-content/10"
+                    className="hover:bg-base-content/10 cursor-pointer"
                     onClick={() =>
                       api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
                         target: '/transfer',

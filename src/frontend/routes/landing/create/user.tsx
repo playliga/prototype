@@ -80,19 +80,14 @@ export default function () {
 
   return (
     <form className="stack-y">
-      <section className="form-control w-full">
+      <section className="fieldset w-full">
         <label className="label">
           <span className="label-text">{t('landing.create.alias')}</span>
         </label>
         <input
           {...register('name', { required: true, pattern: /^[\w]+$/, maxLength: 15 })}
           type="text"
-          className={cx(
-            'input',
-            'input-bordered',
-            'w-full',
-            !!formState.errors?.name?.type && 'input-error',
-          )}
+          className={cx('input', 'w-full', !!formState.errors?.name?.type && 'input-error')}
         />
         <footer className="label h-5">
           <span className="label-text-alt">
@@ -101,7 +96,7 @@ export default function () {
           </span>
         </footer>
       </section>
-      <section className="form-control w-full">
+      <section className="fieldset w-full">
         <label className="label">
           <span className="label-text">{t('shared.country')}</span>
         </label>

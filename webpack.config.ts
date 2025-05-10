@@ -99,7 +99,7 @@ export const ElectronRendererWebpackConfig: Configuration = {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: ['tailwindcss/nesting', 'tailwindcss'],
+                plugins: ['@tailwindcss/postcss'],
               },
             },
           },

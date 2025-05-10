@@ -90,9 +90,9 @@ function Scoreboard(props: ScoreboardProps) {
   );
 
   return (
-    <table className="table table-xs">
+    <table className="table-xs table">
       <thead>
-        <tr className="border-t border-t-base-content/10">
+        <tr className="border-t-base-content/10 border-t">
           <th>
             <p title={props.competitor.team.name}>
               {!!props.competitor.team.blazon && (
@@ -211,7 +211,7 @@ export default function () {
 
   return (
     <main className="flex h-screen w-full flex-col">
-      <header className="breadcrumbs sticky top-0 z-30 border-b border-base-content/10 bg-base-200 px-2 text-sm">
+      <header className="breadcrumbs border-base-content/10 bg-base-200 sticky top-0 z-30 border-b px-2 text-sm">
         <ul>
           <li>
             <span>
@@ -227,7 +227,7 @@ export default function () {
           <li>{Util.convertMapPool(game.map, settings.general.game)}</li>
         </ul>
       </header>
-      <section className="card image-full h-16 rounded-none before:!rounded-none">
+      <section className="card image-full h-16 rounded-none before:rounded-none!">
         <figure>
           <Image
             className="h-full w-full"
@@ -271,9 +271,9 @@ export default function () {
         </header>
       </section>
       <Scoreboard match={match} competitor={home} />
-      <table className="table table-xs">
+      <table className="table-xs table">
         <thead>
-          <tr className="border-t border-t-base-content/10">
+          <tr className="border-t-base-content/10 border-t">
             <th colSpan={3}>{t('postgame.timeline')}</th>
           </tr>
         </thead>
@@ -288,7 +288,7 @@ export default function () {
                 {[...Array(2)].map((_, half) => (
                   <td
                     key={competitor.team.name + half + '__round_item'}
-                    className="w-[45%] border-l border-base-content/10"
+                    className="border-base-content/10 w-[45%] border-l"
                   >
                     <section className="flex justify-between">
                       {roundEndEvents
@@ -316,11 +316,11 @@ export default function () {
       </table>
       <Scoreboard match={match} competitor={away} />
       <section className="h-0 flex-grow overflow-x-auto">
-        <table className="table table-pin-rows table-xs">
+        <table className="table-pin-rows table-xs table">
           {[...Array(2)].map((_, half) => (
             <React.Fragment key={half + '__match_log'}>
               <thead>
-                <tr className="border-t border-t-base-content/10">
+                <tr className="border-t-base-content/10 border-t">
                   <th>
                     {t('postgame.matchLog')} - {Util.toOrdinalSuffix(half + 1)} {t('postgame.half')}
                   </th>

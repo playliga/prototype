@@ -42,15 +42,15 @@ export default function () {
       <nav className="menu w-full gap-2">
         {!!profile && (
           <section
-            className="flex cursor-pointer items-center gap-5 rounded-btn bg-base-content/10 p-5 hover:bg-base-content/20"
+            className="bg-base-content/10 hover:bg-base-content/20 flex cursor-pointer items-center gap-5 rounded-md p-5"
             onClick={() => navigate('/connect/' + profile.id)}
           >
             <figure>
               <FaClock className="size-12" />
             </figure>
             <article className="stack-y w-full">
-              <h2 className="text-lg">{t('landing.home.continue')}</h2>
-              <span className="divider mb-0 mt-0" />
+              <h2>{t('landing.home.continue')}</h2>
+              <span className="divider mt-0 mb-0" />
               <aside>
                 <p>{profile.name}</p>
                 <p>
@@ -70,7 +70,7 @@ export default function () {
             {item.label}
           </button>
         ))}
-        <span className="divider mb-0 mt-0" />
+        <span className="divider mt-0 mb-0" />
         <button
           className="btn btn-ghost btn-md btn-block"
           onClick={() =>
@@ -84,7 +84,7 @@ export default function () {
         </button>
       </nav>
       <footer className="w-full px-2">
-        <span className="divider mb-0 mt-0" />
+        <span className="divider mt-0 mb-0" />
         <p>
           <small>{'v' + state.appInfo?.version}</small>
         </p>

@@ -91,35 +91,35 @@ export default function () {
     <div className="dashboard">
       <header>
         <button
-          className={cx(location.pathname === TabIdentifier.OVERVIEW && '!btn-active')}
+          className={cx(location.pathname === TabIdentifier.OVERVIEW && 'btn-active!')}
           onClick={() => navigate(TabIdentifier.OVERVIEW)}
         >
           {t('shared.overview')}
         </button>
         <button
-          className={cx(location.pathname === TabIdentifier.HISTORY && '!btn-active')}
+          className={cx(location.pathname === TabIdentifier.HISTORY && 'btn-active!')}
           onClick={() => navigate(TabIdentifier.HISTORY)}
         >
           {t('main.teams.history')}
         </button>
         <button
-          className={cx(location.pathname === TabIdentifier.RESULTS && '!btn-active')}
+          className={cx(location.pathname === TabIdentifier.RESULTS && 'btn-active!')}
           onClick={() => navigate(TabIdentifier.RESULTS)}
         >
           {t('shared.results')}
         </button>
       </header>
       <main>
-        <form className="form-ios col-2">
+        <form className="form-ios form-ios-col-2">
           <fieldset>
-            <legend className="!border-t-0">{t('shared.filters')}</legend>
+            <legend className="border-t-0!">{t('shared.filters')}</legend>
             <section>
               <header>
-                <h3>{t('shared.federation')}</h3>
+                <p>{t('shared.federation')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => setSelectedFederationId(Number(event.target.value))}
                   value={selectedFederationId}
                 >
@@ -138,11 +138,11 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.tierPrestige')}</h3>
+                <p>{t('shared.tierPrestige')}</p>
               </header>
               <article>
                 <select
-                  className="select w-full"
+                  className="select"
                   onChange={(event) => setSelectedTierId(Number(event.target.value))}
                   value={selectedTierId}
                 >
@@ -157,13 +157,12 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('shared.team')}</h3>
+                <p>{t('shared.team')}</p>
               </header>
               <article>
                 <TeamSelect
                   className="w-full"
-                  backgroundColor="oklch(var(--b2))"
-                  borderColor="transparent"
+                  backgroundColor="var(--color-base-200)"
                   options={teamSelectorData}
                   value={selectedTeam}
                   onChange={(option) =>
@@ -177,7 +176,7 @@ export default function () {
             <section>
               <button
                 type="button"
-                className="btn btn-primary btn-block !col-span-2"
+                className="btn btn-primary btn-block col-span-2!"
                 disabled={selectedFederationId < 0 || selectedTierId < 0 || !selectedTeam}
                 onClick={() => setTeam(teams.find((tteam) => tteam.id === selectedTeam.id))}
               >

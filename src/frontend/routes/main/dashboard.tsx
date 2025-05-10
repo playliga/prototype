@@ -219,7 +219,7 @@ export default function () {
   return (
     <div className="dashboard">
       {/** PLAYING MODAL */}
-      <dialog className={cx('modal', 'absolute', 'w-screen', playing && 'modal-open')}>
+      <dialog className={cx('modal', playing && 'modal-open')}>
         <section className="modal-box">
           <h3 className="text-lg">{t('main.dashboard.playingMatchTitle')}</h3>
           <p className="py-4">{t('main.dashboard.playingMatchSubtitle')}</p>
@@ -232,9 +232,9 @@ export default function () {
       {/** MAIN CONTENT */}
       <main>
         {/** LEFT COLUMN */}
-        <div className="stack-y !gap-0">
-          <section className="stack-y !gap-0">
-            <header className="prose !border-t-0">
+        <div className="stack-y gap-0!">
+          <section className="stack-y gap-0!">
+            <header className="prose border-t-0!">
               <h2>{t('main.dashboard.headerUpcomingMatches')}</h2>
             </header>
             <table className="table table-fixed">
@@ -284,14 +284,14 @@ export default function () {
               </tbody>
             </table>
           </section>
-          <section className="stack-y !gap-0">
+          <section className="stack-y gap-0!">
             <header className="prose">
               <h2>{t('shared.standings')}</h2>
             </header>
             {!standings && (
               <article key="empty__standings" className="card h-32 rounded-none">
                 <aside className="card-body items-center justify-center">
-                  <p className="flex-grow-0">{t('main.dashboard.noStandings')}</p>
+                  <p className="grow-0">{t('main.dashboard.noStandings')}</p>
                 </aside>
               </article>
             )}
@@ -319,7 +319,7 @@ export default function () {
                 }
 
                 return (
-                  <article className="stack-y !gap-4 divide-y divide-base-content/10 pb-2">
+                  <article className="stack-y">
                     <header className="text-center">
                       <h2>{standings.competition.tier.league.name}</h2>
                       <h3>{Constants.IdiomaticTier[standings.competition.tier.slug]}</h3>
@@ -337,7 +337,7 @@ export default function () {
                     </aside>
                     <footer className="text-center">
                       <button
-                        className="btn btn-block"
+                        className="btn btn-block rounded-none border-x-0"
                         onClick={() => {
                           api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
                             target: '/brackets',
@@ -355,8 +355,8 @@ export default function () {
         </div>
 
         {/** RIGHT COLUMN */}
-        <div className="stack-y !gap-0">
-          <section className="grid grid-cols-6 divide-x divide-base-content/10">
+        <div className="stack-y gap-0!">
+          <section className="divide-base-content/10 grid grid-cols-6 divide-x">
             <button
               title={t('main.dashboard.advanceCalendar')}
               className="day day-btn border-t-0"
@@ -421,7 +421,7 @@ export default function () {
             // or if there are no matches
             if (!spotlight) {
               return (
-                <section className="card image-full card-compact h-80 flex-grow rounded-none before:!rounded-none before:!opacity-50">
+                <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none! before:opacity-50!">
                   <figure>
                     <Image
                       className="h-full w-full"
@@ -451,8 +451,8 @@ export default function () {
             });
 
             return (
-              <section className="card image-full card-compact h-80 flex-grow rounded-none before:!rounded-none before:!opacity-50">
-                <figure className="border border-base-content/10">
+              <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none!">
+                <figure className="border-base-content/10 border">
                   <Image
                     className="h-full w-full"
                     src={Util.convertMapPool(spotlight.games[0].map, settings.general.game, true)}
@@ -559,7 +559,7 @@ export default function () {
               </section>
             );
           })()}
-          <section className="grid grid-cols-2 divide-x divide-base-content/10">
+          <section className="divide-base-content/10 grid grid-cols-2 divide-x">
             {((!!spotlight && spotlight.competitors) || [...Array(2)]).map(
               (competitor, competitorIdx) => {
                 const matches = competitor ? matchHistorial[competitorIdx] : [];
@@ -567,9 +567,9 @@ export default function () {
                 return (
                   <article
                     key={`${competitor?.id}_${competitorIdx}__match_previous`}
-                    className="stack-y !gap-0"
+                    className="stack-y gap-0!"
                   >
-                    <header className="prose !border-t-0">
+                    <header className="prose border-t-0!">
                       <h4 className="truncate">
                         {competitor?.team?.name ? `${competitor.team.name}'s` : ''}&nbsp;
                         {t('main.dashboard.headerRecentMatches')}
@@ -601,7 +601,7 @@ export default function () {
                               <tr
                                 key={`${match.id}__match_previous`}
                                 onClick={onClick}
-                                className={cx(onClick && 'cursor-pointer hover:bg-base-content/10')}
+                                className={cx(onClick && 'hover:bg-base-content/10 cursor-pointer')}
                               >
                                 <td
                                   className={cx('w-1/12', !onClick && 'text-muted')}

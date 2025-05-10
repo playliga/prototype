@@ -198,8 +198,8 @@ function Root() {
 
   return (
     <React.StrictMode>
-      <header className="navbar fixed top-0 z-50 h-16 border-b border-base-content/10 bg-base-200 p-0">
-        <nav className="stack-x navbar-start h-full !gap-0">
+      <header className="navbar border-base-content/10 bg-base-200 fixed top-0 z-50 h-16 border-b p-0">
+        <nav className="stack-x navbar-start h-full gap-0!">
           {[
             ['/', 'Dashboard'],
             ['/inbox', 'Inbox'],
@@ -212,25 +212,26 @@ function Root() {
             <button
               key={id}
               className={cx(
-                'btn relative h-full min-w-32 rounded-none border-b-2 shadow-none hover:border-b-primary disabled:bg-transparent',
+                'btn relative h-full min-w-32',
+                'rounded-none border-0 border-b-2 border-b-transparent',
+                'hover:border-b-primary disabled:bg-transparent!',
                 (isMatch || location.pathname === id) &&
-                  'cursor-default border-b-primary bg-base-300',
+                  'border-b-primary bg-base-300 cursor-default',
               )}
               disabled={state.working}
               onClick={() => navigate(id)}
             >
               {name}
               {id.includes('inbox') && state.emails.some((email) => !email.read) && (
-                <span className="badge-xxs badge badge-info absolute right-2 top-2" />
+                <span className="badge-xxs badge badge-info absolute top-2 right-2" />
               )}
             </button>
           ))}
           <button
             title="Earnings can be used to buy servers to give your team training boosts!"
             className={cx(
-              'center btn absolute right-0 top-0 h-full min-w-32 cursor-default rounded-none',
-              'shadow-none hover:border-transparent hover:bg-transparent',
-              'font-light uppercase',
+              'center btn absolute top-0 right-0 h-full min-w-32 border-0',
+              'hover:bg-transparent',
             )}
           >
             <p>Total Earnings</p>

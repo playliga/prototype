@@ -205,9 +205,9 @@ export default function () {
   }
 
   return (
-    <section className="flex flex-col !overflow-y-hidden">
+    <section className="flex flex-col overflow-y-hidden!">
       <article className="flex h-2/5 flex-col">
-        <header className="heading prose max-w-none !border-t-0">
+        <header className="heading prose max-w-none border-t-0!">
           <h2>{t('main.teams.honors')}</h2>
         </header>
         <aside className="grid h-0 flex-grow grid-cols-8 place-content-center place-items-baseline gap-4">
@@ -239,9 +239,9 @@ export default function () {
           ))}
         </aside>
       </article>
-      <article className="grid h-0 flex-grow grid-cols-2 divide-x divide-base-content/10">
+      <article className="divide-base-content/10 grid h-0 flex-grow grid-cols-2 divide-x">
         <aside className="flex flex-col">
-          <header className="heading prose max-w-none !border-t-0">
+          <header className="heading prose max-w-none border-t-0!">
             <h2>{t('main.teams.leagueHistory')}</h2>
           </header>
           {seasons.length > 1 && (
@@ -257,13 +257,13 @@ export default function () {
           )}
         </aside>
         <aside className="flex flex-col">
-          <header className="heading prose max-w-none !border-t-0">
+          <header className="heading prose max-w-none border-t-0!">
             <h2>{t('main.teams.competitions')}</h2>
           </header>
           <select
             className={cx(
-              'select w-full rounded-none border-0 border-b border-base-content/10 bg-base-200',
-              'focus:border-0 focus:border-b disabled:bg-base-200 disabled:text-opacity-100',
+              'select border-base-content/10 bg-base-200 w-full rounded-none border-0 border-b',
+              'disabled:bg-base-200 disabled:text-opacity-100 focus:border-0 focus:border-b',
             )}
             onChange={(event) => setSelectedSeasonId(Number(event.target.value))}
             value={selectedSeasonId}
@@ -280,7 +280,7 @@ export default function () {
             ))}
           </select>
           <footer className="h-0 flex-grow overflow-y-scroll">
-            <table className="table table-pin-rows table-fixed">
+            <table className="table-pin-rows table table-fixed">
               <thead>
                 <tr>
                   <th>{t('shared.name')}</th>

@@ -124,7 +124,7 @@ export default function () {
 
   return (
     <main className="flex h-screen w-full flex-col">
-      <header className="breadcrumbs sticky top-0 z-30 overflow-x-visible border-b border-base-content/10 bg-base-200 px-2 text-sm">
+      <header className="breadcrumbs border-base-content/10 bg-base-200 sticky top-0 z-30 overflow-x-visible border-b px-2 text-sm">
         <ul>
           <li>
             <span>
@@ -140,7 +140,7 @@ export default function () {
           <li>{Util.convertMapPool(game.map, settingsAll.general.game)}</li>
         </ul>
       </header>
-      <section className="card image-full h-16 rounded-none drop-shadow-md before:!rounded-none">
+      <section className="card image-full h-16 rounded-none drop-shadow-md before:rounded-none!">
         <figure>
           <Image
             className="h-full w-full"
@@ -161,7 +161,7 @@ export default function () {
           </article>
         </header>
       </section>
-      <section className="grid grid-cols-2 divide-x divide-base-content/10">
+      <section className="divide-base-content/10 grid grid-cols-2 divide-x">
         {match.competitors.map((competitor) => {
           const isUserTeam = competitor.teamId === state.profile.teamId;
           const team = competitor.team;
@@ -180,11 +180,11 @@ export default function () {
           const squad = { starters, bench };
 
           return (
-            <table key={competitor.id + '__competitor'} className="table table-xs table-fixed">
+            <table key={competitor.id + '__competitor'} className="table-xs table table-fixed">
               {Object.keys(squad).map((key) => (
                 <React.Fragment key={key}>
                   <thead>
-                    <tr className="border-t border-t-base-content/10">
+                    <tr className="border-t-base-content/10 border-t">
                       <th>{key.toUpperCase()}</th>
                     </tr>
                   </thead>
@@ -243,10 +243,10 @@ export default function () {
       </section>
       <form className="form-ios">
         <fieldset>
-          <legend className="!border-t-0">{t('play.matchRules')}</legend>
+          <legend className="border-t-0!">{t('play.matchRules')}</legend>
           <article>
             <header>
-              <h3>{t('shared.maxRoundsTitle')}</h3>
+              <p>{t('shared.maxRoundsTitle')}</p>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.maxRounds)}
                 right={Number(settingsAll.matchRules.maxRounds)}
@@ -254,7 +254,7 @@ export default function () {
             </header>
             <aside>
               <select
-                className="select w-full"
+                className="select"
                 onChange={(event) => onSettingsUpdate('matchRules.maxRounds', event.target.value)}
                 value={settings.matchRules.maxRounds}
               >
@@ -268,11 +268,11 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>{t('shared.startMoneyTitle')}</h3>
+              <p>{t('shared.startMoneyTitle')}</p>
             </header>
             <aside>
               <select
-                className="select w-full"
+                className="select"
                 onChange={(event) => onSettingsUpdate('matchRules.startMoney', event.target.value)}
                 value={settings.matchRules.startMoney}
               >
@@ -286,7 +286,7 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>{t('shared.freezeTimeTitle')}</h3>
+              <p>{t('shared.freezeTimeTitle')}</p>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.freezeTime)}
                 right={Number(settingsAll.matchRules.freezeTime)}
@@ -294,7 +294,7 @@ export default function () {
             </header>
             <aside>
               <select
-                className="select w-full"
+                className="select"
                 onChange={(event) => onSettingsUpdate('matchRules.freezeTime', event.target.value)}
                 value={settings.matchRules.freezeTime}
               >
@@ -308,7 +308,7 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>{t('shared.mapOverrideTitle')}</h3>
+              <p>{t('shared.mapOverrideTitle')}</p>
               <SettingsOverrideLabel
                 left={Number(settings.matchRules.mapOverride)}
                 right={Number(settingsAll.matchRules.mapOverride)}
@@ -316,7 +316,7 @@ export default function () {
             </header>
             <aside>
               <select
-                className="select w-full"
+                className="select"
                 onChange={(event) =>
                   onSettingsUpdate(
                     'matchRules.mapOverride',
@@ -338,7 +338,7 @@ export default function () {
           </article>
           <article>
             <header>
-              <h3>{t('shared.overtimeTitle')}</h3>
+              <p>{t('shared.overtimeTitle')}</p>
               <p>{t('shared.overtimeSubtitle')}</p>
             </header>
             <aside>

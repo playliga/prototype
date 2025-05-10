@@ -1,7 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@import '~flagpack/dist/flagpack.css';
+@import 'tailwindcss';
+@import 'flagpack/dist/flagpack.css';
+
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  exclude: scrollbar;
+  themes:
+    fantasy --default,
+    sunset --prefersdark;
+}
 
 /** for smoother startups */
 @keyframes fadein {
@@ -15,13 +21,7 @@
 
 /** global styles */
 body {
-  @apply h-full overflow-hidden overflow-y-auto bg-base-100;
-}
-
-img {
-  width: 100%;
-  height: auto;
-  transition: filter 0.3s ease-out;
+  @apply bg-base-100 h-full overflow-hidden overflow-y-auto;
 }
 
 h1,
@@ -41,23 +41,29 @@ h3 {
   @apply text-xl;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+  transition: filter 0.3s ease-out;
+}
+
 table {
   & + & > caption {
     @apply border-t;
   }
 
   caption {
-    @apply border-b border-base-content/10 bg-base-200 py-2 text-center;
+    @apply border-base-content/10 bg-base-200 border-b py-2 text-center;
   }
 
   tbody tr,
   tr {
-    @apply !border-b-base-content/10;
+    @apply border-b-base-content/10!;
   }
 
   thead tr,
   tfoot tr {
-    @apply !bg-base-200;
+    @apply bg-base-200!;
   }
 }
 
@@ -75,7 +81,7 @@ select:focus,
 .input:focus,
 .input:focus-within,
 textarea {
-  @apply !outline-none;
+  @apply outline-none!;
 }
 
 /** patch meter element */
@@ -84,17 +90,12 @@ meter {
 }
 
 meter::-webkit-meter-bar {
-  @apply h-2 rounded-2xl border-0 bg-base-content/20;
+  @apply bg-base-content/20 h-2 rounded-2xl border-0;
 }
 
 /** main screen styles */
 #main > header + * {
   @apply pt-16;
-}
-
-/** adjust prose stylings */
-.prose hr {
-  @apply my-4 border-base-content/10;
 }
 
 /** adjust flagpack stylings */
@@ -103,188 +104,145 @@ meter::-webkit-meter-bar {
 }
 
 /** components */
-@layer components {
-  .dashboard {
-    & {
-      @apply stack-y h-screen !gap-0;
-    }
-
-    & > header {
-      @apply stack-x w-full !gap-0 border-b border-base-content/10 bg-base-200;
-    }
-
-    & > header > button {
-      @apply btn rounded-none font-normal shadow-none;
-    }
-
-    main {
-      @apply grid h-0 flex-grow grid-cols-4 divide-x divide-base-content/10;
-    }
-
-    main > * {
-      @apply overflow-y-scroll;
-    }
-
-    main > :nth-child(2) {
-      @apply col-span-3;
-    }
-
-    header.prose {
-      @apply heading max-w-none;
-    }
+@utility dashboard {
+  & {
+    @apply stack-y h-screen gap-0!;
   }
 
-  .day {
-    @apply card card-side rounded-none border-b border-base-content/10 bg-base-200 uppercase;
+  & > header {
+    @apply stack-x border-base-content/10 bg-base-200 w-full gap-0! border-b;
+  }
 
-    &.day-active {
-      @apply bg-base-300 font-black;
-    }
+  & > header > button {
+    @apply btn rounded-none border-0 font-normal shadow-none;
+  }
 
-    &.day-btn {
-      @apply btn btn-neutral btn-block h-full rounded-none border-0 border-b border-base-content/10;
+  main {
+    @apply divide-base-content/10 grid h-0 flex-grow grid-cols-4 divide-x;
+  }
 
-      &:hover {
-        @apply border-base-content/10;
-      }
+  main > * {
+    @apply overflow-y-scroll;
+  }
 
-      figure {
-        @apply !w-full;
-      }
+  main > :nth-child(2) {
+    @apply col-span-3;
+  }
 
-      figure svg {
-        @apply size-10;
-      }
+  header.prose {
+    @apply heading max-w-none;
+  }
+}
+
+@utility day {
+  @apply card card-side border-base-content/10 bg-base-200 rounded-none border-b uppercase;
+
+  &.day-active {
+    @apply bg-base-300 font-black;
+  }
+
+  &.day-btn {
+    @apply btn btn-neutral btn-block border-base-content/10 h-full rounded-none border-0 border-b;
+
+    &:hover {
+      @apply border-base-content/10;
     }
 
     figure {
-      @apply w-1/2 flex-col text-center;
-
-      p {
-        @apply h-auto;
-      }
-
-      img,
-      svg {
-        @apply inline-block size-12;
-      }
+      @apply w-full!;
     }
 
-    aside {
-      @apply card-body items-center px-0;
-
-      h2 {
-        @apply card-title text-2xl font-black;
-      }
+    figure svg {
+      @apply size-10;
     }
   }
 
-  .form-ios {
-    &.col-2 fieldset > :not(legend) {
-      @apply grid-cols-2;
+  figure {
+    @apply w-1/2 flex-col text-center;
 
-      & > :first-child {
-        @apply col-span-1;
-      }
+    p {
+      @apply h-auto;
     }
 
-    fieldset {
-      @apply stack-y !gap-0 divide-y divide-base-content/10;
-    }
-
-    fieldset > * {
-      @apply px-2;
-    }
-
-    fieldset > legend {
-      @apply heading w-full;
-      border-bottom-width: 0;
-    }
-
-    fieldset > :not(legend) {
-      @apply grid w-full grid-cols-3 items-center py-2;
-
-      & > :first-child {
-        @apply col-span-2;
-      }
-
-      & > :not(:first-child) {
-        @apply flex;
-      }
-
-      :first-child:has(.tooltip) {
-        @apply relative;
-
-        & > [class*='tooltip'] {
-          @apply center absolute right-1 top-0 h-full;
-        }
-      }
-
-      header > :first-child {
-        @apply text-base font-normal;
-      }
-
-      header > :not(:first-child) {
-        @apply text-sm italic;
-      }
-    }
-
-    input:not([type='checkbox'], [id*='react-select']),
-    select,
-    textarea {
-      @apply !bg-base-200;
-    }
-
-    input[type='checkbox'] {
-      @apply ml-auto;
+    img,
+    svg {
+      @apply inline-block size-12;
     }
   }
 
-  .player-card {
-    @apply stack-y h-fit !gap-0 divide-y divide-base-content/10 border border-base-content/10 bg-base-200;
+  aside {
+    @apply card-body items-center px-0;
 
-    header {
-      @apply prose my-4 max-w-none text-center;
-
-      h3 {
-        @apply my-0;
-      }
-
-      p {
-        @apply my-0 text-sm;
-      }
+    h2 {
+      @apply card-title text-2xl font-black;
     }
+  }
+}
 
-    figure {
-      @apply px-10 py-4;
-    }
+@utility form-ios {
+  &.form-ios-col-2 fieldset > :not(legend) {
+    @apply grid-cols-2;
 
-    footer {
-      @apply bg-base-300;
-
-      button {
-        @apply btn-sm;
-      }
-    }
-
-    select {
-      @apply mt-2;
-    }
-
-    button {
-      @apply btn btn-ghost btn-block rounded-none;
+    & > :first-child {
+      @apply col-span-1;
     }
   }
 
-  .player-card.compact {
+  fieldset {
+    @apply stack-y divide-base-content/10 gap-0! divide-y;
+  }
+
+  fieldset > * {
+    @apply px-2;
+  }
+
+  fieldset > legend {
+    @apply heading w-full;
+    border-bottom-width: 0;
+  }
+
+  fieldset > :not(legend) {
+    @apply grid w-full grid-cols-3 items-center py-2;
+
+    & > :first-child {
+      @apply col-span-2;
+    }
+
+    & > :not(:first-child) {
+      @apply flex;
+    }
+
+    :first-child:has(.tooltip) {
+      @apply relative;
+
+      & > [class*='tooltip'] {
+        @apply center absolute top-0 right-1 h-full;
+      }
+    }
+
+    header > :not(:first-child) {
+      @apply text-sm italic;
+    }
+  }
+
+  input:not([type='checkbox'], [id*='react-select']),
+  select,
+  textarea {
+    @apply bg-base-200!;
+  }
+
+  input[type='checkbox'] {
+    @apply ml-auto;
+  }
+}
+
+@utility player-card {
+  @apply stack-y divide-base-content/10 border-base-content/10 bg-base-200 h-fit gap-0! divide-y border;
+
+  &.player-card-compact {
     header,
     header + figure {
       @apply hidden;
-    }
-
-    /** show the header only when collapsed */
-    &.collapsed > header {
-      @apply my-2 grid;
     }
 
     header > aside {
@@ -298,80 +256,120 @@ meter::-webkit-meter-bar {
     }
   }
 
-  .react-hot-toast {
-    @apply max-w-none bg-base-100 p-0 text-base-content;
+  &.player-card-compact.player-card-collapsed header {
+    @apply my-0 border-b-0 py-0;
+  }
 
-    & > div {
-      @apply m-0;
-    }
-
-    dialog {
-      @apply stack-x static w-96 divide-x divide-base-content/10 sm:w-96;
-      gap: 1rem;
-    }
-
-    dialog:before {
-      content: '';
-    }
-
-    dialog > section:first-child {
-      @apply stack-x w-2/3 items-center;
-      gap: 1rem;
-    }
-
-    dialog > section + section {
-      @apply w-1/3;
-    }
-
-    article {
-      @apply py-5;
-    }
-
+  &.player-card-collapsed {
     header {
-      @apply font-bold;
+      @apply my-2 grid;
+    }
+  }
+
+  header {
+    @apply prose max-w-none py-4 text-center;
+
+    h3 {
+      @apply my-0;
     }
 
-    footer {
-      @apply italic;
+    p {
+      @apply my-0 text-sm;
     }
+  }
 
-    svg {
-      @apply size-8;
-    }
+  figure {
+    @apply px-10 py-4;
+  }
+
+  footer {
+    @apply bg-base-300;
 
     button {
-      @apply btn btn-ghost btn-block h-full rounded-none;
+      @apply btn-sm;
     }
+  }
+
+  select {
+    @apply mt-2;
+  }
+
+  button {
+    @apply btn btn-ghost btn-block rounded-none;
+  }
+}
+
+@utility react-hot-toast {
+  @apply bg-base-100 text-base-content max-w-none p-0;
+
+  & > div {
+    @apply m-0;
+  }
+
+  dialog {
+    @apply stack-x divide-base-content/10 static w-96 divide-x sm:w-96;
+    gap: 1rem;
+  }
+
+  dialog:before {
+    content: '';
+  }
+
+  dialog > section:first-child {
+    @apply stack-x w-2/3 items-center;
+    gap: 1rem;
+  }
+
+  dialog > section + section {
+    @apply w-1/3;
+  }
+
+  article {
+    @apply py-5;
+  }
+
+  header {
+    @apply font-bold;
+  }
+
+  footer {
+    @apply italic;
+  }
+
+  svg {
+    @apply size-8;
+  }
+
+  button {
+    @apply btn btn-ghost btn-block h-full rounded-none;
   }
 }
 
 /** utilities */
-@layer utilities {
-  .badge-xxs {
-    @apply h-1 px-[.08rem] text-[.25rem]/[.25rem];
-  }
+@utility badge-xxs {
+  @apply h-1 px-[.08rem] text-[.25rem]/[.25rem];
+}
 
-  .center {
-    @apply grid grid-cols-1 place-content-center place-items-center;
-  }
+@utility center {
+  @apply grid grid-cols-1 place-content-center place-items-center;
+}
 
-  .frosted {
-    @apply shadow-lg backdrop-blur-md;
-  }
+@utility frosted {
+  @apply shadow-lg backdrop-blur-md;
+}
 
-  .heading {
-    @apply border-y border-base-content/10 bg-base-200 px-2 py-4;
-  }
+@utility heading {
+  @apply border-base-content/10 bg-base-200 border-y px-2 py-4;
+}
 
-  .stack-x {
-    @apply flex gap-2;
-  }
+@utility stack-x {
+  @apply flex gap-2;
+}
 
-  .stack-y {
-    @apply flex flex-col gap-2;
-  }
+@utility stack-y {
+  @apply flex flex-col gap-2;
+}
 
-  .text-muted {
-    @apply text-base-content/40 dark:text-base-content/20;
-  }
+@utility text-muted {
+  @apply text-base-content/40 dark:text-base-content/20;
 }

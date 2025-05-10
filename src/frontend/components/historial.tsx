@@ -25,7 +25,7 @@ interface Props {
  * @exports
  */
 export default function (props: Props) {
-  const badgeStyle = 'badge badge-sm size-4 rounded-full';
+  const badgeStyle = 'badge badge-xs';
 
   // fill in data until it meets the minimum
   const data = React.useMemo<typeof props.matches>(() => {
@@ -40,7 +40,7 @@ export default function (props: Props) {
   }, [props.matches]);
 
   return (
-    <div className={cx('stack-x !gap-1', props.className)}>
+    <div className={cx('stack-x gap-1!', props.className)}>
       {data.map((match, idx) => {
         if (!match) {
           return (

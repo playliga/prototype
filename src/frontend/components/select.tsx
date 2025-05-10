@@ -134,8 +134,8 @@ export function TeamSelect(props: TeamSelectProps) {
  * @exports
  */
 export default function Select(props: SelectProps & ReactSelectProps) {
-  const backgroundColor = props.backgroundColor || 'oklch(var(--b1))';
-  const foregroundColor = props.foregroundColor || 'oklch(var(--bc)/0.2)';
+  const backgroundColor = props.backgroundColor || 'var(--color-base-100)';
+  const foregroundColor = 'color-mix(in oklch, transparent 80%, var(--color-base-content))';
   const borderColor = props.borderColor || foregroundColor;
 
   return (
@@ -145,10 +145,10 @@ export default function Select(props: SelectProps & ReactSelectProps) {
       styles={{
         control: (baseStyles) => ({
           ...baseStyles,
-          height: '3rem',
+          height: '2.5rem',
           background: backgroundColor,
           borderColor: borderColor,
-          borderRadius: 'var(--rounded-btn)',
+          borderRadius: 'var(--radius-field)',
           boxShadow: 'none',
           ':hover': {
             borderColor: borderColor,
@@ -172,6 +172,10 @@ export default function Select(props: SelectProps & ReactSelectProps) {
           ':hover': {
             background: foregroundColor,
           },
+        }),
+        placeholder: (baseStyles) => ({
+          ...baseStyles,
+          color: 'inherit',
         }),
         singleValue: (baseStyles) => ({
           ...baseStyles,

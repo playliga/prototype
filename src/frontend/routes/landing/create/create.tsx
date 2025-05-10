@@ -47,7 +47,7 @@ export default function () {
   return (
     <div className="frosted center h-full w-2/5 p-5 xl:w-1/3">
       <FaArrowLeft
-        className="absolute left-5 top-5 size-5 cursor-pointer"
+        className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate('/')}
       />
 

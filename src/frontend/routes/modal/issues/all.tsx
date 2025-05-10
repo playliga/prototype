@@ -39,7 +39,7 @@ const Badge = {
  */
 function Issue(props: GitHubIssueResponse & { onClick: () => void }) {
   return (
-    <tr className="cursor-pointer last:border-b hover:bg-base-content/10" onClick={props.onClick}>
+    <tr className="hover:bg-base-content/10 cursor-pointer last:border-b" onClick={props.onClick}>
       <td className="truncate" title={props.title}>
         {props.title}
       </td>
@@ -109,7 +109,7 @@ export default function () {
   }
 
   return (
-    <table className="table table-pin-rows table-sm table-fixed">
+    <table className="table-pin-rows table-sm table table-fixed">
       <thead>
         <tr>
           <th>{t('shared.title')}</th>

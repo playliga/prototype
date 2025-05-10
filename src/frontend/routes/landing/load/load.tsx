@@ -24,7 +24,7 @@ export default function () {
   return (
     <main className="frosted center h-full w-2/5 p-5 xl:w-1/3">
       <FaArrowLeft
-        className="absolute left-5 top-5 size-5 cursor-pointer"
+        className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate(-1)}
       />
       <table className="table">
@@ -39,7 +39,7 @@ export default function () {
           {state.profiles.map((profile) => (
             <tr
               key={profile.id}
-              className="cursor-pointer hover:bg-base-content/10"
+              className="hover:bg-base-content/10 cursor-pointer"
               onClick={() => navigate('/connect/' + profile.id)}
             >
               <td>{profile.name}</td>

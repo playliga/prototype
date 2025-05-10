@@ -105,13 +105,13 @@ export default function () {
   }
 
   return (
-    <section className="grid grid-cols-2 divide-x divide-base-content/10">
+    <section className="divide-base-content/10 grid grid-cols-2 divide-x">
       <article>
-        <header className="heading prose max-w-none !border-t-0">
+        <header className="heading prose max-w-none border-t-0!">
           <h2>{t('shared.overview')}</h2>
         </header>
-        <aside className="flex divide-x divide-base-content/10">
-          <figure className="center !place-content-evenly">
+        <aside className="divide-base-content/10 flex divide-x">
+          <figure className="center w-1/2 place-content-evenly!">
             <img alt={team.name} src={team.blazon} />
             <Historial matches={matches} teamId={team.id} />
           </figure>
@@ -157,10 +157,10 @@ export default function () {
           </table>
         </aside>
         <aside>
-          <header className="heading prose max-w-none !border-t-0">
+          <header className="heading prose max-w-none border-t-0!">
             <h2>{t('shared.squad')}</h2>
           </header>
-          <table className="table table-xs table-fixed">
+          <table className="table-xs table table-fixed">
             <tbody>
               {squad.map((player) => (
                 <tr key={player.id + '__squad'}>
@@ -191,7 +191,7 @@ export default function () {
           </table>
         </aside>
         <aside>
-          <header className="heading prose max-w-none !border-t-0">
+          <header className="heading prose max-w-none border-t-0!">
             <h2>{t('shared.noRecentMatch')}</h2>
           </header>
           <table className="table table-fixed">
@@ -213,7 +213,7 @@ export default function () {
                     <tr
                       key={`${match.id}__match_previous`}
                       onClick={onClick}
-                      className={cx(onClick && 'cursor-pointer hover:bg-base-content/10')}
+                      className={cx(onClick && 'hover:bg-base-content/10 cursor-pointer')}
                     >
                       <td
                         className={cx('w-1/12', !onClick && 'text-muted')}
@@ -268,13 +268,13 @@ export default function () {
         </aside>
       </article>
       <article>
-        <header className="heading prose max-w-none !border-t-0">
+        <header className="heading prose max-w-none border-t-0!">
           <h2>{t('shared.standings')}</h2>
         </header>
         <select
           disabled
           className={cx(
-            'select w-full border-0 border-b border-base-content/10',
+            'select border-base-content/10 w-full rounded-none border-0 border-b',
             'disabled:bg-base-200 disabled:text-opacity-100',
           )}
           value={group.length ? Constants.IdiomaticTier[competition.tier.slug] : -1}

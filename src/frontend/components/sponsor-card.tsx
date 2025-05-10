@@ -48,7 +48,7 @@ function ContractCondition(props: ContractCondition) {
 
   return (
     <div className="stack-x items-center">
-      <FaExclamationCircle className="inline-block text-error" />
+      <FaExclamationCircle className="text-error inline-block" />
       <span>{type}</span>
     </div>
   );
@@ -80,11 +80,11 @@ export default function (props: Props) {
   );
 
   return (
-    <section className="card card-compact border border-base-content/10 bg-base-200">
+    <section className="card card-sm border-base-content/10 bg-base-200 border">
       <figure className="bg-base-300">
         <Image src={props.sponsor.logo} className="h-64" />
       </figure>
-      <article className="card-body divide-y divide-base-content/10">
+      <article className="card-body divide-base-content/10 divide-y">
         <header>
           <h2 className="card-title">{props.sponsor.name}</h2>
           <p>{props.sponsor.description}</p>
@@ -108,7 +108,7 @@ export default function (props: Props) {
           <h3 className="card-title text-base">Tiers</h3>
           {contract.tiers.map((tier) => (
             <div key={props.sponsor.id + '__tiers__' + tier} className="stack-x items-center">
-              <FaAward className="inline-block text-warning" />
+              <FaAward className="text-warning inline-block" />
               <span>{Constants.IdiomaticTier[tier]}</span>
             </div>
           ))}
@@ -116,7 +116,7 @@ export default function (props: Props) {
         <aside>
           <h3 className="card-title text-base">Terms</h3>
           <div className="stack-x items-center">
-            <FaScroll className="inline-block text-secondary" />
+            <FaScroll className="text-secondary inline-block" />
             <span>
               {t('sponsorCard.length')}&nbsp;
               {contract.terms[0].length}
@@ -124,7 +124,7 @@ export default function (props: Props) {
             </span>
           </div>
           <div className="stack-x items-center">
-            <FaScroll className="inline-block text-secondary" />
+            <FaScroll className="text-secondary inline-block" />
             {(() => {
               const [terms] = contract.terms;
               const frequency = startCase(
@@ -145,7 +145,7 @@ export default function (props: Props) {
           </p>
         </aside>
         {!!props.onApply && (
-          <footer className="flex h-full items-end !border-t-0">
+          <footer className="flex h-full items-end border-t-0!">
             <button
               className={cx('btn btn-primary btn-block', hasPendingOffer && 'btn-disabled')}
               onClick={props.onApply}

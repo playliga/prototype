@@ -94,7 +94,7 @@ export default function () {
 
   return (
     <main className="min-h-screen">
-      <header className="breadcrumbs sticky top-0 z-30 border-b border-base-content/10 bg-base-200 px-2 text-sm">
+      <header className="breadcrumbs border-base-content/10 bg-base-200 sticky top-0 z-30 border-b px-2 text-sm">
         <ul>
           <li>
             <Link to="/issues/all">{t('issues.comments.myReportedIssues')}</Link>
@@ -157,7 +157,7 @@ export default function () {
           </tr>
         </thead>
       </table>
-      <section className="prose max-w-none border-b border-base-content/10 p-4">
+      <section className="prose border-base-content/10 max-w-none border-b p-4">
         <ReactMarkdown>{issue.body}</ReactMarkdown>
       </section>
       <table className="table">
@@ -167,7 +167,7 @@ export default function () {
           </tr>
         </thead>
       </table>
-      <section className="border-b border-base-content/10 p-4">
+      <section className="border-base-content/10 border-b p-4">
         {!comments.length && (
           <article className="center gap-5">
             <FaComment className="text-muted size-24" />

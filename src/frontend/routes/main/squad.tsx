@@ -211,14 +211,14 @@ export default function () {
     <div className="dashboard">
       <header>
         <button
-          className={cx(activeTab === TabIdentifier.SQUAD && '!btn-active')}
+          className={cx(activeTab === TabIdentifier.SQUAD && 'btn-active!')}
           onClick={() => setActiveTab(TabIdentifier.SQUAD)}
         >
           <FaUsers />
           {t('shared.squad')}
         </button>
         <button
-          className={cx(activeTab === TabIdentifier.TRAINING && '!btn-active')}
+          className={cx(activeTab === TabIdentifier.TRAINING && 'btn-active!')}
           onClick={() => setActiveTab(TabIdentifier.TRAINING)}
         >
           <FaStopwatch />
@@ -227,9 +227,9 @@ export default function () {
       </header>
       <main>
         {activeTab === TabIdentifier.SQUAD && (
-          <section className="divide-y divide-base-content/10">
-            <article className="stack-y !gap-0">
-              <header className="prose !border-t-0">
+          <section className="divide-base-content/10 divide-y">
+            <article className="stack-y gap-0!">
+              <header className="prose border-t-0!">
                 <h2>{t('main.squad.starters')}</h2>
               </header>
               {!!starters.length && (
@@ -284,7 +284,7 @@ export default function () {
                 </footer>
               )}
             </article>
-            <article className="stack-y !gap-0 !border-t-0">
+            <article className="stack-y gap-0! border-t-0!">
               <header className="prose">
                 <h2>{t('shared.transferListed')}</h2>
               </header>
@@ -339,7 +339,7 @@ export default function () {
                 </footer>
               )}
             </article>
-            <article className="stack-y !gap-0 !border-t-0">
+            <article className="stack-y gap-0! border-t-0!">
               <header className="prose">
                 <h2>{t('main.squad.incomingOffers')}</h2>
               </header>
@@ -407,8 +407,8 @@ export default function () {
           </section>
         )}
         {activeTab === TabIdentifier.TRAINING && (
-          <section className="divide-y divide-base-content/10">
-            <article className="card image-full h-64 rounded-none before:!rounded-none">
+          <section className="divide-base-content/10 divide-y">
+            <article className="card image-full w-full rounded-none before:rounded-none!">
               <figure>
                 <Image
                   className="h-full w-full"
@@ -461,14 +461,14 @@ export default function () {
                 <legend>{t('shared.overview')}</legend>
                 <section>
                   <header>
-                    <h3>{t('main.squad.server')}</h3>
+                    <p>{t('main.squad.server')}</p>
                     <BonusSummaryLabel
                       data={trainingServers.find((server) => server.id === trainingServerId)}
                     />
                   </header>
                   <article>
                     <select
-                      className="select w-full"
+                      className="select"
                       disabled={!trainingAllowed || !!trainingStatus}
                       onChange={(event) => setTrainingServerId(Number(event.target.value))}
                       value={trainingServerId}
@@ -485,14 +485,14 @@ export default function () {
                 </section>
                 <section>
                   <header>
-                    <h3>{t('main.squad.map')}</h3>
+                    <p>{t('main.squad.map')}</p>
                     <BonusSummaryLabel
                       data={trainingMaps.find((map) => map.id === trainingMapId)}
                     />
                   </header>
                   <article>
                     <select
-                      className="select w-full"
+                      className="select"
                       disabled={!trainingAllowed || !!trainingStatus}
                       onChange={(event) => setTrainingMapId(Number(event.target.value))}
                       value={trainingMapId}
@@ -507,7 +507,7 @@ export default function () {
                 </section>
                 <section>
                   <header>
-                    <h3>Facility</h3>
+                    <p>Facility</p>
                     <BonusSummaryLabel
                       data={trainingFacilities.find(
                         (facility) => facility.id === trainingFacilityId,
@@ -516,7 +516,7 @@ export default function () {
                   </header>
                   <article>
                     <select
-                      className="select w-full"
+                      className="select"
                       disabled={
                         !trainingAllowed ||
                         !!trainingStatus ||
@@ -540,7 +540,7 @@ export default function () {
                 </section>
               </fieldset>
             </form>
-            <article className="stack-y !gap-0 !border-t-0">
+            <article className="stack-y gap-0! border-t-0!">
               <header className="prose">
                 <h2>{t('main.squad.servers')}</h2>
               </header>
@@ -589,7 +589,7 @@ export default function () {
                 </table>
               </footer>
             </article>
-            <article className="stack-y !gap-0 !border-t-0">
+            <article className="stack-y gap-0! border-t-0!">
               <header className="prose">
                 <h2>{t('main.squad.facilities')}</h2>
               </header>

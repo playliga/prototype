@@ -54,7 +54,7 @@ export function XPBar(props: XPBarProps) {
           <p className="capitalize">
             {props.title.replace(/(delay|time)/i, 'speed')}
             {!!props.gains && (
-              <span className="font-mono text-success">
+              <span className="text-success font-mono">
                 &nbsp;+{Util.toOptionalDecimal(Math.abs(props.gains))}
               </span>
             )}
@@ -119,14 +119,14 @@ export default function (props: PlayerCardProps) {
         className={cx(
           'player-card',
           props.className,
-          props.collapsed && 'collapsed',
-          props.compact && 'compact',
+          props.collapsed && 'player-card-collapsed',
+          props.compact && 'player-card-compact',
         )}
       >
-        <header className="grid grid-cols-4 items-center divide-x divide-base-content/10">
+        <header className="divide-base-content/10 grid grid-cols-4 items-center divide-x">
           <button
             title={t('playerCard.setAsStarter')}
-            className="hover:!bg-transparent disabled:!bg-transparent [&_svg]:hover:text-yellow-500"
+            className="hover:bg-transparent! disabled:bg-transparent! [&_svg]:hover:text-yellow-500"
             disabled={!props.onClickStarter}
             onClick={props.onClickStarter || null}
           >
@@ -141,7 +141,7 @@ export default function (props: PlayerCardProps) {
           </nav>
           <aside className="stack-y">
             <p className="text-muted">{t('playerCard.totalXP')}</p>
-            <p className="!text-2xl font-black">
+            <p className="text-2xl! font-black">
               {props.noStats ? '-' : Math.floor(Bot.Exp.getTotalXP(xp.stats))}
             </p>
             <p
@@ -166,7 +166,7 @@ export default function (props: PlayerCardProps) {
   }
 
   return (
-    <article className={cx('player-card', props.className, props.compact && 'compact')}>
+    <article className={cx('player-card', props.className, props.compact && 'player-card-compact')}>
       <header>
         <h3>{props.player.name}</h3>
         <p>
@@ -175,10 +175,10 @@ export default function (props: PlayerCardProps) {
         </p>
       </header>
       <figure>
-        <label className="form-control text-xs">
+        <label className="fieldset text-xs">
           <p>{t('shared.weaponPreference')}</p>
           <select
-            className="select select-sm w-full bg-base-300"
+            className="select select-sm bg-base-300"
             value={props.player.weapon || Constants.WeaponTemplate.AUTO}
             onChange={(event) =>
               props.onChangeWeapon(event.target.value as Constants.WeaponTemplate)
@@ -230,7 +230,7 @@ export default function (props: PlayerCardProps) {
       <aside className="grid grid-cols-3">
         <button
           title={t('playerCard.setAsStarter')}
-          className="disabled:!bg-transparent"
+          className="disabled:bg-transparent!"
           disabled={!props.onClickStarter}
           onClick={props.onClickStarter || null}
         >

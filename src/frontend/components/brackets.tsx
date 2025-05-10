@@ -28,30 +28,30 @@ interface Props {
  */
 const theme = createTheme({
   border: {
-    color: 'oklch(var(--bc)/.10)',
-    highlightedColor: 'oklch(var(--bc))',
+    color: 'color-mix(in oklch, transparent 90%, var(--color-base-content))',
+    highlightedColor: 'var(--color-base-content)',
   },
   matchBackground: {
-    wonColor: 'oklch(var(--b2))',
-    lostColor: 'oklch(var(--b2)/.10)',
+    wonColor: 'var(--color-base-200)',
+    lostColor: 'color-mix(in oklch, transparent 90%, var(--color-base-200))',
   },
   roundHeaders: {
-    background: 'oklch(var(--b2))',
+    background: 'var(--color-base-200)',
   },
   score: {
     background: {
-      wonColor: 'oklch(var(--b3))',
-      lostColor: 'oklch(var(--b3))',
+      wonColor: 'var(--color-base-300)',
+      lostColor: 'var(--color-base-300)',
     },
     text: {
-      highlightedWonColor: 'oklch(var(--in))',
-      highlightedLostColor: 'oklch(var(--wa))',
+      highlightedWonColor: 'var(--color-info)',
+      highlightedLostColor: 'var(--color-warning)',
     },
   },
   textColor: {
-    main: 'oklch(var(--bc))',
-    dark: 'oklch(var(--bc)/.50)',
-    highlighted: 'oklch(var(--bc))',
+    main: 'var(--color-base-content)',
+    dark: 'color-mix(in oklch, transparent 50%, var(--color-base-content))',
+    highlighted: 'var(--color-base-content)',
   },
 });
 
@@ -141,11 +141,11 @@ export default function (props: Props) {
         theme={theme}
         options={{
           style: {
-            connectorColor: 'oklch(var(--bc)/.10)',
-            connectorColorHighlight: 'oklch(var(--bc))',
+            connectorColor: 'color-mix(in oklch, transparent 90%, var(--color-base-content))',
+            connectorColorHighlight: 'var(--color-base-content)',
             wonBywalkOverText: 'BYE',
             roundHeader: {
-              fontColor: 'oklch(var(--bc))',
+              fontColor: 'var(--color-base-content)',
               roundTextGenerator: Util.parseCupRounds,
             },
           },
@@ -155,7 +155,7 @@ export default function (props: Props) {
             width={dimensions.width}
             height={dimensions.height}
             miniatureProps={{ position: 'none' }}
-            SVGBackground="oklch(var(--b1))"
+            SVGBackground="var(--color-base-100)"
             {...props}
           >
             {children}

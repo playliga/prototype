@@ -59,9 +59,9 @@ export default function () {
         </p>
       </header>
       <section className="h-0 flex-grow overflow-y-scroll">
-        <table className="table table-pin-rows table-fixed">
+        <table className="table-pin-rows table table-fixed">
           <thead>
-            <tr className="border-t border-t-base-content/10">
+            <tr className="border-t-base-content/10 border-t">
               <th className="w-3/12">{t('shared.name')}</th>
               <th className="w-4/12">{t('shared.description')}</th>
               <th className="w-1/12">{t('mods.version')}</th>

@@ -120,10 +120,10 @@ export default function () {
   );
 
   return (
-    <section className="grid grid-cols-2 divide-x divide-base-content/10">
+    <section className="divide-base-content/10 grid grid-cols-2 divide-x">
       <article>
         <aside>
-          <header className="heading prose max-w-none !border-t-0">
+          <header className="heading prose max-w-none border-t-0!">
             <h2>{t('shared.overview')}</h2>
           </header>
           <table className="table table-fixed">
@@ -200,7 +200,7 @@ export default function () {
           </table>
         </aside>
         <aside>
-          <header className={cx('heading prose max-w-none', !prizePool.total && '!border-t-0')}>
+          <header className={cx('heading prose max-w-none', !prizePool.total && 'border-t-0!')}>
             <h2>{t('shared.recentMatchResults')}</h2>
           </header>
           <table className="table table-fixed">
@@ -228,7 +228,7 @@ export default function () {
                   <tr
                     key={match.id + match.date.toDateString() + '__match'}
                     onClick={onClick}
-                    className={cx(onClick && 'cursor-pointer hover:bg-base-content/10')}
+                    className={cx(onClick && 'hover:bg-base-content/10 cursor-pointer')}
                   >
                     <td
                       className={cx(!onClick && 'text-muted')}
@@ -308,13 +308,13 @@ export default function () {
         </aside>
       </article>
       <article>
-        <header className="heading prose max-w-none !border-t-0">
+        <header className="heading prose max-w-none border-t-0!">
           <h2>{t('shared.standings')}</h2>
         </header>
         <select
           className={cx(
-            'select w-full rounded-none border-0 border-b border-base-content/10 bg-base-200',
-            'focus:border-0 focus:border-b disabled:bg-base-200 disabled:text-opacity-100',
+            'select border-base-content/10 bg-base-200 w-full rounded-none border-0 border-b',
+            'disabled:bg-base-200 disabled:text-opacity-100 focus:border-0 focus:border-b',
           )}
           onChange={(event) => setSelectedGroup(Number(event.target.value))}
           value={selectedGroup || userTeam?.group || -1}

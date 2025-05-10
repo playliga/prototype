@@ -43,7 +43,7 @@ export default function (props: Props) {
         </button>
       </aside>
       <input
-        className="input input-xs w-14 border border-base-200"
+        className="input input-xs border-base-200 w-14 border"
         disabled={total <= min}
         max={total}
         min={min}

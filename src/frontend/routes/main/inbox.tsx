@@ -91,7 +91,7 @@ export default function () {
         </button>
       </header>
       <main>
-        <section className="divide-y divide-base-content/10">
+        <section className="divide-base-content/10 divide-y">
           {!state.emails.length && (
             <article className="center h-full">
               <p>{t('main.inbox.noDataSidebar')}</p>
@@ -105,8 +105,8 @@ export default function () {
             >
               <header className="relative">
                 {!email.read && <span className="badge-xxs badge badge-info absolute right-0" />}
-                <h2 className="text-base">{email.from.name}</h2>
-                <h3 className="text-base font-normal">{email.subject}</h3>
+                <p className="font-bold">{email.from.name}</p>
+                <p>{email.subject}</p>
                 <em className="text-sm">
                   {format(email.sentAt, Constants.Application.CALENDAR_DATE_FORMAT)}
                 </em>
@@ -134,14 +134,14 @@ export default function () {
                   /^(accepted|rejected)/gi.test(dialogue.content) ? (
                     <article
                       key={`${email.id}__email__${dialogue.id}`}
-                      className="divider before:h-px before:bg-base-content/10 after:h-px after:bg-base-content/10"
+                      className="divider before:bg-base-content/10 after:bg-base-content/10 before:h-px after:h-px"
                     >
                       <em>{dialogue.content}</em>
                     </article>
                   ) : (
                     <article
                       key={`${email.id}__email__${dialogue.id}`}
-                      className="divide-y divide-base-content/10 bg-base-200 px-5"
+                      className="divide-base-content/10 bg-base-200 divide-y px-5"
                     >
                       <header className="py-5">
                         <h3>{email.from.name}</h3>

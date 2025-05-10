@@ -547,7 +547,7 @@ export function Confetti() {
       ref={refCanvas}
       width={boundary?.w || 0}
       height={boundary?.h || 0}
-      className="pointer-events-none absolute left-0 top-0 z-50 h-screen w-screen"
+      className="pointer-events-none absolute top-0 left-0 z-50 h-screen w-screen"
     />,
     document.body,
   );

@@ -116,12 +116,12 @@ export default function () {
 
   return (
     <section>
-      <table className="table table-pin-rows table-xs h-full table-fixed">
+      <table className="table-pin-rows table-xs table h-full table-fixed">
         <thead>
           <tr>
             <th className="w-1/12 text-center">{t('shared.matchDetails')}</th>
             <th
-              className="w-1/12 cursor-pointer hover:bg-base-300"
+              className="hover:bg-base-300 w-1/12 cursor-pointer"
               onClick={() => setOrderBy(Util.parseSortingDirection('date', orderBy?.date))}
             >
               <header className="flex items-center justify-center gap-2">
@@ -162,7 +162,7 @@ export default function () {
                 <tr
                   key={match.id + match.date.toDateString() + '__match'}
                   onClick={onClick}
-                  className={cx(onClick && 'cursor-pointer hover:bg-base-content/10')}
+                  className={cx(onClick && 'hover:bg-base-content/10 cursor-pointer')}
                 >
                   <td
                     className={cx(!onClick && 'text-muted')}

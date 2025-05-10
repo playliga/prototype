@@ -80,10 +80,10 @@ export default function () {
         <fieldset>
           <legend>{t('shared.overview')}</legend>
           <section>
-            <header className="!col-span-1">
-              <h3>{t('shared.type')}</h3>
+            <header className="col-span-1!">
+              <p>{t('shared.type')}</p>
             </header>
-            <article className="!col-span-2">
+            <article className="col-span-2!">
               <select className="select w-full" {...register('type')}>
                 <option value={Constants.IssueType.BUG}>{t('issues.create.bugReport')}</option>
                 <option value={Constants.IssueType.FEATURE}>
@@ -93,10 +93,10 @@ export default function () {
             </article>
           </section>
           <section>
-            <header className="!col-span-1">
-              <h3>{t('shared.title')}</h3>
+            <header className="col-span-1!">
+              <p>{t('shared.title')}</p>
             </header>
-            <article className="!col-span-2">
+            <article className="col-span-2!">
               <input
                 type="text"
                 placeholder={t('issues.create.titlePlaceholder')}
@@ -106,21 +106,21 @@ export default function () {
             </article>
           </section>
           <section className="gap-2">
-            <header className="!col-span-3">
+            <header className="col-span-3!">
               {type === Constants.IssueType.BUG && (
                 <React.Fragment>
-                  <h3>{t('issues.create.stepsTitle')}</h3>
+                  <p>{t('issues.create.stepsTitle')}</p>
                   <p>{t('issues.create.stepsSubtitle')}</p>
                 </React.Fragment>
               )}
               {type === Constants.IssueType.FEATURE && (
                 <React.Fragment>
-                  <h3>{t('shared.description')}</h3>
+                  <p>{t('shared.description')}</p>
                   <p>{t('issues.create.descriptionSubtitle')}</p>
                 </React.Fragment>
               )}
             </header>
-            <article className="!col-span-3">
+            <article className="col-span-3!">
               <textarea
                 placeholder={t('issues.create.detailsPlaceholder')}
                 className={cx('textarea h-64 w-full', formState.errors?.text && 'input-error')}
@@ -134,7 +134,7 @@ export default function () {
             <legend>{t('issues.create.supportDataTitle')}</legend>
             <section>
               <header>
-                <h3>{t('issues.create.systemInfoTitle')}</h3>
+                <p>{t('issues.create.systemInfoTitle')}</p>
                 <p>{t('issues.create.systemInfoSubtitle')}</p>
               </header>
               <article>
@@ -143,7 +143,7 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>{t('issues.create.logsTitle')}</h3>
+                <p>{t('issues.create.logsTitle')}</p>
                 <p>{t('issues.create.logsSubtitle')}</p>
               </header>
               <article>

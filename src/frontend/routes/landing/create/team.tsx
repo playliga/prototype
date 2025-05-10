@@ -106,8 +106,8 @@ export default function () {
 
   return (
     <div className="stack-y">
-      <section className="stack-y items-center !gap-4">
-        <article className="center h-48">
+      <section className="stack-y items-center gap-4!">
+        <article className="center h-auto w-1/3">
           {teamBlazon ? (
             <img src={teamBlazon} className="h-48 w-auto" />
           ) : (
@@ -123,19 +123,14 @@ export default function () {
         </button>
       </section>
       <form className="stack-y">
-        <section className="form-control w-full">
+        <section className="fieldset w-full">
           <label className="label">
             <span className="label-text">{t('landing.create.name')}</span>
           </label>
           <input
             {...register('name', { required: 'Required', pattern: /^[\w]+$/, maxLength: 15 })}
             type="text"
-            className={cx(
-              'input',
-              'input-bordered',
-              'w-full',
-              !!formState.errors?.name?.type && 'input-error',
-            )}
+            className={cx('input', 'w-full', !!formState.errors?.name?.type && 'input-error')}
           />
           <footer className="label h-5">
             <span className="label-text-alt">
@@ -144,7 +139,7 @@ export default function () {
             </span>
           </footer>
         </section>
-        <section className="form-control w-full">
+        <section className="fieldset w-full">
           <label className="label">
             <span className="label-text">{t('shared.country')}</span>
           </label>

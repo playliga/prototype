@@ -206,8 +206,8 @@ export default function () {
   }
 
   return (
-    <main className="flex h-screen w-screen flex-col divide-y divide-base-content/10">
-      <header className="stats w-full grid-cols-3 rounded-none bg-base-200">
+    <main className="divide-base-content/10 flex h-screen w-screen flex-col divide-y">
+      <header className="stats bg-base-200 w-full grid-cols-3 rounded-none">
         <section className="stat">
           <figure className="stat-figure text-secondary">
             <FaWallet className="size-8" />
@@ -271,7 +271,7 @@ export default function () {
               return (
                 <td
                   key={`xp__${player.name}_${stat}_value`}
-                  className="border-l border-base-content/10"
+                  className="border-base-content/10 border-l"
                 >
                   <XPBar
                     title={`${startCase(stat)}`}
@@ -285,7 +285,7 @@ export default function () {
           </tr>
         </tbody>
       </table>
-      <section role="tablist" className="tabs-boxed tabs !border-t-0">
+      <section role="tablist" className="tabs-box tabs rounded-none border-t-0!">
         {Object.keys(Tab)
           .filter((tabKey) => isNaN(Number(tabKey)))
           .filter((tabKey: keyof typeof Tab) =>
@@ -304,7 +304,7 @@ export default function () {
       </section>
       {activeTab === Tab.REVIEW_OFFERS && (
         <section className="flex-1 overflow-y-scroll">
-          <table className="table table-pin-rows table-fixed">
+          <table className="table-pin-rows table table-fixed">
             <thead>
               <tr>
                 <th>From</th>
@@ -358,7 +358,10 @@ export default function () {
         </section>
       )}
       {activeTab === Tab.SEND_OFFER && (
-        <form className="form-ios col-2 flex-1 overflow-y-scroll" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="form-ios form-ios-col-2 flex-1 overflow-y-scroll"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           {!canAfford && (
             <section className="p-1">
               <article className="alert alert-error">
@@ -372,14 +375,14 @@ export default function () {
           <fieldset>
             <section>
               <header>
-                <h3>Transfer Fee</h3>
+                <p>Transfer Fee</p>
                 <p>
                   How much to pay <b>{player.team.name}</b> for this player.
                 </p>
               </header>
               <label
                 className={cx(
-                  'input items-center gap-2 bg-base-200',
+                  'input bg-base-200 w-full items-center gap-2',
                   formState.errors?.cost && 'input-error',
                 )}
               >
@@ -400,14 +403,14 @@ export default function () {
             </section>
             <section>
               <header>
-                <h3>Wages</h3>
+                <p>Wages</p>
                 <p>
                   How much to pay <b>{player.name}</b> per week.
                 </p>
               </header>
               <label
                 className={cx(
-                  'input items-center gap-2 bg-base-200',
+                  'input bg-base-200 w-full items-center gap-2',
                   formState.errors?.wages && 'input-error',
                 )}
               >
@@ -448,7 +451,7 @@ export default function () {
       )}
       {activeTab === Tab.PAST_OFFERS && (
         <section className="flex-1 overflow-y-scroll">
-          <table className="table table-pin-rows table-fixed">
+          <table className="table-pin-rows table table-fixed">
             <thead>
               <tr>
                 <th>From</th>
