@@ -452,7 +452,7 @@ export default function () {
 
             return (
               <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none!">
-                <figure className="border-base-content/10 border">
+                <figure>
                   <Image
                     className="h-full w-full"
                     src={Util.convertMapPool(spotlight.games[0].map, settings.general.game, true)}
@@ -569,7 +569,7 @@ export default function () {
                     key={`${competitor?.id}_${competitorIdx}__match_previous`}
                     className="stack-y gap-0!"
                   >
-                    <header className="prose border-t-0!">
+                    <header className="prose">
                       <h4 className="truncate">
                         {competitor?.team?.name ? `${competitor.team.name}'s` : ''}&nbsp;
                         {t('main.dashboard.headerRecentMatches')}

@@ -5,11 +5,11 @@
  * @see https://github.com/OpenSourceLAN/better-srcds-log-parser
  * @module
  */
+import * as Tail from './tail';
 import * as FileManager from './file-manager';
 import events from 'node:events';
 import readline from 'node:readline';
 import log from 'electron-log';
-import Tail from '@logdna/tail-file';
 
 /** @enum {EventIdentifier} */
 export enum EventIdentifier {
@@ -124,7 +124,7 @@ export interface Watcher {
 /** @class */
 export class Watcher extends events.EventEmitter {
   private file: string;
-  private tail: Tail;
+  private tail: Tail.Watcher;
   private lineSplitter: readline.Interface;
   public log: log.LogFunctions;
 
@@ -132,10 +132,10 @@ export class Watcher extends events.EventEmitter {
     super();
     this.file = file;
     this.log = log.scope('scorebot');
-    this.tail = new Tail(file, { encoding: 'utf8' });
-    this.tail.on('tail_error', this.log.error);
-    this.tail.on('error', this.log.error);
-    this.tail.on('close', () => this.log.info('Shutdown.'));
+    this.tail = new Tail.Watcher(file, { encoding: 'utf8' });
+    this.tail.on(Tail.EventIdentifier.TAIL_ERROR, this.log.error);
+    this.tail.on(Tail.EventIdentifier.ERROR, this.log.error);
+    this.tail.on(Tail.EventIdentifier.CLOSE, () => this.log.info('Shutdown.'));
   }
 
   /**

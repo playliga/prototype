@@ -92,7 +92,6 @@
   "dependencies": {
     "@faker-js/faker": "7.6.0",
     "@g-loot/react-tournament-brackets": "1.0.31-rc",
-    "@logdna/tail-file": "3.0.1",
     "@node-steam/vdf": "2.2.0",
     "@prisma/client": "5.1.0",
     "chart.js": "4.4.6",

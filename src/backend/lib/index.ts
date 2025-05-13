@@ -11,6 +11,7 @@ export * as Plugins from './plugins';
 export * as RCON from './rcon';
 export * as Scorebot from './scorebot';
 export * as Simulator from './simulator';
+export * as Tail from './tail';
 export * as VPK from './vpk';
 export * as WindowManager from './window-manager';
 export * as Worldgen from './worldgen';
