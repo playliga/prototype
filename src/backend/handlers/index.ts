@@ -5,10 +5,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import is from 'electron-is';
 import AppInfo from 'package.json';
 import { app, dialog, ipcMain, shell } from 'electron';
-import { Constants, Util } from '@liga/shared';
+import { Constants, Util, is } from '@liga/shared';
 import {
   DatabaseClient,
   FileManager,

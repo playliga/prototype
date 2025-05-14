@@ -100,7 +100,6 @@
     "countries-list": "2.6.1",
     "date-fns": "2.30.0",
     "duel": "3.2.0",
-    "electron-is": "3.0.0",
     "electron-log": "5.4.0",
     "electron-squirrel-startup": "1.0.1",
     "flagpack": "1.0.5",

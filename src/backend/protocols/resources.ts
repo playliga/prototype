@@ -6,8 +6,8 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import url from 'node:url';
-import is from 'electron-is';
 import { net, protocol } from 'electron';
+import { is } from '@liga/shared';
 
 /**
  * Protocol scheme definition.

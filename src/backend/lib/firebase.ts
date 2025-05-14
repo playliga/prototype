@@ -8,8 +8,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import log from 'electron-log';
-import is from 'electron-is';
 import { add } from 'date-fns';
+import { is } from '@liga/shared';
 
 /** @interface */
 interface Cache {

@@ -4,10 +4,9 @@
  * @module
  */
 import path from 'node:path';
-import is from 'electron-is';
 import { ipcMain } from 'electron';
 import { glob } from 'glob';
-import { Constants } from '@liga/shared';
+import { Constants, is } from '@liga/shared';
 
 /**
  * Register the IPC event handlers.

@@ -5,10 +5,9 @@
  * @module
  */
 import log from 'electron-log';
-import is from 'electron-is';
 import AppInfo from 'package.json';
 import { app, autoUpdater, ipcMain } from 'electron';
-import { Constants } from '@liga/shared';
+import { Constants, is } from '@liga/shared';
 
 /**
  * Repo information extracted from the package info file.

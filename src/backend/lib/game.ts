@@ -14,14 +14,13 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
 import util from 'node:util';
-import is from 'electron-is';
 import log from 'electron-log';
 import { spawn, ChildProcessWithoutNullStreams, exec as execSync } from 'node:child_process';
 import { app } from 'electron';
 import { glob } from 'glob';
 import { Prisma, Profile } from '@prisma/client';
 import { compact, flatten, random, startCase, uniq } from 'lodash';
-import { Constants, Bot, Chance, Util, Eagers, Dedent } from '@liga/shared';
+import { Constants, Bot, Chance, Util, Eagers, Dedent, is } from '@liga/shared';
 
 /**
  * Promisified version of `exec`.

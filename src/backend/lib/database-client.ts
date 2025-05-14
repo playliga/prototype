@@ -37,12 +37,11 @@ import * as Mods from './mods';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import is from 'electron-is';
 import log from 'electron-log';
 import { app } from 'electron';
 import { PrismaClient } from '@prisma/client';
 import { glob } from 'glob';
-import { Constants, Eagers, Util } from '@liga/shared';
+import { Constants, Eagers, Util, is } from '@liga/shared';
 
 /** @interface */
 interface PrismaMigration {

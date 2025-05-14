@@ -4,10 +4,9 @@
  * @module
  */
 import path from 'node:path';
-import is from 'electron-is';
 import AppInfo from 'package.json';
 import { BrowserWindow, Menu, screen, shell } from 'electron';
-import { Constants, Util } from '@liga/shared';
+import { Constants, Util, is } from '@liga/shared';
 
 /**
  * Menu Item identifier enum.

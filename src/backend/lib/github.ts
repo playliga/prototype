@@ -7,8 +7,8 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import is from 'electron-is';
 import log from 'electron-log';
+import { is } from '@liga/shared';
 
 /** @interface */
 export interface Asset {

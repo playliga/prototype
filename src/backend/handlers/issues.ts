@@ -7,11 +7,10 @@ import * as Sqrl from 'squirrelly';
 import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
-import is from 'electron-is';
 import log from 'electron-log';
 import AppInfo from 'package.json';
 import { app, ipcMain } from 'electron';
-import { Constants, Util, Dedent } from '@liga/shared';
+import { Constants, Util, Dedent, is } from '@liga/shared';
 import { DatabaseClient, FileManager, Firebase, Game, GitHub } from '@liga/backend/lib';
 
 /**

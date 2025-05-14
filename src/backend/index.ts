@@ -6,10 +6,9 @@
 import * as Sqrl from 'squirrelly';
 import * as IPCHandlers from '@liga/backend/handlers';
 import * as Protocols from '@liga/backend/protocols';
-import is from 'electron-is';
 import log from 'electron-log';
 import { app, protocol, BrowserWindow } from 'electron';
-import { Constants, Util } from '@liga/shared';
+import { Constants, Util, is } from '@liga/shared';
 import { DatabaseClient, WindowManager } from '@liga/backend/lib';
 
 /**
