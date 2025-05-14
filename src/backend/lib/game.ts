@@ -8,7 +8,7 @@ import * as PluginManager from './plugins';
 import * as RCON from './rcon';
 import * as Scorebot from './scorebot';
 import * as Sqrl from 'squirrelly';
-import * as VDF from '@node-steam/vdf';
+import * as VDF from './vdf';
 import * as VPK from './vpk';
 import os from 'node:os';
 import path from 'node:path';

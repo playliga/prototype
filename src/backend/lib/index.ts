@@ -12,6 +12,7 @@ export * as RCON from './rcon';
 export * as Scorebot from './scorebot';
 export * as Simulator from './simulator';
 export * as Tail from './tail';
+export * as VDF from './vdf';
 export * as VPK from './vpk';
 export * as WindowManager from './window-manager';
 export * as Worldgen from './worldgen';

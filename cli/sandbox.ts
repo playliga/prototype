@@ -24,6 +24,7 @@ import {
   GitHub,
   Plugins,
   Mods,
+  VDF,
   VPK,
 } from '@liga/backend/lib';
 
@@ -347,6 +348,26 @@ async function sandboxModManager() {
 }
 
 /**
+ * Tests the VDF module.
+ *
+ * @function
+ */
+async function sandboxVdf() {
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const settings = Util.loadSettings(profile.settings);
+  const librariesFileContent = await fs.promises.readFile(
+    path.join(settings.general.steamPath, Constants.GameSettings.STEAM_LIBRARIES_FILE),
+    'utf8',
+  );
+  const { libraryfolders } = VDF.parse(librariesFileContent);
+  log.debug(libraryfolders);
+  const library = Object.values(libraryfolders).find((folder: Record<string, unknown>) => {
+    return Object.keys(folder.apps).includes(String(Constants.GameSettings.CSGO_APPID));
+  }) as Record<string, unknown>;
+  log.debug(library);
+}
+
+/**
  * Tests the VPK module.
  *
  * @function
@@ -415,6 +436,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'github',
     'plugin-manager',
     'mod-manager',
+    'vdf',
     'vpk',
   ];
   const sandboxFns: Record<
@@ -429,6 +451,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxGithub
     | typeof sandboxPluginManager
     | typeof sandboxModManager
+    | typeof sandboxVdf
     | typeof sandboxVpk
   > = {
     sandboxWorldgen,
@@ -441,6 +464,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxGithub,
     sandboxPluginManager,
     sandboxModManager,
+    sandboxVdf,
     sandboxVpk,
   };
 
