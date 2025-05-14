@@ -9,10 +9,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import is from 'electron-is';
 import log from 'electron-log';
-import dedent from 'dedent';
 import AppInfo from 'package.json';
 import { app, ipcMain } from 'electron';
-import { Constants, Util } from '@liga/shared';
+import { Constants, Util, Dedent } from '@liga/shared';
 import { DatabaseClient, FileManager, Firebase, Game, GitHub } from '@liga/backend/lib';
 
 /**
@@ -95,7 +94,7 @@ export default function () {
       const firebaseBucket = await firebase.upload(zip);
 
       // build issue text
-      const textIssue = dedent`
+      const textIssue = Dedent.dedent`
         # Describe the Bug
         {{it.text}}
 
@@ -108,7 +107,7 @@ export default function () {
         # Additional Context
         - [{{it.download.name}}]({{it.download.url}})
       `;
-      const bodyFeature = dedent`
+      const bodyFeature = Dedent.dedent`
         # Describe the Feature
         {{it.text}}
       `;

@@ -16,13 +16,12 @@ import fs from 'node:fs';
 import util from 'node:util';
 import is from 'electron-is';
 import log from 'electron-log';
-import dedent from 'dedent';
 import { spawn, ChildProcessWithoutNullStreams, exec as execSync } from 'node:child_process';
 import { app } from 'electron';
 import { glob } from 'glob';
 import { Prisma, Profile } from '@prisma/client';
 import { compact, flatten, random, startCase, uniq } from 'lodash';
-import { Constants, Bot, Chance, Util, Eagers } from '@liga/shared';
+import { Constants, Bot, Chance, Util, Eagers, Dedent } from '@liga/shared';
 
 /**
  * Promisified version of `exec`.
@@ -576,7 +575,7 @@ export class Server {
 
     // if no weapon template was selected we pick one for them
     if (!weapon || weapon === Constants.WeaponTemplate.AUTO) {
-      return dedent`
+      return Dedent.dedent`
         ${difficulty}+${Chance.roll(this.weaponPbxWeight)} "${player.name}"
                 Skill = ${Math.floor(xp.stats.skill)}
                 Aggression = ${Math.floor(xp.stats.aggression)}
@@ -592,7 +591,7 @@ export class Server {
     // we have to first build the base string and then insert the
     // array of weapons using string format otherwise dedent will
     // strip the newline and tab characters from the string.
-    const base = dedent`
+    const base = Dedent.dedent`
       ${difficulty} "${player.name}"
               Skill = ${Math.floor(xp.stats.skill)}
               Aggression = ${Math.floor(xp.stats.aggression)}
