@@ -5,11 +5,11 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import cx from 'classnames';
 import Routes from '@liga/frontend/routes';
 import { Toast, Toaster, toast } from 'react-hot-toast';
 import { FaEnvelopeOpen } from 'react-icons/fa';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
 import { useTheme } from '@liga/frontend/hooks';
 import { Confetti } from '@liga/frontend/components';

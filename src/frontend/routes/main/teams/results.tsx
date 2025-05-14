@@ -4,11 +4,11 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { random } from 'lodash';
 import { format } from 'date-fns';
 import { useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
 import { Pagination } from '@liga/frontend/components';
 import { FaChartBar, FaSortAmountDown, FaSortAmountDownAlt } from 'react-icons/fa';

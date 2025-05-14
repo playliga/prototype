@@ -4,9 +4,9 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { format } from 'date-fns';
 import { Constants, Eagers } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 
 /** @type {Match} */
 type Match = Awaited<ReturnType<typeof api.matches.upcoming<typeof Eagers.match>>>[number];

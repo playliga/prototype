@@ -4,11 +4,11 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { flatten, startCase } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { XPBar } from '@liga/frontend/components/player-card';
 import {

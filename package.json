@@ -94,7 +94,6 @@
     "@g-loot/react-tournament-brackets": "1.0.31-rc",
     "@prisma/client": "5.1.0",
     "chart.js": "4.4.6",
-    "classnames": "2.5.1",
     "commander": "9.4.0",
     "compressing": "1.10.0",
     "countries-list": "2.6.1",

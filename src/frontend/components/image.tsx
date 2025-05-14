@@ -4,8 +4,8 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import imageSprite from '@liga/frontend/assets/sprite.png';
+import { cx } from '@liga/frontend/lib';
 
 /** @interface */
 interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {

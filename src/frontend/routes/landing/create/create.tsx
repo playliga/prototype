@@ -4,9 +4,9 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useTranslation } from '@liga/frontend/hooks';
+import { cx } from '@liga/frontend/lib';
 import { FaArrowLeft } from 'react-icons/fa';
 
 /**

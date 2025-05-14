@@ -5,10 +5,10 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Constants } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { AppState } from '@liga/frontend/redux/state';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';

@@ -5,11 +5,11 @@
  */
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import cx from 'classnames';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation } from 'react-router-dom';
 import { Constants } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
 import { FaComment } from 'react-icons/fa';

@@ -4,9 +4,9 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { startCase } from 'lodash';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
 import { FaCaretDown, FaCaretUp, FaFolderOpen, FaShoppingBag, FaStar } from 'react-icons/fa';
 

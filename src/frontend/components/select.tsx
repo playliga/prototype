@@ -3,13 +3,13 @@
  *
  * @module
  */
-import React from 'react';
-import cx from 'classnames';
 import type { Prisma } from '@prisma/client';
+import React from 'react';
 import ReactSelect, {
   GroupBase as ReactSelectGroupBase,
   Props as ReactSelectProps,
 } from 'react-select';
+import { cx } from '@liga/frontend/lib';
 
 /** @interface */
 interface SelectProps {

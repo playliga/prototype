@@ -4,10 +4,10 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Constants } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { FaComment } from 'react-icons/fa';
 import { useTranslation } from '@liga/frontend/hooks';
 

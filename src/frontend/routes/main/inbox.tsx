@@ -6,9 +6,9 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import cx from 'classnames';
 import { format } from 'date-fns';
 import { Constants, Dedent } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { emailsDelete, emailsUpdate } from '@liga/frontend/redux/actions';
 import { useTranslation } from '@liga/frontend/hooks';

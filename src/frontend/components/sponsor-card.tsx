@@ -4,10 +4,10 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import Image from './image';
 import { startCase } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
 import { FaAward, FaCheckCircle, FaExclamationCircle, FaScroll } from 'react-icons/fa';
 

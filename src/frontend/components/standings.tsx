@@ -4,9 +4,9 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { compact, inRange } from 'lodash';
 import { Eagers } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 
 /**
  * Promotion and relegation zone colors.

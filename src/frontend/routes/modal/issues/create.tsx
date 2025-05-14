@@ -5,9 +5,9 @@
  */
 import * as Constants from '@liga/shared/constants';
 import React from 'react';
-import cx from 'classnames';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
 
 /** @constant */

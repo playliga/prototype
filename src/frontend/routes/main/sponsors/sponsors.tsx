@@ -4,10 +4,10 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { startCase } from 'lodash';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
 
 /** @enum */

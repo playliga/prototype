@@ -4,11 +4,11 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { format } from 'date-fns';
 import { groupBy } from 'lodash';
 import { useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
 import { Standings } from '@liga/frontend/components';

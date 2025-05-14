@@ -4,10 +4,10 @@
  * @module
  */
 import React from 'react';
-import cx from 'classnames';
 import { groupBy } from 'lodash';
 import { differenceInDays } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
+import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { profileUpdate, workingUpdate } from '@liga/frontend/redux/actions';
 import { useTranslation } from '@liga/frontend/hooks';
