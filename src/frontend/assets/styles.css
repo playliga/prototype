@@ -113,7 +113,7 @@ meter::-webkit-meter-bar {
   }
 
   & > header > button {
-    @apply btn rounded-none border-0 font-normal shadow-none;
+    @apply btn btn-wide border-base-content/10 rounded-none border-0 border-r font-normal shadow-none;
   }
 
   main {

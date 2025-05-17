@@ -3,6 +3,7 @@
  *
  * @module
  */
+import Calendar from './calendar';
 import Competitions from './competitions';
 import Dashboard from './dashboard';
 import Inbox from './inbox';
@@ -18,6 +19,7 @@ import Teams from './teams';
  */
 export default {
   // standalone routes
+  Calendar,
   Dashboard,
   Inbox,
   Players,

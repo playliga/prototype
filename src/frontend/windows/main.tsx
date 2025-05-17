@@ -61,6 +61,10 @@ const routes = createMemoryRouter([
         path: '/players',
         element: <Routes.Main.Players />,
       },
+      {
+        path: '/calendar',
+        element: <Routes.Main.Calendar />,
+      },
 
       // composite routes
       {
@@ -199,7 +203,7 @@ function Root() {
   return (
     <React.StrictMode>
       <header className="navbar border-base-content/10 bg-base-200 fixed top-0 z-50 h-16 border-b p-0">
-        <nav className="stack-x navbar-start h-full gap-0!">
+        <nav className="stack-x navbar-start h-full w-full gap-0!">
           {[
             ['/', 'Dashboard'],
             ['/inbox', 'Inbox'],
@@ -208,15 +212,16 @@ function Root() {
             ['/players', 'Players'],
             ['/competitions', 'Competitions', useMatch('/competitions/*')],
             ['/sponsors', 'Sponsors', useMatch('/sponsors/*')],
+            ['/calendar', 'Calendar'],
           ].map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
             <button
               key={id}
               className={cx(
                 'btn relative h-full min-w-32',
-                'rounded-none border-0 border-b-2 border-b-transparent',
+                'border-r-base-content/10 rounded-none border-0 border-r border-b-2 border-b-transparent',
                 'hover:border-b-primary disabled:bg-transparent!',
                 (isMatch || location.pathname === id) &&
-                  'border-b-primary bg-base-300 cursor-default',
+                  '!border-b-primary bg-base-300 cursor-default',
               )}
               disabled={state.working}
               onClick={() => navigate(id)}
@@ -229,10 +234,7 @@ function Root() {
           ))}
           <button
             title="Earnings can be used to buy servers to give your team training boosts!"
-            className={cx(
-              'center btn absolute top-0 right-0 h-full min-w-32 border-0',
-              'hover:bg-transparent',
-            )}
+            className={cx('btn btn-wide ml-auto border-0', 'hover:bg-transparent')}
           >
             <p>Total Earnings</p>
             <p>
