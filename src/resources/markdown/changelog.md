@@ -1,3 +1,13 @@
+## 3.0.0-beta.45 (2025-05-18)
+
+### Features
+
+- added a calendar view ([#409](https://github.com/playliga/prototype/issues/409)) ([ad78aa2](https://github.com/playliga/prototype/commit/ad78aa26262fcff72e6c6719ed20b7e995c75635))
+
+### Bug Fixes
+
+- fix buying free agents crashing app ([#415](https://github.com/playliga/prototype/issues/415)) ([5e54df8](https://github.com/playliga/prototype/commit/5e54df8e98014214f258ea5fc5e4e82fb1fd6927))
+
 ## 3.0.0-beta.44 (2025-05-02)
 
 ### Features
