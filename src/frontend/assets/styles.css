@@ -102,6 +102,47 @@ meter::-webkit-meter-bar {
   @apply box-content border border-black;
 }
 
+/** adjust react-hot-toast stylings */
+.react-hot-toast {
+  @apply text-base-content bg-base-100 max-w-none p-0;
+
+  & > div {
+    @apply m-0 mr-4;
+  }
+
+  dialog {
+    @apply stack-x divide-base-content/10 static w-96 gap-0 divide-x sm:w-96;
+  }
+
+  dialog > section:first-child {
+    @apply stack-x w-2/3 items-center gap-4 pl-4;
+  }
+
+  dialog > section + section {
+    @apply w-1/3;
+  }
+
+  article {
+    @apply py-5;
+  }
+
+  header {
+    @apply font-bold;
+  }
+
+  footer {
+    @apply italic;
+  }
+
+  svg {
+    @apply size-8;
+  }
+
+  button {
+    @apply btn btn-ghost btn-block h-full rounded-none;
+  }
+}
+
 /** components */
 @utility dashboard {
   & {
@@ -295,52 +336,6 @@ meter::-webkit-meter-bar {
 
   button {
     @apply btn btn-ghost btn-block rounded-none;
-  }
-}
-
-@utility react-hot-toast {
-  @apply bg-base-100 text-base-content max-w-none p-0;
-
-  & > div {
-    @apply m-0;
-  }
-
-  dialog {
-    @apply stack-x divide-base-content/10 static w-96 divide-x sm:w-96;
-    gap: 1rem;
-  }
-
-  dialog:before {
-    content: '';
-  }
-
-  dialog > section:first-child {
-    @apply stack-x w-2/3 items-center;
-    gap: 1rem;
-  }
-
-  dialog > section + section {
-    @apply w-1/3;
-  }
-
-  article {
-    @apply py-5;
-  }
-
-  header {
-    @apply font-bold;
-  }
-
-  footer {
-    @apply italic;
-  }
-
-  svg {
-    @apply size-8;
-  }
-
-  button {
-    @apply btn btn-ghost btn-block h-full rounded-none;
   }
 }
 
