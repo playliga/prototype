@@ -51,7 +51,7 @@ export enum OfferAcceptedPlayer {
   CONTENT = `
   Salut {{it.profile.player.name}}.
 
-  {{@if(it.transfer.to.id == it.profile.team.id)}}
+  {{@if(it.transfer.to && it.transfer.to.id == it.profile.team.id)}}
   **{{it.transfer.target.name}}** a été transféré(e) chez {{it.transfer.from.name}}.
   {{#else}}
   J'ai le plaisir de t'annoncer que **{{it.transfer.target.name}}** a accepté notre offre !
@@ -120,7 +120,7 @@ export enum OfferRejectedEmailRelocate {
   CONTENT = `
   Salut {{it.profile.player.name}}.
 
-  {{@if(it.transfer.to.id == it.profile.team.id)}}
+  {{@if(it.transfer.to && it.transfer.to.id == it.profile.team.id)}}
   C'est un échec pour le transfert de chez **{{it.transfer.from.name}}**, la personne ne veut pas changer de région.
   {{#else}}
   La personne a rejeté ton offre, elle n'a pas envie de changer de région.
@@ -154,7 +154,7 @@ export enum OfferRejectedEmailWages {
   CONTENT = `
   Salut {{it.profile.player.name}}.
 
-  {{@if(it.transfer.to.id == it.profile.team.id)}}
+  {{@if(it.transfer.to && it.transfer.to.id == it.profile.team.id)}}
   C'est un échec pour le transfert de chez **{{it.transfer.from.name}}**, aucun accord n'a pu être parvenu concernant le salaire proposé.
   {{#else}}
   La personne a rejeté ton offre, car le salaire proposé était trop bas.

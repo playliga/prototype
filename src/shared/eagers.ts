@@ -152,11 +152,18 @@ export const tier = {
 /** @constant */
 export const transfer = {
   include: {
-    from: team,
+    from: {
+      include: {
+        country: true,
+        players: true,
+        personas: true,
+      },
+    },
     offers: { orderBy: { id: 'desc' as Prisma.SortOrder } },
     target: player,
     to: {
       include: {
+        country: true,
         players: true,
         personas: true,
       },

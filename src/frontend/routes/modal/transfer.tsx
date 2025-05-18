@@ -117,12 +117,16 @@ export default function () {
           from: {
             connect: { id: state.profile.teamId },
           },
-          to: {
-            connect: { id: player.teamId },
-          },
           target: {
             connect: { id: player.id },
           },
+          ...(player.teamId
+            ? {
+                to: {
+                  connect: { id: player.teamId },
+                },
+              }
+            : {}),
         },
         {
           cost: data.cost,
@@ -253,8 +257,13 @@ export default function () {
               <span>{player.country.name}</span>
             </td>
             <td>
-              <img src={player.team.blazon} className="inline-block size-6" />
-              <span>&nbsp;{player.team.name}</span>
+              {!!player.team && (
+                <>
+                  <img src={player.team?.blazon} className="inline-block size-6" />
+                  <span>&nbsp;{player.team?.name}</span>
+                </>
+              )}
+              {!player.team && <span>Free Agent</span>}
             </td>
           </tr>
         </tbody>
@@ -373,34 +382,36 @@ export default function () {
             </section>
           )}
           <fieldset>
-            <section>
-              <header>
-                <p>Transfer Fee</p>
-                <p>
-                  How much to pay <b>{player.team.name}</b> for this player.
-                </p>
-              </header>
-              <label
-                className={cx(
-                  'input bg-base-200 w-full items-center gap-2',
-                  formState.errors?.cost && 'input-error',
-                )}
-              >
-                <FaDollarSign className="size-4 opacity-20" />
-                <input
-                  type="number"
-                  className="h-full grow"
-                  min={0}
-                  max={state.profile.team.earnings}
-                  disabled={activeOffer || !canAfford}
-                  {...register('cost', {
-                    valueAsNumber: true,
-                    min: 0,
-                    max: state.profile.team.earnings,
-                  })}
-                />
-              </label>
-            </section>
+            {!!player.team && (
+              <section>
+                <header>
+                  <p>Transfer Fee</p>
+                  <p>
+                    How much to pay <b>{player.team.name}</b> for this player.
+                  </p>
+                </header>
+                <label
+                  className={cx(
+                    'input bg-base-200 w-full items-center gap-2',
+                    formState.errors?.cost && 'input-error',
+                  )}
+                >
+                  <FaDollarSign className="size-4 opacity-20" />
+                  <input
+                    type="number"
+                    className="h-full grow"
+                    min={0}
+                    max={state.profile.team.earnings}
+                    disabled={activeOffer || !canAfford || !player.team}
+                    {...register('cost', {
+                      valueAsNumber: true,
+                      min: 0,
+                      max: state.profile.team.earnings,
+                    })}
+                  />
+                </label>
+              </section>
+            )}
             <section>
               <header>
                 <p>Wages</p>

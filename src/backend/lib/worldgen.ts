@@ -397,7 +397,7 @@ function parsePlayerTransferOffer(
   const [offer] = transfer.offers;
 
   // who will be sending the response e-mail
-  const persona = transfer.to.personas.find(
+  const persona = (transfer.to || transfer.from).personas.find(
     (persona) =>
       persona.role === Constants.PersonaRole.MANAGER ||
       persona.role === Constants.PersonaRole.ASSISTANT,
@@ -2098,7 +2098,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
     return Promise.resolve();
   }
 
-  // update user earnings
+  // update team earnings
   return Promise.all([
     DatabaseClient.prisma.team.update({
       where: {
@@ -2115,15 +2115,17 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
               },
       },
     }),
-    DatabaseClient.prisma.team.update({
-      where: {
-        id: transfer.to.id,
-      },
-      data: {
-        earnings: {
-          increment: offer.cost,
-        },
-      },
-    }),
+    transfer.to
+      ? DatabaseClient.prisma.team.update({
+          where: {
+            id: transfer.to.id,
+          },
+          data: {
+            earnings: {
+              increment: offer.cost,
+            },
+          },
+        })
+      : Promise.resolve(),
   ]);
 }
