@@ -22,6 +22,7 @@ jobs:
           FIREBASE_KEY_ID: ${{ secrets.FIREBASE_KEY_ID }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           GH_ISSUES_CLIENT_ID: ${{ secrets.GH_ISSUES_CLIENT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run publish -- --from-dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
