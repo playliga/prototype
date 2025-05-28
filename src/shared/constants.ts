@@ -111,6 +111,7 @@ export enum CalendarEntry {
   SEASON_START = '/season/start',
   SPONSORSHIP_PARSE = '/sponsorship/parse',
   SPONSORSHIP_PAYMENT = '/sponsorship/payment',
+  SPONSORSHIP_RENEW = '/sponsorship/renew',
   TRANSFER_PARSE = '/transfer/parse',
 }
 
@@ -291,6 +292,8 @@ export enum IPCRoute {
   SPONSORSHIP_CREATE = '/sponsorship/create',
   SPONSORSHIP_INVITE_ACCEPT = '/sponsorship/invite/accept',
   SPONSORSHIP_INVITE_REJECT = '/sponsorship/invite/reject',
+  SPONSORSHIP_RENEW_ACCEPT = '/sponsorship/renew/accept',
+  SPONSORSHIP_RENEW_REJECT = '/sponsorship/renew/reject',
   SQUAD_ALL = '/squad/all',
   SQUAD_UPDATE = '/squad/update',
   TEAMS_ALL = '/teams/all',
@@ -415,6 +418,7 @@ export enum SponsorshipStatus {
   TEAM_ACCEPTED,
   TEAM_PENDING,
   TEAM_REJECTED,
+  CONTRACT_EXPIRED,
 }
 
 /**
@@ -884,6 +888,7 @@ export const IdiomaticSponsorshipStatus: Record<number, string> = {
   [SponsorshipStatus.TEAM_ACCEPTED]: 'Team Accepted',
   [SponsorshipStatus.TEAM_PENDING]: 'Team Pending',
   [SponsorshipStatus.TEAM_REJECTED]: 'Team Rejected',
+  [SponsorshipStatus.CONTRACT_EXPIRED]: 'Contract Expired',
 };
 
 /** @constant */

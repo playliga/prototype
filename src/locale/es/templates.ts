@@ -240,6 +240,33 @@ export enum SponsorshipRejectedTier {
 }
 
 /** @enum */
+export enum SponsorshipRenew {
+  SUBJECT = 'Oferta de Patrocinio a {{it.sponsorship.sponsor.name}}',
+  CONTENT = `
+  Hey {{it.profile.player.name}}!
+
+  Your contract has expired with **{{it.sponsorship.sponsor.name}}**, however, they are keen on continuing their partnership with us.
+
+  ---
+
+  <button className="btn btn-primary" data-ipc-route="/sponsorship/renew/accept" data-payload="{{it.sponsorship.id}}">Accept</button>
+  <button className="btn btn-ghost" data-ipc-route="/sponsorship/renew/reject" data-payload="{{it.sponsorship.id}}">Reject</button>
+  `,
+}
+
+/** @enum */
+export enum SponsorhipRenewAcceptedUser {
+  SUBJECT = 'Oferta de Patrocinio a {{it.sponsorship.sponsor.name}}',
+  CONTENT = `Accepted {{it.sponsorship.sponsor.name}}'s offer.`,
+}
+
+/** @enum */
+export enum SponsorhipRenewRejectedUser {
+  SUBJECT = 'Sponsorship Offer to {{it.sponsorship.sponsor.name}}',
+  CONTENT = `Rejected {{it.sponsorship.sponsor.name}}'s offer.`,
+}
+
+/** @enum */
 export enum SponsorshipTerminated {
   SUBJECT = 'Oferta de Patrocinio de {{it.sponsorship.sponsor.name}}',
   CONTENT = `

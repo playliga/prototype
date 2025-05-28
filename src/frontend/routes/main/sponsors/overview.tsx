@@ -27,7 +27,8 @@ export default function () {
       sponsors.filter((sponsor) =>
         sponsor.sponsorships.some(
           (sponsorship) =>
-            sponsorship.status === Constants.SponsorshipStatus.SPONSOR_ACCEPTED &&
+            (sponsorship.status === Constants.SponsorshipStatus.SPONSOR_ACCEPTED ||
+              sponsorship.status === Constants.SponsorshipStatus.TEAM_ACCEPTED) &&
             sponsorship.team.id === state.profile.teamId,
         ),
       ),

@@ -570,13 +570,45 @@ export function parseSponsorshipOffer(
 /**
  * Parses a sponsorship offer from the team's perspective.
  *
+ * @param sponsorship The sponsorship offer to parse.
+ * @param locale      The locale.
+ * @param status      Force accepts or rejects the offer.
  * @function
  */
-export function parseTeamSponsorshipOffer(): ReturnType<typeof parseSponsorshipOffer> {
+export function parseTeamSponsorshipOffer(
+  sponsorship: Prisma.SponsorshipGetPayload<typeof Eagers.sponsorship>,
+  locale: LocaleData,
+  status?: Constants.SponsorshipStatus,
+): ReturnType<typeof parseSponsorshipOffer> {
+  // who will be sending the response e-mail
+  const persona = sponsorship.team.personas.find(
+    (persona) =>
+      persona.role === Constants.PersonaRole.MANAGER ||
+      persona.role === Constants.PersonaRole.ASSISTANT,
+  );
+
+  // bail early if offer was rejected
+  if (typeof status === 'number' && status === Constants.SponsorshipStatus.TEAM_REJECTED) {
+    return {
+      dialogue: {
+        from: persona,
+        content: locale.templates.SponsorhipRenewRejectedUser.CONTENT,
+      },
+      sponsorship: {
+        status,
+      },
+    };
+  }
+
   return {
-    dialogue: {},
-    paperwork: [],
-    sponsorship: {},
+    dialogue: {
+      from: persona,
+      content: locale.templates.SponsorhipRenewAcceptedUser.CONTENT,
+    },
+    paperwork: [sponsorshipInvite(sponsorship.id, Constants.SponsorshipStatus.TEAM_ACCEPTED)],
+    sponsorship: {
+      status: Constants.SponsorshipStatus.TEAM_ACCEPTED,
+    },
   };
 }
 
@@ -1306,11 +1338,12 @@ export async function sponsorshipCheck() {
 
         // stop here if no achieved bonuses
         if (!bonuses.length) {
-          return Promise.all([sponsorshipInvite(sponsorship.id)]);
+          return Promise.all([sponsorshipRenew(sponsorship.id), sponsorshipInvite(sponsorship.id)]);
         }
 
         // distribute end-of-season bonuses
         return Promise.all([
+          sponsorshipRenew(sponsorship.id),
           sponsorshipInvite(sponsorship.id),
           sendEmail(
             Sqrl.render(locale.templates.SponsorshipBonuses.SUBJECT, { sponsorship }),
@@ -1352,8 +1385,11 @@ export async function sponsorshipInvite(id: number, status?: Constants.Sponsorsh
 
   // load sponsorship contract info
   const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
-    ...Eagers.sponsorship,
     where: { id },
+    include: {
+      ...Eagers.sponsorship.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
   });
   const contract = Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
 
@@ -1367,12 +1403,23 @@ export async function sponsorshipInvite(id: number, status?: Constants.Sponsorsh
   }
 
   // bail if sponsorship status is not active
-  if ((status ?? sponsorship.status) !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED) {
+  if (
+    (status ?? sponsorship.status) !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED &&
+    (status ?? sponsorship.status) !== Constants.SponsorshipStatus.TEAM_ACCEPTED
+  ) {
     Engine.Runtime.Instance.log.warn(
       'contract between %s and %s is not active. skipping invite...',
       sponsorship.sponsor.name,
       profile.name,
     );
+    return;
+  }
+
+  // bail if sponsorship is set to expire
+  const [offer] = sponsorship.offers;
+
+  if (profile.date.toISOString() >= offer.end.toISOString()) {
+    Engine.Runtime.Instance.log.warn('contract expired. skipping invite');
     return;
   }
 
@@ -1489,6 +1536,69 @@ export async function sponsorshipInvite(id: number, status?: Constants.Sponsorsh
       ]),
     },
   });
+}
+
+/**
+ * Sponsorship contract renewal check.
+ *
+ * @param id The sponsorhip id.
+ * @function
+ */
+export async function sponsorshipRenew(id: number) {
+  // grab latest offer
+  const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+    where: {
+      id,
+    },
+    include: {
+      ...Eagers.sponsorship.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+  const [offer] = sponsorship.offers;
+
+  // load user locale
+  const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  const locale = getLocale(profile);
+
+  // bail early if sponsorship not expired
+  if (profile.date.toISOString() < offer.end.toISOString()) {
+    return;
+  }
+
+  // who will be sending the response e-mail
+  const persona = profile.team.personas.find(
+    (persona) =>
+      persona.role === Constants.PersonaRole.MANAGER ||
+      persona.role === Constants.PersonaRole.ASSISTANT,
+  );
+
+  return Promise.all([
+    DatabaseClient.prisma.sponsorship.update({
+      where: {
+        id: sponsorship.id,
+      },
+      data: {
+        status: Constants.SponsorshipStatus.CONTRACT_EXPIRED,
+        offers: {
+          update: {
+            where: {
+              id: offer.id,
+            },
+            data: {
+              status: Constants.SponsorshipStatus.CONTRACT_EXPIRED,
+            },
+          },
+        },
+      },
+    }),
+    sendEmail(
+      Sqrl.render(locale.templates.SponsorshipGeneric.SUBJECT, { sponsorship }),
+      Sqrl.render(locale.templates.SponsorshipRenew.CONTENT, { profile, sponsorship }),
+      persona,
+      profile.date,
+    ),
+  ]);
 }
 
 /**
@@ -1868,7 +1978,7 @@ export async function onMatchdayUser(entry: Calendar) {
  */
 export async function onSponsorshipOffer(entry: Partial<Calendar>) {
   // parse payload
-  const [sponsorshipId] = isNaN(Number(entry.payload))
+  const [sponsorshipId, sponsorshipStatus] = isNaN(Number(entry.payload))
     ? JSON.parse(entry.payload)
     : [Number(entry.payload)];
 
@@ -1896,7 +2006,7 @@ export async function onSponsorshipOffer(entry: Partial<Calendar>) {
       result = parseSponsorshipOffer(sponsorship, locale);
       break;
     case Constants.SponsorshipStatus.TEAM_PENDING:
-      result = parseTeamSponsorshipOffer();
+      result = parseTeamSponsorshipOffer(sponsorship, locale, sponsorshipStatus);
       break;
     default:
       return Promise.resolve();

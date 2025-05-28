@@ -110,8 +110,11 @@ export default function () {
 
     // load sponsorship record
     const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
-      ...Eagers.sponsorship,
       where: { id: Number(id) },
+      include: {
+        ...Eagers.sponsorship.include,
+        offers: { orderBy: { id: 'desc' } },
+      },
     });
 
     if (!sponsorship) {
@@ -122,7 +125,10 @@ export default function () {
     // bail if contract is not active
     const contract = Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug];
 
-    if (sponsorship.status !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED) {
+    if (
+      sponsorship.status !== Constants.SponsorshipStatus.SPONSOR_ACCEPTED &&
+      sponsorship.status !== Constants.SponsorshipStatus.TEAM_ACCEPTED
+    ) {
       log.warn('contract between %s and %s is not active.', sponsorship.sponsor.name, profile.name);
       return;
     }
@@ -202,5 +208,88 @@ export default function () {
       profile.team.personas[0],
       profile.date,
     );
+  });
+  ipcMain.handle(Constants.IPCRoute.SPONSORSHIP_RENEW_ACCEPT, async (_, id: string) => {
+    // load sponsorship record
+    const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+      where: { id: Number(id) },
+      include: {
+        ...Eagers.sponsorship.include,
+        offers: { orderBy: { id: 'desc' } },
+      },
+    });
+
+    // find the sponsor's terms
+    const [terms] =
+      Constants.SponsorContract[sponsorship.sponsor.slug as Constants.SponsorSlug].terms;
+
+    // calculate offer start and end based on season
+    const profile = await DatabaseClient.prisma.profile.findFirst();
+    const offerStart = new Date(
+      profile.date.getFullYear(),
+      Constants.Application.SEASON_START_MONTH,
+      Constants.Application.SEASON_START_DAY,
+    );
+    const offerEnd = addYears(offerStart, terms.length);
+
+    // build offer database record
+    const offer = {
+      status: Constants.SponsorshipStatus.TEAM_PENDING,
+      start: offerStart.toISOString(),
+      end: offerEnd.toISOString(),
+      amount: terms.amount,
+      frequency: terms.frequency,
+    };
+
+    // attach new offer to existing sponsorship
+    await DatabaseClient.prisma.sponsorship.update({
+      where: {
+        id: sponsorship.id,
+      },
+      data: {
+        status: Constants.SponsorshipStatus.TEAM_PENDING,
+        offers: {
+          create: [offer],
+        },
+      },
+    });
+
+    return Worldgen.onSponsorshipOffer({
+      payload: JSON.stringify([sponsorship.id, Constants.SponsorshipStatus.TEAM_ACCEPTED]),
+    });
+  });
+  ipcMain.handle(Constants.IPCRoute.SPONSORSHIP_RENEW_REJECT, async (_, id: string) => {
+    // load sponsorship record
+    const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
+      where: { id: Number(id) },
+      include: {
+        ...Eagers.sponsorship.include,
+        offers: { orderBy: { id: 'desc' } },
+      },
+    });
+
+    // update existing sponsorship and offer
+    const [offer] = sponsorship.offers;
+
+    await DatabaseClient.prisma.sponsorship.update({
+      where: {
+        id: sponsorship.id,
+      },
+      data: {
+        status: Constants.SponsorshipStatus.TEAM_PENDING,
+        offers: {
+          update: {
+            where: { id: offer.id },
+            data: {
+              status: Constants.SponsorshipStatus.TEAM_PENDING,
+            },
+          },
+        },
+      },
+    });
+
+    return Worldgen.onSponsorshipOffer({
+      payload: JSON.stringify([sponsorship.id, Constants.SponsorshipStatus.TEAM_REJECTED]),
+    });
   });
 }
