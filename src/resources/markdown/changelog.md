@@ -1,3 +1,18 @@
+## 3.0.0-beta.46 (2025-05-29)
+
+### Features
+
+- add competition logos ([#304](https://github.com/playliga/prototype/issues/304)) ([afd317f](https://github.com/playliga/prototype/commit/afd317feb0070dd8f167aa119665092e4ec3814a))
+- sponsors offer contract renewals ([#380](https://github.com/playliga/prototype/issues/380)) ([4c0efd0](https://github.com/playliga/prototype/commit/4c0efd08a68d8067a8f506f5179aecfc81651c3a))
+
+### Bug Fixes
+
+- fix user team being added twice to same sponsor tourney ([#416](https://github.com/playliga/prototype/issues/416)) ([7f9ad47](https://github.com/playliga/prototype/commit/7f9ad47736e9c20083d5185aaf465dfca378cf99))
+
+### New Contributors
+
+- Big thank you to Ramos for all of the awesome competition logos created for ([#304](https://github.com/playliga/prototype/issues/304)) ([afd317f](https://github.com/playliga/prototype/commit/afd317feb0070dd8f167aa119665092e4ec3814a))!
+
 ## 3.0.0-beta.45 (2025-05-18)
 
 ### Features
