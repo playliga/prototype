@@ -1,3 +1,9 @@
+## 3.0.0-beta.47 (2025-05-29)
+
+### Bug Fixes
+
+- fix competition logos not rendering ([1a20875](https://github.com/playliga/prototype/commit/1a2087500cff150b677137ccfe5deeddd7078bc8))
+
 ## 3.0.0-beta.46 (2025-05-29)
 
 ### Features
