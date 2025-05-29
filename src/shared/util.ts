@@ -346,3 +346,30 @@ export function formatContractCondition(
       return '';
   }
 }
+
+/**
+ * Gets the logo for the specified tier based on
+ * their federation and/or competition name.
+ *
+ * @param tierSlug        The tier slug.
+ * @param federationSlug  The federation slug.
+ * @function
+ */
+export function getCompetitionLogo(
+  tierSlug: Constants.TierSlug | string,
+  federationSlug?: Constants.FederationSlug | string,
+) {
+  const protocol = 'resources://competitions/';
+  const slug = tierSlug.replace(/:/gi, '-');
+
+  // circuits are not tied to a federation
+  if (slug.includes('circuit')) {
+    return protocol + slug + '.png';
+  }
+
+  if (!federationSlug) {
+    return protocol + slug + '-europa.png';
+  }
+
+  return `${protocol}${slug}-${federationSlug}.png`;
+}

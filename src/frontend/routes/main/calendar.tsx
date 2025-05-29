@@ -19,6 +19,7 @@ import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
+import { Image } from '@liga/frontend/components';
 import { FaArrowCircleLeft, FaArrowCircleRight, FaCalendarDay } from 'react-icons/fa';
 
 /** @type {MatchesResponse} */
@@ -158,15 +159,31 @@ export default function () {
                 <header className="prose border-t-0!">
                   <h2>{format(spotlight.date, 'PPP')}</h2>
                 </header>
+                <aside className="stack-x items-center px-2">
+                  <Image
+                    className="size-16"
+                    src={Util.getCompetitionLogo(
+                      spotlight.competition.tier.slug,
+                      spotlight.competition.federation.slug,
+                    )}
+                  />
+                  <header>
+                    <h3>{spotlight.competition.tier.league.name}</h3>
+                    <h4>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</h4>
+                    <h5>
+                      {spotlight.competition.tier.groupSize
+                        ? `${t('shared.matchday')} ${spotlight.round}`
+                        : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
+                    </h5>
+                  </header>
+                </aside>
                 <aside className="center gap-2">
-                  <h2>{spotlight.competition.tier.league.name}</h2>
-                  <h3>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</h3>
-                  <h4>
-                    {spotlight.competition.tier.groupSize
-                      ? `${t('shared.matchday')} ${spotlight.round}`
-                      : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
-                  </h4>
-                  <img title={opponent.team.name} className="size-32" src={opponent.team.blazon} />
+                  <Image
+                    title={opponent.team.name}
+                    src={opponent.team.blazon}
+                    className="size-32"
+                  />
+                  <p>{opponent.team.name}</p>
                   {spotlight.status === Constants.MatchStatus.COMPLETED && (
                     <span
                       className={cx(

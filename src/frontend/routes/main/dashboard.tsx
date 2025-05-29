@@ -320,14 +320,27 @@ export default function () {
 
                 return (
                   <article className="stack-y">
-                    <header className="text-center">
-                      <h2>{standings.competition.tier.league.name}</h2>
-                      <h3>{Constants.IdiomaticTier[standings.competition.tier.slug]}</h3>
-                      <p>{Util.parseCupRounds(standings.round, standings.totalRounds)}</p>
-                    </header>
+                    <aside className="stack-x items-center px-2">
+                      <Image
+                        className="size-16"
+                        src={Util.getCompetitionLogo(
+                          spotlight.competition.tier.slug,
+                          spotlight.competition.federation.slug,
+                        )}
+                      />
+                      <header>
+                        <h3>{spotlight.competition.tier.league.name}</h3>
+                        <h4>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</h4>
+                        <h5>
+                          {spotlight.competition.tier.groupSize
+                            ? `${t('shared.matchday')} ${spotlight.round}`
+                            : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
+                        </h5>
+                      </header>
+                    </aside>
                     <aside className="grid grid-cols-2 place-items-center pt-4">
                       {standings.competitors.map((competitor) => (
-                        <img
+                        <Image
                           key={`${competitor.id}__cup_splotlight`}
                           title={competitor.team.name}
                           src={competitor.team.blazon}
@@ -471,13 +484,17 @@ export default function () {
                       </div>
                     </aside>
                     <aside className="center h-full gap-4">
+                      <Image
+                        title={`${spotlight.competition.tier.league.name}: ${Constants.IdiomaticTier[spotlight.competition.tier.slug]}`}
+                        className="size-24"
+                        src={Util.getCompetitionLogo(
+                          spotlight.competition.tier.slug,
+                          spotlight.competition.federation.slug,
+                        )}
+                      />
                       <p>
                         <em>{format(spotlight.date, 'PPPP')}</em>
                       </p>
-                      <h3 className="center text-center">
-                        <span>{spotlight.competition.tier.league.name}</span>
-                        <span>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</span>
-                      </h3>
                       <ul>
                         <li className="stack-x items-center">
                           <FaMapSigns />

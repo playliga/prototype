@@ -11,6 +11,7 @@ import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
+import { Image } from '@liga/frontend/components';
 
 /** @constant */
 const CHART_CONFIG: Pick<ChartConfiguration<'line'>, 'type' | 'options'> = {
@@ -158,7 +159,10 @@ export default function () {
         ),
     );
 
-    return countBy(found, (competition) => competition.tier.slug);
+    return countBy(
+      found,
+      (competition) => competition.tier.slug + '-' + competition.federation.slug,
+    );
   }, [competitions]);
 
   // build seasons dropdown data and select
@@ -222,21 +226,20 @@ export default function () {
               )}
             </footer>
           )}
-          {Object.keys(honors).map((tierSlug) => (
-            <aside
-              key={tierSlug + '__award'}
-              className="flex flex-col items-center text-center"
-              title={Constants.IdiomaticTier[tierSlug]}
-            >
-              <img
-                alt={tierSlug}
-                src={`resources://trophies/${tierSlug.replace(/:/gi, '-')}.svg`}
-                className="w-2/3"
-              />
-              <p className="text-4xl font-bold">{honors[tierSlug]}</p>
-              <p className="text-sm">{Constants.IdiomaticTier[tierSlug]}</p>
-            </aside>
-          ))}
+          {Object.keys(honors).map((honor) => {
+            const [tierSlug, federationSlug] = honor.split('-');
+            return (
+              <aside key={tierSlug + '__award'} className="flex flex-col items-center text-center">
+                <Image
+                  alt={tierSlug}
+                  className="w-2/3"
+                  src={Util.getCompetitionLogo(tierSlug, federationSlug)}
+                />
+                <p className="text-4xl font-bold">{honors[honor]}</p>
+                <p className="text-sm">{Constants.IdiomaticTier[tierSlug]}</p>
+              </aside>
+            );
+          })}
         </aside>
       </article>
       <article className="divide-base-content/10 grid h-0 flex-grow grid-cols-2 divide-x">

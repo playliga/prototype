@@ -11,7 +11,7 @@ import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
-import { Standings } from '@liga/frontend/components';
+import { Standings, Image } from '@liga/frontend/components';
 import { FaChartBar } from 'react-icons/fa';
 
 /** @constant */
@@ -122,10 +122,16 @@ export default function () {
   return (
     <section className="divide-base-content/10 grid grid-cols-2 divide-x">
       <article>
-        <aside>
-          <header className="heading prose max-w-none border-t-0!">
-            <h2>{t('shared.overview')}</h2>
-          </header>
+        <header className="heading prose max-w-none border-t-0!">
+          <h2>{t('shared.overview')}</h2>
+        </header>
+        <aside className="divide-base-content/10 flex divide-x">
+          <figure className="center w-1/2 place-content-evenly!">
+            <Image
+              className="size-32"
+              src={Util.getCompetitionLogo(competition.tier.slug, competition.federation.slug)}
+            />
+          </figure>
           <table className="table table-fixed">
             <thead>
               <tr>
@@ -149,56 +155,58 @@ export default function () {
             </thead>
             <tbody>
               <tr>
-                <td>{competitionDates[0] ? format(competitionDates[0].date, 'PPPP') : 'TBD'}</td>
-                <td>{competitionDates[1] ? format(competitionDates[1].date, 'PPPP') : '-'}</td>
+                <td>{competitionDates[0] ? format(competitionDates[0].date, 'PPP') : 'TBD'}</td>
+                <td>{competitionDates[1] ? format(competitionDates[1].date, 'PPP') : '-'}</td>
               </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <th>{t('main.competitions.titleHolders')}</th>
-                <th>{t('shared.season')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!winners.length && (
-                <tr>
-                  <td>{t('main.competitions.notApplicable')}</td>
-                  <td>-</td>
-                </tr>
-              )}
-              {winners.length > 0 && (
-                <tr>
-                  <td>{winners[0].team.name}</td>
-                  <td>
-                    {t('shared.season')} {competition.season - 1}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            <thead>
-              <tr>
-                <th>{t('main.competitions.prizePool')}</th>
-                <th>{t('shared.amount')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!prizePool.total && (
-                <tr>
-                  <td>{t('main.competitions.notApplicable')}</td>
-                  <td>-</td>
-                </tr>
-              )}
-              {prizePool.distribution.map((value, idx) => {
-                return (
-                  <tr key={idx + '__prize_pool'}>
-                    <td>{Util.toOrdinalSuffix(idx + 1)}</td>
-                    <td>{Util.formatCurrency(prizePool.total * (value / 100))}</td>
-                  </tr>
-                );
-              })}
             </tbody>
           </table>
         </aside>
+        <table className="table table-fixed">
+          <thead>
+            <tr>
+              <th>{t('main.competitions.titleHolders')}</th>
+              <th>{t('shared.season')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!winners.length && (
+              <tr>
+                <td>{t('main.competitions.notApplicable')}</td>
+                <td>-</td>
+              </tr>
+            )}
+            {winners.length > 0 && (
+              <tr>
+                <td>{winners[0].team.name}</td>
+                <td>
+                  {t('shared.season')} {competition.season - 1}
+                </td>
+              </tr>
+            )}
+          </tbody>
+          <thead>
+            <tr>
+              <th>{t('main.competitions.prizePool')}</th>
+              <th>{t('shared.amount')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!prizePool.total && (
+              <tr>
+                <td>{t('main.competitions.notApplicable')}</td>
+                <td>-</td>
+              </tr>
+            )}
+            {prizePool.distribution.map((value, idx) => {
+              return (
+                <tr key={idx + '__prize_pool'}>
+                  <td>{Util.toOrdinalSuffix(idx + 1)}</td>
+                  <td>{Util.formatCurrency(prizePool.total * (value / 100))}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         <aside>
           <header className={cx('heading prose max-w-none', !prizePool.total && 'border-t-0!')}>
             <h2>{t('shared.recentMatchResults')}</h2>
