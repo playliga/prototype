@@ -157,6 +157,7 @@ export default function () {
 
     if (team) {
       log.warn('user team already in %s. skipping...', sponsorship.sponsor.name);
+      return;
     }
 
     // replace random team with user's team
