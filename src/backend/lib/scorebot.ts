@@ -16,6 +16,7 @@ export enum EventIdentifier {
   GAME_OVER = 'gameover',
   PLAYER_ASSISTED = 'playerassisted',
   PLAYER_CONNECTED = 'playerconnected',
+  PLAYER_ENTERED = 'playerentered',
   PLAYER_KILLED = 'playerkilled',
   ROUND_OVER = 'roundover',
   SAY = 'say',
@@ -81,6 +82,7 @@ export interface ScorebotEvents {
   [EventIdentifier.GAME_OVER]: (payload: EventPayloadGameOver) => void;
   [EventIdentifier.PLAYER_ASSISTED]: (payload: EventPayloadPlayerAssisted) => void;
   [EventIdentifier.PLAYER_CONNECTED]: () => void;
+  [EventIdentifier.PLAYER_ENTERED]: (payload: string) => void;
   [EventIdentifier.PLAYER_KILLED]: (payload: EventPayloadPlayerKilled) => void;
   [EventIdentifier.ROUND_OVER]: (payload: EventPayloadRoundOver) => void;
   [EventIdentifier.SAY]: (payload: string) => void;
@@ -98,11 +100,15 @@ export const RegexTypes = {
   GAME_OVER_REGEX: new RegExp(/(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2})\s?:\s?([\d]{1,2})/),
   PLAYER_ASSISTED_REGEX: new RegExp(/"(.+)" assisted killing "(.+)"/),
   PLAYER_CONNECTED_REGEX: new RegExp(/"(?:.+)" connected, address "loopback:0"/),
+  PLAYER_ENTERED_REGEX: new RegExp(/"(.+)" entered the game/),
   PLAYER_KILLED_REGEX: new RegExp(
     /"(.+)" (?:\[.+\]\s)?killed "(.+)" (?:\[.+\]\s)?with "(\S+)"\s+?(\(headshot\))?/,
   ),
   PLAYER_REGEX: new RegExp(
     /(.+)<(\d+)><(STEAM_\d:\d:\d+|STEAM_ID_LAN|BOT|Console|\[.+\])><(TERRORIST|CT)>?/,
+  ),
+  PLAYER_REGEX_NO_TEAM: new RegExp(
+    /(.+)<(\d+)><(STEAM_\d:\d:\d+|STEAM_ID_LAN|BOT|Console|\[.+\])><>?/,
   ),
   ROUND_OVER_REGEX: new RegExp(
     /Team "(TERRORIST|CT)" triggered "(.+)"(?:.+)\(.+"(\d+)"\)(?:.+)\(.+"(\d+)"\)/,
@@ -249,6 +255,18 @@ export class Watcher extends events.EventEmitter {
 
     if (regexmatch) {
       this.emit(EventIdentifier.PLAYER_CONNECTED);
+    }
+
+    // player entered event
+    regexmatch = line.match(RegexTypes.PLAYER_ENTERED_REGEX);
+
+    if (regexmatch) {
+      const [, playerSignature] = regexmatch;
+      const [, playerName] = playerSignature.match(RegexTypes.PLAYER_REGEX_NO_TEAM);
+
+      if (playerName) {
+        this.emit(EventIdentifier.PLAYER_ENTERED, playerName);
+      }
     }
   }
 

@@ -1301,10 +1301,10 @@ export class Server {
         this.rcon.send('mp_warmup_end');
       }
     });
-    this.scorebot.on(Scorebot.EventIdentifier.PLAYER_CONNECTED, async () => {
+    this.scorebot.on(Scorebot.EventIdentifier.PLAYER_ENTERED, async () => {
       if (this.settings.general.game === Constants.Game.CS2) {
         // small delay to avoid running this command too early
-        await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 400);
+        await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 500);
         this.rcon.send('exec liga-bots');
       }
     });
