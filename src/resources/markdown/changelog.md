@@ -1,3 +1,10 @@
+## 3.0.0-beta.48 (2025-05-30)
+
+### Bug Fixes
+
+- fix broken ui when season ends ([eb55da7](https://github.com/playliga/prototype/commit/eb55da7f90434f03b14e290ddc02f4d10952902a))
+- fix instances of bots not added to cs2 matches ([#417](https://github.com/playliga/prototype/issues/417)) ([7f4b278](https://github.com/playliga/prototype/commit/7f4b2781b3cd4628dc33f4df4f45a2c50fff16b6))
+
 ## 3.0.0-beta.47 (2025-05-29)
 
 ### Bug Fixes
