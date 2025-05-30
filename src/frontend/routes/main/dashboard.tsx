@@ -296,6 +296,7 @@ export default function () {
               </article>
             )}
             {!!standings &&
+              !!spotlight &&
               (() => {
                 if (standings.competition.tier.groupSize) {
                   return (
