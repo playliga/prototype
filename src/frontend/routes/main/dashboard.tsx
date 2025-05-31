@@ -300,27 +300,45 @@ export default function () {
               (() => {
                 if (standings.competition.tier.groupSize) {
                   return (
-                    <Standings
-                      compact
-                      highlight={state.profile.teamId}
-                      competitors={userGroupCompetitors}
-                      title={
-                        standings.competition.tier.league.slug ===
-                        Constants.LeagueSlug.ESPORTS_LEAGUE
-                          ? Constants.IdiomaticTier[standings.competition.tier.slug]
-                          : `${t('shared.group')} ${Util.toAlpha(userTeam.group)}`
-                      }
-                      zones={
-                        standings.competition.status === Constants.CompetitionStatus.STARTED &&
-                        (Constants.TierZones[standings.competition.tier.slug] ||
-                          Constants.TierZones.default)
-                      }
-                    />
+                    <article className="stack-y divide-base-content/10 !gap-0 divide-y">
+                      <aside className="stack-x items-center px-2">
+                        <Image
+                          className="size-16"
+                          src={Util.getCompetitionLogo(
+                            spotlight.competition.tier.slug,
+                            spotlight.competition.federation.slug,
+                          )}
+                        />
+                        <header>
+                          <h3>{spotlight.competition.tier.league.name}</h3>
+                          <h4>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</h4>
+                          <h5>
+                            {t('shared.matchday')} {spotlight.round}
+                          </h5>
+                        </header>
+                      </aside>
+                      <Standings
+                        compact
+                        highlight={state.profile.teamId}
+                        competitors={userGroupCompetitors}
+                        title={
+                          standings.competition.tier.league.slug ===
+                          Constants.LeagueSlug.ESPORTS_LEAGUE
+                            ? Constants.IdiomaticTier[standings.competition.tier.slug]
+                            : `${t('shared.group')} ${Util.toAlpha(userTeam.group)}`
+                        }
+                        zones={
+                          standings.competition.status === Constants.CompetitionStatus.STARTED &&
+                          (Constants.TierZones[standings.competition.tier.slug] ||
+                            Constants.TierZones.default)
+                        }
+                      />
+                    </article>
                   );
                 }
 
                 return (
-                  <article className="stack-y">
+                  <article className="stack-y divide-base-content/10 !gap-0 divide-y">
                     <aside className="stack-x items-center px-2">
                       <Image
                         className="size-16"
@@ -339,17 +357,19 @@ export default function () {
                         </h5>
                       </header>
                     </aside>
-                    <aside className="grid grid-cols-2 place-items-center pt-4">
+                    <aside className="grid grid-cols-2 place-items-center pb-2">
                       {standings.competitors.map((competitor) => (
-                        <Image
-                          key={`${competitor.id}__cup_splotlight`}
-                          title={competitor.team.name}
-                          src={competitor.team.blazon}
-                          className="size-32"
-                        />
+                        <figure key={`${competitor.id}__cup_splotlight`} className="center">
+                          <Image
+                            title={competitor.team.name}
+                            src={competitor.team.blazon}
+                            className="size-32"
+                          />
+                          <p>{competitor.team.name}</p>
+                        </figure>
                       ))}
                     </aside>
-                    <footer className="text-center">
+                    <aside className="text-center">
                       <button
                         className="btn btn-block rounded-none border-x-0"
                         onClick={() => {
@@ -361,7 +381,7 @@ export default function () {
                       >
                         {t('main.dashboard.viewBracket')}
                       </button>
-                    </footer>
+                    </aside>
                   </article>
                 );
               })()}

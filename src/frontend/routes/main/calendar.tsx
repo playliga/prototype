@@ -159,74 +159,76 @@ export default function () {
                 <header className="prose border-t-0!">
                   <h2>{format(spotlight.date, 'PPP')}</h2>
                 </header>
-                <aside className="stack-x items-center px-2">
-                  <Image
-                    className="size-16"
-                    src={Util.getCompetitionLogo(
-                      spotlight.competition.tier.slug,
-                      spotlight.competition.federation.slug,
-                    )}
-                  />
-                  <header>
-                    <h3>{spotlight.competition.tier.league.name}</h3>
-                    <h4>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</h4>
-                    <h5>
-                      {spotlight.competition.tier.groupSize
-                        ? `${t('shared.matchday')} ${spotlight.round}`
-                        : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
-                    </h5>
-                  </header>
-                </aside>
-                <aside className="center gap-2">
-                  <Image
-                    title={opponent.team.name}
-                    src={opponent.team.blazon}
-                    className="size-32"
-                  />
-                  <p>{opponent.team.name}</p>
-                  {spotlight.status === Constants.MatchStatus.COMPLETED && (
-                    <span
-                      className={cx(
-                        'badge',
-                        ['badge-error', 'badge-ghost', 'badge-success'][opponent.result],
+                <footer className="stack-y divide-base-content/10 !gap-0 divide-y">
+                  <aside className="stack-x items-center px-2">
+                    <Image
+                      className="size-16"
+                      src={Util.getCompetitionLogo(
+                        spotlight.competition.tier.slug,
+                        spotlight.competition.federation.slug,
                       )}
-                    >
-                      {spotlight.competitors.map((competitor) => competitor.score).join('-')}
-                    </span>
-                  )}
-                </aside>
-                <footer className="join">
-                  {!spotlight.competition.tier.groupSize && (
+                    />
+                    <header>
+                      <h3>{spotlight.competition.tier.league.name}</h3>
+                      <h4>{Constants.IdiomaticTier[spotlight.competition.tier.slug]}</h4>
+                      <h5>
+                        {spotlight.competition.tier.groupSize
+                          ? `${t('shared.matchday')} ${spotlight.round}`
+                          : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
+                      </h5>
+                    </header>
+                  </aside>
+                  <aside className="center gap-2 pb-2">
+                    <Image
+                      title={opponent.team.name}
+                      src={opponent.team.blazon}
+                      className="size-32"
+                    />
+                    <p>{opponent.team.name}</p>
+                    {spotlight.status === Constants.MatchStatus.COMPLETED && (
+                      <span
+                        className={cx(
+                          'badge',
+                          ['badge-error', 'badge-ghost', 'badge-success'][opponent.result],
+                        )}
+                      >
+                        {spotlight.competitors.map((competitor) => competitor.score).join('-')}
+                      </span>
+                    )}
+                  </aside>
+                  <aside className="join">
+                    {!spotlight.competition.tier.groupSize && (
+                      <button
+                        className="btn join-item flex-1 rounded-none"
+                        onClick={() => {
+                          api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                            target: '/brackets',
+                            payload: spotlight.competitionId,
+                          });
+                        }}
+                      >
+                        {t('main.dashboard.viewBracket')}
+                      </button>
+                    )}
                     <button
                       className="btn join-item flex-1 rounded-none"
-                      onClick={() => {
+                      disabled={!spotlight._count.events}
+                      title={
+                        spotlight._count.events > 0
+                          ? t('shared.viewMatchDetails')
+                          : t('shared.noMatchDetails')
+                      }
+                      onClick={() =>
+                        spotlight._count.events > 0 &&
                         api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                          target: '/brackets',
-                          payload: spotlight.competitionId,
-                        });
-                      }}
+                          target: '/postgame',
+                          payload: spotlight.id,
+                        })
+                      }
                     >
-                      {t('main.dashboard.viewBracket')}
+                      {t('shared.viewMatchDetails')}
                     </button>
-                  )}
-                  <button
-                    className="btn join-item flex-1 rounded-none"
-                    disabled={!spotlight._count.events}
-                    title={
-                      spotlight._count.events > 0
-                        ? t('shared.viewMatchDetails')
-                        : t('shared.noMatchDetails')
-                    }
-                    onClick={() =>
-                      spotlight._count.events > 0 &&
-                      api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                        target: '/postgame',
-                        payload: spotlight.id,
-                      })
-                    }
-                  >
-                    {t('shared.viewMatchDetails')}
-                  </button>
+                  </aside>
                 </footer>
               </article>
             );
