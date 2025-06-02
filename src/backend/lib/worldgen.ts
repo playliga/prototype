@@ -2210,6 +2210,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
 
   // update team earnings
   return Promise.all([
+    Promise.resolve(WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE)),
     DatabaseClient.prisma.team.update({
       where: {
         id: transfer.from.id,
