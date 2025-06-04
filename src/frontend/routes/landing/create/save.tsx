@@ -48,17 +48,7 @@ export default function () {
       .then(() => {
         api.window.open(Constants.WindowIdentifier.Main);
         api.window.close(Constants.WindowIdentifier.Landing);
-      })
-
-      // there's an issue with react-router causing unnecessary
-      // re-renders which triggers multiple saves happening so
-      // catch it here and ignore if that's what we ran into
-      //
-      // @see https://github.com/remix-run/react-router/issues/7634
-      .catch(
-        (error: Error) =>
-          !error.message.search(/unique constraint failed/gi) && Promise.reject(error),
-      );
+      });
   }, []);
 
   return (

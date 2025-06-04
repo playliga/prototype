@@ -76,7 +76,8 @@ const routes = createMemoryRouter([
 /**
  * The root component.
  *
- * @component
+ * @note Opting out of React Strict Mode to avoid re-render save issue.
+ * @function
  */
 function Root() {
   const { dispatch } = React.useContext(AppStateContext);
@@ -97,14 +98,14 @@ function Root() {
   }, []);
 
   return (
-    <React.StrictMode>
+    <React.Fragment>
       <VideoBackground>
         <source src={LandingVideo} type="video/mp4" />
       </VideoBackground>
       <div className="relative z-10 h-screen">
         <Outlet />
       </div>
-    </React.StrictMode>
+    </React.Fragment>
   );
 }
 

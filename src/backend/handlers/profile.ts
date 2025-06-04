@@ -210,6 +210,9 @@ export default function () {
         name: true,
       },
       where: {
+        id: {
+          not: team.id,
+        },
         tier: Constants.Prestige.findIndex(
           (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
         ),
