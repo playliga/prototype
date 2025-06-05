@@ -3,7 +3,7 @@
 
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
-  exclude: scrollbar;
+  exclude: scrollbar rootscrollgutter;
   themes:
     fantasy --default,
     sunset --prefersdark;
