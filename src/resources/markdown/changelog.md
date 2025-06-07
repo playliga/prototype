@@ -1,3 +1,11 @@
+## 3.0.0-beta.49 (2025-06-07)
+
+### Bug Fixes
+
+- fix instances of user team not being added to competitions ([#242](https://github.com/playliga/prototype/issues/242)) ([f756886](https://github.com/playliga/prototype/commit/f756886afdcf6dbabc43d8c19642de2d7b614177))
+- fix modals causing viewport resize issues ([#418](https://github.com/playliga/prototype/issues/418)) ([dd064fa](https://github.com/playliga/prototype/commit/dd064faeedbb11e8743c113ac57d41c85f17c77c))
+- update squad hub after a successful transfer ([#420](https://github.com/playliga/prototype/issues/420)) ([5c8c0f3](https://github.com/playliga/prototype/commit/5c8c0f3c2f9dce31865e32800abf3ec0446e8648))
+
 ## 3.0.0-beta.48 (2025-05-30)
 
 ### Bug Fixes
