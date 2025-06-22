@@ -15,15 +15,20 @@ import { FaArrowLeft } from 'react-icons/fa';
  * @component
  */
 export default function () {
+  const t = useTranslation('windows');
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [currentStep] = location.pathname
-    .split('/')
-    .slice(-1)
-    .map((path) => parseInt(path) || 1);
+  // infer the currently loaded step
+  const currentStep = React.useMemo(() => {
+    const pathInfo = location.pathname.match(/(\d+)/);
 
-  const t = useTranslation('windows');
+    if (!pathInfo) {
+      return 1;
+    }
+
+    return parseInt(pathInfo[1]);
+  }, [location.pathname]);
 
   // the steps for creating a new career.
   const steps = React.useMemo(
@@ -69,7 +74,7 @@ export default function () {
       </ul>
 
       {/* FORM CONTENT RENDERED BY ROUTE */}
-      <main className="stack-y w-full">
+      <main className="stack-y h-full w-full">
         <Outlet />
       </main>
     </div>

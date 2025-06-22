@@ -7,6 +7,7 @@ import Create from './create';
 import Team from './team';
 import Save from './save';
 import User from './user';
+import Gallery from './gallery';
 
 /**
  * Exports this module.
@@ -18,4 +19,5 @@ export default {
   Team,
   Save,
   User,
+  Gallery,
 };

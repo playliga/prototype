@@ -84,6 +84,7 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
     options: {
       ...baseWindowConfig,
     },
+    buildMenu: () => (is.dev() ? Menu.buildFromTemplate([{ role: 'viewMenu' }]) : null),
   },
   [Constants.WindowIdentifier.Main]: {
     id: Constants.WindowIdentifier.Main,

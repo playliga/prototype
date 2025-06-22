@@ -161,6 +161,7 @@ export default function Select(props: SelectProps & ReactSelectProps) {
         input: (baseStyles) => ({
           ...baseStyles,
           color: 'inherit',
+          fontSize: 'var(--text-sm)',
         }),
         menu: (baseStyles) => ({
           ...baseStyles,
@@ -172,14 +173,17 @@ export default function Select(props: SelectProps & ReactSelectProps) {
           ':hover': {
             background: foregroundColor,
           },
+          fontSize: 'var(--text-sm)',
         }),
         placeholder: (baseStyles) => ({
           ...baseStyles,
           color: 'inherit',
+          fontSize: 'var(--text-sm)',
         }),
         singleValue: (baseStyles) => ({
           ...baseStyles,
           color: 'inherit',
+          fontSize: 'var(--text-sm)',
         }),
       }}
       {...props}

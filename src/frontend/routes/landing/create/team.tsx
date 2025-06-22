@@ -14,7 +14,7 @@ import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
 import { AppState } from '@liga/frontend/redux/state';
 import { useTranslation } from '@liga/frontend/hooks';
-import { FaRecycle } from 'react-icons/fa';
+import { FaFolderOpen, FaRecycle } from 'react-icons/fa';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
 /**
@@ -33,12 +33,12 @@ const formDefaultValues: AppState['windowData'][Constants.WindowIdentifier.Landi
  * @exports
  */
 export default function () {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const t = useTranslation('windows');
   const { state, dispatch } = React.useContext(AppStateContext);
   const [blazonry, setBlazonry] = React.useState<string[]>([]);
   const [teamBlazon, setTeamBlazon] = React.useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const t = useTranslation('windows');
   const windowData = state.windowData.landing;
 
   // form setup
@@ -86,6 +86,17 @@ export default function () {
     }
   }, [blazonry, windowData]);
 
+  // update window state everytime the blazon gets updated
+  React.useEffect(() => {
+    // save data to redux
+    const data = {
+      [Constants.WindowIdentifier.Landing]: {
+        team: { ...windowData.team, blazon: teamBlazon },
+      },
+    };
+    dispatch(windowDataUpdate(data));
+  }, [teamBlazon]);
+
   // handle form submission
   const onSubmit = (team: typeof formDefaultValues) => {
     // save data to redux
@@ -114,13 +125,23 @@ export default function () {
             <span className="loading loading-spinner loading-lg" />
           )}
         </article>
-        <button
-          className="btn btn-square btn-primary"
-          disabled={!teamBlazon}
-          onClick={() => setTeamBlazon('resources://blazonry/' + sample(blazonry))}
-        >
-          <FaRecycle />
-        </button>
+        <article className="stack-x">
+          <button
+            title={t('landing.create.blazonRandomize')}
+            className="btn btn-square btn-primary"
+            disabled={!teamBlazon}
+            onClick={() => setTeamBlazon('resources://blazonry/' + sample(blazonry))}
+          >
+            <FaRecycle />
+          </button>
+          <button
+            title={t('landing.create.blazonGallery')}
+            className="btn btn-square btn-primary"
+            onClick={() => navigate(location.pathname + '/gallery')}
+          >
+            <FaFolderOpen />
+          </button>
+        </article>
       </section>
       <form className="stack-y">
         <section className="fieldset w-full">
