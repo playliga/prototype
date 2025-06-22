@@ -179,12 +179,14 @@ export default function () {
                     </header>
                   </aside>
                   <aside className="center gap-2 pb-2">
+                    <header className="heading w-full border-t-0! py-2! text-center">
+                      <p>{opponent.team.name}</p>
+                    </header>
                     <Image
                       title={opponent.team.name}
                       src={opponent.team.blazon}
                       className="size-32"
                     />
-                    <p>{opponent.team.name}</p>
                     {spotlight.status === Constants.MatchStatus.COMPLETED && (
                       <span
                         className={cx(

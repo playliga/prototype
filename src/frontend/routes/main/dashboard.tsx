@@ -357,6 +357,16 @@ export default function () {
                         </h5>
                       </header>
                     </aside>
+                    <aside className="grid grid-cols-2 place-items-center">
+                      {standings.competitors.map((competitor) => (
+                        <header
+                          key={`${competitor.id}__cup_splotlight_header`}
+                          className="heading w-full border-y-0! py-2! text-center"
+                        >
+                          <p>{competitor.team.name}</p>
+                        </header>
+                      ))}
+                    </aside>
                     <aside className="grid grid-cols-2 place-items-center pb-2">
                       {standings.competitors.map((competitor) => (
                         <figure key={`${competitor.id}__cup_splotlight`} className="center">
@@ -365,7 +375,6 @@ export default function () {
                             src={competitor.team.blazon}
                             className="size-32"
                           />
-                          <p>{competitor.team.name}</p>
                         </figure>
                       ))}
                     </aside>
