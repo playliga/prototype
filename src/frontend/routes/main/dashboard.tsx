@@ -560,7 +560,7 @@ export default function () {
                       disabled={disabled || !!state.appStatus}
                       onClick={() =>
                         api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                          target: '/play',
+                          target: '/pregame',
                           payload: spotlight.id,
                         })
                       }

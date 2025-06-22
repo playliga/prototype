@@ -1,5 +1,5 @@
 /**
- * The play modal allows users to customize settings
+ * The pregame modal allows users to customize settings
  * or their squad before starting their match.
  *
  * @module
