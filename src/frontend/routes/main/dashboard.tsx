@@ -8,7 +8,7 @@ import { addDays, format } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
-import { workingUpdate } from '@liga/frontend/redux/actions';
+import { calendarAdvance, play } from '@liga/frontend/redux/actions';
 import { useTranslation } from '@liga/frontend/hooks';
 import { Standings, Image, Historial } from '@liga/frontend/components';
 import {
@@ -19,6 +19,7 @@ import {
   FaExclamationTriangle,
   FaForward,
   FaMapSigns,
+  FaStream,
   FaTv,
 } from 'react-icons/fa';
 
@@ -26,9 +27,6 @@ import {
 interface StatusBannerProps {
   error: string;
 }
-
-/** @constant */
-const GAME_LAUNCH_DELAY = 1000;
 
 /** @constant */
 const NUM_UPCOMING = 5 + 1; // adds an extra for "next match"
@@ -111,7 +109,6 @@ export function StatusBanner(props: StatusBannerProps) {
 export default function () {
   const t = useTranslation('windows');
   const { state, dispatch } = React.useContext(AppStateContext);
-  const [playing, setPlaying] = React.useState(false);
   const [settings, setSettings] = React.useState(Constants.Settings);
   const [upcoming, setUpcoming] = React.useState<
     Awaited<ReturnType<typeof api.matches.upcoming<typeof Eagers.match>>>
@@ -208,18 +205,10 @@ export default function () {
     [standings, userTeam],
   );
 
-  // start the engine loop
-  const startEngineLoop = async (days?: number) => {
-    dispatch(workingUpdate(true));
-    await api.calendar.start(days);
-    dispatch(workingUpdate(false));
-    return Promise.resolve();
-  };
-
   return (
     <div className="dashboard">
       {/** PLAYING MODAL */}
-      <dialog className={cx('modal', playing && 'modal-open')}>
+      <dialog className={cx('modal', state.playing && 'modal-open')}>
         <section className="modal-box">
           <h3 className="text-lg">{t('main.dashboard.playingMatchTitle')}</h3>
           <p className="py-4">{t('main.dashboard.playingMatchSubtitle')}</p>
@@ -404,7 +393,7 @@ export default function () {
               title={t('main.dashboard.advanceCalendar')}
               className="day day-btn border-t-0"
               disabled={!state.profile || state.working || isMatchday}
-              onClick={() => !state.working && !isMatchday && startEngineLoop()}
+              onClick={() => !state.working && !isMatchday && dispatch(calendarAdvance())}
             >
               <figure>
                 <FaForward />
@@ -495,6 +484,20 @@ export default function () {
 
             return (
               <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none!">
+                {spotlight.status === Constants.MatchStatus.PLAYING && (
+                  <figure className="center absolute top-2 left-1/2 z-10 -translate-x-1/2 gap-1 uppercase">
+                    <article className="inline-grid *:[grid-area:1/1]">
+                      <span className="status status-error animate-ping" />
+                      <span className="status status-error" />
+                    </article>
+                    <span>
+                      <strong>Live&nbsp;</strong>
+                      <em>
+                        ({spotlight.competitors.map((competitor) => competitor.score).join(' - ')})
+                      </em>
+                    </span>
+                  </figure>
+                )}
                 <figure>
                   <Image
                     className="h-full w-full"
@@ -540,6 +543,13 @@ export default function () {
                               : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
                           </span>
                         </li>
+                        <li className="stack-x items-center">
+                          <FaStream />
+                          <span>
+                            {t('shared.bestOf')}&nbsp;
+                            {spotlight.games.length}
+                          </span>
+                        </li>
                       </ul>
                     </aside>
                     <aside className="stack-y items-center">
@@ -571,19 +581,32 @@ export default function () {
                       className="btn btn-primary join-item btn-wide"
                       disabled={disabled || !!state.appStatus}
                       onClick={() => {
-                        setPlaying(true);
-                        Util.sleep(GAME_LAUNCH_DELAY)
-                          .then(api.play.start)
-                          .then(() => startEngineLoop(1))
-                          .then(() => setPlaying(false));
+                        // jump directly into game if it's a bo1
+                        // or there is a map already in-progress
+                        if (
+                          spotlight.games.length === 1 ||
+                          spotlight.games.some(
+                            (matchGame) => matchGame.status === Constants.MatchStatus.PLAYING,
+                          )
+                        ) {
+                          return dispatch(play(spotlight.id));
+                        }
+
+                        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                          target:
+                            spotlight.status === Constants.MatchStatus.PLAYING
+                              ? '/postgame'
+                              : '/play',
+                          payload: spotlight.id,
+                        });
                       }}
                     >
                       {t('main.dashboard.play')}
                     </button>
                     <button
                       className="btn join-item btn-wide"
-                      disabled={disabled}
-                      onClick={() => api.calendar.sim().then(() => startEngineLoop(1))}
+                      disabled={disabled || spotlight.status !== Constants.MatchStatus.READY}
+                      onClick={() => api.calendar.sim().then(() => dispatch(calendarAdvance(1)))}
                     >
                       {t('main.dashboard.simulate')}
                     </button>
@@ -591,13 +614,7 @@ export default function () {
                       title={t('main.dashboard.spectateMatch')}
                       className="btn btn-secondary join-item"
                       disabled={disabled || !!state.appStatus}
-                      onClick={() => {
-                        setPlaying(true);
-                        Util.sleep(GAME_LAUNCH_DELAY)
-                          .then(() => api.play.start(true))
-                          .then(() => startEngineLoop(1))
-                          .then(() => setPlaying(false));
-                      }}
+                      onClick={() => dispatch(play(spotlight.id, true))}
                     >
                       <FaTv />
                     </button>

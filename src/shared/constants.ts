@@ -257,6 +257,8 @@ export enum IPCRoute {
   ISSUES_COMMENTS = '/issues/comments',
   ISSUES_COMMENTS_CREATE = '/issues/comments/create',
   ISSUES_FIND = '/issues/find',
+  MATCH_FIND = '/match/find',
+  MATCH_UPDATE_MAP_LIST = '/match/update/map-list',
   MATCHES_ALL = '/matches/all',
   MATCHES_COUNT = '/matches/count',
   MATCHES_PREVIOUS = '/matches/previous',
@@ -322,6 +324,13 @@ export enum IssueType {
   FEATURE,
 }
 
+/** @enum */
+export enum MapVetoAction {
+  BAN = 'ban',
+  PICK = 'pick',
+  DECIDER = 'decider',
+}
+
 /**
  * The possible outcomes for a match between two teams.
  *
@@ -350,6 +359,9 @@ export enum MatchStatus {
 
   // the match is completed
   COMPLETED,
+
+  // the match is being played
+  PLAYING,
 }
 
 /**
@@ -960,6 +972,30 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
 };
 
 /**
+ * Map veto config.
+ *
+ * @constant
+ */
+export const MapVetoConfig: Record<number, Array<{ team: number; type: MapVetoAction }>> = {
+  3: [
+    { team: 0, type: MapVetoAction.BAN },
+    { team: 1, type: MapVetoAction.BAN },
+    { team: 0, type: MapVetoAction.PICK },
+    { team: 1, type: MapVetoAction.PICK },
+    { team: 1, type: MapVetoAction.BAN },
+    { team: 0, type: MapVetoAction.BAN },
+  ],
+  5: [
+    { team: 0, type: MapVetoAction.BAN },
+    { team: 1, type: MapVetoAction.BAN },
+    { team: 0, type: MapVetoAction.PICK },
+    { team: 1, type: MapVetoAction.PICK },
+    { team: 1, type: MapVetoAction.PICK },
+    { team: 0, type: MapVetoAction.PICK },
+  ],
+};
+
+/**
  * Eligible days of the week for competitions to hold matches.
  *
  * Each day of the week caries its own probability weight.
@@ -1499,6 +1535,37 @@ export const SponsorContract: Record<
     ],
     tiers: [TierSlug.LEAGUE_PREMIER],
   },
+};
+
+/**
+ * Match config for tiers such as
+ * the number of games per match.
+ *
+ * The array index represents the round
+ * counting back from the grand-final.
+ *
+ * For example, an array of `[7, 5, 3]`:
+ *
+ * - grand-final is bo7
+ * - semi-final is bo5
+ * - quarter-final is bo3
+ *
+ * @constant
+ */
+export const TierMatchConfig: Record<string, Array<number>> = {
+  [TierSlug.CIRCUIT_PLAYOFFS]: [3, 3],
+  [TierSlug.ESWC_PLAYOFFS]: [5, 3],
+  [TierSlug.LEAGUE_ADVANCED_PLAYOFFS]: [3, 3],
+  [TierSlug.LEAGUE_CUP]: [3, 3],
+  [TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS]: [3, 3],
+  [TierSlug.LEAGUE_MAIN_PLAYOFFS]: [3, 3],
+  [TierSlug.LEAGUE_OPEN_PLAYOFFS]: [3, 3],
+  [TierSlug.LEAGUE_PREMIER_PLAYOFFS]: [3, 3],
+  [TierSlug.SPONSORS_BLUEQUIL]: [3, 3],
+  [TierSlug.SPONSORS_HEAVENCASE]: [3, 3],
+  [TierSlug.SPONSORS_NINEKBET]: [3, 3],
+  [TierSlug.SPONSORS_SKINARCH]: [3, 3],
+  [TierSlug.SPONSORS_WHITE_WOLF]: [3, 3],
 };
 
 /**

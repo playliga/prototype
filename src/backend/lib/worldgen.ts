@@ -183,12 +183,10 @@ async function createMatchdays(
       // if there's an existing matchday record then we only need
       // update its status and add competitors if necessary
       const existingMatch = await DatabaseClient.prisma.match.findFirst({
+        ...Eagers.match,
         where: {
           payload: JSON.stringify(match.id),
           competitionId: Number(competition.id),
-        },
-        include: {
-          competitors: true,
         },
       });
 
@@ -219,6 +217,16 @@ async function createMatchdays(
               competitors: {
                 create: differenceBy(competitors, existingMatch.competitors, 'teamId'),
               },
+              games: {
+                update: existingMatch.games.map((game) => ({
+                  where: { id: game.id },
+                  data: {
+                    teams: {
+                      create: differenceBy(competitors, existingMatch.competitors, 'teamId'),
+                    },
+                  },
+                })),
+              },
             },
           }),
         ]);
@@ -234,6 +242,13 @@ async function createMatchdays(
         match.data = { map: mapName };
       } else {
         match.data['map'] = mapName;
+      }
+
+      // how many games in this series?
+      let num = 1;
+
+      if (Constants.TierMatchConfig[competition.tier.slug]) {
+        num = Constants.TierMatchConfig[competition.tier.slug][totalRounds - match.id.r] || num;
       }
 
       // create match record
@@ -253,16 +268,14 @@ async function createMatchdays(
             create: competitors,
           },
           games: {
-            create: [
-              {
-                status,
-                map: mapName,
-                num: 1,
-                teams: {
-                  create: competitors,
-                },
+            create: Array.from({ length: num }).map((_, idx) => ({
+              status,
+              map: mapName,
+              num: idx,
+              teams: {
+                create: competitors,
               },
-            ],
+            })),
           },
         },
       });

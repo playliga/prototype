@@ -3,7 +3,8 @@
  *
  * @module
  */
-import { AppState } from './state';
+import { Constants, Util } from '@liga/shared';
+import { AppDispatch, AppState } from './state';
 
 /** @enum */
 export enum ReduxActions {
@@ -13,6 +14,7 @@ export enum ReduxActions {
   EMAILS_UPDATE,
   EMAILS_DELETE,
   LOCALE_UPDATE,
+  PLAYING_UPDATE,
   PROFILE_UPDATE,
   PROFILES_DELETE,
   PROFILES_UPDATE,
@@ -39,6 +41,20 @@ export function appStatusUpdate(payload: AppState['appStatus']) {
   return {
     type: ReduxActions.APP_STATUS_UPDATE,
     payload,
+  };
+}
+
+/**
+ * Thunk action that advances the calendar.
+ *
+ * @param days The number of days to advance.
+ * @function
+ */
+export function calendarAdvance(days?: number) {
+  return async (dispatch: AppDispatch) => {
+    dispatch(workingUpdate(true));
+    await api.calendar.start(days);
+    dispatch(workingUpdate(false));
   };
 }
 
@@ -82,6 +98,44 @@ export function emailsDelete(payload: AppState['emails']) {
 export function localeUpdate(payload: AppState['locale']) {
   return {
     type: ReduxActions.LOCALE_UPDATE,
+    payload,
+  };
+}
+
+/**
+ * Thunk action that starts the game server
+ * for the user to play their match.
+ *
+ * @param id          The match id to play.
+ * @param spectating  Will user be spectating this match.
+ * @function
+ */
+export function play(id: number, spectating?: boolean) {
+  return async (dispatch: AppDispatch) => {
+    dispatch(playingUpdate(true));
+    await Util.sleep(1000);
+    await api.play.start(spectating);
+
+    // do not advance if match is not completed
+    const match = await api.match.find({
+      where: { id },
+    });
+
+    if (match.status === Constants.MatchStatus.COMPLETED) {
+      dispatch(calendarAdvance(1));
+    }
+
+    dispatch(playingUpdate(false));
+  };
+}
+
+/**
+ * @param payload The redux payload.
+ * @function
+ */
+export function playingUpdate(payload: AppState['playing']) {
+  return {
+    type: ReduxActions.PLAYING_UPDATE,
     payload,
   };
 }

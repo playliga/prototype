@@ -16,10 +16,14 @@ import { FaBomb, FaSkull, FaTools } from 'react-icons/fa';
 /** @type {Matches} */
 type Matches<T = typeof Eagers.match> = Awaited<ReturnType<typeof api.matches.all<T>>>;
 
+/** @type {MatchGame} */
+type MatchGame = Matches[number]['games'][number];
+
 /** @interface */
 interface ScoreboardProps {
   competitor: Matches<typeof Eagers.matchEvents>[number]['competitors'][number];
   match: Matches<typeof Eagers.matchEvents>[number];
+  matchGame?: MatchGame;
 }
 
 /**
@@ -84,9 +88,16 @@ function Scoreboard(props: ScoreboardProps) {
     () => intersectionBy(props.competitor.team.players, props.match.players, 'name'),
     [props.competitor.team.players, props.match.players],
   );
+  const matchEvents = React.useMemo(
+    () =>
+      props.matchGame
+        ? props.match.events.filter((matchEvent) => matchEvent.gameId === props.matchGame.id)
+        : props.match.events,
+    [props.match, props.matchGame],
+  );
   const killOrAssistEvents = React.useMemo(
-    () => props.match.events.filter((event) => event.weapon !== null || event.assistId),
-    [props.match],
+    () => matchEvents.filter((event) => event.weapon !== null || event.assistId),
+    [matchEvents],
   );
 
   return (
@@ -167,8 +178,9 @@ export default function () {
   const location = useLocation();
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
-  const [settings, setSettings] = React.useState(Constants.Settings);
   const [match, setMatch] = React.useState<Matches<typeof Eagers.matchEvents>[number]>();
+  const [matchGame, setMatchGame] = React.useState<MatchGame>();
+  const [settings, setSettings] = React.useState(Constants.Settings);
 
   // grab match data
   React.useEffect(() => {
@@ -196,8 +208,20 @@ export default function () {
   }, [state.profile]);
 
   // grab basic match info
-  const game = React.useMemo(() => match && match.games[0], [match]);
   const [home, away] = React.useMemo(() => (match ? match.competitors : []), [match]);
+  const [matchGameHome, matchGameAway] = React.useMemo(
+    () => (matchGame ? matchGame.teams : match ? match.competitors : []),
+    [match, matchGame],
+  );
+  const matchEvents = React.useMemo(
+    () =>
+      matchGame
+        ? match.events.filter((matchEvent) => matchEvent.gameId === matchGame.id)
+        : match
+          ? match.events
+          : [],
+    [match, matchGame],
+  );
 
   if (!state.profile || !match) {
     return (
@@ -224,14 +248,22 @@ export default function () {
               ? `${t('shared.matchday')} ${match.round}`
               : Util.parseCupRounds(match.round, match.totalRounds)}
           </li>
-          <li>{Util.convertMapPool(game.map, settings.general.game)}</li>
+          <li>
+            {matchGame
+              ? Util.convertMapPool(matchGame.map, settings.general.game)
+              : t('shared.overview')}
+          </li>
         </ul>
       </header>
       <section className="card image-full h-16 rounded-none before:rounded-none!">
         <figure>
           <Image
             className="h-full w-full"
-            src={Util.convertMapPool(game.map, settings.general.game, true)}
+            src={Util.convertMapPool(
+              matchGame?.map || match.games[0].map,
+              settings.general.game,
+              true,
+            )}
           />
         </figure>
         <header className="card-body grid grid-cols-3 place-items-center p-0">
@@ -242,26 +274,26 @@ export default function () {
           <article className="grid grid-cols-3 place-items-center text-4xl font-bold">
             <p
               className={
-                home.score > away.score
+                matchGameHome.score > matchGameAway.score
                   ? 'text-success'
-                  : home.score < away.score
+                  : matchGameHome.score < matchGameAway.score
                     ? 'text-error'
                     : 'text-inherit'
               }
             >
-              {home.score}
+              {matchGameHome.score}
             </p>
             <p>:</p>
             <p
               className={
-                away.score > home.score
+                matchGameAway.score > matchGameHome.score
                   ? 'text-success'
-                  : away.score < home.score
+                  : matchGameAway.score < matchGameHome.score
                     ? 'text-error'
                     : 'text-inherit'
               }
             >
-              {away.score}
+              {matchGameAway.score}
             </p>
           </article>
           <article className="grid w-full grid-cols-2 place-items-center font-black">
@@ -270,101 +302,147 @@ export default function () {
           </article>
         </header>
       </section>
-      <Scoreboard match={match} competitor={home} />
-      <table className="table-xs table">
-        <thead>
-          <tr className="border-t-base-content/10 border-t">
-            <th colSpan={3}>{t('postgame.timeline')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {match.competitors.map((competitor, idx) => {
-            const roundEndEvents = match.events.filter((event) => event.winnerId !== null);
-            return (
-              <tr key={competitor.team.name + '__round_history'}>
-                <td className="w-[10%] text-center">
-                  <img src={competitor.team.blazon} className="inline-block size-4" />
-                </td>
-                {[...Array(2)].map((_, half) => (
-                  <td
-                    key={competitor.team.name + half + '__round_item'}
-                    className="border-base-content/10 w-[45%] border-l"
-                  >
-                    <section className="flex justify-between">
-                      {roundEndEvents
-                        .filter((event) => event.half === half)
-                        .map((event, round) => (
-                          <article
-                            key={competitor.team.name + event.id}
-                            title={t('postgame.round') + ' ' + (round + 1)}
-                            className="center basis-4"
-                          >
-                            {event.winnerId === competitor.id ? (
-                              getRoundWinIcon(event.result, idx, event.half)
-                            ) : (
-                              <span>&nbsp;</span>
-                            )}
-                          </article>
-                        ))}
-                    </section>
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <Scoreboard match={match} competitor={away} />
-      <section className="h-0 flex-grow overflow-x-auto">
-        <table className="table-pin-rows table-xs table">
-          {[...Array(2)].map((_, half) => (
-            <React.Fragment key={half + '__match_log'}>
-              <thead>
-                <tr className="border-t-base-content/10 border-t">
-                  <th>
-                    {t('postgame.matchLog')} - {Util.toOrdinalSuffix(half + 1)} {t('postgame.half')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {match.events
-                  .filter((event) => event.half === half || (half === 0 && event.half === -1))
-                  .map((event) => {
-                    const payload = JSON.parse(event.payload);
-                    const action = event?.attacker ? t('postgame.killed') : t('postgame.assisted');
-                    return (
-                      <tr
-                        key={event.id + '__match_log'}
-                        className={cx(event.winnerId && 'font-bold')}
-                      >
-                        <td>
-                          {event.winnerId ? (
-                            <span>
-                              {event.winner.team.name} {t('postgame.wonRound')}&nbsp;
-                              {JSON.stringify(payload.payload.score)}
-                            </span>
-                          ) : (
-                            <span>
-                              {event.attacker?.name || event.assist?.name}&nbsp;
-                              {action}&nbsp;
-                              {event.victim.name}&nbsp;
-                              {!!event.weapon && (
-                                <span>
-                                  {t('postgame.with')} {event.weapon}&nbsp;
-                                </span>
-                              )}
-                              {!!event.headshot && <span>({t('postgame.headshot')})</span>}
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </React.Fragment>
+      {match.games.length > 1 && (
+        <section
+          role="tablist"
+          className="tabs-box tabs border-base-content/10 tabs-xs rounded-none border-t"
+        >
+          <a
+            role="tab"
+            className={cx('tab', !matchGame && 'tab-active')}
+            onClick={() => setMatchGame(null)}
+          >
+            {t('shared.overview')}
+          </a>
+          {match.games.map((game) => (
+            <a
+              role="tab"
+              key={'game_' + game.num + '__tab'}
+              className={cx(
+                'tab',
+                game.num === matchGame?.num && 'tab-active',
+                game.status !== Constants.MatchStatus.COMPLETED && 'tab-disabled',
+              )}
+              onClick={() => setMatchGame(game)}
+            >
+              {Util.convertMapPool(game.map, settings.general.game)}
+            </a>
           ))}
+        </section>
+      )}
+      <Scoreboard competitor={home} match={match} matchGame={matchGame} />
+      {(match.games.length === 1 || !!matchGame) && (
+        <table className="table-xs table">
+          <thead>
+            <tr className="border-t-base-content/10 border-t">
+              <th colSpan={3}>{t('postgame.timeline')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {match.competitors.map((competitor, idx) => {
+              const roundEndEvents = matchEvents.filter((event) => event.winnerId !== null);
+              return (
+                <tr key={competitor.team.name + '__round_history'}>
+                  <td className="w-[10%] text-center">
+                    <img src={competitor.team.blazon} className="inline-block size-4" />
+                  </td>
+                  {[...Array(2)].map((_, half) => (
+                    <td
+                      key={competitor.team.name + half + '__round_item'}
+                      className="border-base-content/10 w-[45%] border-l"
+                    >
+                      <section className="flex justify-between">
+                        {roundEndEvents
+                          .filter((event) => event.half === half)
+                          .map((event, round) => (
+                            <article
+                              key={competitor.team.name + event.id}
+                              title={t('postgame.round') + ' ' + (round + 1)}
+                              className="center basis-4"
+                            >
+                              {event.winnerId === competitor.id ? (
+                                getRoundWinIcon(event.result, idx, event.half)
+                              ) : (
+                                <span>&nbsp;</span>
+                              )}
+                            </article>
+                          ))}
+                      </section>
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
+      )}
+      <Scoreboard competitor={away} match={match} matchGame={matchGame} />
+      <section className="h-0 flex-grow overflow-x-auto">
+        {(match.games.length === 1 || !!matchGame) && (
+          <table className="table-pin-rows table-xs table">
+            {[...Array(2)].map((_, half) => (
+              <React.Fragment key={half + '__match_log'}>
+                <thead>
+                  <tr className="border-t-base-content/10 border-t">
+                    <th>
+                      {t('postgame.matchLog')} - {Util.toOrdinalSuffix(half + 1)}{' '}
+                      {t('postgame.half')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matchEvents
+                    .filter((event) => event.half === half || (half === 0 && event.half === -1))
+                    .map((event) => {
+                      const payload = JSON.parse(event.payload);
+                      const action = event?.attacker
+                        ? t('postgame.killed')
+                        : t('postgame.assisted');
+                      return (
+                        <tr
+                          key={event.id + '__match_log'}
+                          className={cx(event.winnerId && 'font-bold')}
+                        >
+                          <td>
+                            {event.winnerId ? (
+                              <span>
+                                {event.winner.team.name} {t('postgame.wonRound')}&nbsp;
+                                {JSON.stringify(payload.payload.score)}
+                              </span>
+                            ) : (
+                              <span>
+                                {event.attacker?.name || event.assist?.name}&nbsp;
+                                {action}&nbsp;
+                                {event.victim.name}&nbsp;
+                                {!!event.weapon && (
+                                  <span>
+                                    {t('postgame.with')} {event.weapon}&nbsp;
+                                  </span>
+                                )}
+                                {!!event.headshot && <span>({t('postgame.headshot')})</span>}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </React.Fragment>
+            ))}
+          </table>
+        )}
       </section>
+      {match.status !== Constants.MatchStatus.COMPLETED && (
+        <button
+          className="btn btn-xl btn-block btn-secondary rounded-none active:translate-0!"
+          onClick={() => {
+            api.window.send(Constants.WindowIdentifier.Main, match.id, null);
+            api.window.close(Constants.WindowIdentifier.Modal);
+          }}
+        >
+          {t('main.dashboard.play')}
+        </button>
+      )}
     </main>
   );
 }

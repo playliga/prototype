@@ -152,6 +152,7 @@ model Game {
 
   // has many
   teams               GameToTeam[]
+  events              MatchEvent[]
 
   // belongs to
   match               Match               @relation(fields: [matchId], references: [id])
@@ -217,6 +218,8 @@ model MatchEvent {
   attackerId          Int?
   assist              Player?             @relation("assist", fields: [assistId], references: [id])
   assistId            Int?
+  game                Game?               @relation(fields: [gameId], references: [id])
+  gameId              Int?
   victim              Player?             @relation("victim", fields: [victimId], references: [id])
   victimId            Int?
   winner              MatchToTeam?        @relation(fields: [winnerId], references: [id])

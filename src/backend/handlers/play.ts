@@ -37,6 +37,7 @@ export default function () {
       },
       include: Eagers.match.include,
     });
+    const winsToClinch = Math.floor(match.games.length / 2) + 1;
 
     // minimize main window
     const mainWindow = WindowManager.get(Constants.WindowIdentifier.Main);
@@ -66,37 +67,63 @@ export default function () {
     // game over; collect postgame info
     const [homeScore, awayScore] = gameServer.result.score;
     const [home, away] = match.competitors;
-    const finalScore = {
-      [home.id]: homeScore,
-      [away.id]: awayScore,
+    const gameScore = {
+      [home.teamId]: homeScore,
+      [away.teamId]: awayScore,
     };
+    const globalScore = {
+      [home.teamId]:
+        match.games.length > 1
+          ? home.score +
+            Number(Simulator.getMatchResult(home.teamId, gameScore) === Constants.MatchResult.WIN)
+          : gameScore[home.teamId],
+      [away.teamId]:
+        match.games.length > 1
+          ? away.score +
+            Number(Simulator.getMatchResult(away.teamId, gameScore) === Constants.MatchResult.WIN)
+          : gameScore[away.teamId],
+    };
+    const matchCompleted = Object.values(globalScore).some((score) => score >= winsToClinch);
+
+    // add the user back into the list of players
+    // to record match events properly
     const players = flatten(gameServer.competitors.map((competitor) => competitor.team.players));
-
-    // clean up on-the-fly settings
-    if (settingsLocalStorage) {
-      try {
-        await mainWindow.webContents.executeJavaScript('localStorage.removeItem("settings");');
-      } catch (_) {
-        log.warn('Could not remove on-the-fly settings.');
-      }
-    }
-
-    // add the user's team back into the mix
     players.push(profile.player);
 
     // update the match record and create the match events database entries
     await DatabaseClient.prisma.match.update({
       where: { id: match.id },
       data: {
-        status: Constants.MatchStatus.COMPLETED,
+        status: matchCompleted ? Constants.MatchStatus.COMPLETED : match.status,
         competitors: {
           update: match.competitors.map((competitor) => ({
             where: { id: competitor.id },
             data: {
-              score: finalScore[competitor.id],
-              result: Simulator.getMatchResult(competitor.id, finalScore),
+              score: globalScore[competitor.teamId],
+              result: matchCompleted
+                ? Simulator.getMatchResult(competitor.teamId, globalScore)
+                : competitor.result,
             },
           })),
+        },
+        games: {
+          update: {
+            where: { id: gameServer.matchGame.id },
+            data: {
+              status: Constants.MatchStatus.COMPLETED,
+              teams: {
+                update: gameServer.matchGame.teams.map((team) => ({
+                  where: {
+                    id: team.id,
+                  },
+                  data: {
+                    score: gameScore[team.teamId],
+                    result: Simulator.getMatchResult(team.teamId, gameScore),
+                  },
+                })),
+              },
+            },
+          },
         },
         players: {
           connect: players.map((player) => ({ id: player.id })),
@@ -115,6 +142,11 @@ export default function () {
                   assist: {
                     connect: {
                       id: assist?.id || profile.playerId,
+                    },
+                  },
+                  game: {
+                    connect: {
+                      id: gameServer.matchGame.id,
                     },
                   },
                   victim: {
@@ -141,6 +173,11 @@ export default function () {
                       id: attacker?.id || profile.playerId,
                     },
                   },
+                  game: {
+                    connect: {
+                      id: gameServer.matchGame.id,
+                    },
+                  },
                   victim: {
                     connect: {
                       id: victim?.id || profile.playerId,
@@ -159,6 +196,11 @@ export default function () {
                   payload: JSON.stringify(event),
                   result: eventRoundOver.event,
                   timestamp: eventRoundOver.timestamp,
+                  game: {
+                    connect: {
+                      id: gameServer.matchGame.id,
+                    },
+                  },
                   winner: {
                     connect: {
                       id: match.competitors[winnerIdx].id,
@@ -172,9 +214,29 @@ export default function () {
       },
     });
 
+    // bail early if match isn't completed yet and send a profile
+    // update so that the match status gets refreshed
+    if (!matchCompleted) {
+      mainWindow.restore();
+      mainWindow.webContents.send(Constants.IPCRoute.PROFILES_CURRENT, profile);
+      return WindowManager.send(Constants.WindowIdentifier.Modal, {
+        target: '/postgame',
+        payload: match.id,
+      });
+    }
+
+    // clean up on-the-fly settings
+    if (settingsLocalStorage) {
+      try {
+        await mainWindow.webContents.executeJavaScript('localStorage.removeItem("settings");');
+      } catch (_) {
+        log.warn('Could not remove on-the-fly settings.');
+      }
+    }
+
     // give training boosts to squad if they won
     const userTeam = match.competitors.find((competitor) => competitor.teamId === profile.teamId);
-    const matchResult = Simulator.getMatchResult(userTeam.id, finalScore);
+    const matchResult = Simulator.getMatchResult(userTeam.id, globalScore);
 
     if (matchResult === Constants.MatchResult.WIN) {
       const bonuses = [
@@ -206,7 +268,5 @@ export default function () {
       target: '/postgame',
       payload: match.id,
     });
-
-    return Promise.resolve();
   });
 }

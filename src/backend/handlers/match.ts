@@ -3,8 +3,10 @@
  *
  * @module
  */
+import Tournament from '@liga/shared/tournament';
 import { ipcMain } from 'electron';
-import { Constants } from '@liga/shared';
+import { differenceBy } from 'lodash';
+import { Constants, Eagers } from '@liga/shared';
 import { DatabaseClient } from '@liga/backend/lib';
 import { Prisma } from '@prisma/client';
 
@@ -14,6 +16,56 @@ import { Prisma } from '@prisma/client';
  * @function
  */
 export default function () {
+  ipcMain.handle(Constants.IPCRoute.MATCH_FIND, (_, query: Prisma.MatchFindFirstArgs) =>
+    DatabaseClient.prisma.match.findFirst(query),
+  );
+  ipcMain.handle(
+    Constants.IPCRoute.MATCH_UPDATE_MAP_LIST,
+    async (_, id: number, maps: Array<string>) => {
+      const match = await DatabaseClient.prisma.match.findFirst({
+        ...Eagers.match,
+        where: { id },
+      });
+
+      // update the tourney object metadata with the map list
+      const tournament = Tournament.restore(JSON.parse(match.competition.tournament));
+      tournament.$base.findMatch(JSON.parse(match.payload)).data['maps'] = maps;
+
+      // update the match database record with the map list
+      return DatabaseClient.prisma.match.update({
+        where: { id },
+        data: {
+          status: Constants.MatchStatus.PLAYING,
+          competition: {
+            update: {
+              tournament: JSON.stringify(tournament.save()),
+            },
+          },
+          games: {
+            update: match.games.map((game, gameIdx) => ({
+              where: { id: game.id },
+              data: {
+                map: maps[gameIdx],
+                status: gameIdx === 0 ? Constants.MatchStatus.PLAYING : game.status,
+                // ensure competitors have been added
+                // to the current game in the series
+                //
+                // @todo: remove after beta
+                teams: {
+                  create: differenceBy(match.competitors, game.teams, 'teamId').map(
+                    (competitor) => ({
+                      teamId: competitor.teamId,
+                      seed: competitor.seed,
+                    }),
+                  ),
+                },
+              },
+            })),
+          },
+        },
+      });
+    },
+  );
   ipcMain.handle(Constants.IPCRoute.MATCHES_ALL, (_, query: Prisma.MatchFindManyArgs) =>
     DatabaseClient.prisma.match.findMany(query),
   );
@@ -61,7 +113,7 @@ export default function () {
             },
           },
           status: {
-            lt: Constants.MatchStatus.COMPLETED,
+            not: Constants.MatchStatus.COMPLETED,
           },
         },
         orderBy: {
