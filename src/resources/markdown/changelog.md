@@ -1,3 +1,15 @@
+## 3.0.0-beta.50 (2025-07-03)
+
+### Features
+
+- add bo3 and bo5 support ([#248](https://github.com/playliga/prototype/issues/248)) ([7f7c38c](https://github.com/playliga/prototype/commit/7f7c38cc6cff352e97536dfacc435a15582c50f6))
+- add team logo gallery ([#424](https://github.com/playliga/prototype/issues/424)) ([091f648](https://github.com/playliga/prototype/commit/091f6483423309e752e2f6f2695b07f8131fec82))
+- minor cosmetic adjustments to dashboard ([44aade1](https://github.com/playliga/prototype/commit/44aade15acbfe35c6ccaebe6edf1757dbc1aaa69))
+
+### Bug Fixes
+
+- cosmetic fixes to player cards ([803c94d](https://github.com/playliga/prototype/commit/803c94d8b689e3cfa4193d0ad299f98ce058b916))
+
 ## 3.0.0-beta.49 (2025-06-07)
 
 ### Bug Fixes
