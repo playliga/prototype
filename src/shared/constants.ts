@@ -815,6 +815,7 @@ export const GameSettings = {
   CS2_LOGFILE: 'console.log',
   CS2_SERVER_CONFIG_FILE: 'cfg/listenserver.cfg',
   CS2_VPK_FILE: 'overrides/liga.vpk',
+  CS2_VPK_METAMOD: 'addons/metamod',
 
   // csgo settings
   CSGO_APPID: 730,
