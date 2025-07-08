@@ -1,3 +1,9 @@
+## 3.0.0-beta.51 (2025-07-08)
+
+### Bug Fixes
+
+- improved cs2 support ([#431](https://github.com/playliga/prototype/issues/431)) ([17cec5b](https://github.com/playliga/prototype/commit/17cec5b0bb823a1016c25e75116a6d5224a66253))
+
 ## 3.0.0-beta.50 (2025-07-03)
 
 ### Features
