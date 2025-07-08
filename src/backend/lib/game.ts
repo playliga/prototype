@@ -1302,6 +1302,12 @@ export class Server {
     // scorebot game over handler resolves our promise
     return new Promise((resolve) => {
       this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, async (payload) => {
+        // on cs2 we must sleep because the game over event happens too quickly
+        // since the plugin is not able to hook into the engine logs
+        if (this.settings.general.game === Constants.Game.CS2) {
+          await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000);
+        }
+
         // in csgo and cs2, overtimes affect the order of the final
         // scores reported so we must swap them accordingly
         if (
