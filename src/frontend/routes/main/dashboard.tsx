@@ -501,7 +501,11 @@ export default function () {
                 <figure>
                   <Image
                     className="h-full w-full"
-                    src={Util.convertMapPool(spotlight.games[0].map, settings.general.game, true)}
+                    src={Util.convertMapPool(
+                      settings.matchRules.mapOverride || spotlight.games[0].map,
+                      settings.general.game,
+                      true,
+                    )}
                   />
                 </figure>
                 <article className="card-body">
@@ -532,7 +536,10 @@ export default function () {
                         <li className="stack-x items-center">
                           <FaMapSigns />
                           <span>
-                            {Util.convertMapPool(spotlight.games[0].map, settings.general.game)}
+                            {Util.convertMapPool(
+                              settings.matchRules.mapOverride || spotlight.games[0].map,
+                              settings.general.game,
+                            )}
                           </span>
                         </li>
                         <li className="stack-x items-center">
