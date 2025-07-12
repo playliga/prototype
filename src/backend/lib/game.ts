@@ -451,8 +451,12 @@ export class Server {
     this.log.info('Cleaning up...');
 
     // clean up connections to processes and/or files
-    await this.scorebot.quit();
-    gameClientProcess = null;
+    try {
+      await this.scorebot.quit();
+      gameClientProcess = null;
+    } catch (error) {
+      this.log.warn(error);
+    }
 
     // restore files
     return FileManager.restore(
@@ -1256,6 +1260,13 @@ export class Server {
         await this.launchClientCSGO();
         break;
     }
+
+    // attach client process event handlers
+    //
+    // @todo: better error handling here
+    gameClientProcess.on('error', (error) => {
+      this.log.error(error);
+    });
 
     // connect to rcon
     this.rcon = new RCON.Client(
