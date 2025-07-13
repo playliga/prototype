@@ -1,3 +1,13 @@
+## 3.0.0-beta.52 (2025-07-13)
+
+### Bug Fixes
+
+- add delay after game over in cs2 ([ed45763](https://github.com/playliga/prototype/commit/ed45763590d4d5ef986f989cbd22a44def625499))
+- fix map override not working ([#427](https://github.com/playliga/prototype/issues/427)) ([e95ec12](https://github.com/playliga/prototype/commit/e95ec123e09ff6056947fa76e56e76a7ddbf18ad))
+- fix startmoney override not working ([#438](https://github.com/playliga/prototype/issues/438)) ([4f31055](https://github.com/playliga/prototype/commit/4f31055f188164332543408a80d2fb579cdc7353))
+- improved game launch error reporting and handling ([8cadf8f](https://github.com/playliga/prototype/commit/8cadf8fe9c457bc00f6cd12c3d2368b067639e12))
+- team and player database adjustments ([92f4ccd](https://github.com/playliga/prototype/commit/92f4ccdc3afb7d9211ddd7ffa901b1a9b46279d7))
+
 ## 3.0.0-beta.51 (2025-07-08)
 
 ### Bug Fixes
