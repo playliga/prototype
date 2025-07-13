@@ -800,6 +800,7 @@ export class Server {
           gameover_delay: Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY,
           bot_chatter: this.settings.general.botChatter,
           spectating: +this.spectating,
+          startmoney: this.settings.matchRules.startMoney,
 
           // csgo only
           match_stat: this.match.competition.tier.name,
