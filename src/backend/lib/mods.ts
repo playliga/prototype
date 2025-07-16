@@ -12,6 +12,7 @@ import fs from 'node:fs';
 import util from 'node:util';
 import compressing from 'compressing';
 import log from 'electron-log';
+import { pipeline } from 'node:stream/promises';
 import { app } from 'electron';
 import { Constants, Util } from '@liga/shared';
 
@@ -337,36 +338,26 @@ export class Manager extends events.EventEmitter {
         this.emit(EventIdentifier.FINISHED);
       })
       .on('entry', async (file, stream, next) => {
-        stream.on('end', () => {
-          processedFiles++;
-          this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (processedFiles / totalFiles) * 100);
-          next();
-        });
-
         const to = path.join(path.dirname(getPath()), file.name);
-
-        // @todo: how to better handle race condition where
-        //        the file tree is not created in time
-        if (file.type === 'file') {
-          try {
-            await fs.promises.access(path.dirname(to), fs.constants.F_OK);
-          } catch (_) {
-            this.log.warn('could not process: %s', file.name);
-            await fs.promises.mkdir(path.dirname(to), { recursive: true });
-          }
-        }
 
         try {
           if (file.type === 'file') {
-            stream.pipe(fs.createWriteStream(to));
+            await fs.promises.mkdir(path.dirname(to), { recursive: true });
+            await pipeline(stream, fs.createWriteStream(to));
           } else {
             await fs.promises.mkdir(to, { recursive: true });
             stream.resume();
           }
         } catch (error) {
-          this.log.error(error);
+          this.log.warn('could not process: %s', file.name);
+          this.log.warn(error);
           this.emit(EventIdentifier.ERROR);
+          return next();
         }
+
+        processedFiles++;
+        this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (processedFiles / totalFiles) * 100);
+        next();
       });
   }
 }
