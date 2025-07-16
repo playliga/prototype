@@ -583,8 +583,8 @@ export class Server {
         ${difficulty}+${Chance.roll(this.weaponPbxWeight)} "${player.name}"
                 Skill = ${Math.floor(xp.stats.skill)}
                 Aggression = ${Math.floor(xp.stats.aggression)}
-                ReactionTime = ${xp.stats.reactionTime.toFixed(1)}
-                AttackDelay = ${xp.stats.attackDelay.toFixed(1)}
+                ReactionTime = ${xp.stats.reactionTime.toFixed(2)}
+                AttackDelay = ${xp.stats.attackDelay.toFixed(2)}
                 VoicePitch = ${voice}
         End\n
       `;
@@ -599,8 +599,8 @@ export class Server {
       ${difficulty} "${player.name}"
               Skill = ${Math.floor(xp.stats.skill)}
               Aggression = ${Math.floor(xp.stats.aggression)}
-              ReactionTime = ${xp.stats.reactionTime.toFixed(1)}
-              AttackDelay = ${xp.stats.attackDelay.toFixed(1)}
+              ReactionTime = ${xp.stats.reactionTime.toFixed(2)}
+              AttackDelay = ${xp.stats.attackDelay.toFixed(2)}
               VoicePitch = ${voice}
               %s
       End\n

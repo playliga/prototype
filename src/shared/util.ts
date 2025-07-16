@@ -120,7 +120,7 @@ export function sleep(ms: number) {
  * @constant
  */
 export function toOptionalDecimal(value: number) {
-  return value.toFixed(2).replace(/[.,]00$/, '');
+  return value.toFixed(3).replace(/[.,]000$/, '');
 }
 
 /**

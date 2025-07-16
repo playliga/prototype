@@ -8,7 +8,6 @@ import * as Chance from './chance';
 import * as Constants from './constants';
 import log from 'electron-log';
 import type { Prisma } from '@prisma/client';
-import { random, sampleSize } from 'lodash';
 
 /**
  * Individual bot template stats.
@@ -169,20 +168,32 @@ export const Templates: Array<Template> = [
 const GainsPbxWeight: Record<keyof Stats, Record<string, number>> = {
   skill: {
     '1': 99,
-    '3': 1,
+    '2': 1,
   },
   aggression: {
     '1': 99,
-    '3': 1,
+    '2': 1,
   },
   reactionTime: {
-    '-.01': 99,
-    '-.05': 1,
+    '-.001': 99,
+    '-.003': 1,
   },
   attackDelay: {
-    '-.01': 99,
-    '-.05': 1,
+    '-.001': 99,
+    '-.003': 1,
   },
+};
+
+/**
+ * Probability table for how likely a stat is to be trained.
+ *
+ * @constant
+ */
+const StatsPbxWeight: Stats = {
+  skill: 15,
+  aggression: 15,
+  reactionTime: 75,
+  attackDelay: 75,
 };
 
 /**
@@ -400,7 +411,10 @@ export class Exp {
   public train() {
     // randomly pick stats to train
     const [lastTemplate] = Templates.slice(-1);
-    const drills = sampleSize(this.trainable, random(1, this.trainable.length));
+    const drills = Chance.pluckMultiple(
+      this.trainable,
+      this.trainable.map((stat) => StatsPbxWeight[stat]),
+    );
 
     this.log.debug('beginning training on %s', drills);
     this.log.debug('training bonuses: %s', this.bonuses);
@@ -425,9 +439,9 @@ export class Exp {
       this.log.debug(
         'trained %s. base: %d, bonus: %d, total: %d',
         drill,
-        gains.toFixed(2),
-        bonus.toFixed(2),
-        total.toFixed(2),
+        gains.toFixed(3),
+        bonus.toFixed(3),
+        total.toFixed(3),
       );
     });
   }

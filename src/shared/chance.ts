@@ -229,3 +229,17 @@ export function pluck<T = object>(from: Array<T>, config: Array<number>) {
   // pluck the index!
   return from[Number(roll(pbxTable))];
 }
+
+/**
+ * Plucks multiple items from an array depending on
+ * their individual probability in the given config.
+ *
+ * Each item is independently evaluated with its probability.
+ *
+ * @param from    The array to pluck from.
+ * @param config  The probability distribution config.
+ * @function
+ */
+export function pluckMultiple<T = object>(from: Array<T>, config: Array<number>) {
+  return from.filter((_, idx) => rollD2(config[idx] ?? 50));
+}

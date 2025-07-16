@@ -6,7 +6,7 @@
 import log from 'electron-log';
 import { ipcMain } from 'electron';
 import { flatten, merge } from 'lodash';
-import { Bot, Constants, Eagers, Util } from '@liga/shared';
+import { Constants, Eagers, Util } from '@liga/shared';
 import {
   DatabaseClient,
   Game,
@@ -232,31 +232,6 @@ export default function () {
       } catch (_) {
         log.warn('Could not remove on-the-fly settings.');
       }
-    }
-
-    // give training boosts to squad if they won
-    const userTeam = match.competitors.find((competitor) => competitor.teamId === profile.teamId);
-    const matchResult = Simulator.getMatchResult(userTeam.id, globalScore);
-
-    if (matchResult === Constants.MatchResult.WIN) {
-      const bonuses = [
-        {
-          id: -1,
-          type: Constants.BonusType.SERVER,
-          name: 'Win Bonus',
-          stats: JSON.stringify({ skill: 1, agression: 1, reactionTime: 1, attackDelay: 1 }),
-          cost: -1,
-          profileId: -1,
-        },
-      ];
-      await DatabaseClient.prisma.$transaction(
-        Bot.Exp.trainAll(profile.team.players, bonuses).map((player) =>
-          DatabaseClient.prisma.player.update({
-            where: { id: player.id },
-            data: player.xp,
-          }),
-        ),
-      );
     }
 
     // check if user won any awards
