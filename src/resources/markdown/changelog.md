@@ -1,3 +1,10 @@
+## 3.0.0-beta.53 (2025-07-16)
+
+### Bug Fixes
+
+- fix issues extracting game plugins ([#421](https://github.com/playliga/prototype/issues/421)) ([44462c6](https://github.com/playliga/prototype/commit/44462c64cd84beaa0bfc33d76c9bacb4fc5cb678))
+- nerf xp gained when training ([#434](https://github.com/playliga/prototype/issues/434)) ([9593df4](https://github.com/playliga/prototype/commit/9593df423852ab6f98baab7805175cc64da6ae84))
+
 ## 3.0.0-beta.52 (2025-07-13)
 
 ### Bug Fixes
