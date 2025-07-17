@@ -68,13 +68,17 @@ export async function discoverSteamPath() {
   }
 
   // get steam path from windows registry
-  // @todo: error handling
   const [arch] = os.arch().match(/\d+/);
-  const regPath = `HKLM:/SOFTWARE${Number(arch) === 64 && '/Wow6432Node'}/Valve/Steam`;
-  const { stdout } = await exec(`Get-ItemPropertyValue -Path '${regPath}' -Name InstallPath`, {
-    shell: 'powershell.exe',
-  });
-  return stdout.trim();
+  const regPath = `HKLM\\SOFTWARE${Number(arch) === 64 && '\\Wow6432Node'}\\Valve\\Steam`;
+
+  try {
+    const { stdout } = await exec(`reg query "${regPath}" /v InstallPath`);
+    const match = stdout.match(/InstallPath\s+REG_SZ\s+(.*)/);
+    return match ? match[1].trim() : null;
+  } catch (error) {
+    log.warn('failed to detect steam installation path: %s', error.message);
+    return null;
+  }
 }
 
 /**
