@@ -957,7 +957,6 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
     de_ancient: 'de_dust2',
     de_anubis: 'de_cbble',
     de_vertigo: 'de_dust2',
-    de_cache: 'de_dust2',
   },
   [Game.CZERO]: {
     de_dust2: 'de_dust2_cz',
