@@ -1,3 +1,13 @@
+## 3.0.0-beta.54 (2025-07-23)
+
+### Features
+
+- add cache to css map pool ([#445](https://github.com/playliga/prototype/issues/445)) ([8db6207](https://github.com/playliga/prototype/commit/8db62079e960fbfc12c9e16639e4e3364b1edf09))
+
+### Bug Fixes
+
+- improve steam install path detection ([#442](https://github.com/playliga/prototype/issues/442)) ([8568af9](https://github.com/playliga/prototype/commit/8568af992b7e98fecbe8920d749494cdba093723))
+
 ## 3.0.0-beta.53 (2025-07-16)
 
 ### Bug Fixes
