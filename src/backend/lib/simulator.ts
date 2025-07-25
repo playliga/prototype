@@ -64,6 +64,18 @@ export class Score {
   }
 
   /**
+   * Gets the expected score value using the Elo formula.
+   *
+   * @param ratingA Expected score for Team A.
+   * @param ratingB Expected score for Team B.
+   * @param scaling Scaling factor for rating differences.
+   * @function
+   */
+  private getEloWinProbability(ratingA: number, ratingB: number, scaling = 400): number {
+    return 1 / (1 + Math.pow(10, (ratingB - ratingA) / scaling));
+  }
+
+  /**
    * Generates a win probability weight based off of the
    * conditions described in the `simulate` function.
    *
@@ -82,19 +94,20 @@ export class Score {
     }
 
     if (this.userPlayerId) {
-      this.log.debug(
-        'Squad for %s (prestige: %d, tier: %d): %s',
+      this.log.info(
+        'Squad for %s (prestige: %d, tier: %d, length: %d)',
         team.name,
         team.prestige,
         team.tier,
-        JSON.stringify(players.map((player) => player.name)),
+        players.length,
       );
     }
 
     // generate the win probability per player
-    return players
-      .map((player) => new Bot.Exp(JSON.parse(player.stats)).getBotTemplate().multiplier)
-      .reduce((a, b) => a + b + team.prestige + team.tier);
+    const totalXp = players
+      .map((player) => Bot.Exp.getTotalXP(JSON.parse(player.stats)))
+      .reduce((a, b) => a + b);
+    return totalXp + team.prestige + team.tier;
   }
 
   /**
@@ -109,7 +122,7 @@ export class Score {
     const [home, away] = teams;
 
     if (this.userTeamId) {
-      this.log.debug('Simulating match (%s vs %s)...', home.name, away.name);
+      this.log.info('Simulating match (%s vs %s)...', home.name, away.name);
     }
 
     // simulate final scores
@@ -134,9 +147,12 @@ export class Score {
     }
 
     // calculate probability weight for team
+    const homeRating = this.getTeamWinProbability(home);
+    const awayRating = this.getTeamWinProbability(away);
+    const homeWinPbx = this.getEloWinProbability(homeRating, awayRating);
     const winnerPbxWeight: Record<string | number, number> = {
-      [home.id]: this.getTeamWinProbability(home),
-      [away.id]: this.getTeamWinProbability(away),
+      [home.id]: homeWinPbx,
+      [away.id]: 1 - homeWinPbx,
       [Constants.SimulationMode.DRAW]: 0,
     };
 
@@ -164,9 +180,21 @@ export class Score {
 
     if (this.userTeamId) {
       const adjustedDistribution = Chance.rangeToDistribution(winnerPbxWeight);
-      this.log.debug('%s win probability: %d%', home.name, adjustedDistribution[home.id]);
-      this.log.debug('%s win probability: %d%', away.name, adjustedDistribution[away.id]);
-      this.log.debug('Winner: %s', Number(winner) === home.id ? home.name : away.name);
+      this.log.info(
+        '%s win probability: %d% (raw: %d, total xp: %d)',
+        home.name,
+        adjustedDistribution[home.id],
+        winnerPbxWeight[home.id],
+        homeRating,
+      );
+      this.log.info(
+        '%s win probability: %d% (raw: %d, total xp: %d)',
+        away.name,
+        adjustedDistribution[away.id],
+        winnerPbxWeight[away.id],
+        awayRating,
+      );
+      this.log.info('Winner: %s', Number(winner) === home.id ? home.name : away.name);
     }
 
     // return the winner
