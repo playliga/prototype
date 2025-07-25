@@ -89,7 +89,8 @@ export default function () {
                   <code>{mod.version}</code>
                 </td>
                 <td className="text-center">
-                  {((!downloading && installed.replace('.zip', '') !== mod.name.toLowerCase()) ||
+                  {((!downloading &&
+                    installed.toLowerCase().replace('.zip', '') !== mod.name.toLowerCase()) ||
                     (!!downloading && downloading !== mod.name)) && (
                     <button
                       title={t('mods.download')}
@@ -105,22 +106,23 @@ export default function () {
                   {!!downloading && downloading === mod.name && (
                     <progress className="progress" value={progress} max="100" />
                   )}
-                  {!downloading && installed.replace('.zip', '') === mod.name.toLowerCase() && (
-                    <button
-                      title={t('mods.uninstall')}
-                      className="btn btn-error btn-sm"
-                      onClick={() => {
-                        api.mods.delete().then(() => setInstalled(''));
-                      }}
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  )}
+                  {!downloading &&
+                    installed.toLowerCase().replace('.zip', '') === mod.name.toLowerCase() && (
+                      <button
+                        title={t('mods.uninstall')}
+                        className="btn btn-error btn-sm"
+                        onClick={() => {
+                          api.mods.delete().then(() => setInstalled(''));
+                        }}
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    )}
                 </td>
                 <td className="text-center">
                   {!!downloading && downloading === mod.name && status}
                   {!downloading &&
-                    installed.replace('.zip', '') === mod.name.toLowerCase() &&
+                    installed.toLowerCase().replace('.zip', '') === mod.name.toLowerCase() &&
                     t('mods.statusInstalled')}
                 </td>
               </tr>
