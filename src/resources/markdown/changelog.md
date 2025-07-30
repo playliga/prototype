@@ -1,3 +1,13 @@
+## 3.0.0-beta.57 (2025-07-30)
+
+### Features
+
+- add overpass to css map pool ([#455](https://github.com/playliga/prototype/issues/455)) ([4e9e079](https://github.com/playliga/prototype/commit/4e9e079c99495a868c2388c0a75b1ff159f4b200))
+
+### Bug Fixes
+
+- fix issue with squad hub crashing during certain scenarios ([#454](https://github.com/playliga/prototype/issues/454)) ([6771b2f](https://github.com/playliga/prototype/commit/6771b2f6389c5f93bd515368ae1c910dcbbaa68a))
+
 ## 3.0.0-beta.56 (2025-07-30)
 
 ### Bug Fixes
