@@ -1,10 +1,16 @@
+## 3.0.0-beta.56 (2025-07-30)
+
+### Bug Fixes
+
+- temporary fix for cs2 july update until metamod/cssharp are fixed ([#453](https://github.com/playliga/prototype/issues/453)) ([5db6cac](https://github.com/playliga/prototype/commit/5db6cac8e147b7fa8c78cc138fc032524bd7b273))
+
 ## 3.0.0-beta.55 (2025-07-25)
 
 ### Bug Fixes
 
 - fix some mods not showing as installed ([#446](https://github.com/playliga/prototype/issues/446)) ([253fcfe](https://github.com/playliga/prototype/commit/253fcfe04e3a8a8d50399db94048d70230c8aa5c))
 - improve simulation probability values ([#447](https://github.com/playliga/prototype/issues/447)) ([88037ac](https://github.com/playliga/prototype/commit/88037ace7fbbd0f82beec31bfb3925342e751657))
-- fix: fix competitive configs for cs2 and csgo ([#444](https://github.com/playliga/prototype/issues/444)) ([7bf73c7](https://github.com/playliga/plugins/commit/7bf73c7d4e3dd298ae40ef6b6fbf49ebadb86f3d))
+- fix competitive configs for cs2 and csgo ([#444](https://github.com/playliga/prototype/issues/444)) ([7bf73c7](https://github.com/playliga/plugins/commit/7bf73c7d4e3dd298ae40ef6b6fbf49ebadb86f3d))
 
 ## 3.0.0-beta.54 (2025-07-23)
 
