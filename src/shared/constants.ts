@@ -953,8 +953,7 @@ export const MapPoolReplacements: Record<string, Record<string, string>> = {
   },
   [Game.CSS]: {
     de_mirage: 'de_cpl_strike',
-    de_overpass: 'de_russka',
-    de_ancient: 'de_dust2',
+    de_ancient: 'de_russka',
     de_anubis: 'de_cbble',
     de_vertigo: 'de_dust2',
   },
