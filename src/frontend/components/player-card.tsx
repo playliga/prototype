@@ -183,10 +183,6 @@ export default function (props: PlayerCardProps) {
             onChange={(event) =>
               props.onChangeWeapon(event.target.value as Constants.WeaponTemplate)
             }
-            title={
-              props.player.weapon &&
-              weapons[props.player.weapon as Constants.WeaponTemplate].join(', ')
-            }
           >
             {Object.keys(Constants.WeaponTemplate).map(
               (template: keyof typeof Constants.WeaponTemplate) => (
@@ -194,7 +190,7 @@ export default function (props: PlayerCardProps) {
                   key={template + props.player.name}
                   value={Constants.WeaponTemplate[template]}
                   title={
-                    props.player.weapon && weapons[Constants.WeaponTemplate[template]].join(', ')
+                    props.player.weapon && weapons[Constants.WeaponTemplate[template]]?.join(', ')
                   }
                 >
                   {Constants.WeaponTemplate[template]}
