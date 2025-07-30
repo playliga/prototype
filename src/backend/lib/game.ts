@@ -1317,11 +1317,28 @@ export class Server {
 
     // scorebot game over handler resolves our promise
     return new Promise((resolve) => {
+      // @todo: remove when metamod/cssharp are fixed post cs2 july update
+      this.scorebot.on(Scorebot.EventIdentifier.SAY, async (payload) => {
+        if (payload === '.ready' && this.settings.general.game === Constants.Game.CS2) {
+          this.rcon.send('mp_warmup_end');
+        }
+      });
+      this.scorebot.on(Scorebot.EventIdentifier.PLAYER_ENTERED, async () => {
+        if (this.settings.general.game === Constants.Game.CS2) {
+          // small delay to avoid running this command too early
+          await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 500);
+          this.rcon.send('exec liga-bots');
+        }
+      });
+
       this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, async (payload) => {
         // on cs2 we must sleep because the game over event happens too quickly
         // since the plugin is not able to hook into the engine logs
         if (this.settings.general.game === Constants.Game.CS2) {
           await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000);
+
+          // @todo: remove when metamod/cssharp are fixed post cs2 july update
+          await this.rcon.send('quit');
         }
 
         // in csgo and cs2, overtimes affect the order of the final
