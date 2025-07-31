@@ -1,3 +1,9 @@
+## [3.0.0-beta.58](https://github.com/playliga/prototype/compare/v3.0.0-beta.57...v3.0.0-beta.58) (2025-07-31)
+
+### Features
+
+- allow sim scaling factor to be configurable ([#456](https://github.com/playliga/prototype/issues/456)) ([98bea9b](https://github.com/playliga/prototype/commit/98bea9bf5ed20432efd77233a865a911642e6b8b))
+
 ## 3.0.0-beta.57 (2025-07-30)
 
 ### Features
