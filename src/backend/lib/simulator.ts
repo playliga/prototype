@@ -9,6 +9,37 @@ import log from 'electron-log';
 import { random } from 'lodash';
 import { Constants, Bot, Chance } from '@liga/shared';
 
+/** @constant */
+let simScaleFactor: number | null | undefined;
+
+/**
+ * Overrides the simulation scaling factor via command-line
+ * arguments if they are passed to the app (prod only).
+ *
+ * Additionally, caches the value in `simScaleFactor`
+ * to reduce redundent calls during the game loop.
+ *
+ * @function
+ */
+function getSimScaleFactor() {
+  if (simScaleFactor !== undefined) {
+    return simScaleFactor;
+  }
+
+  const argPrefix = '--sim-scale';
+  const args = process.argv.slice(1);
+  const idx = args.findIndex((arg) => arg === argPrefix);
+
+  if (idx !== -1 && args.length > idx + 1) {
+    const value = Number(args[idx + 1]);
+
+    if (!Number.isNaN(value) && Number.isFinite(value)) {
+      simScaleFactor = value;
+      return simScaleFactor;
+    }
+  }
+}
+
 /** @type {Team} */
 type Team = Prisma.TeamGetPayload<{ include: { players: true } }>;
 
@@ -123,6 +154,10 @@ export class Score {
 
     if (this.userTeamId) {
       this.log.info('Simulating match (%s vs %s)...', home.name, away.name);
+      this.log.info(
+        'Scaling factor: %d',
+        getSimScaleFactor() ?? Constants.Application.SIMULATION_SCALING_FACTOR,
+      );
     }
 
     // simulate final scores
@@ -149,7 +184,11 @@ export class Score {
     // calculate probability weight for team
     const homeRating = this.getTeamWinProbability(home);
     const awayRating = this.getTeamWinProbability(away);
-    const homeWinPbx = this.getEloWinProbability(homeRating, awayRating);
+    const homeWinPbx = this.getEloWinProbability(
+      homeRating,
+      awayRating,
+      getSimScaleFactor() ?? Constants.Application.SIMULATION_SCALING_FACTOR,
+    );
     const winnerPbxWeight: Record<string | number, number> = {
       [home.id]: homeWinPbx,
       [away.id]: 1 - homeWinPbx,
