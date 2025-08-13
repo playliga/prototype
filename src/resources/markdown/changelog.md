@@ -1,3 +1,15 @@
+## [3.0.0-beta.60](https://github.com/playliga/prototype/compare/v3.0.0-beta.58...v3.0.0-beta.60) (2025-08-13)
+
+### Features
+
+- add ancient to mappool for css ([#463](https://github.com/playliga/prototype/issues/463)) ([a3de731](https://github.com/playliga/prototype/commit/a3de73185f82f9409bb876bacc71a0a10b46d563))
+
+### Bug Fixes
+
+- add missing map screenshots for cache, overpass, and strike in css ([#457](https://github.com/playliga/prototype/issues/457)) ([584a48f](https://github.com/playliga/prototype/commit/584a48fd4b4ff1721ca3fafca100f37de26e3a41))
+- change default calendar advance days to 8 ([#462](https://github.com/playliga/prototype/issues/462)) ([cd511f1](https://github.com/playliga/prototype/commit/cd511f1ee46a7bad2850bf4daa3556564fe3ef17))
+- fix training boosts persisting between saves ([#458](https://github.com/playliga/prototype/issues/458)) ([cb240dd](https://github.com/playliga/prototype/commit/cb240dd645c43cfc56dc6dbc0d423f31e62f2b16))
+
 ## [3.0.0-beta.58](https://github.com/playliga/prototype/compare/v3.0.0-beta.57...v3.0.0-beta.58) (2025-07-31)
 
 ### Features
