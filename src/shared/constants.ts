@@ -1119,7 +1119,7 @@ export const Settings = {
   },
   calendar: {
     ignoreExits: false,
-    maxIterations: 15,
+    maxIterations: 8,
     unit: CalendarUnit.DAY,
   },
   matchRules: {
