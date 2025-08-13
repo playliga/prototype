@@ -252,6 +252,7 @@ export default function () {
           stats: JSON.stringify({ skill: 2, agression: 2, reactionTime: 2, attackDelay: 2 }),
           cost: -1,
           profileId: -1,
+          active: false,
         },
       ];
       await DatabaseClient.prisma.$transaction(

@@ -28,6 +28,7 @@ model Bonus {
   name                String              @unique
   stats               String?
   cost                Int?
+  active              Boolean?            @default(false)
 
   // belongs to
   profile             Profile?            @relation(fields: [profileId], references: [id])

@@ -277,14 +277,29 @@ export default function () {
   );
   ipcMain.handle(Constants.IPCRoute.PROFILES_TRAIN, async (_, bonusIds: Array<number>) => {
     const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
-    const bonuses = await DatabaseClient.prisma.bonus.findMany({ where: { id: { in: bonusIds } } });
+    const bonuses = await DatabaseClient.prisma.bonus.findMany({
+      where: { profileId: profile.id },
+    });
+    const selectedBonuses = bonuses.filter((bonus) => bonusIds.includes(bonus.id));
 
     // train players first
     await DatabaseClient.prisma.$transaction(
-      Bot.Exp.trainAll(profile.team.players, bonuses).map((player) =>
+      Bot.Exp.trainAll(profile.team.players, selectedBonuses).map((player) =>
         DatabaseClient.prisma.player.update({
           where: { id: player.id },
           data: player.xp,
+        }),
+      ),
+    );
+
+    // toggle active on for selected boosts
+    await DatabaseClient.prisma.$transaction(
+      bonuses.map((bonus) =>
+        DatabaseClient.prisma.bonus.update({
+          where: { id: bonus.id },
+          data: {
+            active: bonusIds.includes(bonus.id),
+          },
         }),
       ),
     );

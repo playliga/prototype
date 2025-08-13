@@ -108,15 +108,9 @@ export default function () {
   const [trainingBonuses, setTrainingBonuses] = React.useState<
     Awaited<ReturnType<typeof api.bonus.all>>
   >([]);
-  const [trainingFacilityId, setTrainingFacilityId] = React.useState<number>(
-    Number(localStorage.getItem('trainingFacilityId')),
-  );
-  const [trainingMapId, setTrainingMapId] = React.useState<number>(
-    Number(localStorage.getItem('trainingMapId')),
-  );
-  const [trainingServerId, setTrainingServerId] = React.useState<number>(
-    Number(localStorage.getItem('trainingServerId')),
-  );
+  const [trainingFacilityId, setTrainingFacilityId] = React.useState<number>();
+  const [trainingMapId, setTrainingMapId] = React.useState<number>();
+  const [trainingServerId, setTrainingServerId] = React.useState<number>();
   const [trainingStatus, setTrainingStatus] = React.useState(null);
 
   // fetch data on first load
@@ -185,13 +179,15 @@ export default function () {
 
   React.useEffect(() => {
     if (trainingMaps.length > 0 && !trainingMapId) {
-      setTrainingMapId(trainingMaps[0].id);
+      const active = trainingMaps.find((map) => map.active);
+      setTrainingMapId(active?.id ?? trainingMaps[0].id);
     }
   }, [trainingMaps]);
 
   React.useEffect(() => {
     if (trainingServers.length > 0 && !trainingServerId) {
-      setTrainingServerId(trainingServers[0].id);
+      const active = trainingServers.find((server) => server.active);
+      setTrainingServerId(active?.id ?? trainingServers[0].id);
     }
   }, [trainingServers]);
 
@@ -203,7 +199,8 @@ export default function () {
     const trainingFacilitiesOwned = trainingFacilities.filter((facility) => facility.profileId);
 
     if (trainingFacilitiesOwned.length && !trainingFacilityId) {
-      setTrainingFacilityId(trainingFacilitiesOwned[0].id);
+      const active = trainingFacilitiesOwned.find((facility) => facility.active);
+      setTrainingFacilityId(active?.id ?? trainingFacilitiesOwned[0].id);
     }
   }, [trainingFacilities]);
 
@@ -424,9 +421,6 @@ export default function () {
                   className="btn btn-primary"
                   disabled={!trainingAllowed || !!trainingStatus}
                   onClick={async () => {
-                    localStorage.setItem('trainingServerId', trainingServerId.toString());
-                    localStorage.setItem('trainingMapId', trainingMapId.toString());
-                    localStorage.setItem('trainingFacilityId', trainingFacilityId.toString());
                     dispatch(workingUpdate(true));
 
                     for (const status of trainingStatuses) {
