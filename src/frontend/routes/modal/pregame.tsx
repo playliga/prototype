@@ -207,7 +207,6 @@ export default function () {
                           )}
                         >
                           <PlayerCard
-                            collapsed
                             compact
                             key={player.id + '__squad'}
                             className="border-transparent bg-transparent"

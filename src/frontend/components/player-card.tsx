@@ -8,7 +8,7 @@ import { startCase } from 'lodash';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
-import { FaCaretDown, FaCaretUp, FaFolderOpen, FaShoppingBag, FaStar } from 'react-icons/fa';
+import { FaFolderOpen, FaShoppingBag, FaStar } from 'react-icons/fa';
 
 /** @type {Player} */
 type Player = Awaited<ReturnType<typeof api.players.all<typeof Eagers.player>>>[number];
@@ -30,7 +30,6 @@ interface PlayerCardProps extends React.ComponentProps<'article'> {
   game: Constants.Game;
   player: Omit<Player, 'team'>;
   className?: string;
-  collapsed?: boolean;
   compact?: boolean;
   noStats?: boolean;
   onClickStarter?: () => void;
@@ -89,7 +88,6 @@ export function XPBar(props: XPBarProps) {
  */
 export default function (props: PlayerCardProps) {
   const t = useTranslation('components');
-  const [collapsed, setCollapsed] = React.useState(props.collapsed);
   const weapons = React.useMemo(() => Constants.WeaponTemplates[props.game], [props.game]);
   const xp = React.useMemo(() => {
     if (!props.player) {
@@ -107,78 +105,86 @@ export default function (props: PlayerCardProps) {
     [xp.gains],
   );
 
-  React.useEffect(() => {
-    if (collapsed !== props.collapsed) {
-      setCollapsed(props.collapsed);
-    }
-  }, [props.collapsed]);
-
-  if (collapsed) {
+  if (props.compact) {
     return (
       <article
         className={cx(
-          'player-card',
+          'grid grid-cols-4 items-center divide-x border',
+          'divide-base-content/10 border-base-content/10 bg-base-200 border-b-0',
           props.className,
-          props.collapsed && 'player-card-collapsed',
-          props.compact && 'player-card-compact',
         )}
       >
-        <header className="divide-base-content/10 mb-0! grid grid-cols-4 items-center divide-x">
+        <figure className="center">
+          <img
+            src={props.player.avatar || 'resources://avatars/empty.png'}
+            className="h-12 w-auto"
+          />
+        </figure>
+        <aside className="stack-x col-span-2 gap-4 px-4">
           <button
             title={t('playerCard.setAsStarter')}
-            className="border-0! hover:bg-transparent! disabled:bg-transparent! [&_svg]:hover:text-yellow-500"
+            className={cx(!!props.onClickStarter && 'cursor-pointer [&_svg]:hover:text-yellow-500')}
             disabled={!props.onClickStarter}
             onClick={props.onClickStarter || null}
           >
             <FaStar className={cx(props.player.starter && 'text-yellow-500')} />
           </button>
-          <nav className="center col-span-2 h-full">
+          <nav className="center h-full place-items-start text-left">
             <h3>{props.player.name}</h3>
             <p className="line-clamp-1">
               <span className={cx('fp', props.player.country.code.toLowerCase())} />
               <span>&nbsp;{props.player.country.name}</span>
             </p>
           </nav>
-          <aside className="stack-y">
-            <p className="text-muted">{t('playerCard.totalXP')}</p>
-            <p className="text-2xl! font-black">
-              {props.noStats ? '-' : Math.floor(Bot.Exp.getTotalXP(xp.stats))}
-            </p>
-            <p
-              className={cx(
-                'before:pr-px',
-                gainsTotal <= 0
-                  ? 'text-muted before:content-["▸"]'
-                  : 'text-success before:content-["▴"]',
-              )}
-            >
-              {Util.toOptionalDecimal(gainsTotal)}
-            </p>
-          </aside>
-        </header>
-        <footer>
-          <button onClick={() => setCollapsed(!collapsed)}>
-            <FaCaretDown />
-          </button>
-        </footer>
+        </aside>
+        <aside className="stack-y center gap-0">
+          <p className="text-muted">{t('playerCard.totalXP')}</p>
+          <p className="text-2xl! font-black">
+            {props.noStats ? '-' : Math.floor(Bot.Exp.getTotalXP(xp.stats))}
+          </p>
+          <p
+            className={cx(
+              'before:pr-px',
+              gainsTotal <= 0
+                ? 'text-muted before:content-["▸"]'
+                : 'text-success before:content-["▴"]',
+            )}
+          >
+            {Util.toOptionalDecimal(gainsTotal)}
+          </p>
+        </aside>
       </article>
     );
   }
 
   return (
-    <article className={cx('player-card', props.className, props.compact && 'player-card-compact')}>
-      <header>
-        <h3>{props.player.name}</h3>
-        <p>
-          <span className={cx('fp', props.player.country.code.toLowerCase())} />
-          <span>&nbsp;{props.player.country.name}</span>
-        </p>
+    <article
+      className={cx(
+        'stack-y h-fit gap-0! divide-y border',
+        'divide-base-content/10 border-base-content/10 bg-base-200',
+        props.className,
+      )}
+    >
+      <header className="flex gap-4 px-10">
+        <figure className="center w-full basis-1/3">
+          <img
+            src={props.player.avatar || 'resources://avatars/empty.png'}
+            className="h-12 w-auto"
+          />
+        </figure>
+        <nav className="prose w-full max-w-none py-4">
+          <h3 className="mb-0">{props.player.name}</h3>
+          <p className="text-sm">
+            <span className={cx('fp', props.player.country.code.toLowerCase())} />
+            <span>&nbsp;{props.player.country.name}</span>
+          </p>
+        </nav>
       </header>
-      <figure>
-        <label className="fieldset text-xs">
+      <aside className="px-10 py-4">
+        <label className="fieldset p-0 text-xs">
           <p>{t('shared.weaponPreference')}</p>
           <select
-            className="select select-sm bg-base-300"
+            className="select select-sm bg-base-300 mt-2"
             value={props.player.weapon || Constants.WeaponTemplate.AUTO}
             onChange={(event) =>
               props.onChangeWeapon(event.target.value as Constants.WeaponTemplate)
@@ -199,20 +205,20 @@ export default function (props: PlayerCardProps) {
             )}
           </select>
         </label>
-      </figure>
-      <figure>
+      </aside>
+      <aside className="px-10 py-4">
         <XPBar
           title={t('playerCard.totalXP')}
           subtitle={`${Math.floor(Bot.Exp.getTotalXP(xp.stats))}/${Math.floor(Bot.Exp.getMaximumXP())}`}
           value={Bot.Exp.getTotalXP(xp.stats)}
           max={Bot.Exp.getMaximumXP()}
         />
-      </figure>
+      </aside>
       {Object.keys(xp.stats).map((stat) => {
         const { gain, value, max } = xp.normalize(stat);
 
         return (
-          <figure key={`xp__${props.player.name}_${stat}`}>
+          <aside key={`xp__${props.player.name}_${stat}`} className="px-10 py-4">
             <XPBar
               title={`${startCase(stat)}`}
               gains={gain}
@@ -220,30 +226,33 @@ export default function (props: PlayerCardProps) {
               value={value}
               max={Number(max)}
             />
-          </figure>
+          </aside>
         );
       })}
       <aside className="grid grid-cols-3">
         <button
           title={t('playerCard.setAsStarter')}
-          className="disabled:bg-transparent!"
+          className="btn btn-ghost btn-block rounded-none disabled:bg-transparent!"
           disabled={!props.onClickStarter}
           onClick={props.onClickStarter || null}
         >
           <FaStar className={cx(props.player.starter && 'text-yellow-500')} />
         </button>
-        <button title={t('playerCard.addToTransferList')} onClick={props.onClickTransferListed}>
+        <button
+          title={t('playerCard.addToTransferList')}
+          className="btn btn-ghost btn-block rounded-none"
+          onClick={props.onClickTransferListed}
+        >
           <FaShoppingBag className={cx(props.player.transferListed && 'text-primary')} />
         </button>
-        <button title={t('playerCard.viewOffers')} onClick={props.onClickViewOffers}>
+        <button
+          title={t('playerCard.viewOffers')}
+          className="btn btn-ghost btn-block rounded-none"
+          onClick={props.onClickViewOffers}
+        >
           <FaFolderOpen />
         </button>
       </aside>
-      <footer>
-        <button onClick={() => setCollapsed(!collapsed)}>
-          <FaCaretUp />
-        </button>
-      </footer>
     </article>
   );
 }

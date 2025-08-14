@@ -169,7 +169,6 @@ export default function () {
                     className={cx('p-0', player.id === state.profile.playerId && 'bg-base-200/50')}
                   >
                     <PlayerCard
-                      collapsed
                       compact
                       key={player.id + '__squad'}
                       className="border-transparent bg-transparent"

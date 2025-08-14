@@ -267,6 +267,7 @@ model Player {
   weapon              String?
   starter             Boolean             @default(false)
   transferListed      Boolean             @default(false)
+  avatar              String?
 
   // has many
   matches             Match[]

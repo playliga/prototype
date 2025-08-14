@@ -16,8 +16,6 @@ import {
   FaBan,
   FaBolt,
   FaCheck,
-  FaCompress,
-  FaExpand,
   FaShoppingBag,
   FaStopwatch,
   FaTrash,
@@ -97,7 +95,6 @@ export default function () {
   const t = useTranslation('windows');
   const { dispatch, state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState<TabIdentifier>(TabIdentifier.SQUAD);
-  const [collapsed, setCollapsed] = React.useState(false);
   const [settings, setSettings] = React.useState(Constants.Settings);
   const [squad, setSquad] = React.useState<
     Awaited<ReturnType<typeof api.squad.all<typeof Eagers.player>>>
@@ -638,15 +635,6 @@ export default function () {
           </section>
         )}
         <section className="grid auto-rows-min grid-cols-2 gap-5 p-5 xl:grid-cols-3">
-          <article className="col-span-2 xl:col-span-3">
-            <button
-              className="btn font-normal shadow-none"
-              onClick={() => setCollapsed(!collapsed)}
-            >
-              {collapsed ? <FaExpand /> : <FaCompress />}
-              {collapsed ? t('main.squad.expandAll') : t('main.squad.collapseAll')}
-            </button>
-          </article>
           {squad
             .filter((player) => player.id !== state.profile.player.id)
             .map((player) => (
@@ -654,7 +642,6 @@ export default function () {
                 key={player.id + '__squad'}
                 game={settings.general.game}
                 player={player}
-                collapsed={collapsed}
                 onClickStarter={
                   (starters.length < Constants.Application.SQUAD_MIN_LENGTH - 1 ||
                     player.starter) &&
