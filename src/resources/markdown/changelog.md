@@ -1,3 +1,9 @@
+## [3.0.0-beta.62](https://github.com/playliga/prototype/compare/v3.0.0-beta.61...v3.0.0-beta.62) (2025-08-15)
+
+### Bug Fixes
+
+- fix player avatars not loading ([16dd67e](https://github.com/playliga/prototype/commit/16dd67e5b47e3d1f43607fe620b9b851ac2b49a1))
+
 ## [3.0.0-beta.61](https://github.com/playliga/prototype/compare/v3.0.0-beta.60...v3.0.0-beta.61) (2025-08-15)
 
 ### Features
