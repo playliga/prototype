@@ -46,6 +46,7 @@ const defaultOptions = {
   retryFrequency: 5000,
   retryMax: 15,
   tcp: true,
+  udpTimeout: 2000,
 };
 
 /**
@@ -77,6 +78,7 @@ export class Client extends events.EventEmitter {
   private rconId: number;
   private tcpSocket: net.Socket | null;
   private udpSocket: dgram.Socket | null;
+  private udpTimeout: NodeJS.Timeout;
 
   constructor(
     host: string,
@@ -123,6 +125,10 @@ export class Client extends events.EventEmitter {
       sendBuf.writeInt32LE(-1, 0);
       sendBuf.write(str, 4);
       this.sendSocket(sendBuf);
+
+      // start a timeout because udp is connectionless and
+      // we need to know whether we got a response
+      this.udpTimeout = setTimeout(() => this.udpSocket.close(), this.options.udpTimeout);
     } else {
       const sendBuf = Buffer.alloc(5);
       sendBuf.writeInt32LE(-1, 0);
@@ -191,6 +197,12 @@ export class Client extends events.EventEmitter {
   }
 
   private udpSocketOnData(data: Buffer): void {
+    // clear connection timeout if needed
+    if (this.udpTimeout) {
+      clearTimeout(this.udpTimeout);
+      this.udpTimeout = null;
+    }
+
     const a = data.readUInt32LE(0);
     if (a == 0xffffffff) {
       const str = data.toString('utf-8', 4);
@@ -257,8 +269,13 @@ export class Client extends events.EventEmitter {
       // next ensure the connection can be established
       try {
         await new Promise((resolve, reject) => {
-          this.on(EventIdentifier.AUTH, resolve);
-          this.on(EventIdentifier.ERROR, reject);
+          this.removeAllListeners(EventIdentifier.AUTH);
+          this.removeAllListeners(EventIdentifier.ERROR);
+          this.removeAllListeners(EventIdentifier.END);
+
+          this.once(EventIdentifier.AUTH, resolve);
+          this.once(EventIdentifier.ERROR, reject);
+          this.once(EventIdentifier.END, reject);
           this.connect();
         });
         return Promise.resolve();
