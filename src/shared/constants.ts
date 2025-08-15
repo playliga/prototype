@@ -1632,13 +1632,17 @@ export const TransferSettings = {
   // sending an offer to the user today?
   PBX_USER_CONSIDER: 5,
 
+  // chances a team will attempt to poach the user's
+  // best player regardless of transfer list status
+  PBX_USER_POACH: 15,
+
   // probability weights when choosing the prestige level of teams
   // that would be interested in buying a player from the user.
   PBX_USER_PRESTIGE_WEIGHTS: [0.5, 90, 2],
 
   // continue with the transfer even if the user
   // does not have any transfer listed players
-  PBX_USER_SELL_UNLISTED: 25,
+  PBX_USER_SELL_UNLISTED: 10,
 
   // whom from the user's squad should we target
   //

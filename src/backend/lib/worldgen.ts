@@ -1123,13 +1123,21 @@ export async function sendUserAward(
  * @function
  */
 export async function sendUserTransferOffer() {
-  // bail early if user does not have any players to spare
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
   const to = await DatabaseClient.prisma.team.findFirst({
     where: { id: profile.teamId },
     include: { players: true, personas: true },
   });
 
+  // build the player pool
+  const players = to.players
+    .filter((player) => player.id !== profile.playerId)
+    .sort(
+      (a, b) => Bot.Exp.getTotalXP(JSON.parse(b.stats)) - Bot.Exp.getTotalXP(JSON.parse(a.stats)),
+    );
+  const transferPool = players.filter((player) => player.transferListed);
+
+  // bail early if user does not have any players to spare
   if (to.players.length <= Constants.Application.SQUAD_MIN_LENGTH) {
     return Promise.resolve();
   }
@@ -1140,20 +1148,19 @@ export async function sendUserTransferOffer() {
   }
 
   // roll whether we continue if the user has no transfer listed players
-  if (
-    !to.players.some((player) => player.transferListed) &&
-    !Chance.rollD2(Constants.TransferSettings.PBX_USER_SELL_UNLISTED)
-  ) {
+  if (!transferPool.length && !Chance.rollD2(Constants.TransferSettings.PBX_USER_SELL_UNLISTED)) {
     return Promise.resolve();
   }
 
-  // sort players by exp and pluck our target at random
-  const targets = to.players
-    .filter((player) => player.id !== profile.playerId)
-    .sort(
-      (a, b) => Bot.Exp.getTotalXP(JSON.parse(b.stats)) - Bot.Exp.getTotalXP(JSON.parse(a.stats)),
-    );
-  const target = Chance.pluck(targets, Constants.TransferSettings.PBX_USER_TARGET);
+  // roll whether we try to poach their top player
+  const target = Chance.pluck(
+    transferPool.length
+      ? Chance.rollD2(Constants.TransferSettings.PBX_USER_POACH)
+        ? players
+        : transferPool
+      : players,
+    Constants.TransferSettings.PBX_USER_TARGET,
+  );
 
   // figure out what prestige level to fetch a buyer from
   const [prestigeHigh, prestigeSame, prestigeLow] =
