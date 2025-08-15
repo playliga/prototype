@@ -31,6 +31,8 @@ export default {
     locale: () => ipcRenderer.invoke(Constants.IPCRoute.APP_LOCALE) as Promise<LocaleData>,
     info: () => ipcRenderer.invoke(Constants.IPCRoute.APP_INFO) as Promise<typeof AppInfo>,
     status: () => ipcRenderer.invoke(Constants.IPCRoute.APP_STATUS),
+    upload: (file: string) =>
+      ipcRenderer.invoke(Constants.IPCRoute.APP_UPLOAD, file) as Promise<string>,
     whatsNew: () => ipcRenderer.invoke(Constants.IPCRoute.APP_WHATS_NEW) as Promise<void>,
   },
   blazonry: {

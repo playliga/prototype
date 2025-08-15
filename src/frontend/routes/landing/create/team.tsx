@@ -14,7 +14,7 @@ import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
 import { AppState } from '@liga/frontend/redux/state';
 import { useTranslation } from '@liga/frontend/hooks';
-import { FaFolderOpen, FaRecycle } from 'react-icons/fa';
+import { FaFolderOpen, FaRecycle, FaUpload } from 'react-icons/fa';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
 /**
@@ -118,9 +118,9 @@ export default function () {
   return (
     <div className="stack-y">
       <section className="stack-y items-center gap-4!">
-        <article className="center h-auto w-1/3">
+        <article className="center h-32 w-auto">
           {teamBlazon ? (
-            <img src={teamBlazon} className="h-48 w-auto" />
+            <img src={teamBlazon} className="h-32 w-auto" />
           ) : (
             <span className="loading loading-spinner loading-lg" />
           )}
@@ -140,6 +140,23 @@ export default function () {
             onClick={() => navigate(location.pathname + '/gallery')}
           >
             <FaFolderOpen />
+          </button>
+          <button
+            title="Upload Logo"
+            className="btn btn-square btn-primary"
+            onClick={() =>
+              api.app
+                .dialog(Constants.WindowIdentifier.Landing, {
+                  properties: ['openFile'],
+                  filters: [{ name: 'Images', extensions: ['jpg', 'png', 'svg'] }],
+                })
+                .then(
+                  (dialogData) => !dialogData.canceled && api.app.upload(dialogData.filePaths[0]),
+                )
+                .then((file) => !!file && setTeamBlazon('uploads://' + file))
+            }
+          >
+            <FaUpload />
           </button>
         </article>
       </section>

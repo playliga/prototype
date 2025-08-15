@@ -957,14 +957,23 @@ export class Server {
         logoPath = path.join(this.resourcesPath, filePath);
         break;
       case 'custom':
+      case 'uploads':
         logoPath = path.join(app.getPath('userData'), protocol, filePath);
         break;
     }
 
     if (useBase64) {
-      return fs.promises.readFile(logoPath, {
+      const MIME_TYPES: Record<string, string> = {
+        '.svg': 'image/svg+xml',
+        '.jpg': 'image/jpeg',
+        '.png': 'image/png',
+      };
+      const ext = path.extname(logoPath);
+      const base64 = await fs.promises.readFile(logoPath, {
         encoding: 'base64',
       });
+      const mime = MIME_TYPES[ext.toLowerCase()];
+      return `data:${mime};base64,${base64}`;
     }
 
     return logoPath;

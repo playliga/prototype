@@ -231,6 +231,7 @@ export enum IPCRoute {
   APP_LOCALE = '/app/locale',
   APP_INFO = '/app/info',
   APP_STATUS = '/app/status',
+  APP_UPLOAD = '/app/upload',
   APP_WHATS_NEW = '/app/whatsNew',
   BLAZONRY_ALL = '/blazonry/all',
   BONUS_ALL = '/bonus/all',

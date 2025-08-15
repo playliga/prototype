@@ -77,6 +77,18 @@ export function IPCGenericHandler() {
       return Promise.resolve(JSON.stringify(error));
     }
   });
+  ipcMain.handle(Constants.IPCRoute.APP_UPLOAD, async (_, file: string) => {
+    const from = path.normalize(file);
+    const to = path.join(app.getPath('userData'), 'uploads', path.basename(file));
+
+    try {
+      await FileManager.touch(to);
+      await fs.promises.copyFile(from, to);
+      return path.basename(to);
+    } catch (error) {
+      return error;
+    }
+  });
   ipcMain.handle(Constants.IPCRoute.APP_WHATS_NEW, async () => {
     // grab what's new file path
     const resourcesPath = is.dev()
