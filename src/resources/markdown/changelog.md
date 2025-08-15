@@ -1,3 +1,16 @@
+## [3.0.0-beta.61](https://github.com/playliga/prototype/compare/v3.0.0-beta.60...v3.0.0-beta.61) (2025-08-15)
+
+### Features
+
+- add cache, russka, and overpass to cs16 map pool ([#468](https://github.com/playliga/prototype/issues/468)) ([98165d0](https://github.com/playliga/prototype/commit/98165d05f2ff7be52c5ef11fd6a9cbd4b5d74514))
+- add custom team logos ([#459](https://github.com/playliga/prototype/issues/459)) ([ab54ff9](https://github.com/playliga/prototype/commit/ab54ff9d357a74d85c96531f88f4f7779aae60e0))
+- add player avatars ([#450](https://github.com/playliga/prototype/issues/450)) ([981f6ca](https://github.com/playliga/prototype/commit/981f6ca772167e7a8027120ecf10cd828095446a))
+
+### Bug Fixes
+
+- adjust team transfer offer probability values ([#465](https://github.com/playliga/prototype/issues/465)) ([6b004c7](https://github.com/playliga/prototype/commit/6b004c7bfa42305c19310148041cad6c6fa5a9db))
+- improve rcon connection error handling ([#467](https://github.com/playliga/prototype/issues/467)) ([8628000](https://github.com/playliga/prototype/commit/86280001256182345e214584d6cdc6e310716c70))
+
 ## [3.0.0-beta.60](https://github.com/playliga/prototype/compare/v3.0.0-beta.58...v3.0.0-beta.60) (2025-08-13)
 
 ### Features
