@@ -943,11 +943,10 @@ export const MapPool = [
 export const MapPoolReplacements: Record<string, Record<string, string>> = {
   [Game.CS16]: {
     de_mirage: 'de_cpl_strike',
-    de_overpass: 'de_cpl_fire',
     de_ancient: 'de_cpl_mill',
     de_anubis: 'de_cbble',
     de_vertigo: 'de_dust2',
-    de_cache: 'de_dust2',
+    de_tuscan: 'de_russka',
   },
   [Game.CS2]: {
     de_cache: 'de_dust2',
