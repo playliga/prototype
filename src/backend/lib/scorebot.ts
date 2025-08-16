@@ -47,7 +47,6 @@ export interface EventPayloadPlayerAssisted extends EventPayload {
     steamId: string;
     team: string;
   };
-  half: number;
 }
 
 /** @interface */
@@ -65,7 +64,6 @@ export interface EventPayloadPlayerKilled extends EventPayload {
     team: string;
   };
   weapon: string;
-  half: number;
   headshot: boolean;
 }
 
@@ -74,7 +72,6 @@ export interface EventPayloadRoundOver extends EventPayload {
   winner: number;
   event: string;
   score: Array<number>;
-  half: number;
 }
 
 /** @interface */
@@ -96,7 +93,6 @@ export const TeamIdentifier: Record<string, number> = {
 
 /** @constant */
 export const RegexTypes = {
-  HALF_TIME_SUFFIX_REGEX: new RegExp(/\s(?:Half:)\s"(\d)"$/i),
   GAME_OVER_REGEX: new RegExp(/(?:Game Over)(?:.+)de_(\S+)(?:\D+)([\d]{1,2})\s?:\s?([\d]{1,2})/),
   PLAYER_ASSISTED_REGEX: new RegExp(/"(.+)" assisted killing "(.+)"/),
   PLAYER_CONNECTED_REGEX: new RegExp(/"(?:.+)" connected, address "loopback:0"/),
@@ -114,6 +110,7 @@ export const RegexTypes = {
     /Team "(TERRORIST|CT)" triggered "(.+)"(?:.+)\(.+"(\d+)"\)(?:.+)\(.+"(\d+)"\)/,
   ),
   SAY_REGEX: new RegExp(/(?:.)+(?:say|say_team)(?:.)+"(.*)"/),
+  TIMESTAMP_REGEX: new RegExp(/^L.+(?<hours>\d{2}):(?<minutes>\d{2}):(?<seconds>\d{2})/),
 };
 
 /**
@@ -153,10 +150,14 @@ export class Watcher extends events.EventEmitter {
   private onLine(line: string) {
     // grab current timestamp
     const timestamp = new Date();
+    const timestampRegexMatch = line.match(RegexTypes.TIMESTAMP_REGEX);
 
-    // grab halftime status information
-    const halfRegexMatch = line.match(RegexTypes.HALF_TIME_SUFFIX_REGEX);
-    const half = halfRegexMatch !== null ? Number(halfRegexMatch[1]) : -1;
+    if (timestampRegexMatch && timestampRegexMatch.groups) {
+      const { hours, minutes, seconds } = timestampRegexMatch.groups;
+      timestamp.setHours(Number(hours));
+      timestamp.setMinutes(Number(minutes));
+      timestamp.setSeconds(Number(seconds));
+    }
 
     // look for SAY events
     let regexmatch = line.match(RegexTypes.SAY_REGEX);
@@ -186,7 +187,6 @@ export class Watcher extends events.EventEmitter {
         winner: TeamIdentifier[regexmatch[1]], // can be: CT or TERRORIST
         event: regexmatch[2], // e.g.: CTs_Win or Target_Bombed
         score: regexmatch.slice(3).map((score) => parseInt(score)), // e.g.: [ 0 (t) , 1 (ct) ]
-        half,
         timestamp,
       });
       return;
@@ -216,7 +216,6 @@ export class Watcher extends events.EventEmitter {
           team: victimTeam,
         },
         headshot: Boolean(headshot),
-        half,
         weapon,
         timestamp,
       });
@@ -245,7 +244,6 @@ export class Watcher extends events.EventEmitter {
           steamId: victimSteamId,
           team: victimTeam,
         },
-        half,
         timestamp,
       });
     }

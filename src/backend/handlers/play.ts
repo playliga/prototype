@@ -37,7 +37,6 @@ export default function () {
       },
       include: Eagers.match.include,
     });
-    const winsToClinch = Math.floor(match.games.length / 2) + 1;
 
     // minimize main window
     const mainWindow = WindowManager.get(Constants.WindowIdentifier.Main);
@@ -59,6 +58,8 @@ export default function () {
       const settingsRemote = Util.loadSettings(profile.settings);
       profile.settings = JSON.stringify(merge({}, settingsRemote, settingsLocal));
     }
+
+    const settings = Util.loadSettings(profile.settings);
 
     // start the server and play the match
     const gameServer = new Game.Server(profile, match, null, spectating);
@@ -83,6 +84,7 @@ export default function () {
             Number(Simulator.getMatchResult(away.teamId, gameScore) === Constants.MatchResult.WIN)
           : gameScore[away.teamId],
     };
+    const winsToClinch = Math.floor(match.games.length / 2) + 1;
     const matchCompleted = Object.values(globalScore).some((score) => score >= winsToClinch);
 
     // add the user back into the list of players
@@ -129,87 +131,119 @@ export default function () {
           connect: players.map((player) => ({ id: player.id })),
         },
         events: {
-          create: gameServer.scorebotEvents.map((event) => {
-            switch (event.type) {
-              case Scorebot.EventIdentifier.PLAYER_ASSISTED: {
-                const eventAssisted = event.payload as Scorebot.EventPayloadPlayerAssisted;
-                const assist = players.find((player) => player.name === eventAssisted.assist.name);
-                const victim = players.find((player) => player.name === eventAssisted.victim.name);
-                return {
-                  half: eventAssisted.half,
-                  payload: JSON.stringify(event),
-                  timestamp: eventAssisted.timestamp,
-                  assist: {
-                    connect: {
-                      id: assist?.id || profile.playerId,
-                    },
-                  },
-                  game: {
-                    connect: {
-                      id: gameServer.matchGame.id,
-                    },
-                  },
-                  victim: {
-                    connect: {
-                      id: victim?.id || profile.playerId,
-                    },
-                  },
-                };
-              }
-              case Scorebot.EventIdentifier.PLAYER_KILLED: {
-                const eventKilled = event.payload as Scorebot.EventPayloadPlayerKilled;
-                const attacker = players.find(
-                  (player) => player.name === eventKilled.attacker.name,
-                );
-                const victim = players.find((player) => player.name === eventKilled.victim.name);
-                return {
-                  half: eventKilled.half,
-                  headshot: eventKilled.headshot,
-                  payload: JSON.stringify(event),
-                  timestamp: eventKilled.timestamp,
-                  weapon: eventKilled.weapon,
-                  attacker: {
-                    connect: {
-                      id: attacker?.id || profile.playerId,
-                    },
-                  },
-                  game: {
-                    connect: {
-                      id: gameServer.matchGame.id,
-                    },
-                  },
-                  victim: {
-                    connect: {
-                      id: victim?.id || profile.playerId,
-                    },
-                  },
-                };
-              }
-              default: {
-                const eventRoundOver = event.payload as Scorebot.EventPayloadRoundOver;
-                // swap the winner depending on the half number
-                const winnerIdx = eventRoundOver.half
-                  ? 1 - eventRoundOver.winner
-                  : eventRoundOver.winner;
-                return {
-                  half: eventRoundOver.half,
-                  payload: JSON.stringify(event),
-                  result: eventRoundOver.event,
-                  timestamp: eventRoundOver.timestamp,
-                  game: {
-                    connect: {
-                      id: gameServer.matchGame.id,
-                    },
-                  },
-                  winner: {
-                    connect: {
-                      id: match.competitors[winnerIdx].id,
-                    },
-                  },
-                };
-              }
-            }
-          }),
+          create: (() => {
+            // in order to record things under the correct half we must sort the
+            // entries by their timestamp and keep manual track of the score
+            let half = 0;
+            let ot = false;
+
+            return gameServer.scorebotEvents
+              .sort((a, b) => a.payload.timestamp.getTime() - b.payload.timestamp.getTime())
+              .map((event) => {
+                switch (event.type) {
+                  case Scorebot.EventIdentifier.PLAYER_ASSISTED: {
+                    const eventAssisted = event.payload as Scorebot.EventPayloadPlayerAssisted;
+                    const assist = players.find(
+                      (player) => player.name === eventAssisted.assist.name,
+                    );
+                    const victim = players.find(
+                      (player) => player.name === eventAssisted.victim.name,
+                    );
+                    return {
+                      half,
+                      payload: JSON.stringify(event),
+                      timestamp: eventAssisted.timestamp,
+                      assist: {
+                        connect: {
+                          id: assist?.id || profile.playerId,
+                        },
+                      },
+                      game: {
+                        connect: {
+                          id: gameServer.matchGame.id,
+                        },
+                      },
+                      victim: {
+                        connect: {
+                          id: victim?.id || profile.playerId,
+                        },
+                      },
+                    };
+                  }
+                  case Scorebot.EventIdentifier.PLAYER_KILLED: {
+                    const eventKilled = event.payload as Scorebot.EventPayloadPlayerKilled;
+                    const attacker = players.find(
+                      (player) => player.name === eventKilled.attacker.name,
+                    );
+                    const victim = players.find(
+                      (player) => player.name === eventKilled.victim.name,
+                    );
+                    return {
+                      half,
+                      headshot: eventKilled.headshot,
+                      payload: JSON.stringify(event),
+                      timestamp: eventKilled.timestamp,
+                      weapon: eventKilled.weapon,
+                      attacker: {
+                        connect: {
+                          id: attacker?.id || profile.playerId,
+                        },
+                      },
+                      game: {
+                        connect: {
+                          id: gameServer.matchGame.id,
+                        },
+                      },
+                      victim: {
+                        connect: {
+                          id: victim?.id || profile.playerId,
+                        },
+                      },
+                    };
+                  }
+                  default: {
+                    // swap the winner depending on the half number
+                    const eventRoundOver = event.payload as Scorebot.EventPayloadRoundOver;
+                    const winnerIdx = half ? 1 - eventRoundOver.winner : eventRoundOver.winner;
+
+                    // store the event data to be returned later
+                    const eventData = {
+                      half,
+                      payload: JSON.stringify(event),
+                      result: eventRoundOver.event,
+                      timestamp: eventRoundOver.timestamp,
+                      game: {
+                        connect: {
+                          id: gameServer.matchGame.id,
+                        },
+                      },
+                      winner: {
+                        connect: {
+                          id: match.competitors[winnerIdx].id,
+                        },
+                      },
+                    };
+
+                    // @todo: hoist ot rounds to user settings
+                    const maxRounds = ot ? 6 : settings.matchRules.maxRounds;
+                    const totalRounds = eventRoundOver.score.reduce((a, b) => a + b, 0);
+                    const halfTime = totalRounds === maxRounds / 2;
+
+                    // if we're at half-time and already in
+                    // the second half, then it must be ot
+                    if (halfTime && half > 0) {
+                      ot = true;
+                    }
+
+                    // toggle half number if we've reached half-time
+                    half = halfTime ? +!half : half;
+
+                    // now we can return the data
+                    return eventData;
+                  }
+                }
+              });
+          })(),
         },
       },
     });
