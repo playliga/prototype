@@ -1,6 +1,8 @@
 [![Discord](https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Join%20the%20Discord%20Server&logo=discord&logoColor=white)](https://discord.gg/ZaEwHfDD5N)
 
-[![Static Badge](https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=mingww64)](https://playliga.gg/#/#download)
+[![Download](https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github)](https://playliga.gg/#/#download)
+
+[![Roadmap](https://img.shields.io/badge/view_the-roadmap-blue?style=for-the-badge&logo=rocket&logoColor=white)](https://github.com/playliga/prototype/milestones)
 
 An immersive CS:GO Esports Simulator.
 
