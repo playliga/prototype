@@ -98,7 +98,7 @@ export const RegexTypes = {
   PLAYER_CONNECTED_REGEX: new RegExp(/"(?:.+)" connected, address "loopback:0"/),
   PLAYER_ENTERED_REGEX: new RegExp(/"(.+)" entered the game/),
   PLAYER_KILLED_REGEX: new RegExp(
-    /"(.+)" (?:\[.+\]\s)?killed "(.+)" (?:\[.+\]\s)?with "(\S+)"\s+?(\(headshot\))?/,
+    /"(.+)" (?:\[.+\]\s)?killed "(.+)" (?:\[.+\]\s)?with "(\S+)"\s?(\(headshot\))?/,
   ),
   PLAYER_REGEX: new RegExp(
     /(.+)<(\d+)><(STEAM_\d:\d:\d+|STEAM_ID_LAN|BOT|Console|\[.+\])><(TERRORIST|CT)>?/,
