@@ -1,7 +1,7 @@
 <div align="center">
   <p>
     <a href="https://discord.gg/ZaEwHfDD5N">
-      <img src="https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Join%20the%20Discord%20Server&logo=discord&logoColor=white" />
+      <img src="https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Discord&logo=discord&logoColor=white" />
     </a>
     <a href="https://playliga.gg/#/#download">
       <img src="https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github" />
