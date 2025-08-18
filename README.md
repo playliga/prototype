@@ -1,14 +1,8 @@
 <div align="center">
   <p>
-    <a href="https://discord.gg/ZaEwHfDD5N">
-      <img src="https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Discord&logo=discord&logoColor=white" />
-    </a>
-    <a href="https://playliga.gg/#/#download">
-      <img src="https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github" />
-    </a>
-    <a href="https://github.com/playliga/prototype/milestones">
-      <img src="https://img.shields.io/badge/view_the-roadmap-blue?style=for-the-badge&logo=rocket&logoColor=white" />
-    </a>
+    <a href="https://discord.gg/ZaEwHfDD5N"><img src="https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Discord&logo=discord&logoColor=white" /></a>
+    <a href="https://playliga.gg/#/#download"><img src="https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github" /></a>
+    <a href="https://github.com/playliga/prototype/milestones"><img src="https://img.shields.io/badge/view_the-roadmap-blue?style=for-the-badge&logo=rocket&logoColor=white" /></a>
   </p>
   <p>The world's first Esports simulator for Counter-Strike where you can play your matches in-game or simulate them, you choose!</p>
 </div>
