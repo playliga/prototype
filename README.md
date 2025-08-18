@@ -1,10 +1,17 @@
-[![Discord](https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Join%20the%20Discord%20Server&logo=discord&logoColor=white)](https://discord.gg/ZaEwHfDD5N)
-
-[![Download](https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github)](https://playliga.gg/#/#download)
-
-[![Roadmap](https://img.shields.io/badge/view_the-roadmap-blue?style=for-the-badge&logo=rocket&logoColor=white)](https://github.com/playliga/prototype/milestones)
-
-An immersive CS:GO Esports Simulator.
+<div align="center">
+  <p>
+    <a href="https://discord.gg/ZaEwHfDD5N">
+      <img src="https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Join%20the%20Discord%20Server&logo=discord&logoColor=white" />
+    </a>
+    <a href="https://playliga.gg/#/#download">
+      <img src="https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github" />
+    </a>
+    <a href="https://github.com/playliga/prototype/milestones">
+      <img src="https://img.shields.io/badge/view_the-roadmap-blue?style=for-the-badge&logo=rocket&logoColor=white" />
+    </a>
+  </p>
+  <p>The world's first Esports simulator for Counter-Strike where you can play your matches in-game or simulate them, you choose!</p>
+</div>
 
 # APIs and Technologies
 
