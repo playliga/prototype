@@ -797,6 +797,7 @@ export class Server {
           freezetime: this.settings.matchRules.freezeTime,
           hostname: this.hostname,
           maxrounds: this.settings.matchRules.maxRounds,
+          maxrounds_ot: this.settings.matchRules.maxRoundsOvertime,
           ot: +this.overtime,
           rcon_password: Constants.GameSettings.RCON_PASSWORD,
           teamname_t: home.team.name,
@@ -1360,7 +1361,9 @@ export class Server {
 
           if (totalRoundsPlayed > this.settings.matchRules.maxRounds) {
             const totalRoundsOvertime = totalRoundsPlayed - this.settings.matchRules.maxRounds;
-            const overtimeCount = Math.ceil(totalRoundsOvertime / 6);
+            const overtimeCount = Math.ceil(
+              totalRoundsOvertime / this.settings.matchRules.maxRoundsOvertime,
+            );
 
             // swap score if overtime count is odd
             if (overtimeCount % 2 === 1) {

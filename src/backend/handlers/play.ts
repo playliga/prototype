@@ -224,13 +224,14 @@ export default function () {
                       },
                     };
 
-                    // @todo: hoist ot rounds to user settings
-                    const maxRounds = ot ? 6 : settings.matchRules.maxRounds;
+                    // if we're at half-time and already in
+                    // the second half, then it must be ot
+                    const maxRounds = ot
+                      ? settings.matchRules.maxRoundsOvertime
+                      : settings.matchRules.maxRounds;
                     const totalRounds = eventRoundOver.score.reduce((a, b) => a + b, 0);
                     const halfTime = totalRounds === maxRounds / 2;
 
-                    // if we're at half-time and already in
-                    // the second half, then it must be ot
                     if (halfTime && half > 0) {
                       ot = true;
                     }

@@ -1125,6 +1125,7 @@ export const Settings = {
     freezeTime: 7,
     mapOverride: null as string,
     maxRounds: 6,
+    maxRoundsOvertime: 6,
     overtime: true,
     startMoney: 10_000,
   },
