@@ -1,12 +1,12 @@
 <div align="center">
   <p>
-    <a href="https://discord.gg/ZaEwHfDD5N">
+    <a href="https://discord.gg/ZaEwHfDD5N" target="_blank">
       <img src="https://img.shields.io/discord/1296858234853789826?style=for-the-badge&label=Discord&logo=discord&logoColor=white" />
     </a>
-    <a href="https://playliga.gg/#/#download">
+    <a href="https://playliga.gg/#/#download" target="_blank">
       <img src="https://img.shields.io/badge/download-latest-salmon?style=for-the-badge&logo=github" />
     </a>
-    <a href="https://github.com/playliga/prototype/milestones">
+    <a href="https://github.com/playliga/prototype/milestones" target="_blank">
       <img src="https://img.shields.io/badge/view_the-roadmap-blue?style=for-the-badge&logo=rocket&logoColor=white" />
     </a>
   </p>
