@@ -1370,6 +1370,12 @@ export class Server {
             );
 
             // swap score if overtime count is odd
+            //
+            // [  /  ] [  /  ] [  /  ]
+            //  ^           ^   ^
+            //
+            // when an overtime starts, the sides are not swapped, so
+            // every odd-numbered overtime means teams have swapped
             if (overtimeCount % 2 === 1) {
               payload.score.reverse();
             }

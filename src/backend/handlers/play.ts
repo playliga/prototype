@@ -133,9 +133,10 @@ export default function () {
         events: {
           create: (() => {
             // in order to record things under the correct half we must sort the
-            // entries by their timestamp and keep manual track of the score
+            // entries by their timestamp and keep manual track of the rounds
             let half = 0;
             let ot = false;
+            let rounds = 1;
 
             return gameServer.scorebotEvents
               .sort((a, b) => a.payload.timestamp.getTime() - b.payload.timestamp.getTime())
@@ -202,13 +203,46 @@ export default function () {
                     };
                   }
                   default: {
-                    // swap the winner depending on the half number
                     const eventRoundOver = event.payload as Scorebot.EventPayloadRoundOver;
-                    const winnerIdx = half ? 1 - eventRoundOver.winner : eventRoundOver.winner;
+                    const currentHalf = half;
+                    const { maxRounds, maxRoundsOvertime } = settings.matchRules;
 
-                    // store the event data to be returned later
-                    const eventData = {
-                      half,
+                    // invert score if in overtime or half-time
+                    let invert = half;
+
+                    if (ot) {
+                      const roundsOvertime = rounds - maxRounds;
+                      const overtimeCount = Math.ceil(roundsOvertime / maxRoundsOvertime);
+
+                      // only swap on 1st-half of odd-numbered overtime segments
+                      //
+                      // [  /  ] [  /  ] [  /  ]
+                      //  ^           ^   ^
+                      //
+                      // when an overtime starts, the sides are not swapped, so
+                      // every odd-numbered overtime means teams have swapped
+                      if (overtimeCount % 2 === 1) {
+                        invert = +!half;
+                      }
+
+                      // figure out if we've reached half-time in this overtime segment
+                      const overtimeRound = ((roundsOvertime - 1) % maxRoundsOvertime) + 1;
+                      half =
+                        overtimeRound === maxRoundsOvertime / 2 ||
+                        overtimeRound === maxRoundsOvertime
+                          ? +!half
+                          : half;
+                    } else {
+                      half = rounds === maxRounds / 2 || rounds === maxRounds ? +!half : half;
+                    }
+
+                    // update rolling values
+                    rounds += 1;
+                    ot = rounds > maxRounds;
+
+                    // now we can return the data
+                    return {
+                      half: currentHalf,
                       payload: JSON.stringify(event),
                       result: eventRoundOver.event,
                       timestamp: eventRoundOver.timestamp,
@@ -219,28 +253,12 @@ export default function () {
                       },
                       winner: {
                         connect: {
-                          id: match.competitors[winnerIdx].id,
+                          id: match.competitors[
+                            invert ? 1 - eventRoundOver.winner : eventRoundOver.winner
+                          ].id,
                         },
                       },
                     };
-
-                    // if we're at half-time and already in
-                    // the second half, then it must be ot
-                    const maxRounds = ot
-                      ? settings.matchRules.maxRoundsOvertime
-                      : settings.matchRules.maxRounds;
-                    const totalRounds = eventRoundOver.score.reduce((a, b) => a + b, 0);
-                    const halfTime = totalRounds === maxRounds / 2;
-
-                    if (halfTime && half > 0) {
-                      ot = true;
-                    }
-
-                    // toggle half number if we've reached half-time
-                    half = halfTime ? +!half : half;
-
-                    // now we can return the data
-                    return eventData;
                   }
                 }
               });
