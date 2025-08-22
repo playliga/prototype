@@ -135,7 +135,6 @@ export default function () {
             // in order to record things under the correct half we must sort the
             // entries by their timestamp and keep manual track of the rounds
             let half = 0;
-            let ot = false;
             let rounds = 1;
 
             return gameServer.scorebotEvents
@@ -207,22 +206,23 @@ export default function () {
                     const currentHalf = half;
                     const { maxRounds, maxRoundsOvertime } = settings.matchRules;
 
-                    // invert score if in overtime or half-time
-                    let invert = half;
+                    // invert score on odd-numbered halves
+                    let invert = half % 2 === 1;
 
-                    if (ot) {
+                    // handle overtime conditions where we only swap
+                    // on 1st-half of odd-numbered segments
+                    //
+                    // [  /  ] [  /  ] [  /  ]
+                    //  ^           ^   ^
+                    //
+                    // when an overtime starts, the sides are not swapped, so
+                    // every odd-numbered overtime means teams have swapped
+                    if (rounds > maxRounds) {
                       const roundsOvertime = rounds - maxRounds;
                       const overtimeCount = Math.ceil(roundsOvertime / maxRoundsOvertime);
 
-                      // only swap on 1st-half of odd-numbered overtime segments
-                      //
-                      // [  /  ] [  /  ] [  /  ]
-                      //  ^           ^   ^
-                      //
-                      // when an overtime starts, the sides are not swapped, so
-                      // every odd-numbered overtime means teams have swapped
                       if (overtimeCount % 2 === 1) {
-                        invert = +!half;
+                        invert = half % 2 === 0; // swap on 1st-half
                       }
 
                       // figure out if we've reached half-time in this overtime segment
@@ -230,15 +230,14 @@ export default function () {
                       half =
                         overtimeRound === maxRoundsOvertime / 2 ||
                         overtimeRound === maxRoundsOvertime
-                          ? +!half
+                          ? ++half
                           : half;
                     } else {
-                      half = rounds === maxRounds / 2 || rounds === maxRounds ? +!half : half;
+                      half = rounds === maxRounds / 2 || rounds === maxRounds ? ++half : half;
                     }
 
-                    // update rolling values
+                    // update round value
                     rounds += 1;
-                    ot = rounds > maxRounds;
 
                     // now we can return the data
                     return {

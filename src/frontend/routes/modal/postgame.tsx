@@ -49,23 +49,15 @@ function getPlayerPerformance(
 
 /**
  * @param result  The round result.
- * @param side    The side.
- * @param half    The half.
  */
-function getRoundWinIcon(result: string, side: number, half: number) {
-  if ((side === 0 && half === 0) || (side === 1 && half === 1)) {
-    switch (result) {
-      case 'SFUI_Notice_Terrorists_Win':
-      case 'Terrorists_Win':
-        return <FaSkull className="text-error" />;
-      case 'SFUI_Notice_Target_Bombed':
-      case 'Target_Bombed':
-        return <FaBomb className="text-error" />;
-      default:
-        return null;
-    }
-  }
+function getRoundWinIcon(result: string) {
   switch (result) {
+    case 'SFUI_Notice_Terrorists_Win':
+    case 'Terrorists_Win':
+      return <FaSkull className="text-error" />;
+    case 'SFUI_Notice_Target_Bombed':
+    case 'Target_Bombed':
+      return <FaBomb className="text-error" />;
     case 'SFUI_Notice_CTs_Win':
     case 'CTs_Win':
       return <FaSkull className="text-info" />;
@@ -222,6 +214,10 @@ export default function () {
           : [],
     [match, matchGame],
   );
+  const totalHalves = React.useMemo(
+    () => Math.max(...matchEvents.map((me) => me.half)) + 1,
+    [matchEvents],
+  );
 
   if (!state.profile || !match) {
     return (
@@ -335,21 +331,21 @@ export default function () {
         <table className="table-xs table">
           <thead>
             <tr className="border-t-base-content/10 border-t">
-              <th colSpan={3}>{t('postgame.timeline')}</th>
+              <th colSpan={totalHalves + 1}>{t('postgame.timeline')}</th>
             </tr>
           </thead>
           <tbody>
-            {match.competitors.map((competitor, idx) => {
+            {match.competitors.map((competitor) => {
               const roundEndEvents = matchEvents.filter((event) => event.winnerId !== null);
               return (
                 <tr key={competitor.team.name + '__round_history'}>
                   <td className="w-[10%] text-center">
                     <img src={competitor.team.blazon} className="inline-block size-4" />
                   </td>
-                  {[...Array(2)].map((_, half) => (
+                  {[...Array(totalHalves)].map((_, half) => (
                     <td
                       key={competitor.team.name + half + '__round_item'}
-                      className="border-base-content/10 w-[45%] border-l"
+                      className={cx('border-base-content/10 border-l', `w-[${90 / totalHalves}%]`)}
                     >
                       <section className="flex justify-between">
                         {roundEndEvents
@@ -361,7 +357,7 @@ export default function () {
                               className="center basis-4"
                             >
                               {event.winnerId === competitor.id ? (
-                                getRoundWinIcon(event.result, idx, event.half)
+                                getRoundWinIcon(event.result)
                               ) : (
                                 <span>&nbsp;</span>
                               )}
@@ -380,7 +376,7 @@ export default function () {
       <section className="h-0 flex-grow overflow-x-auto">
         {(match.games.length === 1 || !!matchGame) && (
           <table className="table-pin-rows table-xs table">
-            {[...Array(2)].map((_, half) => (
+            {[...Array(totalHalves)].map((_, half) => (
               <React.Fragment key={half + '__match_log'}>
                 <thead>
                   <tr className="border-t-base-content/10 border-t">
