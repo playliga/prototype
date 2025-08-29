@@ -342,6 +342,7 @@ export default function () {
       ...query,
       ...Eagers.profile,
       data: {
+        ...query.data,
         settings: JSON.stringify(newSettings),
       },
     });

@@ -91,8 +91,8 @@ export default function () {
         />
         <footer className="label h-5">
           <span className="label-text-alt">
-            {formState.errors?.name?.type === 'required' && t('landing.create.requiredError')}
-            {formState.errors?.name?.type === 'pattern' && t('landing.create.patternError')}
+            {formState.errors?.name?.type === 'required' && t('shared.required')}
+            {formState.errors?.name?.type === 'pattern' && t('shared.specialCharactersError')}
           </span>
         </footer>
       </section>

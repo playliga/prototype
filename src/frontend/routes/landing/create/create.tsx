@@ -43,7 +43,7 @@ export default function () {
       },
       {
         id: 'finish',
-        title: t('landing.create.finish'),
+        title: t('shared.finish'),
       },
     ],
     [t],

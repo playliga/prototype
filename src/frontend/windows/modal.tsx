@@ -88,6 +88,19 @@ const routes = createMemoryRouter([
           },
         ],
       },
+      {
+        path: '/team',
+        children: [
+          {
+            path: 'edit',
+            element: <Routes.Modal.Team.Edit />,
+          },
+          {
+            path: 'gallery',
+            element: <Routes.Modal.Team.Gallery />,
+          },
+        ],
+      },
     ],
   },
 ]);

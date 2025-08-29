@@ -1,30 +1,26 @@
 /**
- * Collects team information when
- * user starts a new career.
+ * Edit team details modal.
  *
  * @module
  */
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { sample } from 'lodash';
 import { Constants } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
-import { AppState } from '@liga/frontend/redux/state';
 import { useTranslation } from '@liga/frontend/hooks';
 import { FaFolderOpen, FaRecycle, FaUpload } from 'react-icons/fa';
-import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
 /**
  * Defines the form's initial values.
  *
  * @constant
  */
-const formDefaultValues: AppState['windowData'][Constants.WindowIdentifier.Landing]['team'] = {
+const formDefaultValues = {
   name: '',
-  countryId: undefined,
 };
 
 /**
@@ -37,38 +33,16 @@ export default function () {
   const [blazonry, setBlazonry] = React.useState<string[]>([]);
   const [teamBlazon, setTeamBlazon] = React.useState('');
   const navigate = useNavigate();
-  const location = useLocation();
   const t = useTranslation('windows');
-  const windowData = state.windowData.landing;
+  const windowData = state.windowData[Constants.WindowIdentifier.Modal];
 
   // form setup
-  const { control, formState, handleSubmit, register } = useForm({
-    defaultValues: windowData?.team ? windowData.team : formDefaultValues,
+  const { formState, handleSubmit, register } = useForm({
+    defaultValues: state.profile?.team.name
+      ? { name: state.profile?.team.name }
+      : formDefaultValues,
     mode: 'all',
   });
-
-  // load country data
-  const countrySelectorData = React.useMemo(
-    () =>
-      state.continents.map((continent) => ({
-        label: continent.name,
-        options: continent.countries.map((country) => ({
-          ...country,
-          value: country.id,
-          label: country.name,
-        })),
-      })),
-    [state.continents],
-  );
-
-  // preload country if one was selected
-  const selectedCountry = React.useMemo(() => {
-    if (!windowData?.team?.countryId) {
-      return null;
-    }
-
-    return findCountryOptionByValue(countrySelectorData, windowData.team.countryId);
-  }, [countrySelectorData]);
 
   // load blazonry
   React.useEffect(() => {
@@ -77,46 +51,66 @@ export default function () {
 
   // assign team blazon if none found in window data
   React.useEffect(() => {
-    if (!teamBlazon && windowData?.team?.blazon) {
-      return setTeamBlazon(windowData?.team?.blazon);
+    if (!teamBlazon && windowData?.blazon) {
+      return setTeamBlazon(windowData?.blazon);
+    }
+
+    if (!teamBlazon && !!state.profile) {
+      return setTeamBlazon(state.profile.team.blazon);
     }
 
     if (!teamBlazon && blazonry[0]) {
       setTeamBlazon('resources://blazonry/' + blazonry[0]);
     }
-  }, [blazonry, windowData]);
+  }, [blazonry, state.profile, windowData]);
 
   // update window state everytime the blazon gets updated
   React.useEffect(() => {
-    // save data to redux
-    const data = {
-      [Constants.WindowIdentifier.Landing]: {
-        team: { ...windowData.team, blazon: teamBlazon },
-      },
-    };
-    dispatch(windowDataUpdate(data));
+    dispatch(
+      windowDataUpdate({
+        [Constants.WindowIdentifier.Modal]: {
+          ...windowData,
+          blazon: teamBlazon,
+        },
+      }),
+    );
   }, [teamBlazon]);
 
   // handle form submission
   const onSubmit = (team: typeof formDefaultValues) => {
-    // save data to redux
-    const data = {
-      [Constants.WindowIdentifier.Landing]: {
-        team: { ...team, blazon: teamBlazon },
-      },
-    };
-    dispatch(windowDataUpdate(data));
-
-    // move to next step in form
-    const [currentStep] = location.pathname
-      .split('/')
-      .slice(-1)
-      .map((path) => parseInt(path) || 1);
-    navigate('/create/' + (currentStep + 1));
+    api.profiles
+      .update({
+        where: { id: state.profile.id },
+        data: {
+          settings: state.profile.settings,
+          team: {
+            update: {
+              where: {
+                id: state.profile.team.id,
+              },
+              data: {
+                name: team.name,
+                blazon: windowData?.blazon || teamBlazon,
+              },
+            },
+          },
+        },
+      })
+      .then(() => api.window.close(Constants.WindowIdentifier.Modal));
   };
 
+  if (!state.profile) {
+    return (
+      <main className="h-screen w-screen">
+        <section className="center h-full">
+          <span className="loading loading-bars loading-lg" />
+        </section>
+      </main>
+    );
+  }
+
   return (
-    <div className="stack-y">
+    <main className="center mx-auto h-screen w-1/2 gap-4">
       <section className="stack-y items-center gap-4!">
         <article className="center h-32 w-auto">
           {teamBlazon ? (
@@ -137,7 +131,7 @@ export default function () {
           <button
             title={t('shared.gallery')}
             className="btn btn-square btn-primary"
-            onClick={() => navigate(location.pathname + '/gallery')}
+            onClick={() => navigate('/team/gallery')}
           >
             <FaFolderOpen />
           </button>
@@ -146,7 +140,7 @@ export default function () {
             className="btn btn-square btn-primary"
             onClick={() =>
               api.app
-                .dialog(Constants.WindowIdentifier.Landing, {
+                .dialog(Constants.WindowIdentifier.Modal, {
                   properties: ['openFile'],
                   filters: [{ name: 'Images', extensions: ['jpg', 'png', 'svg'] }],
                 })
@@ -160,7 +154,7 @@ export default function () {
           </button>
         </article>
       </section>
-      <form className="stack-y">
+      <form className="stack-y w-full">
         <section className="fieldset w-full">
           <label className="label">
             <span className="label-text">{t('shared.teamName')}</span>
@@ -177,26 +171,6 @@ export default function () {
             </span>
           </footer>
         </section>
-        <section className="fieldset w-full">
-          <label className="label">
-            <span className="label-text">{t('shared.country')}</span>
-          </label>
-          <Controller
-            name="countryId"
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange } }) => (
-              <CountrySelect
-                defaultValue={selectedCountry}
-                options={countrySelectorData}
-                onChange={(option) => onChange(option.value)}
-              />
-            )}
-          />
-          <footer className="label h-5">
-            <span className="label-text-alt">{formState.errors?.countryId?.message}</span>
-          </footer>
-        </section>
         <button
           type="submit"
           className="btn btn-primary btn-block"
@@ -211,6 +185,6 @@ export default function () {
           {t('shared.finish')}
         </button>
       </form>
-    </div>
+    </main>
   );
 }

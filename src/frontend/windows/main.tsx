@@ -12,7 +12,7 @@ import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
 import { useTheme } from '@liga/frontend/hooks';
-import { Confetti } from '@liga/frontend/components';
+import { Confetti, Image } from '@liga/frontend/components';
 import {
   continentsUpdate,
   emailsUpdate,
@@ -207,7 +207,7 @@ function Root() {
   return (
     <React.StrictMode>
       <header className="navbar border-base-content/10 bg-base-200 fixed top-0 z-50 h-16 border-b p-0">
-        <nav className="stack-x navbar-start h-full w-full gap-0!">
+        <nav className="stack-x h-full w-full gap-0!">
           {[
             ['/', 'Dashboard'],
             ['/inbox', 'Inbox'],
@@ -236,16 +236,54 @@ function Root() {
               )}
             </button>
           ))}
-          <button
-            title="Earnings can be used to buy servers to give your team training boosts!"
-            className={cx('btn btn-wide ml-auto border-0', 'hover:bg-transparent')}
-          >
-            <p>Total Earnings</p>
-            <p>
-              <code>{Util.formatCurrency(state.profile?.team.earnings || 0)}</code>
-            </p>
-          </button>
         </nav>
+        <section className="h-full p-2">
+          <button
+            // @ts-expect-error @todo: requires typescript, react, react-markdown upgrades
+            popoverTarget="popover-1"
+            className="btn btn-ghost h-full w-auto"
+            style={{ anchorName: '--anchor-1' } as React.CSSProperties}
+          >
+            <Image src={state.profile?.team.blazon || ''} className="h-full w-auto" />
+          </button>
+          <ul
+            id="popover-1"
+            // @ts-expect-error @todo: requires typescript, react, react-markdown upgrades
+            popover="auto"
+            className="dropdown menu rounded-box bg-base-100 dropdown-end w-52 shadow-sm"
+            style={{ positionAnchor: '--anchor-1' } as React.CSSProperties}
+          >
+            <li className="menu-title">{state.profile?.team.name}</li>
+            <li>
+              <a
+                onClick={() =>
+                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                    target: '/team/edit',
+                  })
+                }
+              >
+                Edit Details
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() =>
+                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                    target: '/settings',
+                  })
+                }
+              >
+                Settings
+              </a>
+            </li>
+            <div className="divider mt-2 mb-0 before:h-px after:h-px" />
+            <li className="menu-disabled text-muted! italic">
+              <p>Earnings: {Util.formatCurrency(state.profile?.team.earnings || 0)}</p>
+              <p>{Constants.IdiomaticTier[Constants.Prestige[state.profile?.team.tier]]}</p>
+              <p>Season {state.profile?.season}</p>
+            </li>
+          </ul>
+        </section>
       </header>
       <Outlet />
     </React.StrictMode>

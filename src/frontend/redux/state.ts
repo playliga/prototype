@@ -27,6 +27,10 @@ export interface AppState {
   profiles: Array<AppState['profile']>;
   windowData: Partial<{
     [Constants.WindowIdentifier.Landing]: Parameters<typeof api.profiles.create>[number];
+    [Constants.WindowIdentifier.Modal]: Pick<
+      Parameters<typeof api.profiles.create>[number]['team'],
+      'name' | 'blazon'
+    >;
   }>;
   working: boolean;
 }
@@ -58,6 +62,7 @@ export const InitialState: AppState = {
         Constants.Application.SEASON_START_DAY,
       ),
     },
+    modal: {},
   },
   working: false,
 };

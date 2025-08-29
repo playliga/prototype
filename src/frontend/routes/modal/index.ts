@@ -12,6 +12,7 @@ import Play from './play';
 import Postgame from './postgame';
 import Pregame from './pregame';
 import Settings from './settings';
+import Team from './team';
 import Transfer from './transfer';
 
 /**
@@ -32,4 +33,5 @@ export default {
   // composite routes
   Issues,
   Markdown,
+  Team,
 };
