@@ -1,3 +1,15 @@
+## [3.0.0-beta.63](https://github.com/playliga/prototype/compare/v3.0.0-beta.62...v3.0.0-beta.63) (2025-08-29)
+
+### Features
+
+- users can now edit team details after creating a new save ([#466](https://github.com/playliga/prototype/issues/466)) ([3cfe3e5](https://github.com/playliga/prototype/commit/3cfe3e550e0d91c0bdfe230e4e65c336894f5407))
+
+### Bug Fixes
+
+- fix ot events not recorded for cs2 ([#480](https://github.com/playliga/prototype/issues/480)) ([8432ce9](https://github.com/playliga/prototype/commit/8432ce9a7e13b7c26cde957b3057ba5e6a24b197))
+- fix overtime ux ([#473](https://github.com/playliga/prototype/issues/473)) ([2a2bf9a](https://github.com/playliga/prototype/commit/2a2bf9ae702b1be3f0b6e9f5d3e6acd4b4b0acaa))
+- fix postgame match feed and scoreboard for cs2 ([#469](https://github.com/playliga/prototype/issues/469)) ([c1ffeea](https://github.com/playliga/prototype/commit/c1ffeea2b3f7c7ce0f3f94a55279cd63d7c01f94))
+
 ## [3.0.0-beta.62](https://github.com/playliga/prototype/compare/v3.0.0-beta.61...v3.0.0-beta.62) (2025-08-15)
 
 ### Bug Fixes
