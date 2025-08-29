@@ -269,7 +269,7 @@ export class Storage {
         Authorization: `Bearer ${await this.getToken()}`,
         'Content-Type': 'application/zip',
       },
-      body: fileBuffer,
+      body: new Uint8Array(fileBuffer),
     });
     const data: UploadResponse = await response.json();
     return Promise.resolve(data);
