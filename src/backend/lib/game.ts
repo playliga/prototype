@@ -509,7 +509,7 @@ export class Server {
     // add them to the list of pro bot names
     const names = flatten(this.competitors.map((competitor) => competitor.team.players)).map(
       (player) => {
-        const xp = new Bot.Exp(JSON.parse(player.stats));
+        const xp = new Bot.Exp(player);
         const difficulty = xp.getBotTemplate().name;
 
         if (difficulty !== Constants.BotDifficulty.ELITE) {
@@ -573,7 +573,7 @@ export class Server {
    * @function
    */
   private generateBotDifficulty(player: Server['competitors'][number]['team']['players'][number]) {
-    const xp = new Bot.Exp(JSON.parse(player.stats));
+    const xp = new Bot.Exp(player);
     const difficulty = xp.getBotTemplate().name;
     const weapon = player.weapon as Constants.WeaponTemplate;
     const voice = random(
@@ -773,7 +773,7 @@ export class Server {
             );
           }
 
-          const xp = new Bot.Exp(JSON.parse(player.stats));
+          const xp = new Bot.Exp(player);
           return {
             difficulty: xp.getBotTemplate().difficulty,
             name: player.name,

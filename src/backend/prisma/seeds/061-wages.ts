@@ -24,7 +24,7 @@ export default async function (prisma: PrismaClient) {
   });
 
   const transaction = players.map((player) => {
-    const xp = new Bot.Exp(JSON.parse(player.stats));
+    const xp = new Bot.Exp(player);
     const tier = Constants.Prestige[xp.getBotTemplate().prestige];
     const wageConfigs = Constants.PlayerWages[tier as keyof typeof Constants.PlayerWages];
 

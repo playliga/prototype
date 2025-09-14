@@ -76,6 +76,7 @@ export default async function (prisma: PrismaClient) {
                   update: team.players.map((player) => ({
                     where: { id: player.id },
                     data: {
+                      prestige: chunk.prestige,
                       stats: JSON.stringify(
                         Bot.Templates.find((template) => template.prestige === chunk.prestige)
                           ?.stats || null,

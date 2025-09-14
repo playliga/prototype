@@ -206,26 +206,17 @@ export class Exp {
   public stats: Stats;
   private bonuses: typeof this.gains;
   private log: log.LogFunctions;
+  private player: Prisma.PlayerGetPayload<unknown>;
 
-  constructor(
-    stats?: Stats,
-    bonuses?: Array<Prisma.BonusGetPayload<unknown>>,
-    gains?: Partial<Stats>,
-  ) {
-    // load base stats if none are provided
-    if (!stats) {
-      stats = Templates[0].stats;
-    }
-
-    // create a shallow clone of provided stats
-    this.stats = { ...stats };
-
-    // initialize objects
-    this.bonuses = {};
-    this.gains = gains || {};
+  constructor(player: typeof this.player, bonuses?: Array<Prisma.BonusGetPayload<unknown>>) {
     this.log = log.scope('training');
+    this.stats = player.stats ? JSON.parse(player.stats) : { ...Templates[0].stats };
+    this.gains = player.gains ? JSON.parse(player.gains) : {};
+    this.player = player;
 
     // initialize training bonuses
+    this.bonuses = {};
+
     if (bonuses) {
       bonuses.forEach(this.initBonuses, this);
     }
@@ -283,23 +274,14 @@ export class Exp {
     bonuses?: Array<Prisma.BonusGetPayload<unknown>>,
   ) {
     return players.map((player) => {
-      const xp = new Exp(JSON.parse(player.stats), bonuses);
-      const gains = player.gains ? JSON.parse(player.gains) : {};
+      const xp = new Exp(player, bonuses);
       xp.train();
-
-      // append gains to the current player total
-      Object.keys(xp.gains).forEach((stat) => {
-        if (!gains[stat]) {
-          gains[stat] = 0;
-        }
-        gains[stat] += xp.gains[stat];
-      });
 
       return {
         ...player,
         xp: {
           stats: JSON.stringify(xp.stats),
-          gains: JSON.stringify(gains),
+          gains: JSON.stringify(xp.gains),
         },
       };
     });
@@ -311,8 +293,8 @@ export class Exp {
    * @function
    */
   private get trainable() {
-    const [maxTemplate] = Templates.slice(-1);
-
+    const idx = Templates.findIndex((template) => template.prestige === this.player.prestige);
+    const maxTemplate = Templates[idx + 1] || Templates[idx];
     return Object.keys(this.stats).filter((key) =>
       StatModifiers.SUBTRACT.includes(key)
         ? this.stats[key] > maxTemplate.stats[key]
@@ -416,8 +398,13 @@ export class Exp {
       this.trainable.map((stat) => StatsPbxWeight[stat]),
     );
 
-    this.log.debug('beginning training on %s', drills);
-    this.log.debug('training bonuses: %s', this.bonuses);
+    if (!drills.length) {
+      this.log.debug('[%s] nothing to train', this.player.name);
+      return;
+    }
+
+    this.log.debug('[%s] beginning training on %s', this.player.name, drills);
+    this.log.debug('[%s] training bonuses: %s', this.player.name, this.bonuses);
 
     // run some drills
     drills.forEach((drill) => {
@@ -425,7 +412,10 @@ export class Exp {
       const bonus = gains * this.bonuses[drill];
       const total = gains < 0 ? gains + (bonus || 0) : Math.round(gains + (bonus || 0));
       this.stats[drill] += total;
-      this.gains[drill] = total;
+
+      // gains may not be initialized as they are reset
+      // every season so make sure it defaults to zero
+      this.gains[drill] = (this.gains[drill] || 0) + total;
 
       // clamp gains to maximum xp possible
       if (
@@ -436,13 +426,11 @@ export class Exp {
         this.stats[drill] = lastTemplate.stats[drill];
       }
 
-      this.log.debug(
-        'trained %s. base: %d, bonus: %d, total: %d',
-        drill,
-        gains.toFixed(3),
-        bonus.toFixed(3),
-        total.toFixed(3),
-      );
+      this.log.debug('[%s] trained %s. %o', this.player.name, drill, {
+        base: gains.toFixed(3),
+        bonus: bonus.toFixed(3),
+        total: total.toFixed(3),
+      });
     });
   }
 }

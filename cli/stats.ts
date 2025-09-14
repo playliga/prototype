@@ -50,7 +50,7 @@ export async function generateStats(args?: typeof DEFAULT_ARGS) {
   const queries = players.map((player) => {
     // randomly pick the amount of training sessions
     // allocated to this particular player
-    const xp = new Bot.Exp(JSON.parse(player.stats));
+    const xp = new Bot.Exp(player);
     const totalSessions = random(Number(mergedArgs.min), Number(mergedArgs.max));
 
     for (let i = 0; i < totalSessions; i++) {

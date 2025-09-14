@@ -268,6 +268,7 @@ model Player {
   starter             Boolean             @default(false)
   transferListed      Boolean             @default(false)
   avatar              String?
+  prestige            Int?
 
   // has many
   matches             Match[]

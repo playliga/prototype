@@ -94,8 +94,7 @@ export default function (props: PlayerCardProps) {
       return;
     }
 
-    const gains = JSON.parse(props.player.gains || '{}');
-    return new Bot.Exp(JSON.parse(props.player.stats), null, gains);
+    return new Bot.Exp(props.player, null);
   }, [props.player]);
   const gainsTotal = React.useMemo(
     () =>
@@ -180,6 +179,20 @@ export default function (props: PlayerCardProps) {
           </p>
         </nav>
       </header>
+      <aside className="px-10 py-4">
+        <label className="fieldset p-0 text-xs">
+          <p>Potential</p>
+          <figure className="rating mt-0 gap-1">
+            {[...Array(Constants.Prestige.length)].map((_, idx) => (
+              <span
+                key={idx + '__player_prestige'}
+                className="mask mask-star bg-yellow-500"
+                aria-current={idx + 1 <= props.player.prestige + 1}
+              />
+            ))}
+          </figure>
+        </label>
+      </aside>
       <aside className="px-10 py-4">
         <label className="fieldset p-0 text-xs">
           <p>{t('shared.weaponPreference')}</p>

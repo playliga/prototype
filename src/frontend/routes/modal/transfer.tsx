@@ -187,7 +187,7 @@ export default function () {
       return;
     }
 
-    return new Bot.Exp(JSON.parse(player.stats));
+    return new Bot.Exp(player);
   }, [player]);
 
   // load the default tab
@@ -244,14 +244,15 @@ export default function () {
       <table className="table table-fixed">
         <thead>
           <tr>
-            <th colSpan={2}>Name</th>
+            <th>Name</th>
             <th>Country</th>
             <th>Team</th>
+            <th>Potential</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td colSpan={2}>{player.name}</td>
+            <td>{player.name}</td>
             <td>
               <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
               <span>{player.country.name}</span>
@@ -264,6 +265,17 @@ export default function () {
                 </>
               )}
               {!player.team && <span>Free Agent</span>}
+            </td>
+            <td>
+              <figure className="rating gap-1">
+                {[...Array(Constants.Prestige.length)].map((_, idx) => (
+                  <span
+                    key={idx + '__player_prestige'}
+                    className="mask mask-star bg-yellow-500"
+                    aria-current={idx + 1 <= player.prestige + 1}
+                  />
+                ))}
+              </figure>
             </td>
           </tr>
         </tbody>

@@ -304,7 +304,7 @@ async function sandboxFirebase() {
 async function sandboxTraining() {
   const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
   for (const player of profile.team.players) {
-    const xp = new Bot.Exp(JSON.parse(player.stats));
+    const xp = new Bot.Exp(player);
     const totalSessions = 5;
     for (let i = 0; i < totalSessions; i++) {
       xp.train();
