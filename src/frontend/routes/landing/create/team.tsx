@@ -63,11 +63,14 @@ export default function () {
 
   // preload country if one was selected
   const selectedCountry = React.useMemo(() => {
-    if (!windowData?.team?.countryId) {
+    if (!windowData?.user?.countryId && !windowData?.team?.countryId) {
       return null;
     }
 
-    return findCountryOptionByValue(countrySelectorData, windowData.team.countryId);
+    return findCountryOptionByValue(
+      countrySelectorData,
+      windowData.user.countryId || windowData.team.countryId,
+    );
   }, [countrySelectorData]);
 
   // load blazonry
