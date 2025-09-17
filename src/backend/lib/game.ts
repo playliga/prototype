@@ -671,7 +671,8 @@ export class Server {
       title: this.hostname.split('|')[0],
       subtitle: this.hostname.split('|')[1],
       stage:
-        !this.match.competition.tier.groupSize &&
+        (this.match.competition.tier.groupSize === undefined ||
+          this.match.competition.tier.groupSize === null) &&
         Util.parseCupRounds(this.match.round, this.match.totalRounds),
       home: {
         name: home.team.name,

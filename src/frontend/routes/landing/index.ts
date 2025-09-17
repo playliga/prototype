@@ -7,6 +7,7 @@ import Create from './create';
 import Connect from './connect';
 import Home from './home';
 import Load from './load';
+import Exhibition from './exhibition';
 
 /**
  * Exports this module.
@@ -16,6 +17,7 @@ import Load from './load';
 export default {
   // standalone routes
   Connect,
+  Exhibition,
   Home,
 
   // composite routes

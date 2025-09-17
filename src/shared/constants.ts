@@ -226,6 +226,8 @@ export enum LocaleIdentifier {
  * @enum
  */
 export enum IPCRoute {
+  APP_DETECT_GAME = '/app/detect/game',
+  APP_DETECT_STEAM = '/app/detect/steam',
   APP_DIALOG = '/app/dialog',
   APP_EXTERNAL = '/app/external',
   APP_LOCALE = '/app/locale',
@@ -274,6 +276,7 @@ export enum IPCRoute {
   MODS_FINISHED = '/mods/finished',
   MODS_GET_INSTALLED = '/mods/get-installed',
   MODS_INSTALLING = '/mods/installing',
+  PLAY_EXHIBITION = '/play/exhibition',
   PLAY_START = '/play/start',
   PLAYERS_ALL = '/players/all',
   PLAYERS_COUNT = '/players/count',
@@ -460,6 +463,7 @@ export enum TierSlug {
   ESWC_LEGENDS = 'eswc:legends',
   ESWC_CHAMPIONS = 'eswc:champions',
   ESWC_PLAYOFFS = 'eswc:playoffs',
+  EXHIBITION_FRIENDLY = 'exhibition:friendly',
   LEAGUE_ADVANCED = 'league:advanced',
   LEAGUE_ADVANCED_PLAYOFFS = 'league:advanced:playoffs',
   LEAGUE_CUP = 'league:cup',
@@ -877,6 +881,7 @@ export const IdiomaticTier: Record<TierSlug | string, string> = {
   [TierSlug.ESWC_LEGENDS]: 'Legends Stage',
   [TierSlug.ESWC_CHAMPIONS]: 'Champions Stage',
   [TierSlug.ESWC_PLAYOFFS]: 'Champions Stage Playoffs',
+  [TierSlug.EXHIBITION_FRIENDLY]: 'Friendly',
   [TierSlug.LEAGUE_OPEN]: 'Open Division',
   [TierSlug.LEAGUE_OPEN_PLAYOFFS]: 'Open Division Playoffs',
   [TierSlug.LEAGUE_CUP]: 'Open Cup',

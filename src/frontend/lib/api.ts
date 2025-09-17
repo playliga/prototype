@@ -21,6 +21,9 @@ type IPCRendererCallback = (...args: unknown[]) => void;
  */
 export default {
   app: {
+    detectGame: (game: Constants.Game) =>
+      ipcRenderer.invoke(Constants.IPCRoute.APP_DETECT_GAME, game) as Promise<string>,
+    detectSteam: () => ipcRenderer.invoke(Constants.IPCRoute.APP_DETECT_STEAM) as Promise<string>,
     dialog: (parentId: string, options: Electron.OpenDialogOptions) =>
       ipcRenderer.invoke(
         Constants.IPCRoute.APP_DIALOG,
@@ -30,7 +33,8 @@ export default {
     external: (url: string) => ipcRenderer.invoke(Constants.IPCRoute.APP_EXTERNAL, url),
     locale: () => ipcRenderer.invoke(Constants.IPCRoute.APP_LOCALE) as Promise<LocaleData>,
     info: () => ipcRenderer.invoke(Constants.IPCRoute.APP_INFO) as Promise<typeof AppInfo>,
-    status: () => ipcRenderer.invoke(Constants.IPCRoute.APP_STATUS),
+    status: (settings?: typeof Constants.Settings) =>
+      ipcRenderer.invoke(Constants.IPCRoute.APP_STATUS, settings),
     upload: (file: string) =>
       ipcRenderer.invoke(Constants.IPCRoute.APP_UPLOAD, file) as Promise<string>,
     whatsNew: () => ipcRenderer.invoke(Constants.IPCRoute.APP_WHATS_NEW) as Promise<void>,
@@ -159,6 +163,8 @@ export default {
     installed: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<string>,
   },
   play: {
+    exhibition: (settings: typeof Constants.Settings, teamIds: Array<number>) =>
+      ipcRenderer.invoke(Constants.IPCRoute.PLAY_EXHIBITION, settings, teamIds),
     start: (spectating?: boolean) => ipcRenderer.invoke(Constants.IPCRoute.PLAY_START, spectating),
   },
   plugins: {

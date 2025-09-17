@@ -3,6 +3,7 @@
  *
  * @module
  */
+import type { Prisma } from '@prisma/client';
 import log from 'electron-log';
 import { ipcMain } from 'electron';
 import { flatten, merge } from 'lodash';
@@ -22,6 +23,76 @@ import {
  * @function
  */
 export default function () {
+  ipcMain.handle(
+    Constants.IPCRoute.PLAY_EXHIBITION,
+    async (_, settings: typeof Constants.Settings, teamIds: Array<number>) => {
+      // minimize the landing window
+      const landingWindow = WindowManager.get(Constants.WindowIdentifier.Landing);
+      landingWindow.minimize();
+
+      // grab team info
+      const [home, away] = await Promise.all(
+        teamIds.map((id) =>
+          DatabaseClient.prisma.team.findFirst({
+            where: { id },
+            include: Eagers.team.include,
+          }),
+        ),
+      );
+
+      // load federation and tier info
+      const federation = await DatabaseClient.prisma.federation.findFirst({
+        where: {
+          slug: Constants.FederationSlug.ESPORTS_WORLD,
+        },
+      });
+
+      // since this is an exhibition match we must
+      // manually build the match-related objects
+      const profile = {
+        teamId: home.id,
+        playerId: home.players[0].id,
+        settings: JSON.stringify(settings),
+      } as Prisma.ProfileGetPayload<unknown>;
+
+      const tier = {
+        name: 'Exhibition',
+        slug: Constants.TierSlug.EXHIBITION_FRIENDLY,
+        groupSize: 0,
+        league: {
+          name: 'Exhibition',
+        },
+      } as Prisma.TierGetPayload<{ include: { league: true } }>;
+
+      const match = {
+        games: [
+          {
+            map: settings.matchRules.mapOverride,
+            status: Constants.MatchStatus.READY,
+          },
+        ],
+        competitors: [home, away].map((team) => ({
+          teamId: team.id,
+          team,
+        })),
+        competition: {
+          federation,
+          tier,
+          competitors: [home, away].map((team) => ({
+            teamId: team.id,
+            team: team as Omit<typeof team, 'players' | 'country'>,
+          })),
+        },
+      } as Prisma.MatchGetPayload<typeof Eagers.match>;
+
+      // start the server and play the match
+      const gameServer = new Game.Server(profile, match);
+      await gameServer.start();
+
+      // restore window
+      landingWindow.restore();
+    },
+  );
   ipcMain.handle(Constants.IPCRoute.PLAY_START, async (_, spectating?: boolean) => {
     // grab today's match
     const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);

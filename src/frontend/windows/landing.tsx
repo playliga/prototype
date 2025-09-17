@@ -39,6 +39,10 @@ const routes = createMemoryRouter([
         path: '/connect/:id',
         element: <Routes.Landing.Connect />,
       },
+      {
+        path: '/exhibition',
+        element: <Routes.Landing.Exhibition />,
+      },
 
       // composite routes
       {

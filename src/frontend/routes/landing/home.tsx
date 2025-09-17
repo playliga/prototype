@@ -32,6 +32,10 @@ export default function () {
       label: t('landing.home.load'),
       disabled: !state.profiles.length,
     },
+    {
+      path: '/exhibition',
+      label: t('landing.home.exhibition'),
+    },
   ];
 
   return (

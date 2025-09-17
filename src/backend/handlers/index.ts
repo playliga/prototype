@@ -50,6 +50,22 @@ function getApplicationInfo() {
  * @function
  */
 export function IPCGenericHandler() {
+  ipcMain.handle(Constants.IPCRoute.APP_DETECT_GAME, async (_, game: Constants.Game) => {
+    try {
+      const gamePath = await Game.discoverGamePath(game);
+      return gamePath;
+    } catch (error) {
+      return error;
+    }
+  });
+  ipcMain.handle(Constants.IPCRoute.APP_DETECT_STEAM, async () => {
+    try {
+      const steamPath = await Game.discoverSteamPath();
+      return steamPath;
+    } catch (error) {
+      return error;
+    }
+  });
   ipcMain.handle(
     Constants.IPCRoute.APP_DIALOG,
     (_, parentId: string, options: Electron.OpenDialogOptions) =>
@@ -61,9 +77,12 @@ export function IPCGenericHandler() {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     return getLocale(profile);
   });
-  ipcMain.handle(Constants.IPCRoute.APP_STATUS, async () => {
-    const profile = await DatabaseClient.prisma.profile.findFirst();
-    const settings = Util.loadSettings(profile.settings);
+  ipcMain.handle(Constants.IPCRoute.APP_STATUS, async (_, settings: typeof Constants.Settings) => {
+    if (!settings) {
+      const profile = await DatabaseClient.prisma.profile.findFirst();
+      settings = Util.loadSettings(profile.settings);
+    }
+
     const steamPath = path.join(settings.general.steamPath || '', Constants.GameSettings.STEAM_EXE);
     const gamePath = Game.getGameExecutable(settings.general.game, settings.general.gamePath);
 
