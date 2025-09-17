@@ -1,3 +1,9 @@
+## [3.0.0-beta.65](https://github.com/playliga/prototype/compare/v3.0.0-beta.64...v3.0.0-beta.65) (2025-09-17)
+
+### Bug Fixes
+
+- fix insecure game warning for csgo exhibition matches ([d49f8eb](https://github.com/playliga/prototype/commit/d49f8eb4a5c0091d0d9b9c74d48c33a02adb91b8))
+
 ## [3.0.0-beta.64](https://github.com/playliga/prototype/compare/v3.0.0-beta.63...v3.0.0-beta.64) (2025-09-17)
 
 ### Features
