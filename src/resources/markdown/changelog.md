@@ -1,3 +1,15 @@
+## [3.0.0-beta.64](https://github.com/playliga/prototype/compare/v3.0.0-beta.63...v3.0.0-beta.64) (2025-09-17)
+
+### Features
+
+- add an exhibition mode ([#410](https://github.com/playliga/prototype/issues/410)) ([90f68af](https://github.com/playliga/prototype/commit/90f68af5e6453764f08f6dcc079c21c32fba665e))
+- players now have a maximum xp they can earn ([#331](https://github.com/playliga/prototype/issues/331), [#313](https://github.com/playliga/prototype/issues/313)) ([de526ea](https://github.com/playliga/prototype/commit/de526ea2ef1d3b1a357c8f7f12809e28e8d087e3))
+
+### Bug Fixes
+
+- improve ux by adding a down arrow next to team logo ([#489](https://github.com/playliga/prototype/issues/489)) ([6847717](https://github.com/playliga/prototype/commit/6847717d3ad625c846410ecb19e1af211e50dd88))
+- team country now defaults to user selection when starting a new career ([#487](https://github.com/playliga/prototype/issues/487)) ([6b629df](https://github.com/playliga/prototype/commit/6b629df55607328814f65062eb5f5e81e60a6c0b))
+
 ## [3.0.0-beta.63](https://github.com/playliga/prototype/compare/v3.0.0-beta.62...v3.0.0-beta.63) (2025-08-29)
 
 ### Features
