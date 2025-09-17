@@ -7,7 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Routes from '@liga/frontend/routes';
 import { Toast, Toaster, toast } from 'react-hot-toast';
-import { FaEnvelopeOpen } from 'react-icons/fa';
+import { FaCaretDown, FaEnvelopeOpen } from 'react-icons/fa';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
@@ -245,6 +245,7 @@ function Root() {
             style={{ anchorName: '--anchor-1' } as React.CSSProperties}
           >
             <Image src={state.profile?.team.blazon || ''} className="h-full w-auto" />
+            <FaCaretDown />
           </button>
           <ul
             id="popover-1"
