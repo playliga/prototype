@@ -212,11 +212,6 @@ export default function () {
   const onSettingsUpdate = (path: string, value: unknown) => {
     const modified = cloneDeep(settings);
     set(modified, path, value);
-
-    if (!modified.matchRules.mapOverride) {
-      modified.matchRules.mapOverride = Constants.MapPool[0];
-    }
-
     setSettings(modified);
   };
 

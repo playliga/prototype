@@ -26,6 +26,11 @@ export default function () {
   ipcMain.handle(
     Constants.IPCRoute.PLAY_EXHIBITION,
     async (_, settings: typeof Constants.Settings, teamIds: Array<number>) => {
+      // configure default map if none selected
+      if (!settings.matchRules.mapOverride) {
+        settings.matchRules.mapOverride = Constants.MapPool[0];
+      }
+
       // minimize the landing window
       const landingWindow = WindowManager.get(Constants.WindowIdentifier.Landing);
       landingWindow.minimize();
