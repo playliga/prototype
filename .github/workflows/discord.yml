@@ -17,8 +17,11 @@ jobs:
       - run: gh release view $RELEASE_NAME --json body --jq '.body' >> CHANGELOG.md
       - run: >
           jq -n --arg content "$(cat CHANGELOG.md)" '{
-            content: $content,
-            flags: "4"
+            embeds: [{
+              title: "Game Update",
+              description: $content,
+              color: 5793266
+            }]
           }' > data.json
       - run: >
           curl -sS ${{ secrets.DISCORD_WEBHOOK_URL }}
