@@ -1127,6 +1127,7 @@ export const Settings = {
     unit: CalendarUnit.DAY,
   },
   matchRules: {
+    bombTimer: 40,
     freezeTime: 7,
     mapOverride: null as string,
     maxRounds: 6,

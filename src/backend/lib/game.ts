@@ -807,6 +807,7 @@ export class Server {
           bot_chatter: this.settings.general.botChatter,
           spectating: +this.spectating,
           startmoney: this.settings.matchRules.startMoney,
+          bombTimer: this.settings.matchRules.bombTimer,
 
           // csgo only
           match_stat: this.match.competition.tier.name,

@@ -311,6 +311,24 @@ export default function () {
           <fieldset>
             <section>
               <header>
+                <p>{t('shared.bombTimer')}</p>
+              </header>
+              <article>
+                <select
+                  className="select"
+                  onChange={(event) => onSettingsUpdate('matchRules.bombTimer', event.target.value)}
+                  value={settings.matchRules.bombTimer}
+                >
+                  {[35, 40, 45].map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </article>
+            </section>
+            <section>
+              <header>
                 <p>{t('shared.maxRoundsTitle')}</p>
               </header>
               <article>
