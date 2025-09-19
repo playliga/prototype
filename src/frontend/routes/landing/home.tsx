@@ -74,7 +74,6 @@ export default function () {
             {item.label}
           </button>
         ))}
-        <span className="divider mt-0 mb-0" />
         <button
           className="btn btn-ghost btn-md btn-block"
           onClick={() =>
@@ -85,6 +84,21 @@ export default function () {
           }
         >
           {t('landing.home.mods')}
+        </button>
+        <span className="divider mt-0 mb-0" />
+        <button
+          className="btn btn-outline btn-md btn-block btn-error border-0"
+          onClick={() =>
+            api.app
+              .messageBox(Constants.WindowIdentifier.Landing, {
+                type: 'question',
+                message: 'Are you sure you want to quit the application?',
+                buttons: ['Quit', 'Cancel'],
+              })
+              .then((data) => data.response === 0 && api.app.quit())
+          }
+        >
+          {t('shared.quit')}
         </button>
       </nav>
       <footer className="w-full px-2">

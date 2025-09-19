@@ -71,12 +71,18 @@ export function IPCGenericHandler() {
     (_, parentId: string, options: Electron.OpenDialogOptions) =>
       dialog.showOpenDialog(WindowManager.get(parentId), options),
   );
+  ipcMain.handle(
+    Constants.IPCRoute.APP_MESSAGE_BOX,
+    (_, parentId: string, options: Electron.MessageBoxOptions) =>
+      dialog.showMessageBox(WindowManager.get(parentId), options),
+  );
   ipcMain.handle(Constants.IPCRoute.APP_EXTERNAL, (_, url: string) => shell.openExternal(url));
   ipcMain.handle(Constants.IPCRoute.APP_INFO, () => Promise.resolve(getApplicationInfo()));
   ipcMain.handle(Constants.IPCRoute.APP_LOCALE, async () => {
     const profile = await DatabaseClient.prisma.profile.findFirst();
     return getLocale(profile);
   });
+  ipcMain.handle(Constants.IPCRoute.APP_QUIT, () => app.quit());
   ipcMain.handle(Constants.IPCRoute.APP_STATUS, async (_, settings: typeof Constants.Settings) => {
     if (!settings) {
       const profile = await DatabaseClient.prisma.profile.findFirst();
