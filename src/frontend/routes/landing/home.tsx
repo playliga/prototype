@@ -87,7 +87,7 @@ export default function () {
         </button>
         <span className="divider mt-0 mb-0" />
         <button
-          className="btn btn-outline btn-md btn-block btn-error border-0"
+          className="btn btn-ghost btn-md btn-block"
           onClick={() =>
             api.app
               .messageBox(Constants.WindowIdentifier.Landing, {
