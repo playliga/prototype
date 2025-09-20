@@ -1,3 +1,11 @@
+## [3.0.0-beta.66](https://github.com/playliga/prototype/compare/v3.0.0-beta.65...v3.0.0-beta.66) (2025-09-20)
+
+### Features
+
+- add quit button to landing screen ([#500](https://github.com/playliga/prototype/issues/500)) ([1a414c9](https://github.com/playliga/prototype/commit/1a414c9e46113c7aa80a49926c6fdb1c7c3f8e7b))
+- allow bomb timer to be configured ([#494](https://github.com/playliga/prototype/issues/494)) ([2ea2930](https://github.com/playliga/prototype/commit/2ea2930505fab8a0d631e54d84bdc1d92e61769e))
+- starting side can now be chosen in exhibition matches ([#501](https://github.com/playliga/prototype/issues/501)) ([5dfab1c](https://github.com/playliga/prototype/commit/5dfab1cd0ad4c1b21a1717c1480682ed6fd9a3dd))
+
 ## [3.0.0-beta.65](https://github.com/playliga/prototype/compare/v3.0.0-beta.64...v3.0.0-beta.65) (2025-09-17)
 
 ### Bug Fixes
