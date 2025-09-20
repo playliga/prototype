@@ -25,7 +25,7 @@ import {
 export default function () {
   ipcMain.handle(
     Constants.IPCRoute.PLAY_EXHIBITION,
-    async (_, settings: typeof Constants.Settings, teamIds: Array<number>) => {
+    async (_, settings: typeof Constants.Settings, teamIds: Array<number>, teamId: number) => {
       // configure default map if none selected
       if (!settings.matchRules.mapOverride) {
         settings.matchRules.mapOverride = Constants.MapPool[0];
@@ -45,6 +45,9 @@ export default function () {
         ),
       );
 
+      // grab user's chosen team
+      const userTeam = [home, away].find((team) => team.id === teamId);
+
       // load federation and tier info
       const federation = await DatabaseClient.prisma.federation.findFirst({
         where: {
@@ -55,8 +58,8 @@ export default function () {
       // since this is an exhibition match we must
       // manually build the match-related objects
       const profile = {
-        teamId: home.id,
-        playerId: home.players[0].id,
+        teamId: userTeam.id,
+        playerId: userTeam.players[0].id,
         settings: JSON.stringify(settings),
       } as Prisma.ProfileGetPayload<unknown>;
 

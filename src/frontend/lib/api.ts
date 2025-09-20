@@ -170,8 +170,8 @@ export default {
     installed: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<string>,
   },
   play: {
-    exhibition: (settings: typeof Constants.Settings, teamIds: Array<number>) =>
-      ipcRenderer.invoke(Constants.IPCRoute.PLAY_EXHIBITION, settings, teamIds),
+    exhibition: (settings: typeof Constants.Settings, teamIds: Array<number>, teamId: number) =>
+      ipcRenderer.invoke(Constants.IPCRoute.PLAY_EXHIBITION, settings, teamIds, teamId),
     start: (spectating?: boolean) => ipcRenderer.invoke(Constants.IPCRoute.PLAY_START, spectating),
   },
   plugins: {

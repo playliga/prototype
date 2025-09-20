@@ -10,8 +10,14 @@ import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
 import { Image } from '@liga/frontend/components';
-import { FaArrowLeft, FaExclamationTriangle, FaFolderOpen } from 'react-icons/fa';
 import { findTeamOptionByValue, TeamSelect } from '@liga/frontend/components/select';
+import {
+  FaArrowLeft,
+  FaCaretLeft,
+  FaCaretRight,
+  FaExclamationTriangle,
+  FaFolderOpen,
+} from 'react-icons/fa';
 
 /** @enum */
 enum Tab {
@@ -110,7 +116,7 @@ function TeamSelector(props: TeamSelectorProps) {
   );
 
   return (
-    <section className="flex flex-col items-center gap-24 pt-24">
+    <section className="flex flex-1 flex-col items-center gap-24 pt-24">
       {!team && (
         <article className="center h-48 w-auto">
           <span className="loading loading-spinner loading-lg" />
@@ -192,6 +198,7 @@ export default function () {
   const [settings, setSettings] = React.useState(Constants.Settings);
   const [homeTeamId, setHomeTeamId] = React.useState<number>();
   const [awayTeamId, setAwayTeamId] = React.useState<number>();
+  const [isUserCT, setIsUserCT] = React.useState(false);
   const navigate = useNavigate();
   const t = useTranslation('windows');
 
@@ -243,14 +250,34 @@ export default function () {
   }, [appStatus]);
 
   return (
-    <main className="frosted grid h-full w-full grid-cols-3">
+    <main className="frosted flex h-full w-full">
       <FaArrowLeft
         className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate(-1)}
       />
       <TeamSelector initialFederationId={1} initialTierId={4} onChange={setHomeTeamId} />
+      <section className="center w-24 gap-4 text-center">
+        <p>
+          <em>Pick your starting side</em>
+        </p>
+        <label className="swap swap-flip [&_article]:center [&_article]:gap-4 [&_article_svg]:size-8">
+          <input
+            type="checkbox"
+            checked={isUserCT}
+            onChange={(event) => setIsUserCT(event.target.checked)}
+          />
+          <article className="swap-off">
+            <Image src="resources://avatars/t.png" />
+            <FaCaretLeft />
+          </article>
+          <article className="swap-on">
+            <Image src="resources://avatars/ct.png" />
+            <FaCaretRight />
+          </article>
+        </label>
+      </section>
       <TeamSelector initialFederationId={2} initialTierId={4} onChange={setAwayTeamId} />
-      <section className="flex flex-col p-4">
+      <section className="flex flex-1 flex-col p-4">
         <header role="tablist" className="tabs tabs-box">
           {Object.keys(Tab)
             .filter((tabKey) => isNaN(Number(tabKey)))
@@ -556,7 +583,13 @@ export default function () {
         </form>
         <button
           className="btn btn-xl btn-block btn-primary"
-          onClick={() => api.play.exhibition(settings, [homeTeamId, awayTeamId])}
+          onClick={() =>
+            api.play.exhibition(
+              settings,
+              [homeTeamId, awayTeamId],
+              isUserCT ? awayTeamId : homeTeamId,
+            )
+          }
         >
           {t('main.dashboard.play')}
         </button>
