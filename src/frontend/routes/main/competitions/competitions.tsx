@@ -150,7 +150,7 @@ export default function () {
       <main>
         <form className="form-ios form-ios-col-2">
           <fieldset>
-            <legend className="border-t-0!">Filters</legend>
+            <legend className="border-t-0!">{t('shared.filters')}</legend>
             <section>
               <header>
                 <p>{t('shared.federation')}</p>

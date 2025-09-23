@@ -218,6 +218,7 @@ export enum LocaleIdentifier {
   EN = 'en',
   ES = 'es',
   FR = 'fr',
+  IT = 'it',
 }
 
 /**

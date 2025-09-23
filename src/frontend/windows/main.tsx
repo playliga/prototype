@@ -11,7 +11,7 @@ import { FaCaretDown, FaEnvelopeOpen } from 'react-icons/fa';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
-import { useTheme } from '@liga/frontend/hooks';
+import { useTheme, useTranslation } from '@liga/frontend/hooks';
 import { Confetti, Image } from '@liga/frontend/components';
 import {
   continentsUpdate,
@@ -157,6 +157,7 @@ function Root() {
   const { dispatch, state } = React.useContext(AppStateContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const t = useTranslation('components');
 
   React.useEffect(() => {
     // what's new modal check
@@ -209,14 +210,14 @@ function Root() {
       <header className="navbar border-base-content/10 bg-base-200 fixed top-0 z-50 h-16 border-b p-0">
         <nav className="stack-x h-full w-full gap-0!">
           {[
-            ['/', 'Dashboard'],
-            ['/inbox', 'Inbox'],
-            ['/squad', 'Squad Hub'],
-            ['/teams', 'Teams', useMatch('/teams/*')],
-            ['/players', 'Players'],
-            ['/competitions', 'Competitions', useMatch('/competitions/*')],
-            ['/sponsors', 'Sponsors', useMatch('/sponsors/*')],
-            ['/calendar', 'Calendar'],
+            ['/', t('navigation.dashboard')],
+            ['/inbox', t('navigation.inbox')],
+            ['/squad', t('navigation.squadHub')],
+            ['/teams', t('navigation.teams'), useMatch('/teams/*')],
+            ['/players', t('navigation.players')],
+            ['/competitions', t('navigation.competitions'), useMatch('/competitions/*')],
+            ['/sponsors', t('navigation.sponsors'), useMatch('/sponsors/*')],
+            ['/calendar', t('navigation.calendar')],
           ].map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
             <button
               key={id}

@@ -498,7 +498,7 @@ export default function () {
                 </section>
                 <section>
                   <header>
-                    <p>Facility</p>
+                    <p>{t('main.squad.facility')}</p>
                     <BonusSummaryLabel
                       data={trainingFacilities.find(
                         (facility) => facility.id === trainingFacilityId,

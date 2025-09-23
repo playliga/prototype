@@ -229,6 +229,16 @@
     }
   },
   "components": {
+    "navigation": {
+      "dashboard": "Tablero",
+      "inbox": "Bandeja de entrada",
+      "squadHub": "Centro de equipo",
+      "teams": "Equipos",
+      "players": "Jugadores",
+      "competitions": "Competiciones",
+      "sponsors": "Patrocinadores",
+      "calendar": "Calendario"
+    },
     "playerCard": {
       "addToTransferList": "Agregar a la Lista de Transferencia",
       "setAsStarter": "Establecer como Titular",

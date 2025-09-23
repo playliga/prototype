@@ -229,6 +229,16 @@
     }
   },
   "components": {
+    "navigation": {
+      "dashboard": "Dashboard",
+      "inbox": "Inbox",
+      "squadHub": "Squad Hub",
+      "teams": "Teams",
+      "players": "Players",
+      "competitions": "Competitions",
+      "sponsors": "Sponsors",
+      "calendar": "Calendar"
+    },
     "playerCard": {
       "addToTransferList": "Add to Transfer List",
       "setAsStarter": "Set as Starter",
