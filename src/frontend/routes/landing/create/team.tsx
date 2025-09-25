@@ -42,7 +42,7 @@ export default function () {
   const windowData = state.windowData.landing;
 
   // form setup
-  const { control, formState, handleSubmit, register } = useForm({
+  const { control, formState, handleSubmit, register, setValue } = useForm({
     defaultValues: windowData?.team ? windowData.team : formDefaultValues,
     mode: 'all',
   });
@@ -65,6 +65,10 @@ export default function () {
   const selectedCountry = React.useMemo(() => {
     if (!windowData?.user?.countryId && !windowData?.team?.countryId) {
       return null;
+    }
+
+    if (windowData.user.countryId) {
+      setValue('countryId', windowData.user.countryId);
     }
 
     return findCountryOptionByValue(
