@@ -67,7 +67,7 @@ export enum OfferAcceptedTeam {
   CONTENT = `
   Ciao, {{it.profile.player.name}}.
 
-  Quell'offerta va bene per noi. Adesso sta a **{{it.transfer.target.name}}** se decide di accettare lo stipendio proposto.
+  Quell'offerta va bene per noi. Adesso sta a **{{it.transfer.target.name}}** decidere di accettare lo stipendio proposto.
   `,
 }
 
@@ -288,12 +288,12 @@ export enum WelcomeEmail {
   CONTENT = `
   Ciao, {{it.profile.player.name}}!
 
-  Mi chiamo {{it.persona.name}} e sono il tuo assistente manageriale. Volevo soltanto salutarti e presentarmi.
+  Mi chiamo {{it.persona.name}} e sono il tuo assistente manageriale.
 
-  La nostra prima partita è in arrivo perciò volevo farti sapere riguardo un paio di cose.
+  La nostra prima partita è in arrivo perciò volevo farti sapere un paio di cose:
 
   - Una volta in-gioco puoi scrivere \`.ready\` nella chat e la partita inizierà immediatamente.
-  - Puoi anche aspettare che il timer di riscaldamento finisca.
+  - Puoi anche aspettare che il timer del riscaldamento finisca.
   - Finita la partita, puoi chiudere il gioco in quanto il punteggio verrà automaticamente registrato.
 
   Buona fortuna, divertiti!

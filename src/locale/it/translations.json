@@ -38,7 +38,7 @@
     "landing": {
       "connect": {
         "connected": "Connesso.",
-        "flushing": "Disconnettendo..."
+        "flushing": "Ripulendo le connessioni..."
       },
       "create": {
         "alias": "Alias",
@@ -108,7 +108,7 @@
         "reset": "Resetta Filtri",
         "tier": "Tier",
         "transferStatus": "Stato Transferimento",
-        "wages": "Stipendi"
+        "wages": "Stipendio"
       },
       "sponsors": {
         "allSponsors": "Tutti gli Sponsor",
@@ -148,7 +148,7 @@
         "starters": "Titolari",
         "training": "Allenamento",
         "weapon": "Arma",
-        "winMore": "Vinci più partite per guadagnare altri soldi e comprare questo boost Allenamento!"
+        "winMore": "Vinci più partite per guadagnare altri soldi e comprare questo Boost Allenamento!"
       },
       "teams": {
         "competitions": "Competizioni",
@@ -161,12 +161,12 @@
         "loss": "Sconfitta",
         "lossAlt": "S",
         "noDataHistory": "Non abbastanza dati storici per generare un grafico.",
-        "noDataHistoryAlt": "Dopo un'altra stagione, ci saranno abbastanza dati per mostrarti un grafico dei tuoi progressi!",
+        "noDataHistoryAlt": "Prossima stagione ci saranno abbastanza dati per mostrarti un grafico dei tuoi progressi!",
         "noHonorsSubtitle": "Inizia ad ammucchiare questi trofei—la tua collezione ti attende!",
         "noHonorsSubtitleAlt": "non ha ancora vinto nulla... finora.",
         "noHonorsTitle": "Sembra abbastanza vuoto!",
         "points": "Punti Totali",
-        "pointsAlt": "Pts",
+        "pointsAlt": "Pt",
         "position": "Posizione",
         "positionAlt": "P",
         "win": "Vittoria",
@@ -255,10 +255,10 @@
     "amount": "Cifra",
     "any": "Qualunque",
     "apply": "Applica",
-    "away": "Fuori",
+    "away": "Trasferta",
     "bestOf": "Best of",
     "bestOfShort": "bo",
-    "bombTimer": "Timer Bomba",
+    "bombTimer": "Timer  Bomba",
     "cancel": "Cancella",
     "comments": "Commenti",
     "competition": "Competizione",
@@ -266,22 +266,22 @@
     "confirm": "Conferma",
     "connectingToDatabase": "Connettendo al database...",
     "country": "Paese",
-    "cost": "Costo",
+    "cost": "Valore",
     "created": "Creato",
     "date": "Data",
     "delete": "Elimina",
     "description": "Descrizione",
-    "details": "Dati",
+    "details": "Dettagli",
     "federation": "Federazione",
     "filters": "Filtri",
-    "finish": "Termina",
+    "finish": "Fine",
     "freezeTimeTitle": "Durata Freeze",
     "gallery": "Galleria",
     "group": "Gruppo",
     "home": "Casa",
     "labels": "Labels",
     "mapOverrideTitle": "Sovrascrivi Mappa",
-    "matchday": "Giorno Partita",
+    "matchday": "Giornata",
     "matchDetails": "Dettagli Partita",
     "maxRoundsTitle": "Max Round",
     "name": "Nome",
