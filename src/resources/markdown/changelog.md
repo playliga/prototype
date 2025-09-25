@@ -1,3 +1,19 @@
+## [3.0.0-beta.67](https://github.com/playliga/prototype/compare/v3.0.0-beta.66...v3.0.0-beta.67) (2025-09-25)
+
+### Features
+
+- add italian translation ([c3ff66b](https://github.com/playliga/prototype/commit/c3ff66b24ea28bca2ea3778dd85708fcea91b50c))
+
+### Bug Fixes
+
+- fix mods not loading in exhibition page ([#496](https://github.com/playliga/prototype/issues/496)) ([db09eab](https://github.com/playliga/prototype/commit/db09eab2a4c47b9061df8a8a8266857a67f55d6d))
+- fix validation errors on create career team page ([#502](https://github.com/playliga/prototype/issues/502)) ([5787b1b](https://github.com/playliga/prototype/commit/5787b1b78ea7f33d24ba7db890f37fb3e86de9b0))
+- increase prize pool for competitions ([#505](https://github.com/playliga/prototype/issues/505)) ([7ffb8d4](https://github.com/playliga/prototype/commit/7ffb8d44c89d9394175b473b1f87f249e2b95856))
+
+### New Contributors
+
+- @MattyRedemption made their first contribution in [#503](https://github.com/playliga/prototype/pull/503).
+
 ## [3.0.0-beta.66](https://github.com/playliga/prototype/compare/v3.0.0-beta.65...v3.0.0-beta.66) (2025-09-20)
 
 ### Features
