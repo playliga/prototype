@@ -5,13 +5,12 @@
  */
 import * as FileManager from './file-manager';
 import * as GitHub from './github';
-import * as sqlite3 from 'sqlite3';
 import events from 'node:events';
 import path from 'node:path';
 import fs from 'node:fs';
-import util from 'node:util';
 import compressing from 'compressing';
 import log from 'electron-log';
+import DatabaseClient from './database-client';
 import { pipeline } from 'node:stream/promises';
 import { app } from 'electron';
 import { Constants, Util } from '@liga/shared';
@@ -52,8 +51,8 @@ export interface Manager {
  */
 export function getPath() {
   return process.env['NODE_ENV'] === 'cli'
-    ? path.join(process.env.APPDATA, 'LIGA Esports Manager', 'custom')
-    : path.join(app.getPath('userData'), 'custom');
+    ? path.join(process.env.APPDATA, 'LIGA Esports Manager', Constants.Application.CUSTOM_DIR)
+    : path.join(app.getPath('userData'), Constants.Application.CUSTOM_DIR);
 }
 
 /**
@@ -107,63 +106,6 @@ export class Manager extends events.EventEmitter {
       return Promise.resolve();
     } catch (_) {
       await fs.promises.mkdir(getPath(), { recursive: true });
-    }
-  }
-
-  /**
-   * Checks if there is a modded database and validates that it
-   * is compatible with the current version of the application.
-   *
-   * If so, it creates a copy of it to be used as the new save.
-   *
-   * @param newSavePath Where to copy the modded database to.
-   * @method
-   */
-  public static async initModdedDatabase(newSavePath: string) {
-    // bail early if we're in cli mode
-    if (process.env['NODE_ENV'] === 'cli') {
-      return Promise.reject('Modding not supported while in CLI mode.');
-    }
-
-    // create the file tree if it doesn't already exist
-    const customSavePath = path.join(
-      getPath(),
-      Constants.Application.DATABASES_DIR,
-      Util.getSaveFileName(0),
-    );
-
-    try {
-      await fs.promises.access(path.dirname(customSavePath), fs.constants.F_OK);
-    } catch (_) {
-      await fs.promises.mkdir(path.dirname(customSavePath), { recursive: true });
-    }
-
-    // do we have a modded database?
-    try {
-      await fs.promises.access(customSavePath, fs.constants.F_OK);
-    } catch (_) {
-      return Promise.reject('No modded database found.');
-    }
-
-    // make sure the save is compatible
-    const cnx = new sqlite3.Database(customSavePath);
-    const [applicationId] = await new Promise<Array<{ application_id: number }>>((resolve) =>
-      cnx.all('PRAGMA application_id;', (_, rows: Array<{ application_id: number }>) =>
-        resolve(rows),
-      ),
-    );
-    await new Promise((resolve) => cnx.close(resolve));
-
-    if (applicationId.application_id < 0) {
-      return Promise.reject(util.format('Database "%s" is not compatible!', customSavePath));
-    }
-
-    // make a copy of the modded save
-    try {
-      await fs.promises.copyFile(customSavePath, newSavePath);
-      return Promise.resolve();
-    } catch (_) {
-      return Promise.reject(util.format('Could not copy modded database to: %s', newSavePath));
     }
   }
 
@@ -335,7 +277,7 @@ export class Manager extends events.EventEmitter {
       .on('finish', async () => {
         await FileManager.touch(Manager.getInstalledModFilePath());
         await fs.promises.writeFile(Manager.getInstalledModFilePath(), this.asset.name, 'utf8');
-        this.emit(EventIdentifier.FINISHED);
+        await this.install();
       })
       .on('entry', async (file, stream, next) => {
         const to = path.join(path.dirname(getPath()), file.name);
@@ -359,5 +301,26 @@ export class Manager extends events.EventEmitter {
         this.emit(EventIdentifier.DOWNLOAD_PROGRESS, (processedFiles / totalFiles) * 100);
         next();
       });
+  }
+
+  /**
+   * Installs the recently downloaded mod by
+   * replacing the app's root save with it
+   * and reestablishing the database connection.
+   *
+   * @method
+   */
+  public async install() {
+    try {
+      await DatabaseClient.disconnect();
+      await DatabaseClient.initModdedDatabase(
+        path.join(DatabaseClient.basePath, Util.getSaveFileName(0)),
+      );
+      await DatabaseClient.connect();
+      this.emit(EventIdentifier.FINISHED);
+    } catch (error) {
+      this.log.error(error);
+      this.emit(EventIdentifier.ERROR);
+    }
   }
 }

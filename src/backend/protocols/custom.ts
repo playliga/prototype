@@ -7,6 +7,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import url from 'node:url';
 import { app, net, protocol } from 'electron';
+import { Constants } from '@liga/shared';
 
 /**
  * Protocol scheme definition.
@@ -32,7 +33,12 @@ export const config: Electron.CustomScheme = {
 export function handler() {
   protocol.handle('custom', async (request) => {
     const { host, pathname } = new URL(request.url);
-    const targetPath = path.join(app.getPath('userData'), 'custom', host, pathname);
+    const targetPath = path.join(
+      app.getPath('userData'),
+      Constants.Application.CUSTOM_DIR,
+      host,
+      pathname,
+    );
 
     try {
       await fs.promises.access(targetPath, fs.constants.F_OK);

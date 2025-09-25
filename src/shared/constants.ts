@@ -14,6 +14,7 @@
  */
 export enum Application {
   CALENDAR_DATE_FORMAT = 'yyyy/MM/dd',
+  CUSTOM_DIR = 'custom',
   DATABASE_NAME_FORMAT = 'save_%s.db',
   DATABASES_DIR = 'saves',
   LOCALE_DIR = 'locale',

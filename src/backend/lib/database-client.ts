@@ -33,10 +33,10 @@
  * @module
  */
 import * as sqlite3 from 'sqlite3';
-import * as Mods from './mods';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import util from 'node:util';
 import log from 'electron-log';
 import { app } from 'electron';
 import { PrismaClient } from '@prisma/client';
@@ -73,11 +73,7 @@ const pool = [] as Array<{
  */
 let activeId = 0;
 
-/**
- * Database class.
- *
- * @class
- */
+/** @class */
 export default class DatabaseClient {
   /** @constant */
   private static log = log.scope('database');
@@ -168,6 +164,75 @@ export default class DatabaseClient {
   }
 
   /**
+   * Disconnects from the database and cleans
+   * up the client from the cache.
+   *
+   * @method
+   */
+  public static async disconnect() {
+    await pool[activeId].client.$disconnect();
+    delete pool[activeId];
+  }
+
+  /**
+   * Checks if there is a modded database and validates that it
+   * is compatible with the current version of the application.
+   *
+   * If so, it creates a copy of it to be used as the new save.
+   *
+   * @param newSavePath Where to copy the modded database to.
+   * @method
+   */
+  public static async initModdedDatabase(newSavePath: string) {
+    // bail early if we're in cli mode
+    if (process.env['NODE_ENV'] === 'cli') {
+      return Promise.reject('Modding not supported while in CLI mode.');
+    }
+
+    // create the file tree if it doesn't already exist
+    const customSavePath = path.join(
+      app.getPath('userData'),
+      Constants.Application.CUSTOM_DIR,
+      Constants.Application.DATABASES_DIR,
+      Util.getSaveFileName(0),
+    );
+
+    try {
+      await fs.promises.access(path.dirname(customSavePath), fs.constants.F_OK);
+    } catch (_) {
+      await fs.promises.mkdir(path.dirname(customSavePath), { recursive: true });
+    }
+
+    // do we have a modded database?
+    try {
+      await fs.promises.access(customSavePath, fs.constants.F_OK);
+    } catch (_) {
+      return Promise.reject('No modded database found.');
+    }
+
+    // make sure the save is compatible
+    const cnx = new sqlite3.Database(customSavePath);
+    const [applicationId] = await new Promise<Array<{ application_id: number }>>((resolve) =>
+      cnx.all('PRAGMA application_id;', (_, rows: Array<{ application_id: number }>) =>
+        resolve(rows),
+      ),
+    );
+    await new Promise((resolve) => cnx.close(resolve));
+
+    if (applicationId.application_id < 0) {
+      return Promise.reject(util.format('Database "%s" is not compatible!', customSavePath));
+    }
+
+    // make a copy of the modded save
+    try {
+      await fs.promises.copyFile(customSavePath, newSavePath);
+      return Promise.resolve();
+    } catch (_) {
+      return Promise.reject(util.format('Could not copy modded database to: %s', newSavePath));
+    }
+  }
+
+  /**
    * If the provided database path does not exist then
    * a new one will be created from the root save.
    *
@@ -194,7 +259,7 @@ export default class DatabaseClient {
 
     // bail early if we're using a modded save
     try {
-      await Mods.Manager.initModdedDatabase(newSavePath);
+      await DatabaseClient.initModdedDatabase(newSavePath);
       return Promise.resolve(newSavePath);
     } catch (error) {
       this.log.info(error);
