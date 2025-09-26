@@ -165,14 +165,14 @@ export default function (props: PlayerCardProps) {
       )}
     >
       <header className="flex gap-4 px-10">
-        <figure className="center w-full basis-1/3">
+        <figure className="center w-1/3">
           <img
             src={props.player.avatar || 'resources://avatars/empty.png'}
             className="h-12 w-auto"
           />
         </figure>
-        <nav className="prose w-full max-w-none py-4">
-          <h3 className="mb-0">{props.player.name}</h3>
+        <nav className="w-2/3 py-4">
+          <h3 className="truncate">{props.player.name}</h3>
           <p className="text-sm">
             <span className={cx('fp', props.player.country.code.toLowerCase())} />
             <span>&nbsp;{props.player.country.name}</span>
