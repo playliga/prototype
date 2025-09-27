@@ -146,7 +146,6 @@
         "servers": "Servidores",
         "simTraining": "Simular Entrenamiento",
         "starters": "Titulares",
-        "training": "Entrenamiento",
         "weapon": "Arma",
         "winMore": "¡Gana más partidas para ganar más dinero y comprar este impulso de entrenamiento!"
       },
@@ -308,6 +307,7 @@
     "teamName": "Nombre del Equipo",
     "tierPrestige": "Nivel/Prestigio",
     "title": "Título",
+    "training": "Entrenamiento",
     "transferListed": "En Lista",
     "type": "Tipo",
     "viewMatchDetails": "Ver Detalles del Partido",

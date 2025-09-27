@@ -216,7 +216,7 @@ export default function () {
           onClick={() => setActiveTab(TabIdentifier.TRAINING)}
         >
           <FaStopwatch />
-          {t('main.squad.training')}
+          {t('shared.training')}
         </button>
       </header>
       <main>

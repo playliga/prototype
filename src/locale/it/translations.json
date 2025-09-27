@@ -146,7 +146,6 @@
         "servers": "Servers",
         "simTraining": "Simula Allenamento",
         "starters": "Titolari",
-        "training": "Allenamento",
         "weapon": "Arma",
         "winMore": "Vinci più partite per guadagnare altri soldi e comprare questo Boost Allenamento!"
       },
@@ -308,6 +307,7 @@
     "teamName": "Nome Squadra",
     "tierPrestige": "Tier/Prestigio",
     "title": "Titolo",
+    "training": "Allenamento",
     "transferListed": "In Lista Trasferimenti",
     "type": "Tipo",
     "viewMatchDetails": "Vedi Dati Partita",

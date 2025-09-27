@@ -4,7 +4,7 @@
  * @module
  */
 import React from 'react';
-import { addDays, format } from 'date-fns';
+import { addDays, differenceInDays, format } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -19,6 +19,7 @@ import {
   FaExclamationTriangle,
   FaForward,
   FaMapSigns,
+  FaStopwatch,
   FaStream,
   FaTv,
 } from 'react-icons/fa';
@@ -419,6 +420,10 @@ export default function () {
                   (competitor) => competitor.teamId !== state.profile.teamId,
                 );
 
+                const trainingAllowed =
+                  differenceInDays(today, state.profile.trainedAt || state.profile.date) ===
+                  Constants.Application.TRAINING_FREQUENCY;
+
                 return (
                   <article
                     key={`${idx}__calendar`}
@@ -434,14 +439,24 @@ export default function () {
                       {!isActive && opponent && (
                         <img src={opponent.team.blazon} title={opponent.team.name} />
                       )}
-                      {!isActive && !opponent && <FaCloudMoon />}
+                      {!isActive && !opponent ? (
+                        trainingAllowed ? (
+                          <FaStopwatch />
+                        ) : (
+                          <FaCloudMoon />
+                        )
+                      ) : null}
                     </figure>
                     <aside>
                       <h2>{format(today, 'd')}</h2>
                       <p>
                         {isActive && format(today, 'E')}
                         {!isActive && opponent && t('main.dashboard.match')}
-                        {!isActive && !opponent && t('main.dashboard.rest')}
+                        {!isActive && !opponent
+                          ? trainingAllowed
+                            ? t('shared.training')
+                            : t('main.dashboard.rest')
+                          : ''}
                       </p>
                     </aside>
                   </article>

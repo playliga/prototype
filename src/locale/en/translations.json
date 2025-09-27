@@ -146,7 +146,6 @@
         "servers": "Servers",
         "simTraining": "Sim Training",
         "starters": "Starters",
-        "training": "Training",
         "weapon": "Weapon",
         "winMore": "Win more matches to earn more money and buy this training boost!"
       },
@@ -308,6 +307,7 @@
     "teamName": "Team Name",
     "tierPrestige": "Tier/Prestige",
     "title": "Title",
+    "training": "Training",
     "transferListed": "Transfer Listed",
     "type": "Type",
     "viewMatchDetails": "View Match Details",
