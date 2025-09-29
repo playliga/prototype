@@ -219,12 +219,19 @@ export default function () {
   const onSettingsUpdate = (path: string, value: unknown) => {
     const modified = cloneDeep(settings);
     set(modified, path, value);
-    setSettings(modified);
+
+    // detect game path again
+    api.app.detectGame(modified.general.game).then((gamePath) => {
+      modified.general.gamePath = gamePath;
+      setSettings(modified);
+    });
   };
 
   // validate settings
   React.useEffect(() => {
-    if (!settings.general.steamPath || !settings.general.gamePath) {
+    // if paths are not explicitly initialized
+    // then we won't send a status check yet
+    if (settings.general.steamPath === null || settings.general.gamePath === null) {
       return;
     }
 

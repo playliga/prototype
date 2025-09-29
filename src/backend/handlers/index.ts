@@ -54,16 +54,16 @@ export function IPCGenericHandler() {
     try {
       const gamePath = await Game.discoverGamePath(game);
       return gamePath;
-    } catch (error) {
-      return error;
+    } catch (_) {
+      return false;
     }
   });
   ipcMain.handle(Constants.IPCRoute.APP_DETECT_STEAM, async () => {
     try {
       const steamPath = await Game.discoverSteamPath();
       return steamPath;
-    } catch (error) {
-      return error;
+    } catch (_) {
+      return false;
     }
   });
   ipcMain.handle(
@@ -90,7 +90,7 @@ export function IPCGenericHandler() {
     }
 
     const steamPath = path.join(settings.general.steamPath || '', Constants.GameSettings.STEAM_EXE);
-    const gamePath = Game.getGameExecutable(settings.general.game, settings.general.gamePath);
+    const gamePath = Game.getGameExecutable(settings.general.game, settings.general.gamePath || '');
 
     try {
       await fs.promises.access(steamPath, fs.constants.F_OK);
