@@ -1079,7 +1079,7 @@ export class Server {
     // build default launch args
     const defaultArgs = [
       '+map',
-      this.map,
+      Util.convertMapPool(this.map, this.settings.general.game),
       '+game_mode',
       '1',
       '-novid',

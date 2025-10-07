@@ -57,6 +57,7 @@ export default function () {
   const [userSquad, setUserSquad] = React.useState<
     Awaited<ReturnType<typeof api.squad.all<typeof Eagers.player>>>
   >([]);
+  const [mapPool, setMapPool] = React.useState<Awaited<ReturnType<typeof api.mapPool.find>>>([]);
 
   // we only want to maintain and override specific settings
   // and not copy/merge with the whole object
@@ -80,6 +81,15 @@ export default function () {
       return;
     }
 
+    api.mapPool
+      .find({
+        where: {
+          gameVersion: {
+            slug: settingsAll.general.game,
+          },
+        },
+      })
+      .then(setMapPool);
     api.squad.all().then(setUserSquad);
     api.matches
       .all({
@@ -353,9 +363,9 @@ export default function () {
                 }
               >
                 <option value={null}>none</option>
-                {Constants.MapPool.map((map) => (
-                  <option key={map} value={map}>
-                    {map}
+                {mapPool.map((map) => (
+                  <option key={map.gameMap.name} value={map.gameMap.name}>
+                    {map.gameMap.name}
                   </option>
                 ))}
               </select>

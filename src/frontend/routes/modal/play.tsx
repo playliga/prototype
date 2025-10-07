@@ -94,6 +94,7 @@ export default function () {
   >([]);
   const [vetoHistory, setVetoHistory] = React.useState<Array<MapVetoAction>>([]);
   const [working, setWorking] = React.useState(false);
+  const [mapPool, setMapPool] = React.useState<Awaited<ReturnType<typeof api.mapPool.find>>>([]);
 
   // we only want to maintain and override specific settings
   // and not copy/merge with the whole object
@@ -116,6 +117,19 @@ export default function () {
     if (!location.state) {
       return;
     }
+
+    api.mapPool
+      .find({
+        where: {
+          gameVersion: {
+            slug: settingsAll.general.game,
+          },
+          position: {
+            not: null,
+          },
+        },
+      })
+      .then(setMapPool);
 
     api.matches
       .all({
@@ -201,8 +215,11 @@ export default function () {
     [match, cpu],
   );
   const cpuPool = React.useMemo(
-    () => Constants.MapPool.filter((mapName) => vetoHistory.every((item) => item.map !== mapName)),
-    [vetoHistory],
+    () =>
+      mapPool
+        .filter((map) => vetoHistory.every((item) => item.map !== map.gameMap.name))
+        .map((map) => map.gameMap.name),
+    [mapPool, vetoHistory],
   );
   React.useEffect(() => {
     if (!vetoSequenceStep || vetoSequenceStep.team !== cpuIdx) {
@@ -325,7 +342,7 @@ export default function () {
             {!vetoSequenceComplete && !vetoSequenceStep && (
               <React.Fragment>
                 <span className="loading loading-dots loading-sm"></span>
-                <span>&nbsp;Randomly picking decider...</span>
+                <span>&nbsp;Picking decider...</span>
               </React.Fragment>
             )}
             {!!vetoSequenceComplete && (
@@ -338,19 +355,22 @@ export default function () {
           <article
             className="grid h-full flex-1 grid-cols-11 gap-2"
             style={{
-              gridTemplateColumns: `repeat(${Constants.MapPool.length}, minmax(0, 1fr))`,
+              gridTemplateColumns: `repeat(${mapPool.length}, minmax(0, 1fr))`,
             }}
           >
-            {Constants.MapPool.map((mapName) => {
-              const picked = vetoHistory.find((item) => item.map === mapName);
+            {mapPool.map((map) => {
+              const picked = vetoHistory.find((item) => item.map === map.gameMap.name);
 
               return (
-                <figure key={mapName} className="relative h-full w-full">
+                <figure key={map.gameMap.name} className="relative h-full w-full">
                   <Image
-                    title={Util.convertMapPool(mapName, settingsAll.general.game)}
-                    src={Util.convertMapPool(mapName, settingsAll.general.game, true)}
+                    title={Util.convertMapPool(map.gameMap.name, settingsAll.general.game)}
+                    src={Util.convertMapPool(map.gameMap.name, settingsAll.general.game, true)}
                     onClick={() =>
-                      !picked && !vetoSequenceComplete && !working && onVetoSelection(mapName)
+                      !picked &&
+                      !vetoSequenceComplete &&
+                      !working &&
+                      onVetoSelection(map.gameMap.name)
                     }
                     className={cx(
                       'h-full border object-cover shadow-md',
@@ -555,9 +575,9 @@ export default function () {
                   }
                 >
                   <option value={null}>none</option>
-                  {Constants.MapPool.map((map) => (
-                    <option key={map} value={map}>
-                      {map}
+                  {mapPool.map((map) => (
+                    <option key={map.gameMap.name} value={map.gameMap.name}>
+                      {map.gameMap.name}
                     </option>
                   ))}
                 </select>

@@ -6,7 +6,7 @@
 import type { Prisma } from '@prisma/client';
 import log from 'electron-log';
 import { ipcMain } from 'electron';
-import { flatten, merge } from 'lodash';
+import { flatten, merge, sample } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import {
   DatabaseClient,
@@ -28,7 +28,13 @@ export default function () {
     async (_, settings: typeof Constants.Settings, teamIds: Array<number>, teamId: number) => {
       // configure default map if none selected
       if (!settings.matchRules.mapOverride) {
-        settings.matchRules.mapOverride = Constants.MapPool[0];
+        const mapPool = await DatabaseClient.prisma.mapPool.findMany({
+          where: {
+            gameVersion: { slug: settings.general.game },
+          },
+          include: Eagers.mapPool.include,
+        });
+        settings.matchRules.mapOverride = sample(mapPool).gameMap.name;
       }
 
       // minimize the landing window

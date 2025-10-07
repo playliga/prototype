@@ -36,6 +36,14 @@ export const email = {
 };
 
 /** @constant */
+export const mapPool = {
+  include: {
+    gameMap: true,
+    gameVersion: true,
+  },
+};
+
+/** @constant */
 export const match = {
   include: {
     _count: {

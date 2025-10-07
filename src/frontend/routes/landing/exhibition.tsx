@@ -199,12 +199,13 @@ export default function () {
   const [homeTeamId, setHomeTeamId] = React.useState<number>();
   const [awayTeamId, setAwayTeamId] = React.useState<number>();
   const [isUserCT, setIsUserCT] = React.useState(false);
+  const [mapPool, setMapPool] = React.useState<Awaited<ReturnType<typeof api.mapPool.find>>>([]);
   const navigate = useNavigate();
   const t = useTranslation('windows');
 
-  // detect steam and game paths together
-  // which avoid a race-condition
   React.useEffect(() => {
+    // detect steam and game paths together
+    // which avoid a race-condition
     Promise.all([api.app.detectSteam(), api.app.detectGame(Constants.Settings.general.game)]).then(
       ([steamPath, gamePath]) => {
         const modified = cloneDeep(settings);
@@ -213,6 +214,17 @@ export default function () {
         setSettings(modified);
       },
     );
+
+    // fetch map pool
+    api.mapPool
+      .find({
+        where: {
+          gameVersion: {
+            slug: Constants.Settings.general.game,
+          },
+        },
+      })
+      .then(setMapPool);
   }, []);
 
   // handle settings updates
@@ -225,6 +237,17 @@ export default function () {
       modified.general.gamePath = gamePath;
       setSettings(modified);
     });
+
+    // fetch map pool again
+    api.mapPool
+      .find({
+        where: {
+          gameVersion: {
+            slug: modified.general.game,
+          },
+        },
+      })
+      .then(setMapPool);
   };
 
   // validate settings
@@ -556,13 +579,13 @@ export default function () {
                     }
                     value={
                       isNull(settings.matchRules.mapOverride)
-                        ? Constants.MapPool[0]
+                        ? mapPool[0].gameMap.name
                         : settings.matchRules.mapOverride
                     }
                   >
-                    {Constants.MapPool.map((map) => (
-                      <option key={map} value={map}>
-                        {map}
+                    {mapPool.map((map) => (
+                      <option key={map.gameMap.name} value={map.gameMap.name}>
+                        {map.gameMap.name}
                       </option>
                     ))}
                   </select>

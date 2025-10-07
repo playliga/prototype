@@ -33,6 +33,12 @@ declare interface RouteContextTeams {
   team: Awaited<ReturnType<typeof api.teams.all<typeof import('../shared/eagers').team>>>[number];
 }
 
+/** @interface */
+declare interface RouteStateMapPool {
+  from: string;
+  label: string;
+}
+
 /** @module */
 declare module '*.mp4' {
   const src: string;

@@ -1775,10 +1775,24 @@ export async function onCompetitionStart(entry: Calendar) {
   tournament.addCompetitors(shuffle(competition.competitors).map((competitor) => competitor.id));
   tournament.start();
 
+  // collect map pool
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const mapPool = await DatabaseClient.prisma.mapPool.findMany({
+    where: {
+      gameVersion: {
+        slug: Util.loadSettings(profile.settings).general.game,
+      },
+      position: {
+        not: null,
+      },
+    },
+    include: Eagers.mapPool.include,
+  });
+
   // register matches
   await Promise.all(
     tournament.$base.rounds().map((round) => {
-      return createMatchdays(round, tournament, competition, sample(Constants.MapPool));
+      return createMatchdays(round, tournament, competition, sample(mapPool).gameMap.name);
     }),
   );
 

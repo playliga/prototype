@@ -135,6 +135,16 @@ export default {
     find: (id: number) =>
       ipcRenderer.invoke(Constants.IPCRoute.ISSUES_FIND, id) as Promise<GitHubIssueResponse>,
   },
+  mapPool: {
+    find: (query: Prisma.MapPoolFindManyArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.MAP_POOL_FIND, query) as Promise<
+        Array<Prisma.MapPoolGetPayload<typeof Eagers.mapPool>>
+      >,
+    update: (query: Prisma.MapPoolUpdateArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.MAP_POOL_UPDATE, query) as Promise<unknown>,
+    updateMany: (query: Prisma.MapPoolUpdateManyArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.MAP_POOL_UPDATE_MANY, query) as Promise<unknown>,
+  },
   match: {
     find: (query: Prisma.MatchFindFirstArgs) =>
       ipcRenderer.invoke(Constants.IPCRoute.MATCH_FIND, query) as Promise<

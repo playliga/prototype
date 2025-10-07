@@ -6,6 +6,7 @@
  */
 import Brackets from './brackets';
 import Issues from './issues';
+import MapPool from './map-pool';
 import Markdown from './markdown';
 import Mods from './mods';
 import Play from './play';
@@ -23,6 +24,7 @@ import Transfer from './transfer';
 export default {
   // standalone routes
   Brackets,
+  MapPool,
   Mods,
   Play,
   Postgame,

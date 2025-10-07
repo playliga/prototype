@@ -52,7 +52,7 @@ export function buildTeamQuery(
  * @param uri         Use uri format.
  * @function
  */
-export function convertMapPool(map: (typeof Constants.MapPool)[number], game: string, uri = false) {
+export function convertMapPool(map: string, game: Constants.Game, uri = false) {
   // setup uri fragments
   const protocol = 'resources://maps/';
   const extension = (() => {

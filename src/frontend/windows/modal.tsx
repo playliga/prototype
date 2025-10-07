@@ -29,6 +29,10 @@ const routes = createMemoryRouter([
         element: <Routes.Modal.Brackets />,
       },
       {
+        path: '/map-pool',
+        element: <Routes.Modal.MapPool />,
+      },
+      {
         path: '/mods',
         element: <Routes.Modal.Mods />,
       },

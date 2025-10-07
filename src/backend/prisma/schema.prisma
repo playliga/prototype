@@ -160,6 +160,14 @@ model Game {
   matchId             Int
 }
 
+model GameMap {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @unique
+
+  // has many
+  gameVersions        MapPool[]
+}
+
 model GameToTeam {
   id                  Int                 @id @default(autoincrement())
   result              Int?
@@ -173,6 +181,14 @@ model GameToTeam {
   teamId              Int?
 }
 
+model GameVersion {
+  id                  Int                 @id @default(autoincrement())
+  slug                String              @unique
+
+  // has many
+  gameMaps            MapPool[]
+}
+
 model League {
   id                  Int                 @id @default(autoincrement())
   name                String
@@ -182,6 +198,17 @@ model League {
   // has many
   federations         Federation[]
   tiers               Tier[]
+}
+
+model MapPool {
+  id                  Int                 @id @default(autoincrement())
+  position            Int?
+
+  // belongs to
+  gameMap             GameMap             @relation(fields: [gameMapId], references: [id])
+  gameMapId           Int
+  gameVersion         GameVersion         @relation(fields: [gameVersionId], references: [id])
+  gameVersionId       Int
 }
 
 model Match {

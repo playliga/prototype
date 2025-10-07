@@ -20,6 +20,7 @@ export enum Application {
   LOCALE_DIR = 'locale',
   GH_API_BODY_LIMIT = 65536,
   LOGGING_LEVEL = 'debug',
+  MAP_POOL_LENGTH = 7,
   PLUGINS_DIR = 'plugins',
   SQUAD_MIN_LENGTH = 5,
   SEASON_START_DAY = 1,
@@ -265,6 +266,9 @@ export enum IPCRoute {
   ISSUES_COMMENTS = '/issues/comments',
   ISSUES_COMMENTS_CREATE = '/issues/comments/create',
   ISSUES_FIND = '/issues/find',
+  MAP_POOL_FIND = '/mapPool/find',
+  MAP_POOL_UPDATE = '/mapPool/update',
+  MAP_POOL_UPDATE_MANY = '/mapPool/updateMany',
   MATCH_FIND = '/match/find',
   MATCH_UPDATE_MAP_LIST = '/match/update/map-list',
   MATCHES_ALL = '/matches/all',
@@ -926,56 +930,98 @@ export const IdiomaticTransferStatus: Record<number, string> = {
 };
 
 /**
- * Competition map pool.
- *
- * @constant
- */
-export const MapPool = [
-  'de_dust2',
-  'de_inferno',
-  'de_mirage',
-  'de_nuke',
-  'de_overpass',
-  'de_train',
-  'de_tuscan',
-  'de_ancient',
-  'de_anubis',
-  'de_vertigo',
-  'de_cache',
-];
-
-/**
  * Replacement maps for game variants.
  *
  * @constant
  */
-export const MapPoolReplacements: Record<string, Record<string, string>> = {
+export const MapPoolReplacements: Record<Game, Record<string, string>> = {
   [Game.CS16]: {
-    de_mirage: 'de_cpl_strike',
+    // csgo
     de_ancient: 'de_cpl_mill',
     de_anubis: 'de_cbble',
-    de_vertigo: 'de_dust2',
-    de_tuscan: 'de_russka',
+    de_mirage: 'de_cpl_strike',
+
+    // czero
+    de_cbble_cz: 'de_cbble',
+    de_czl_freight: 'de_cpl_strike',
+    de_czl_karnak: 'de_cpl_mill',
+    de_czl_silo: 'de_cbble',
+    de_dust2_cz: 'de_dust2',
+    de_inferno_cz: 'de_inferno',
+    de_russka_cz: 'de_russka',
   },
   [Game.CS2]: {
+    // csgo
     de_cache: 'de_dust2',
-    de_tuscan: 'de_dust2',
+    de_tuscan: 'de_mirage',
+
+    // cs1.6
+    de_cbble: 'de_anubis',
+    de_cpl_fire: 'de_inferno',
+    de_cpl_mill: 'de_ancient',
+    de_cpl_strike: 'de_mirage',
+    de_russka: 'de_train',
+
+    // czero
+    de_cbble_cz: 'de_anubis',
+    de_czl_freight: 'de_mirage',
+    de_czl_karnak: 'de_ancient',
+    de_czl_silo: 'de_anubis',
+    de_dust2_cz: 'de_dust2',
+    de_inferno_cz: 'de_inferno',
+    de_russka_cz: 'de_train',
+  },
+  [Game.CSGO]: {
+    // cs1.6
+    de_cbble: 'de_anubis',
+    de_cpl_fire: 'de_inferno',
+    de_cpl_mill: 'de_ancient',
+    de_cpl_strike: 'de_mirage',
+    de_russka: 'de_train',
+
+    // czero
+    de_cbble_cz: 'de_ancient',
+    de_czl_freight: 'de_mirage',
+    de_czl_karnak: 'de_ancient',
+    de_czl_silo: 'de_anubis',
+    de_dust2_cz: 'de_dust2',
+    de_inferno_cz: 'de_inferno',
+    de_russka_cz: 'de_train',
   },
   [Game.CSS]: {
-    de_mirage: 'de_cpl_strike',
+    // csgo
     de_anubis: 'de_cbble',
-    de_vertigo: 'de_russka',
+    de_mirage: 'de_cpl_strike',
+
+    // cs1.6
+    de_cpl_fire: 'de_inferno',
+    de_cpl_mill: 'de_ancient',
+
+    // czero
+    de_cbble_cz: 'de_cbble',
+    de_czl_freight: 'de_cpl_strike',
+    de_czl_karnak: 'de_ancient',
+    de_czl_silo: 'de_cbble',
+    de_dust2_cz: 'de_dust2',
+    de_inferno_cz: 'de_inferno',
+    de_russka_cz: 'de_train',
   },
   [Game.CZERO]: {
+    // csgo
+    de_ancient: 'de_czl_karnak',
+    de_anubis: 'de_czl_silo',
+    de_cache: 'de_dust2_cz',
     de_dust2: 'de_dust2_cz',
     de_inferno: 'de_inferno_cz',
     de_mirage: 'de_czl_freight',
     de_overpass: 'de_russka_cz',
     de_tuscan: 'de_dust2_cz',
-    de_ancient: 'de_czl_karnak',
-    de_anubis: 'de_czl_silo',
-    de_vertigo: 'de_dust2_cz',
-    de_cache: 'de_dust2_cz',
+
+    // cs1.6
+    de_cpl_fire: 'de_inferno_cz',
+    de_cpl_mill: 'de_ancient',
+    de_cpl_strike: 'de_czl_freight',
+    de_russka: 'de_russka_cz',
   },
 };
 

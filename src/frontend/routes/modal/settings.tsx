@@ -5,11 +5,12 @@
  */
 import React from 'react';
 import { cloneDeep, isNull, set } from 'lodash';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Constants, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
-import { FaExclamationTriangle, FaFolderOpen } from 'react-icons/fa';
+import { FaChevronRight, FaExclamationTriangle, FaFolderOpen } from 'react-icons/fa';
 
 /** @enum */
 enum Tab {
@@ -24,11 +25,14 @@ enum Tab {
  * @exports
  */
 export default function () {
+  const navigate = useNavigate();
+  const location = useLocation();
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState(Tab.GENERAL);
   const [settings, setSettings] = React.useState(Constants.Settings);
   const [appStatus, setAppStatus] = React.useState<NodeJS.ErrnoException>();
+  const [mapPool, setMapPool] = React.useState<Awaited<ReturnType<typeof api.mapPool.find>>>([]);
 
   // load settings
   React.useEffect(() => {
@@ -42,6 +46,17 @@ export default function () {
   // validate game installation path
   React.useEffect(() => {
     api.app.status().then((status) => !!status && setAppStatus(JSON.parse(status)));
+
+    // we also want to fetch a new map pool
+    api.mapPool
+      .find({
+        where: {
+          gameVersion: {
+            slug: settings.general.game,
+          },
+        },
+      })
+      .then(setMapPool);
   }, [settings]);
 
   // handle settings updates
@@ -403,12 +418,32 @@ export default function () {
                   }
                 >
                   <option value={null}>none</option>
-                  {Constants.MapPool.map((map) => (
-                    <option key={map} value={map}>
-                      {map}
+                  {mapPool.map((map) => (
+                    <option key={map.gameMap.name} value={map.gameMap.name}>
+                      {map.gameMap.name}
                     </option>
                   ))}
                 </select>
+              </article>
+            </section>
+            <section>
+              <header>
+                <p>{t('shared.mapPool')}</p>
+              </header>
+              <article>
+                <aside
+                  className="text-muted flex h-10 w-full cursor-pointer items-center justify-end"
+                  onClick={() =>
+                    navigate('/map-pool', {
+                      state: {
+                        from: location.pathname,
+                        label: t('shared.settings'),
+                      } as RouteStateMapPool,
+                    })
+                  }
+                >
+                  <FaChevronRight />
+                </aside>
               </article>
             </section>
             <section>
