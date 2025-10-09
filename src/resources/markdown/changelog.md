@@ -1,3 +1,19 @@
+## [3.0.0-beta.68](https://github.com/playliga/prototype/compare/v3.0.0-beta.67...v3.0.0-beta.68) (2025-10-09)
+
+### Features
+
+- add ability to customize map pool per game ([#495](https://github.com/playliga/prototype/issues/495)) ([0e85913](https://github.com/playliga/prototype/commit/0e85913ef2ff03744b0c07d83bc918bc67c57959))
+- add brazilian portuguese translation ([9eb887f](https://github.com/playliga/prototype/commit/9eb887f537618d31ec9296036dcadd10bc096620))
+- add training day icon to calendar on dashboard ([#506](https://github.com/playliga/prototype/issues/506)) ([03f9787](https://github.com/playliga/prototype/commit/03f978714329ca7ab402714ba02f092f6168f63d))
+- give defuse kits to bots setting ([#513](https://github.com/playliga/prototype/issues/513)) ([3efc1be](https://github.com/playliga/prototype/commit/3efc1beae45513b1658471e0f1a5514977dc85e4))
+
+### Bug Fixes
+
+- fix cosmetic issues with player avatar in squad hub page ([#511](https://github.com/playliga/prototype/issues/511)) ([2c7cb77](https://github.com/playliga/prototype/commit/2c7cb7740fd6019b8c1da29cf514db92f09e2e82))
+- fix game path detection on exhibition page ([#512](https://github.com/playliga/prototype/issues/512)) ([6c6a0f7](https://github.com/playliga/prototype/commit/6c6a0f713353c5fde914ed061f257fbc833feede))
+- reset transfer list status after player trades ([#516](https://github.com/playliga/prototype/issues/516)) ([7ba22b8](https://github.com/playliga/prototype/commit/7ba22b8582fa5d746152f9567ff91916869b493d))
+- update italian translation ([1d37cd8](https://github.com/playliga/prototype/commit/1d37cd876f3aba93e49250288ec277db80aa7f98))
+
 ## [3.0.0-beta.67](https://github.com/playliga/prototype/compare/v3.0.0-beta.66...v3.0.0-beta.67) (2025-09-25)
 
 ### Features
