@@ -478,6 +478,7 @@ function parsePlayerTransferOffer(
       DatabaseClient.prisma.player.update({
         where: { id: transfer.target.id },
         data: {
+          transferListed: false,
           team: {
             connect: {
               id: transfer.from.id,
