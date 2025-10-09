@@ -268,6 +268,8 @@
     "cost": "Costo",
     "created": "Creado",
     "date": "Fecha",
+    "defuserAllocationTitle": "Defuser Allocation",
+    "defuserAllocationSubtitle": "The way defusers should be allocated at the start of the round (CSGO/CS2 Only)",
     "delete": "Eliminar",
     "description": "Descripción",
     "details": "Detalles",

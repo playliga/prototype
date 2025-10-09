@@ -155,6 +155,13 @@ export enum CompetitionStatus {
 }
 
 /** @enum */
+export enum DefuserAllocation {
+  NO_FREE_DEFUSERS,
+  RANDOM_PLAYERS,
+  ALL_PLAYERS,
+}
+
+/** @enum */
 export enum ErrorCode {
   ENOENT = 'ENOENT',
   ERUNNING = 'ERUNNING',
@@ -1178,6 +1185,7 @@ export const Settings = {
   },
   matchRules: {
     bombTimer: 40,
+    defuserAllocation: DefuserAllocation.NO_FREE_DEFUSERS,
     freezeTime: 7,
     mapOverride: null as string,
     maxRounds: 6,

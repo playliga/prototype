@@ -808,6 +808,7 @@ export class Server {
           spectating: +this.spectating,
           startmoney: this.settings.matchRules.startMoney,
           bombTimer: this.settings.matchRules.bombTimer,
+          defuserAllocation: this.settings.matchRules.defuserAllocation,
 
           // csgo only
           match_stat: this.match.competition.tier.name,

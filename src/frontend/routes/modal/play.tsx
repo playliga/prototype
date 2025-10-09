@@ -600,6 +600,29 @@ export default function () {
                 />
               </aside>
             </article>
+            <article>
+              <header>
+                <p>{t('shared.defuserAllocationTitle')}</p>
+                <p>{t('shared.defuserAllocationSubtitle')}</p>
+              </header>
+              <aside>
+                <select
+                  className="select"
+                  onChange={(event) =>
+                    onSettingsUpdate('matchRules.defuserAllocation', event.target.value)
+                  }
+                  value={settings.matchRules.defuserAllocation}
+                >
+                  {Object.keys(Constants.DefuserAllocation)
+                    .filter((value) => isNaN(Number(value)))
+                    .map((value: keyof typeof Constants.DefuserAllocation) => (
+                      <option key={value} value={Constants.DefuserAllocation[value]}>
+                        {value}
+                      </option>
+                    ))}
+                </select>
+              </aside>
+            </article>
           </fieldset>
         </form>
       )}
