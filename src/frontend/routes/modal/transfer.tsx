@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
+import { Image } from '@liga/frontend/components';
 import { XPBar } from '@liga/frontend/components/player-card';
 import {
   FaBan,
@@ -241,71 +242,74 @@ export default function () {
           </aside>
         </section>
       </header>
-      <table className="table table-fixed">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th>Team</th>
-            <th>Potential</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{player.name}</td>
-            <td>
-              <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
-              <span>{player.country.name}</span>
-            </td>
-            <td>
-              {!!player.team && (
-                <>
-                  <img src={player.team?.blazon} className="inline-block size-6" />
-                  <span>&nbsp;{player.team?.name}</span>
-                </>
-              )}
-              {!player.team && <span>Free Agent</span>}
-            </td>
-            <td>
-              <figure className="rating gap-1">
-                {[...Array(Constants.Prestige.length)].map((_, idx) => (
-                  <span
-                    key={idx + '__player_prestige'}
-                    className="mask mask-star bg-yellow-500"
-                    aria-current={idx + 1 <= player.prestige + 1}
-                  />
-                ))}
-              </figure>
-            </td>
-          </tr>
-        </tbody>
-        <thead>
-          <tr>
-            <th colSpan={4}>Stats</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {Object.keys(xp.stats).map((stat) => {
-              const { value, max } = xp.normalize(stat);
-
-              return (
-                <td
-                  key={`xp__${player.name}_${stat}_value`}
-                  className="border-base-content/10 border-l"
-                >
-                  <XPBar
-                    title={`${startCase(stat)}`}
-                    subtitle={`${value}/${max}`}
-                    value={value}
-                    max={Number(max)}
-                  />
-                </td>
-              );
-            })}
-          </tr>
-        </tbody>
-      </table>
+      <section className="flex">
+        <figure className="center w-1/5 p-4">
+          <Image src={player.avatar || 'resources://avatars/empty.png'} className="h-auto w-full" />
+        </figure>
+        <table className="table table-fixed">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Country</th>
+              <th>Team</th>
+              <th>Potential</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-base-content/10 border-l">
+              <td title={player.name} className="truncate">
+                {player.name}
+              </td>
+              <td>
+                <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
+                <span>{player.country.name}</span>
+              </td>
+              <td title={player.team?.name || 'Free Agent'} className="truncate">
+                {!!player.team && (
+                  <>
+                    <img src={player.team?.blazon} className="inline-block size-6" />
+                    <span>&nbsp;{player.team?.name}</span>
+                  </>
+                )}
+                {!player.team && <span>Free Agent</span>}
+              </td>
+              <td>
+                <figure className="rating gap-1">
+                  {[...Array(Constants.Prestige.length)].map((_, idx) => (
+                    <span
+                      key={idx + '__player_prestige'}
+                      className="mask mask-star bg-yellow-500"
+                      aria-current={idx + 1 <= player.prestige + 1}
+                    />
+                  ))}
+                </figure>
+              </td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th colSpan={4}>Stats</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-base-content/10 border-l">
+              {Object.keys(xp.stats).map((stat) => {
+                const { value, max } = xp.normalize(stat);
+                return (
+                  <td key={`xp__${player.name}_${stat}_value`}>
+                    <XPBar
+                      title={`${startCase(stat)}`}
+                      subtitle={`${value}/${max}`}
+                      value={value}
+                      max={Number(max)}
+                    />
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
+      </section>
       <section role="tablist" className="tabs-box tabs rounded-none border-t-0!">
         {Object.keys(Tab)
           .filter((tabKey) => isNaN(Number(tabKey)))

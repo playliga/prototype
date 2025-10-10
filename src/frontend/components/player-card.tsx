@@ -50,7 +50,7 @@ export function XPBar(props: XPBarProps) {
     <div className={cx('stack-y', props.className)}>
       {!!props.title && (
         <div className="stack-x justify-between text-xs">
-          <p className="capitalize">
+          <p title={props.title.replace(/(delay|time)/i, 'speed')} className="truncate capitalize">
             {props.title.replace(/(delay|time)/i, 'speed')}
             {!!props.gains && (
               <span className="text-success font-mono">
