@@ -1682,7 +1682,7 @@ export const TransferSettings = {
 
   // how likely is the player willing
   // to move to another region
-  PBX_PLAYER_RELOCATE: 10,
+  PBX_PLAYER_RELOCATE: 20,
 
   // how much percent to add (per dollar) over the selling price
   PBX_TEAM_HIGHBALL_MODIFIER: 0.01,
@@ -1696,11 +1696,11 @@ export const TransferSettings = {
 
   // what are the chances a team will consider
   // sending an offer to the user today?
-  PBX_USER_CONSIDER: 5,
+  PBX_USER_CONSIDER: 15,
 
   // chances a team will attempt to poach the user's
   // best player regardless of transfer list status
-  PBX_USER_POACH: 15,
+  PBX_USER_POACH: 5,
 
   // probability weights when choosing the prestige level of teams
   // that would be interested in buying a player from the user.
