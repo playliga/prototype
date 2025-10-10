@@ -152,6 +152,7 @@ export function formatCurrency(value: number | string, opts?: Intl.NumberFormatO
   const options: Intl.NumberFormatOptions = {
     style: 'currency',
     currency: 'USD',
+    maximumFractionDigits: 2,
     ...opts,
   };
 

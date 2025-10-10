@@ -280,7 +280,10 @@ function Root() {
             </li>
             <div className="divider mt-2 mb-0 before:h-px after:h-px" />
             <li className="menu-disabled text-muted! italic">
-              <p>Earnings: {Util.formatCurrency(state.profile?.team.earnings || 0)}</p>
+              <p>
+                Earnings:&nbsp;
+                {Util.formatCurrency(state.profile?.team.earnings || 0, { notation: 'compact' })}
+              </p>
               <p>{Constants.IdiomaticTier[Constants.Prestige[state.profile?.team.tier]]}</p>
               <p>Season {state.profile?.season}</p>
             </li>
