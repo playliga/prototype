@@ -7,6 +7,7 @@ import React from 'react';
 import { Link, useLocation, Location } from 'react-router-dom';
 import { Constants, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
+import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
 import { Image } from '@liga/frontend/components';
 import { FaCaretLeft, FaCaretRight } from 'react-icons/fa';
@@ -104,6 +105,7 @@ export function MapList(props: MapListProps) {
 export default function () {
   const location = useLocation() as Location<RouteStateMapPool>;
   const t = useTranslation('windows');
+  const { state } = React.useContext(AppStateContext);
   const [gameVersion, setGameVersion] = React.useState<Constants.Game>(Constants.Game.CSGO);
   const [working, setWorking] = React.useState(false);
 
@@ -114,6 +116,17 @@ export default function () {
   const [reserveSelection, setReserveSelection] = React.useState<typeof mapPool>([]);
   const [activeSelection, setActiveSelection] = React.useState<typeof mapPool>([]);
 
+  // detect selected game version
+  React.useEffect(() => {
+    if (!state.profile) {
+      return;
+    }
+
+    const settings = Util.loadSettings(state.profile.settings);
+    setGameVersion(settings.general.game);
+  }, [state.profile]);
+
+  // load map pool
   React.useEffect(() => {
     api.mapPool
       .find({
