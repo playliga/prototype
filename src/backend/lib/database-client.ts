@@ -26,7 +26,7 @@
  * const db1 = await DatabaseClient.connect(1);
  *
  * // disconnect and connect to another SQLite3 database
- * await DatabaseClient.prisma.$disconnect();
+ * await DatabaseClient.disconnect();
  * const db2 = await DatabaseClient.connect(2);
  * ```
  *

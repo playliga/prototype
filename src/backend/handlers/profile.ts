@@ -373,7 +373,7 @@ export default function () {
       }
 
       // connect to existing save db
-      await DatabaseClient.prisma.$disconnect();
+      await DatabaseClient.disconnect();
       await DatabaseClient.connect(parseInt(databaseId));
 
       // grab profile data from db and set id to match filename
@@ -387,7 +387,7 @@ export default function () {
     }
 
     // reconnect to root save
-    await DatabaseClient.prisma.$disconnect();
+    await DatabaseClient.disconnect();
     await DatabaseClient.connect();
 
     // filter out null values from saves list

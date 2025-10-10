@@ -476,10 +476,10 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
   try {
     const sandboxFn = util.format('sandbox%s', upperFirst(camelCase(type)));
     await sandboxFns[sandboxFn]({ ...DEFAULT_ARGS, ...args });
-    return DatabaseClient.prisma.$disconnect();
+    return DatabaseClient.disconnect();
   } catch (error) {
     log.error(error);
-    return DatabaseClient.prisma.$disconnect();
+    return DatabaseClient.disconnect();
   }
 }
 

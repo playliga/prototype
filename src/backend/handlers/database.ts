@@ -41,7 +41,7 @@ export default function () {
     }),
   );
   ipcMain.handle(Constants.IPCRoute.DATABASE_DISCONNECT, () =>
-    Util.sleep(2000).then(() => DatabaseClient.prisma.$disconnect()),
+    Util.sleep(2000).then(() => DatabaseClient.disconnect()),
   );
 
   // generic database query handlers
