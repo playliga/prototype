@@ -38,7 +38,6 @@ const data: Record<Constants.Game, Array<string>> = {
     'de_train',
 
     // reserve
-    'de_cache',
     'de_vertigo',
   ],
   [Constants.Game.CSGO]: [
