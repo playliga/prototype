@@ -130,7 +130,7 @@ export default function () {
         },
       })
       .then(setMapPool);
-
+    api.squad.all().then(setUserSquad);
     api.matches
       .all({
         where: {
