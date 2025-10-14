@@ -1698,6 +1698,16 @@ export const TransferSettings = {
   // sending an offer to the user today?
   PBX_USER_CONSIDER: 15,
 
+  // chance of buying above asking price
+  PBX_USER_HIGHBALL_OFFER: 10,
+  PBX_USER_HIGHBALL_OFFER_MIN: 1.05,
+  PBX_USER_HIGHBALL_OFFER_MAX: 1.15,
+
+  // chance of sending the user a lowball offer
+  PBX_USER_LOWBALL_OFFER: 25,
+  PBX_USER_LOWBALL_OFFER_MIN: 0.6,
+  PBX_USER_LOWBALL_OFFER_MAX: 0.9,
+
   // chances a team will attempt to poach the user's
   // best player regardless of transfer list status
   PBX_USER_POACH: 5,

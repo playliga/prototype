@@ -1179,6 +1179,26 @@ export async function sendUserTransferOffer() {
   });
   const from = sample(teams);
 
+  // are we sending them a lowball offer?
+  let cost = target.cost;
+
+  if (Chance.rollD2(Constants.TransferSettings.PBX_USER_LOWBALL_OFFER)) {
+    const percent = random(
+      Constants.TransferSettings.PBX_USER_LOWBALL_OFFER_MIN,
+      Constants.TransferSettings.PBX_USER_LOWBALL_OFFER_MAX,
+    );
+    cost = Math.round(target.cost * percent);
+  }
+
+  // what about above asking price?
+  if (cost === target.cost && Chance.rollD2(Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER)) {
+    const percent = random(
+      Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER_MIN,
+      Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER_MAX,
+    );
+    cost = Math.round(target.cost * percent);
+  }
+
   // create transfer offer
   const transfer = await DatabaseClient.prisma.transfer.create({
     data: {
@@ -1196,8 +1216,8 @@ export async function sendUserTransferOffer() {
         create: [
           {
             status: Constants.TransferStatus.TEAM_PENDING,
-            cost: random(0, target.cost),
-            wages: random(0, target.wages),
+            cost,
+            wages: target.wages,
           },
         ],
       },
