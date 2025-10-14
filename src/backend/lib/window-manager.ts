@@ -121,7 +121,18 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
             { role: 'quit' },
           ],
         },
-        ...((is.dev() ? [{ role: 'viewMenu' }] : []) as Array<Electron.MenuItem>),
+        ...((is.dev()
+          ? [{ role: 'viewMenu' }]
+          : [
+              {
+                label: 'View',
+                submenu: [
+                  {
+                    role: 'toggleFullScreen',
+                  },
+                ],
+              },
+            ]) as Array<Electron.MenuItem>),
         {
           label: 'Help',
           submenu: [

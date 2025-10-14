@@ -7,7 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Routes from '@liga/frontend/routes';
 import { Toast, Toaster, toast } from 'react-hot-toast';
-import { FaCaretDown, FaEnvelopeOpen } from 'react-icons/fa';
+import { FaBars, FaCaretDown, FaEnvelopeOpen } from 'react-icons/fa';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
@@ -29,6 +29,7 @@ import {
   useNavigate,
   useMatch,
   PathMatch,
+  Link,
 } from 'react-router-dom';
 import '@liga/frontend/assets/styles.css';
 
@@ -205,20 +206,48 @@ function Root() {
   // setup the theme
   useTheme();
 
+  // setup the navigation menu items
+  const navItems = [
+    ['/', t('navigation.dashboard')],
+    ['/inbox', t('navigation.inbox')],
+    ['/squad', t('navigation.squadHub')],
+    ['/teams', t('navigation.teams'), useMatch('/teams/*')],
+    ['/players', t('navigation.players')],
+    ['/competitions', t('navigation.competitions'), useMatch('/competitions/*')],
+    ['/sponsors', t('navigation.sponsors'), useMatch('/sponsors/*')],
+    ['/calendar', t('navigation.calendar')],
+  ];
+
   return (
     <React.StrictMode>
       <header className="navbar border-base-content/10 bg-base-200 fixed top-0 z-50 h-16 border-b p-0">
-        <nav className="stack-x h-full w-full gap-0!">
-          {[
-            ['/', t('navigation.dashboard')],
-            ['/inbox', t('navigation.inbox')],
-            ['/squad', t('navigation.squadHub')],
-            ['/teams', t('navigation.teams'), useMatch('/teams/*')],
-            ['/players', t('navigation.players')],
-            ['/competitions', t('navigation.competitions'), useMatch('/competitions/*')],
-            ['/sponsors', t('navigation.sponsors'), useMatch('/sponsors/*')],
-            ['/calendar', t('navigation.calendar')],
-          ].map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
+        {/* HAMBURGER MENU DROPDOWN FOR SMALLER RESOLUTIONS */}
+        <nav className="dropdown flex-1 p-2 lg:hidden">
+          <section tabIndex={0} role="button" className="btn btn-ghost">
+            <FaBars className="size-5" />
+          </section>
+          <ul
+            tabIndex={-1}
+            className="menu dropdown-content bg-base-100 rounded-box w-64 shadow-sm"
+          >
+            {navItems.map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
+              <li
+                key={id}
+                className={cx(
+                  (isMatch || location.pathname === id) && 'bg-base-content/10 rounded-lg',
+                  !!state.working && 'menu-disabled',
+                )}
+                onClick={() => (document.activeElement as HTMLElement)?.blur()}
+              >
+                <Link to={id}>{name}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* STANDARD MENU FOR ALL OTHER RESOLUTIONS */}
+        <nav className="lg:stack-x hidden h-full w-full gap-0!">
+          {navItems.map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
             <button
               key={id}
               className={cx(
@@ -238,22 +267,16 @@ function Root() {
             </button>
           ))}
         </nav>
-        <section className="h-full p-2">
-          <button
-            // @ts-expect-error @todo: requires typescript, react, react-markdown upgrades
-            popoverTarget="popover-1"
-            className="btn btn-ghost h-full w-auto"
-            style={{ anchorName: '--anchor-1' } as React.CSSProperties}
-          >
+
+        {/* TEAM INFO DROPDOWN FOR ALL RESOLUTIONS */}
+        <section className="dropdown dropdown-end p-2">
+          <article tabIndex={0} role="button" className="btn btn-ghost">
             <Image src={state.profile?.team.blazon || ''} className="h-full w-auto" />
             <FaCaretDown />
-          </button>
+          </article>
           <ul
-            id="popover-1"
-            // @ts-expect-error @todo: requires typescript, react, react-markdown upgrades
-            popover="auto"
-            className="dropdown menu rounded-box bg-base-100 dropdown-end w-52 shadow-sm"
-            style={{ positionAnchor: '--anchor-1' } as React.CSSProperties}
+            tabIndex={-1}
+            className="menu dropdown-content bg-base-100 rounded-box w-64 shadow-sm"
           >
             <li className="menu-title">{state.profile?.team.name}</li>
             <li>
