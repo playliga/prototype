@@ -7,7 +7,7 @@
 import type { Prisma } from '@prisma/client';
 import log from 'electron-log';
 import { random } from 'lodash';
-import { Constants, Bot, Chance } from '@liga/shared';
+import { Constants, Bot, Chance, Util } from '@liga/shared';
 
 /** @constant */
 let simScaleFactor: number | null | undefined;
@@ -114,15 +114,20 @@ export class Score {
    * @function
    */
   private getTeamWinProbability(team: Team) {
-    // don't include the user in the squad when simming
-    const players = team.players
-      .filter((player) => player.id !== this.userPlayerId)
-      .slice(0, Constants.Application.SQUAD_MIN_LENGTH);
+    // build a profile object for the `getSquad` function
+    const profile = {
+      teamId: this.userTeamId,
+      playerId: this.userPlayerId,
+    };
 
-    // add the user if squad length is not met
-    if (players.length < Constants.Application.SQUAD_MIN_LENGTH && this.userPlayerId) {
-      players.push(team.players.find((player) => player.id === this.userPlayerId));
-    }
+    // only backfill with the user's player if they
+    // happen to only have 4 bots + themselves
+    const players = Util.getSquad(
+      team as Prisma.TeamGetPayload<{ include: { players: { include: { country: true } } } }>,
+      profile as Prisma.ProfileGetPayload<unknown>,
+      team.id === this.userTeamId && team.players.length <= Constants.Application.SQUAD_MIN_LENGTH,
+      Constants.Application.SQUAD_MIN_LENGTH,
+    );
 
     if (this.userPlayerId) {
       this.log.info(
