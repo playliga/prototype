@@ -239,7 +239,12 @@ function Root() {
                 )}
                 onClick={() => (document.activeElement as HTMLElement)?.blur()}
               >
-                <Link to={id}>{name}</Link>
+                <Link to={id}>
+                  {name}
+                  {id.includes('inbox') && state.emails.some((email) => !email.read) && (
+                    <span className="badge-xxs badge badge-info" />
+                  )}
+                </Link>
               </li>
             ))}
           </ul>
