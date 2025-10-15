@@ -34,6 +34,8 @@ const PAGE_SIZE = 100;
  * @param transferListed  Whether to search for only transfer listed players.
  * @param orderBy         Sorting direction.
  * @param playerName      Filter by player name.
+ * @param prestige        Filter player's prestige level.
+ * @param weapon          Filter by player weapon preference.
  * @function
  */
 function buildPlayerQuery(
@@ -44,11 +46,15 @@ function buildPlayerQuery(
   transferListed?: boolean,
   orderBy?: ExtractBaseType<Parameters<typeof api.players.all>[number]['orderBy']>,
   playerName?: string,
+  prestige?: number,
+  weapon?: string,
 ): Parameters<typeof api.players.all>[number] {
   return {
     ...(orderBy ? { orderBy } : {}),
     where: {
       ...(transferListed ? { transferListed } : {}),
+      ...(prestige ? { prestige } : {}),
+      ...(weapon ? { weapon } : {}),
       ...(playerName !== ''
         ? {
             name: {
@@ -96,6 +102,9 @@ export default function () {
   const [selectedCountry, setSelectedCountry] =
     React.useState<ReturnType<typeof findCountryOptionByValue>>();
   const [selectedPlayerName, setSelectedPlayerName] = React.useState('');
+  const [selectedPlayerPrestige, setSelectedPlayerPrestige] = React.useState<number>();
+  const [selectedPlayerWeapon, setSelectedPlayerWeapon] =
+    React.useState<Constants.WeaponTemplate>();
   const [selectedTierId, setSelectedTierId] = React.useState<number>();
   const [selectedTransferStatus, setSelectedTransferStatus] = React.useState<boolean>();
   const [selectedTeam, setSelectedTeam] =
@@ -120,6 +129,8 @@ export default function () {
         selectedTransferStatus,
         selectedPlayerOrderBy,
         selectedPlayerName,
+        selectedPlayerPrestige,
+        selectedPlayerWeapon,
       ),
     [
       selectedFederationId,
@@ -129,6 +140,8 @@ export default function () {
       selectedTransferStatus,
       selectedPlayerOrderBy,
       selectedPlayerName,
+      selectedPlayerPrestige,
+      selectedPlayerWeapon,
     ],
   );
 
@@ -294,6 +307,58 @@ export default function () {
             </section>
             <section>
               <header>
+                <p>Potential</p>
+              </header>
+              <article>
+                <select
+                  className="select"
+                  onChange={(event) =>
+                    setSelectedPlayerPrestige(
+                      event.target.value === ''
+                        ? ('' as unknown as number)
+                        : Number(event.target.value),
+                    )
+                  }
+                  value={selectedPlayerPrestige}
+                >
+                  <option value="">Any</option>
+                  {Constants.Prestige.map((prestige, prestigeId) => (
+                    <option key={prestige + '__skill'} value={prestigeId}>
+                      {[...Array(prestigeId + 1)].map(() => '⭐')}
+                    </option>
+                  ))}
+                </select>
+              </article>
+            </section>
+            <section>
+              <header>
+                <p>{t('shared.weaponPreference')}</p>
+              </header>
+              <article>
+                <select
+                  className="select"
+                  value={selectedPlayerWeapon}
+                  onChange={(event) =>
+                    setSelectedPlayerWeapon(
+                      event.target.value === ''
+                        ? ('' as Constants.WeaponTemplate)
+                        : (event.target.value as Constants.WeaponTemplate),
+                    )
+                  }
+                >
+                  <option value="">Any</option>
+                  {Object.keys(Constants.WeaponTemplate).map(
+                    (template: keyof typeof Constants.WeaponTemplate) => (
+                      <option key={template} value={Constants.WeaponTemplate[template]}>
+                        {Constants.WeaponTemplate[template]}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </article>
+            </section>
+            <section>
+              <header>
                 <p>{t('shared.team')}</p>
               </header>
               <article>
@@ -354,6 +419,8 @@ export default function () {
                   setSelectedCountry(null);
                   setSelectedFederationId('' as unknown as number);
                   setSelectedPlayerName('');
+                  setSelectedPlayerPrestige('' as unknown as number);
+                  setSelectedPlayerWeapon('' as Constants.WeaponTemplate);
                   setSelectedTierId('' as unknown as number);
                   setSelectedTransferStatus(null);
                   setSelectedTeam(null);
