@@ -1,3 +1,24 @@
+## [3.0.0-beta.69](https://github.com/playliga/prototype/compare/v3.0.0-beta.68...v3.0.0-beta.69) (2025-10-16)
+
+### Features
+
+- added prestige and weapon preference filters to player search page ([#514](https://github.com/playliga/prototype/issues/514)) ([c083747](https://github.com/playliga/prototype/commit/c0837472a3ebbc3a973990b45409a98670ca28df))
+- calendar progression can now be stopped ([#518](https://github.com/playliga/prototype/issues/518)) ([9544f5f](https://github.com/playliga/prototype/commit/9544f5fa5fe0c7627a32798a0974d217008730dc))
+- players can now be released from your squad ([#519](https://github.com/playliga/prototype/issues/519)) ([c9f9c49](https://github.com/playliga/prototype/commit/c9f9c495f4c96f0d878d5d21391cdc9aa1dd43f0))
+- show player avatar in transfer modal ([#510](https://github.com/playliga/prototype/issues/510)) ([80350ef](https://github.com/playliga/prototype/commit/80350ef78c029f94481e7e2d65bf8ee96f04400e))
+
+### Bug Fixes
+
+- automatically select current game in map pool editor ([#521](https://github.com/playliga/prototype/issues/521)) ([de3aee5](https://github.com/playliga/prototype/commit/de3aee53c20901c91e5016a7d9df003d132022bc))
+- fix currency decimal units ([37b61d8](https://github.com/playliga/prototype/commit/37b61d8a1827b0be8fd4807111a71b84af8ba1d1))
+- fix incoming offers not meeting player cost ([#520](https://github.com/playliga/prototype/issues/520)) ([f659c55](https://github.com/playliga/prototype/commit/f659c55bf5b4b1f693eeda9ee0f8776364551def))
+- fix missing italian and french translations ([3072a8b](https://github.com/playliga/prototype/commit/3072a8bd468bf7f2034abe890ab3cb3bd8c1ceda))
+- fix simulated games not prioritizing starters ([#523](https://github.com/playliga/prototype/issues/523)) ([f09d6a9](https://github.com/playliga/prototype/commit/f09d6a9abafed62b5ec0b1a86e873f5788971f88))
+- fix starters not selected properly in bo3/bo5 pre-game modal ([#530](https://github.com/playliga/prototype/issues/530)) ([0e0eb9b](https://github.com/playliga/prototype/commit/0e0eb9b49be5db4e3b8e7f44bc003727cd6cefbe))
+- improve support for smaller resolutions ([#526](https://github.com/playliga/prototype/issues/526)) ([087c881](https://github.com/playliga/prototype/commit/087c881b02bf0a86113936ce55f58ad4b0347ddb))
+- increase chances of receiving transfer offer for listed players ([#517](https://github.com/playliga/prototype/issues/517)) ([843d481](https://github.com/playliga/prototype/commit/843d4811b52c8bb3c40b0491bc911f1425a86c32))
+- remove cache from cs2 map pool ([#525](https://github.com/playliga/prototype/issues/525)) ([c30112e](https://github.com/playliga/prototype/commit/c30112e3baff77d4d3461298de64073af48acd12))
+
 ## [3.0.0-beta.68](https://github.com/playliga/prototype/compare/v3.0.0-beta.67...v3.0.0-beta.68) (2025-10-09)
 
 ### Features
