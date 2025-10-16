@@ -426,4 +426,24 @@ export default function () {
     });
     return profile.team.players;
   });
+  ipcMain.handle(
+    Constants.IPCRoute.SQUAD_RELEASE_PLAYER,
+    async (_, query: Prisma.PlayerUpdateArgs) => {
+      // release the player
+      await DatabaseClient.prisma.player.update(query);
+
+      // rehydrate profile cache
+      const { id: profileId } = await DatabaseClient.prisma.profile.findFirst();
+      const profile = await DatabaseClient.prisma.profile.update({
+        ...Eagers.profile,
+        where: { id: profileId },
+        data: {
+          updatedAt: new Date().toISOString(),
+        },
+      });
+
+      // return updated squad
+      return profile.team.players;
+    },
+  );
 }

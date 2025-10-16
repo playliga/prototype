@@ -8,7 +8,7 @@ import { startCase } from 'lodash';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
-import { FaFolderOpen, FaShoppingBag, FaStar } from 'react-icons/fa';
+import { FaFolderOpen, FaShoppingBag, FaStar, FaUserSlash } from 'react-icons/fa';
 
 /** @type {Player} */
 type Player = Awaited<ReturnType<typeof api.players.all<typeof Eagers.player>>>[number];
@@ -35,6 +35,7 @@ interface PlayerCardProps extends React.ComponentProps<'article'> {
   onClickStarter?: () => void;
   onClickTransferListed?: () => void;
   onClickViewOffers?: () => void;
+  onClickRelease?: () => void;
   onChangeWeapon?: (weapon: Constants.WeaponTemplate) => void;
 }
 
@@ -242,7 +243,7 @@ export default function (props: PlayerCardProps) {
           </aside>
         );
       })}
-      <aside className="grid grid-cols-3">
+      <aside className="grid grid-cols-4">
         <button
           title={t('playerCard.setAsStarter')}
           className="btn btn-ghost btn-block rounded-none disabled:bg-transparent!"
@@ -264,6 +265,13 @@ export default function (props: PlayerCardProps) {
           onClick={props.onClickViewOffers}
         >
           <FaFolderOpen />
+        </button>
+        <button
+          className="btn btn-ghost btn-block rounded-none"
+          disabled={!props.onClickRelease}
+          onClick={props.onClickRelease || null}
+        >
+          <FaUserSlash />
         </button>
       </aside>
     </article>

@@ -672,6 +672,33 @@ export default function () {
                     payload: player.id,
                   })
                 }
+                onClickRelease={
+                  squad.length - 1 >= Constants.Application.SQUAD_MIN_LENGTH &&
+                  (() => {
+                    api.app
+                      .messageBox(Constants.WindowIdentifier.Main, {
+                        type: 'question',
+                        message: `Are you sure you want to release "${player.name}"?`,
+                        buttons: ['Release', 'Cancel'],
+                      })
+                      .then(
+                        (data) =>
+                          data.response === 0 &&
+                          api.squad
+                            .release({
+                              where: { id: player.id },
+                              data: {
+                                starter: false,
+                                transferListed: true,
+                                team: {
+                                  disconnect: true,
+                                },
+                              },
+                            })
+                            .then(setSquad),
+                      );
+                  })
+                }
                 onChangeWeapon={(weapon) => {
                   api.squad
                     .update({

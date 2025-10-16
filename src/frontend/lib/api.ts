@@ -245,6 +245,10 @@ export default {
       ipcRenderer.invoke(Constants.IPCRoute.SQUAD_UPDATE, query) as Promise<
         Array<Prisma.PlayerGetPayload<T>>
       >,
+    release: <T = typeof Eagers.player>(query: Prisma.PlayerUpdateArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.SQUAD_RELEASE_PLAYER, query) as Promise<
+        Array<Prisma.PlayerGetPayload<T>>
+      >,
   },
   teams: {
     all: <T = unknown>(query?: Prisma.TeamFindManyArgs) =>

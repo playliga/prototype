@@ -319,6 +319,7 @@ export enum IPCRoute {
   SPONSORSHIP_RENEW_REJECT = '/sponsorship/renew/reject',
   SQUAD_ALL = '/squad/all',
   SQUAD_UPDATE = '/squad/update',
+  SQUAD_RELEASE_PLAYER = '/squad/release/player',
   TEAMS_ALL = '/teams/all',
   TEAMS_CREATE = '/teams/create',
   TEAMS_UPDATE = '/teams/update',
