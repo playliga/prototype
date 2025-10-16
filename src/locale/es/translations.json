@@ -93,6 +93,7 @@
         "runningError": "¡está en ejecución! Por favor cierre el juego antes de jugar tus partidos.",
         "simulate": "Simular",
         "spectateMatch": "Ver Partido",
+        "stopCalendar": "Parar Calendario",
         "viewBracket": "Ver Bracket"
       },
       "inbox": {

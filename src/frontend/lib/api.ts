@@ -65,6 +65,7 @@ export default {
       >,
     sim: () => ipcRenderer.invoke(Constants.IPCRoute.CALENDAR_SIM),
     start: (max?: number) => ipcRenderer.invoke(Constants.IPCRoute.CALENDAR_START, max),
+    stop: () => ipcRenderer.invoke(Constants.IPCRoute.CALENDAR_STOP),
   },
   competitions: {
     all: <T = typeof Eagers.competition>(query: Prisma.CompetitionFindManyArgs) =>

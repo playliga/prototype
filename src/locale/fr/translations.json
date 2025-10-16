@@ -93,6 +93,7 @@
         "runningError": "est en cours d'exécution ! Fermez le jeu avant de pouvoir commencer un nouveau match.",
         "simulate": "Simuler",
         "spectateMatch": "Observer le match",
+        "stopCalendar": "Stop Calendar",
         "viewBracket": "Voir le tableau"
       },
       "inbox": {

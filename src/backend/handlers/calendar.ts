@@ -215,6 +215,9 @@ export default function () {
     WindowManager.enableMenu(Constants.WindowIdentifier.Main);
     return Promise.resolve();
   });
+  ipcMain.handle(Constants.IPCRoute.CALENDAR_STOP, () => {
+    Engine.Runtime.Instance.stop();
+  });
   ipcMain.handle(Constants.IPCRoute.CALENDAR_SIM, async () => {
     // grab the calendar entry for today's user matchday
     const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);

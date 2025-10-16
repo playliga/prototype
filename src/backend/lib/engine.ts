@@ -65,6 +65,13 @@ export class Runtime {
   private static instance: Runtime;
 
   /**
+   * Engine loop abort controller.
+   *
+   * @constant
+   */
+  private abortController: AbortController;
+
+  /**
    * The main loop interval reference.
    *
    * @constant
@@ -157,6 +164,13 @@ export class Runtime {
       throw new Error(`'${MiddlewareType.TICK_START}' middleware has not been registered!`);
     }
 
+    // bail if there is already a loop running
+    if (this.abortController) {
+      throw new Error('Engine loop is already in progress!');
+    } else {
+      this.abortController = new AbortController();
+    }
+
     // clear previous performance marks and measures
     performance.clearMarks();
     performance.clearMeasures();
@@ -190,9 +204,13 @@ export class Runtime {
         );
       }
 
+      if (this.abortController.signal.aborted) {
+        this.log.warn('Engine stop signal detected!');
+      }
+
       // run end-loop middleware if we've reached our max iterations
       // or any middleware sent a termination signal
-      if (tick >= max - 1 || terminate) {
+      if (tick >= max - 1 || terminate || this.abortController.signal.aborted) {
         // output benchmark timings
         const entries = performance.getEntriesByType('measure');
         const total = entries.map((entry) => entry.duration).reduce((a, b) => a + b);
@@ -207,6 +225,25 @@ export class Runtime {
       }
     }
 
+    // clean up
+    this.abortController = null;
     return Promise.resolve();
+  }
+
+  /**
+   * Stops the engine loop.
+   */
+  public stop() {
+    if (!this.abortController) {
+      this.log.warn('Engine loop not running. Nothing to stop.');
+      return;
+    }
+
+    if (this.abortController.signal.aborted) {
+      this.log.warn('Engine stop signal already sent.');
+      return;
+    }
+
+    this.abortController.abort();
   }
 }

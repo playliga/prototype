@@ -19,6 +19,7 @@ import {
   FaExclamationTriangle,
   FaForward,
   FaMapSigns,
+  FaStop,
   FaStopwatch,
   FaStream,
   FaTv,
@@ -390,16 +391,29 @@ export default function () {
         {/** RIGHT COLUMN */}
         <div className="stack-y gap-0!">
           <section className="divide-base-content/10 grid grid-cols-6 divide-x">
-            <button
-              title={t('main.dashboard.advanceCalendar')}
-              className="day day-btn border-t-0"
-              disabled={!state.profile || state.working || isMatchday}
-              onClick={() => !state.working && !isMatchday && dispatch(calendarAdvance())}
-            >
-              <figure>
-                <FaForward />
-              </figure>
-            </button>
+            {!state.working && (
+              <button
+                title={t('main.dashboard.advanceCalendar')}
+                className="day day-btn border-t-0"
+                disabled={!state.profile || state.working || isMatchday}
+                onClick={() => !state.working && !isMatchday && dispatch(calendarAdvance())}
+              >
+                <figure>
+                  <FaForward />
+                </figure>
+              </button>
+            )}
+            {!!state.working && (
+              <button
+                title={t('main.dashboard.stopCalendar')}
+                className="day day-btn btn-error! border-t-0"
+                onClick={api.calendar.stop}
+              >
+                <figure>
+                  <FaStop />
+                </figure>
+              </button>
+            )}
             {!state.profile &&
               [...Array(5)].map((_, idx) => (
                 <article

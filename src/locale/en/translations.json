@@ -93,6 +93,7 @@
         "runningError": "is running! Please close the game before playing your matches.",
         "simulate": "Simulate",
         "spectateMatch": "Spectate Match",
+        "stopCalendar": "Stop Calendar",
         "viewBracket": "View Bracket"
       },
       "inbox": {
