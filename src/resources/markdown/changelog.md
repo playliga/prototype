@@ -1,3 +1,9 @@
+## [3.0.0-beta.70](https://github.com/playliga/prototype/compare/v3.0.0-beta.69...v3.0.0-beta.70) (2025-10-16)
+
+### Bug Fixes
+
+- further fixes for smaller resolutions ([4fd4ecb](https://github.com/playliga/prototype/commit/4fd4ecb64093d4e6180ccafc56d83bcbcc7135ff))
+
 ## [3.0.0-beta.69](https://github.com/playliga/prototype/compare/v3.0.0-beta.68...v3.0.0-beta.69) (2025-10-16)
 
 ### Features
