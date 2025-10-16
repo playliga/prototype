@@ -222,7 +222,7 @@ function Root() {
     <React.StrictMode>
       <header className="navbar border-base-content/10 bg-base-200 fixed top-0 z-50 h-16 border-b p-0">
         {/* HAMBURGER MENU DROPDOWN FOR SMALLER RESOLUTIONS */}
-        <nav className="dropdown flex-1 p-2 lg:hidden">
+        <nav className="dropdown flex-1 p-2 xl:hidden">
           <section tabIndex={0} role="button" className="btn btn-ghost">
             <FaBars className="size-5" />
           </section>
@@ -251,7 +251,7 @@ function Root() {
         </nav>
 
         {/* STANDARD MENU FOR ALL OTHER RESOLUTIONS */}
-        <nav className="lg:stack-x hidden h-full w-full gap-0!">
+        <nav className="xl:stack-x hidden h-full w-full gap-0!">
           {navItems.map(([id, name, isMatch]: [string, string, PathMatch | undefined]) => (
             <button
               key={id}
