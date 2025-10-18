@@ -7,6 +7,7 @@ import React from 'react';
 import { upperFirst } from 'lodash';
 import { formatRelative } from 'date-fns';
 import { useNavigate, Outlet } from 'react-router-dom';
+import { Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
@@ -27,7 +28,7 @@ export default function () {
         className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate(-1)}
       />
-      <table className="table">
+      <table className="table table-fixed">
         <thead>
           <tr>
             <th>{t('shared.name')}</th>
@@ -42,7 +43,12 @@ export default function () {
               className="hover:bg-base-content/10 cursor-pointer"
               onClick={() => navigate('/connect/' + profile.id)}
             >
-              <td>{profile.name}</td>
+              <td>
+                <p>{profile.name}</p>
+                <p className="text-muted">
+                  <em>{Util.getSaveFileName(profile.id)}</em>
+                </p>
+              </td>
               <td>{upperFirst(formatRelative(profile.updatedAt, new Date()))}</td>
               <td className="text-center" onClick={(event) => event.stopPropagation()}>
                 <button

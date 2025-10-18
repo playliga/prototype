@@ -8,7 +8,7 @@ import Logo from '@liga/frontend/assets/icon.png';
 import { formatRelative } from 'date-fns';
 import { upperFirst } from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import { Constants } from '@liga/shared';
+import { Constants, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
 import { FaClock } from 'react-icons/fa';
@@ -59,6 +59,9 @@ export default function () {
                 <p>{profile.name}</p>
                 <p>
                   <em>{upperFirst(formatRelative(profile.updatedAt, new Date()))}</em>
+                </p>
+                <p className="text-muted">
+                  <em>{Util.getSaveFileName(profile.id)}</em>
                 </p>
               </aside>
             </article>
