@@ -135,6 +135,7 @@ export default function () {
           create: [
             {
               name: data.user.name,
+              avatar: data.user.avatar,
               profile: {
                 connect: {
                   id: profile.id,
