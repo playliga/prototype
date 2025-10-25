@@ -1,3 +1,11 @@
+## [3.0.0-beta.71](https://github.com/playliga/prototype/compare/v3.0.0-beta.70...v3.0.0-beta.71) (2025-10-25)
+
+### Features
+
+- add ability to shortlist or bookmark players ([#529](https://github.com/playliga/prototype/issues/529)) ([940bbcd](https://github.com/playliga/prototype/commit/940bbcd4ec85aa186a95db555c0e55b8b396854b))
+- add custom player avatars ([#522](https://github.com/playliga/prototype/issues/522)) ([da4c486](https://github.com/playliga/prototype/commit/da4c4862dacb4b728dc6281b0df800a5983a6251))
+- save filenames are shown when choosing a save ([#527](https://github.com/playliga/prototype/issues/527)) ([a7ae979](https://github.com/playliga/prototype/commit/a7ae97987a57d176036d5add73640ddfd4c697d8))
+
 ## [3.0.0-beta.70](https://github.com/playliga/prototype/compare/v3.0.0-beta.69...v3.0.0-beta.70) (2025-10-16)
 
 ### Bug Fixes
