@@ -25,6 +25,7 @@ export interface AppState {
   playing: boolean;
   profile: Awaited<ReturnType<typeof api.profiles.current<typeof Eagers.profile>>>;
   profiles: Array<AppState['profile']>;
+  shortlist: Awaited<ReturnType<typeof api.shortlist.all<typeof Eagers.shortlist>>>;
   windowData: Partial<{
     [Constants.WindowIdentifier.Landing]: Parameters<typeof api.profiles.create>[number];
     [Constants.WindowIdentifier.Modal]: Pick<
@@ -54,6 +55,7 @@ export const InitialState: AppState = {
   playing: false,
   profile: null,
   profiles: [],
+  shortlist: [],
   windowData: {
     landing: {
       today: new Date(

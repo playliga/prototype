@@ -156,6 +156,23 @@ function profiles(
  * @param action Redux action.
  * @function
  */
+function shortlist(
+  state: typeof InitialState.shortlist,
+  action: AppAction<typeof InitialState.shortlist>,
+) {
+  switch (action.type) {
+    case ReduxActions.SHORTLIST_UPDATE:
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
+/**
+ * @param state Application state.
+ * @param action Redux action.
+ * @function
+ */
 function windowData(
   state: typeof InitialState.windowData,
   action: AppAction<typeof InitialState.windowData>,
@@ -203,6 +220,7 @@ export default function (state: AppState, action: AppActions) {
     playing: playing(state.playing, action as AppAction<typeof state.playing>),
     profile: profile(state.profile, action as AppAction<typeof state.profile>),
     profiles: profiles(state.profiles, action as AppAction<typeof state.profiles>),
+    shortlist: shortlist(state.shortlist, action as AppAction<typeof state.shortlist>),
     windowData: windowData(state.windowData, action as AppAction<typeof state.windowData>),
     working: working(state.working, action as AppAction<typeof state.working>),
   };

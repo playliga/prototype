@@ -260,7 +260,7 @@ export default function (props: PlayerCardProps) {
           <FaShoppingBag className={cx(props.player.transferListed && 'text-primary')} />
         </button>
         <button
-          title={t('playerCard.viewOffers')}
+          title={t('shared.viewOffers')}
           className="btn btn-ghost btn-block rounded-none"
           onClick={props.onClickViewOffers}
         >

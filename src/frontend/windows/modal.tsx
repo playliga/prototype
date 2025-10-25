@@ -10,7 +10,7 @@ import { createMemoryRouter, RouterProvider, Outlet, useNavigate } from 'react-r
 import { Constants } from '@liga/shared';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
 import { useTheme } from '@liga/frontend/hooks';
-import { profileUpdate, localeUpdate } from '@liga/frontend/redux/actions';
+import { profileUpdate, localeUpdate, shortlistUpdate } from '@liga/frontend/redux/actions';
 import '@liga/frontend/assets/styles.css';
 
 /**
@@ -125,11 +125,17 @@ function Root() {
   React.useEffect(() => {
     // initial data fetch
     api.profiles.current().then((profile) => dispatch(profileUpdate(profile)));
+    api.shortlist.all().then((shortlist) => dispatch(shortlistUpdate(shortlist)));
 
     // handle incoming profile updates
     api.ipc.on(
       Constants.IPCRoute.PROFILES_CURRENT,
       (profile: Parameters<typeof profileUpdate>[0]) => dispatch(profileUpdate(profile)),
+    );
+
+    // handle incoming shortlist updates
+    api.ipc.on(Constants.IPCRoute.SHORTLIST_UPDATE, () =>
+      api.shortlist.all().then((shortlist) => dispatch(shortlistUpdate(shortlist))),
     );
 
     // navigate to the modal route being requested

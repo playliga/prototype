@@ -125,6 +125,18 @@ export const profile = {
 };
 
 /** @constant */
+export const shortlist = {
+  include: {
+    team: true,
+    player: {
+      include: {
+        team: true,
+      },
+    },
+  },
+};
+
+/** @constant */
 export const sponsor = {
   include: {
     sponsorships: {

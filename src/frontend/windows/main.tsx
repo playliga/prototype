@@ -20,6 +20,7 @@ import {
   appStatusUpdate,
   localeUpdate,
   play,
+  shortlistUpdate,
 } from '@liga/frontend/redux/actions';
 import {
   createMemoryRouter,
@@ -172,6 +173,7 @@ function Root() {
     api.profiles.current().then((profile) => dispatch(profileUpdate(profile)));
     api.app.status().then((resp) => dispatch(appStatusUpdate(resp)));
     api.app.locale().then((locale) => dispatch(localeUpdate(locale)));
+    api.shortlist.all().then((shortlist) => dispatch(shortlistUpdate(shortlist)));
 
     // handle incoming e-mail notifications
     api.ipc.on(Constants.IPCRoute.EMAILS_NEW, (email: (typeof state.emails)[number]) => {
@@ -187,6 +189,11 @@ function Root() {
     // handle incoming profile updates
     api.ipc.on(Constants.IPCRoute.PROFILES_CURRENT, (profile: typeof state.profile) =>
       dispatch(profileUpdate(profile)),
+    );
+
+    // handle incoming shortlist updates
+    api.ipc.on(Constants.IPCRoute.SHORTLIST_UPDATE, () =>
+      api.shortlist.all().then((shortlist) => dispatch(shortlistUpdate(shortlist))),
     );
 
     // handle awards

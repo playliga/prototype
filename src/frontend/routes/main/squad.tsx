@@ -13,9 +13,9 @@ import { profileUpdate, workingUpdate } from '@liga/frontend/redux/actions';
 import { useTranslation } from '@liga/frontend/hooks';
 import { Image, PlayerCard } from '@liga/frontend/components';
 import {
-  FaBan,
   FaBolt,
-  FaCheck,
+  FaBookmark,
+  FaFolderOpen,
   FaShoppingBag,
   FaStopwatch,
   FaTrash,
@@ -26,6 +26,7 @@ import {
 enum TabIdentifier {
   SQUAD,
   TRAINING,
+  SHORTLIST,
 }
 
 /** @interface */
@@ -218,6 +219,13 @@ export default function () {
           <FaStopwatch />
           {t('shared.training')}
         </button>
+        <button
+          className={cx(activeTab === TabIdentifier.SHORTLIST && 'btn-active!')}
+          onClick={() => setActiveTab(TabIdentifier.SHORTLIST)}
+        >
+          <FaBookmark />
+          {t('shared.shortlist')}
+        </button>
       </header>
       <main>
         {activeTab === TabIdentifier.SQUAD && (
@@ -231,12 +239,8 @@ export default function () {
                   <table className="table table-fixed">
                     <thead>
                       <tr>
-                        <th className="w-3/5" title={t('main.squad.playerName')}>
-                          {t('shared.name')}
-                        </th>
-                        <th className="w-1/5" title={t('shared.weaponPreference')}>
-                          {t('main.squad.weapon')}
-                        </th>
+                        <th>{t('shared.name')}</th>
+                        <th>{t('main.squad.weapon')}</th>
                         <th className="text-center">{t('main.squad.remove')}</th>
                       </tr>
                     </thead>
@@ -251,7 +255,7 @@ export default function () {
                           </td>
                           <td className="text-center">
                             <button
-                              className="btn btn-primary btn-sm"
+                              className="btn btn-error btn-sm"
                               onClick={() =>
                                 api.squad
                                   .update({
@@ -287,10 +291,8 @@ export default function () {
                   <table className="table table-fixed">
                     <thead>
                       <tr>
-                        <th className="w-3/5" title={t('main.squad.playerName')}>
-                          {t('shared.name')}
-                        </th>
-                        <th className="w-1/5 text-center" />
+                        <th>{t('shared.name')}</th>
+                        <th className="text-center" />
                         <th className="text-center">{t('main.squad.remove')}</th>
                       </tr>
                     </thead>
@@ -306,7 +308,7 @@ export default function () {
                           </td>
                           <td className="text-center">
                             <button
-                              className="btn btn-primary btn-sm"
+                              className="btn btn-error btn-sm"
                               onClick={() =>
                                 api.squad
                                   .update({
@@ -342,48 +344,35 @@ export default function () {
                   <table className="table table-fixed">
                     <thead>
                       <tr>
-                        <th className="w-1/4">{t('main.squad.from')}</th>
-                        <th className="w-1/4">{t('main.squad.for')}</th>
-                        <th className="w-1/4 text-center">{t('shared.amount')}</th>
-                        <th className="w-1/4 text-center" title={t('main.squad.acceptOrReject')} />
+                        <th className="text-center">{t('main.squad.from')}</th>
+                        <th>{t('main.squad.for')}</th>
+                        <th className="text-center">{t('shared.viewOffers')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {transfers.map((transfer) => (
                         <tr key={transfer.id + '__transfer'}>
                           <td title={transfer.from.name} className="truncate">
-                            {transfer.from.name}
+                            <Image
+                              src={transfer.from.blazon}
+                              title={transfer.from.name}
+                              className="mx-auto size-8"
+                            />
                           </td>
                           <td title={transfer.target.name} className="truncate">
                             {transfer.target.name}
                           </td>
                           <td className="text-center">
-                            {Util.formatCurrency(transfer.offers[0].cost)}
-                          </td>
-                          <td className="join-vertical text-center">
                             <button
-                              title={t('main.squad.acceptOffer')}
-                              className="btn btn-success join-item btn-sm"
+                              className="btn btn-sm"
                               onClick={() =>
-                                api.transfers
-                                  .accept(transfer.id)
-                                  .then(() => fetchTransfers(state.profile.team.id))
-                                  .then(setTransfers)
+                                api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                                  target: '/transfer',
+                                  payload: transfer.target.id,
+                                })
                               }
                             >
-                              <FaCheck />
-                            </button>
-                            <button
-                              title={t('main.squad.rejectOffer')}
-                              className="btn btn-error join-item btn-sm"
-                              onClick={() =>
-                                api.transfers
-                                  .reject(transfer.id)
-                                  .then(() => fetchTransfers(state.profile.team.id))
-                                  .then(setTransfers)
-                              }
-                            >
-                              <FaBan />
+                              <FaFolderOpen />
                             </button>
                           </td>
                         </tr>
@@ -631,6 +620,65 @@ export default function () {
                   </tbody>
                 </table>
               </footer>
+            </article>
+          </section>
+        )}
+        {activeTab === TabIdentifier.SHORTLIST && (
+          <section className="divide-base-content/10 divide-y">
+            <article className="stack-y gap-0!">
+              <header className="prose border-t-0!">
+                <h2>{t('shared.shortlist')}</h2>
+              </header>
+              {!!state.shortlist.length && (
+                <footer>
+                  <table className="table table-fixed">
+                    <thead>
+                      <tr>
+                        <th>{t('shared.name')}</th>
+                        <th className="text-center">{t('shared.team')}</th>
+                        <th className="text-center">{t('shared.details')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {state.shortlist.map((item) => (
+                        <tr key={item.playerId + item.teamId + '__shortlist'}>
+                          <td className="truncate">{item.player.name}</td>
+                          <td>
+                            {!!item.player.team && (
+                              <Image
+                                src={item.player.team.blazon}
+                                title={item.player.team.name}
+                                className="mx-auto size-8"
+                              />
+                            )}
+                          </td>
+                          <td>
+                            <aside className="text-center">
+                              <button
+                                className="btn btn-sm"
+                                title={t('shared.viewOffers')}
+                                onClick={() =>
+                                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                                    target: '/transfer',
+                                    payload: item.player.id,
+                                  })
+                                }
+                              >
+                                <FaFolderOpen />
+                              </button>
+                            </aside>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </footer>
+              )}
+              {!state.shortlist.length && (
+                <footer className="center h-32">
+                  <p>{t('main.squad.noTransfers')}</p>
+                </footer>
+              )}
             </article>
           </section>
         )}

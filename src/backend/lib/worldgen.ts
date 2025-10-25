@@ -475,6 +475,14 @@ function parsePlayerTransferOffer(
       content: locale.templates.OfferAcceptedPlayer.CONTENT,
     },
     paperwork: [
+      DatabaseClient.prisma.shortlist.delete({
+        where: {
+          teamId_playerId: {
+            playerId: transfer.target.id,
+            teamId: transfer.from.id,
+          },
+        },
+      }),
       DatabaseClient.prisma.player.update({
         where: { id: transfer.target.id },
         data: {
@@ -2265,6 +2273,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
 
   // update team earnings
   return Promise.all([
+    Promise.resolve(WindowManager.sendAll(Constants.IPCRoute.SHORTLIST_UPDATE)),
     Promise.resolve(WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE)),
     DatabaseClient.prisma.team.update({
       where: {

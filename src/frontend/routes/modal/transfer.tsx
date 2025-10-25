@@ -10,10 +10,12 @@ import { useForm } from 'react-hook-form';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
+import { useTranslation } from '@liga/frontend/hooks';
 import { Image } from '@liga/frontend/components';
 import { XPBar } from '@liga/frontend/components/player-card';
 import {
   FaBan,
+  FaBookmark,
   FaCheck,
   FaDollarSign,
   FaExclamationTriangle,
@@ -52,32 +54,32 @@ const TransferStatusBadgeColor: Record<number, string> = {
 };
 
 /**
+ * @param playerId The player id.
+ * @function
+ */
+function fetchTransfers(playerId: number) {
+  return api.transfers.all({
+    where: {
+      target: {
+        id: playerId,
+      },
+    },
+    include: Eagers.transfer.include,
+  });
+}
+
+/**
  * Exports this module.
  *
  * @exports
  */
 export default function () {
   const location = useLocation();
+  const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState<Tab>();
   const [player, setPlayer] = React.useState<Player>();
   const [transfers, setTransfers] = React.useState<Array<Transfer>>();
-
-  // reusable transfers query
-  const transfersQuery = React.useMemo(() => {
-    if (!player) {
-      return;
-    }
-
-    return {
-      where: {
-        target: {
-          id: player.id,
-        },
-      },
-      include: Eagers.transfer.include,
-    };
-  }, [player]);
 
   // initial data fetch
   React.useEffect(() => {
@@ -93,16 +95,10 @@ export default function () {
         },
       })
       .then(setPlayer);
+
+    // fetch transfer history
+    fetchTransfers(location.state as number).then(setTransfers);
   }, []);
-
-  // grab player transfers
-  React.useEffect(() => {
-    if (!transfersQuery) {
-      return;
-    }
-
-    api.transfers.all(transfersQuery).then(setTransfers);
-  }, [transfersQuery]);
 
   // form setup
   const { register, formState, handleSubmit } = useForm({
@@ -134,7 +130,7 @@ export default function () {
           wages: data.wages,
         },
       )
-      .then(() => api.transfers.all(transfersQuery))
+      .then(() => fetchTransfers(player.id))
       .then(setTransfers);
   };
 
@@ -179,8 +175,17 @@ export default function () {
       return false;
     }
 
-    return state.profile.team.players.some((teammate) => teammate.id === player.id);
+    return state.profile.teamId === player.teamId;
   }, [player]);
+
+  // is this player already shortlisted?
+  const shortlisted = React.useMemo(() => {
+    if (!player) {
+      return false;
+    }
+
+    return state.shortlist.find((item) => item.playerId === player.id);
+  }, [player, state.shortlist]);
 
   // load player stats
   const xp = React.useMemo(() => {
@@ -243,8 +248,47 @@ export default function () {
         </section>
       </header>
       <section className="flex">
-        <figure className="center w-1/5 p-4">
+        <figure className="center w-1/5 gap-2 p-2">
           <Image src={player.avatar || 'resources://avatars/empty.png'} className="h-auto w-full" />
+          {!isTeammate && (
+            <figcaption>
+              {shortlisted ? (
+                <button
+                  className="btn btn-xs"
+                  title={t('shared.shortlistRemove')}
+                  onClick={() =>
+                    api.shortlist.delete({
+                      where: {
+                        teamId_playerId: {
+                          playerId: player.id,
+                          teamId: state.profile.teamId,
+                        },
+                      },
+                    })
+                  }
+                >
+                  <FaBookmark className="text-primary" />
+                  {t('shared.shortlisted')}
+                </button>
+              ) : (
+                <button
+                  className="btn btn-xs"
+                  title={t('shared.shortlistAdd')}
+                  onClick={() =>
+                    api.shortlist.create({
+                      data: {
+                        teamId: state.profile.teamId,
+                        playerId: player.id,
+                      },
+                    })
+                  }
+                >
+                  <FaBookmark className="text-muted" />
+                  {t('shared.shortlist')}
+                </button>
+              )}
+            </figcaption>
+          )}
         </figure>
         <table className="table table-fixed">
           <thead>
@@ -357,7 +401,7 @@ export default function () {
                           onClick={() =>
                             api.transfers
                               .accept(transfer.id)
-                              .then(() => api.transfers.all(transfersQuery))
+                              .then(() => fetchTransfers(player.id))
                               .then(setTransfers)
                           }
                         >
@@ -369,7 +413,7 @@ export default function () {
                           onClick={() =>
                             api.transfers
                               .reject(transfer.id)
-                              .then(() => api.transfers.all(transfersQuery))
+                              .then(() => fetchTransfers(player.id))
                               .then(setTransfers)
                           }
                         >

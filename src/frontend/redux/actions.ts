@@ -18,6 +18,7 @@ export enum ReduxActions {
   PROFILE_UPDATE,
   PROFILES_DELETE,
   PROFILES_UPDATE,
+  SHORTLIST_UPDATE,
   WINDOW_DATA_UPDATE,
   WORKING_UPDATE,
 }
@@ -169,6 +170,17 @@ export function profilesDelete(payload: AppState['profiles']) {
 export function profilesUpdate(payload: AppState['profiles']) {
   return {
     type: ReduxActions.PROFILES_UPDATE,
+    payload,
+  };
+}
+
+/**
+ * @param payload The redux payload.
+ * @function
+ */
+export function shortlistUpdate(payload: AppState['shortlist']) {
+  return {
+    type: ReduxActions.SHORTLIST_UPDATE,
     payload,
   };
 }

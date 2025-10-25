@@ -299,6 +299,7 @@ model Player {
 
   // has many
   matches             Match[]
+  shortlist           Shortlist[]
   transfers           Transfer[]
   assists             MatchEvent[]        @relation("assist")
   kills               MatchEvent[]        @relation("attacker")
@@ -332,6 +333,17 @@ model Profile {
   teamId              Int?                @unique
   player              Player?             @relation(fields: [playerId], references: [id])
   playerId            Int?                @unique
+}
+
+model Shortlist {
+  // composite key
+  @@id([teamId, playerId])
+
+  // belongs to
+  team                Team                @relation(fields: [teamId], references: [id])
+  teamId              Int
+  player              Player              @relation(fields: [playerId], references: [id])
+  playerId            Int
 }
 
 model Sponsor {
@@ -388,6 +400,7 @@ model Team {
   matches             MatchToTeam[]
   players             Player[]
   personas            Persona[]
+  shortlist           Shortlist[]
   sponsors            Sponsor[]
   sponsorships        Sponsorship[]
   transfersIn         Transfer[]          @relation("to")

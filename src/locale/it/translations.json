@@ -123,8 +123,6 @@
         "to": "Verso"
       },
       "squad": {
-        "acceptOffer": "Accetta Offerta",
-        "acceptOrReject": "Accetta/Rifiuta",
         "collapseAll": "Minimizza Tutto",
         "expandAll": "Espandi Tutto",
         "facilities": "Infrastrutture",
@@ -138,9 +136,7 @@
         "noTransferListed": "Tutto è tranquillo...",
         "noTransfers": "Tutto è tranquillo...",
         "offers": "offerte",
-        "playerName": "Nome Giocatore",
         "purchase": "Acquista",
-        "rejectOffer": "Rifiuta Offerta",
         "remove": "Rimuovi",
         "server": "Server",
         "serverName": "Nome Server",
@@ -242,8 +238,7 @@
     "playerCard": {
       "addToTransferList": "Aggiungi alla Lista Transferimenti",
       "setAsStarter": "Imposta come Titolare",
-      "totalXP": "XP Totale",
-      "viewOffers": "Vedi Offerte"
+      "totalXP": "XP Totale"
     },
     "sponsorCard": {
       "conditions": "Le condizioni di sopra si applicano su una base per-stagione.",
@@ -302,6 +297,10 @@
     "score": "Punteggio",
     "season": "Stagione",
     "settings": "Impostazioni",
+    "shortlist": "Shortlist",
+    "shortlisted": "Shortlisted",
+    "shortlistAdd": "Add to Shortlist",
+    "shortlistRemove": "Remove from Shortlist",
     "specialCharactersError": "Caratteri speciali non supportati.",
     "squad": "Squadra",
     "standings": "Classifica",
@@ -316,6 +315,7 @@
     "transferListed": "In Lista Trasferimenti",
     "type": "Tipo",
     "viewMatchDetails": "Vedi Dati Partita",
+    "viewOffers": "Vedi Offerte",
     "weaponPreference": "Armi Preferite",
     "you": "Questo sei tu"
   }

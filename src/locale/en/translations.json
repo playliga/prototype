@@ -123,8 +123,6 @@
         "to": "To"
       },
       "squad": {
-        "acceptOffer": "Accept Offer",
-        "acceptOrReject": "Accept/Reject",
         "collapseAll": "Collapse All",
         "expandAll": "Expand All",
         "facilities": "Facilities",
@@ -138,9 +136,7 @@
         "noTransferListed": "All is quiet...",
         "noTransfers": "All is quiet...",
         "offers": "offers",
-        "playerName": "Player Name",
         "purchase": "Purchase",
-        "rejectOffer": "Reject Offer",
         "remove": "Remove",
         "server": "Server",
         "serverName": "Server Name",
@@ -242,8 +238,7 @@
     "playerCard": {
       "addToTransferList": "Add to Transfer List",
       "setAsStarter": "Set as Starter",
-      "totalXP": "Total XP",
-      "viewOffers": "View Offers"
+      "totalXP": "Total XP"
     },
     "sponsorCard": {
       "conditions": "The above conditions apply on a per-season basis.",
@@ -302,6 +297,10 @@
     "score": "Score",
     "season": "Season",
     "settings": "Settings",
+    "shortlist": "Shortlist",
+    "shortlisted": "Shortlisted",
+    "shortlistAdd": "Add to Shortlist",
+    "shortlistRemove": "Remove from Shortlist",
     "specialCharactersError": "Special characters not supported.",
     "squad": "Squad",
     "standings": "Standings",
@@ -316,6 +315,7 @@
     "transferListed": "Transfer Listed",
     "type": "Type",
     "viewMatchDetails": "View Match Details",
+    "viewOffers": "View Offers",
     "weaponPreference": "Weapon Preference",
     "you": "This is you"
   }

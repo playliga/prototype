@@ -224,6 +224,16 @@ export default {
       >,
     delete: (id: number) => ipcRenderer.invoke(Constants.IPCRoute.SAVES_DELETE, id),
   },
+  shortlist: {
+    all: <T = typeof Eagers.shortlist>(query?: Prisma.ShortlistFindManyArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.SHORTLIST_ALL, query) as Promise<
+        Array<Prisma.ShortlistGetPayload<T>>
+      >,
+    create: (query: Prisma.ShortlistCreateArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.SHORTLIST_CREATE, query),
+    delete: (query: Prisma.ShortlistDeleteArgs) =>
+      ipcRenderer.invoke(Constants.IPCRoute.SHORTLIST_DELETE, query),
+  },
   sponsors: {
     all: <T = typeof Eagers.sponsor>(query?: Prisma.SponsorFindManyArgs) =>
       ipcRenderer.invoke(Constants.IPCRoute.SPONSORS_ALL, query) as Promise<
