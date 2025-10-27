@@ -1,3 +1,9 @@
+## [3.0.0-beta.72](https://github.com/playliga/prototype/compare/v3.0.0-beta.71...v3.0.0-beta.72) (2025-10-27)
+
+### Bug Fixes
+
+- fix issues with transfers caused by shortlist feature ([#539](https://github.com/playliga/prototype/issues/539)) ([ef15870](https://github.com/playliga/prototype/commit/ef15870971656270d098104f25bab68d374553f5))
+
 ## [3.0.0-beta.71](https://github.com/playliga/prototype/compare/v3.0.0-beta.70...v3.0.0-beta.71) (2025-10-25)
 
 ### Features
