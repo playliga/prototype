@@ -475,12 +475,10 @@ function parsePlayerTransferOffer(
       content: locale.templates.OfferAcceptedPlayer.CONTENT,
     },
     paperwork: [
-      DatabaseClient.prisma.shortlist.delete({
+      DatabaseClient.prisma.shortlist.deleteMany({
         where: {
-          teamId_playerId: {
-            playerId: transfer.target.id,
-            teamId: transfer.from.id,
-          },
+          playerId: transfer.target.id,
+          teamId: transfer.from.id,
         },
       }),
       DatabaseClient.prisma.player.update({
