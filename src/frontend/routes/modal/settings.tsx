@@ -30,7 +30,7 @@ export default function () {
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState(Tab.GENERAL);
-  const [settings, setSettings] = React.useState(Constants.Settings);
+  const [settings, setSettings] = React.useState(Util.loadSettings(state.profile.settings));
   const [appStatus, setAppStatus] = React.useState<NodeJS.ErrnoException>();
   const [mapPool, setMapPool] = React.useState<Awaited<ReturnType<typeof api.mapPool.find>>>([]);
 
@@ -40,12 +40,35 @@ export default function () {
       return;
     }
 
-    setSettings(Util.loadSettings(state.profile.settings));
+    const localSettings = Util.loadSettings(state.profile.settings);
+
+    // if paths are not explicitly initialized then
+    // we detect steam and game paths together
+    // which avoids a race-condition
+    if (localSettings.general.steamPath === null || localSettings.general.gamePath === null) {
+      Promise.all([api.app.detectSteam(), api.app.detectGame(localSettings.general.game)]).then(
+        ([steamPath, gamePath]) => {
+          const modified = cloneDeep(localSettings);
+          modified.general.steamPath = steamPath;
+          modified.general.gamePath = gamePath;
+          setSettings(modified);
+        },
+      );
+      return;
+    }
+
+    setSettings(localSettings);
   }, [state.profile]);
 
   // validate game installation path
   React.useEffect(() => {
-    api.app.status().then((status) => !!status && setAppStatus(JSON.parse(status)));
+    // if paths are not explicitly initialized
+    // then we won't send a status check yet
+    if (settings.general.steamPath === null || settings.general.gamePath === null) {
+      return;
+    }
+
+    api.app.status(settings).then((status) => setAppStatus(status ? JSON.parse(status) : null));
 
     // we also want to fetch a new map pool
     api.mapPool

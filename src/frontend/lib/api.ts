@@ -201,11 +201,14 @@ export default {
       >,
   },
   profiles: {
-    create: (data: {
-      user?: Partial<Prisma.PlayerGetPayload<unknown>>;
-      team?: Partial<Prisma.TeamGetPayload<unknown>>;
-      today?: Date;
-    }) => ipcRenderer.invoke(Constants.IPCRoute.PROFILES_CREATE, data) as Promise<Profile>,
+    create: (
+      data: {
+        user?: Partial<Prisma.PlayerGetPayload<unknown>>;
+        team?: Partial<Prisma.TeamGetPayload<unknown>>;
+        today?: Date;
+      },
+      settings?: string,
+    ) => ipcRenderer.invoke(Constants.IPCRoute.PROFILES_CREATE, data, settings) as Promise<Profile>,
     current: <T = typeof Eagers.profile>() =>
       ipcRenderer.invoke(Constants.IPCRoute.PROFILES_CURRENT) as Promise<
         Prisma.ProfileGetPayload<T>

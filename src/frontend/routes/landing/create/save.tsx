@@ -31,7 +31,7 @@ export default function () {
 
       // create the user's new profile
       .then(() => Promise.resolve(setStatus(t('landing.create.statusSaving'))))
-      .then(() => api.profiles.create(windowData))
+      .then(() => api.profiles.create(windowData, state.profile.settings))
 
       // create calendar entry to start the season and
       // advance by one day to generate the world

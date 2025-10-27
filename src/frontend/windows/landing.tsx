@@ -16,6 +16,7 @@ import {
   continentsUpdate,
   localeUpdate,
   profilesUpdate,
+  profileUpdate,
 } from '@liga/frontend/redux/actions';
 import { VideoBackground } from '@liga/frontend/components';
 import '@liga/frontend/assets/styles.css';
@@ -96,6 +97,7 @@ function Root() {
   const { dispatch } = React.useContext(AppStateContext);
 
   React.useEffect(() => {
+    api.profiles.current().then((profile) => dispatch(profileUpdate(profile)));
     api.app.info().then((appInfo) => dispatch(appInfoUpdate(appInfo)));
     api.saves
       .all()

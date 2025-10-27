@@ -51,6 +51,13 @@ export default function () {
       type: 'divider',
     },
     {
+      label: t('shared.settings'),
+      onClick: () =>
+        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+          target: '/settings',
+        }),
+    },
+    {
       label: t('shared.quit'),
       onClick: () =>
         api.app
@@ -98,11 +105,11 @@ export default function () {
         {actions.map((item, idx) => {
           switch (item.type) {
             case 'divider':
-              return <span key={item?.type + idx} className="divider mt-0 mb-0" />;
+              return <span key={item.type + idx} className="divider mt-0 mb-0" />;
             default:
               return (
                 <button
-                  key={item.path}
+                  key={item.label}
                   disabled={item.disabled}
                   onClick={item.onClick ? item.onClick : () => navigate(item.path)}
                   className="btn btn-ghost btn-md btn-block"

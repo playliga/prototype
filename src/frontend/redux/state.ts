@@ -27,9 +27,9 @@ export interface AppState {
   profiles: Array<AppState['profile']>;
   shortlist: Awaited<ReturnType<typeof api.shortlist.all<typeof Eagers.shortlist>>>;
   windowData: Partial<{
-    [Constants.WindowIdentifier.Landing]: Parameters<typeof api.profiles.create>[number];
+    [Constants.WindowIdentifier.Landing]: Parameters<typeof api.profiles.create>[0];
     [Constants.WindowIdentifier.Modal]: Pick<
-      Parameters<typeof api.profiles.create>[number]['team'],
+      Parameters<typeof api.profiles.create>[0]['team'],
       'name' | 'blazon'
     >;
   }>;

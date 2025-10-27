@@ -72,207 +72,217 @@ export default function () {
   });
 
   // profile management handlers
-  ipcMain.handle(Constants.IPCRoute.PROFILES_CREATE, async (_, data: ProfileCreateIPCPayload) => {
-    // grab free xp bonuses to assign to user's profile
-    const bonuses = await DatabaseClient.prisma.bonus.findMany({
-      where: {
-        cost: null,
-      },
-    });
+  ipcMain.handle(
+    Constants.IPCRoute.PROFILES_CREATE,
+    async (_, data: ProfileCreateIPCPayload, settingsOverride?: string) => {
+      // grab free xp bonuses to assign to user's profile
+      const bonuses = await DatabaseClient.prisma.bonus.findMany({
+        where: {
+          cost: null,
+        },
+      });
 
-    // grab free agents for the user's team from their chosen federation
-    const country = await DatabaseClient.prisma.country.findFirst({
-      where: {
-        id: data.team.countryId,
-      },
-      include: {
-        continent: true,
-      },
-    });
-    const freeAgents = await DatabaseClient.prisma.player.findMany({
-      where: {
-        teamId: null,
-        country: {
-          continent: {
-            federationId: country.continent.federationId,
+      // grab free agents for the user's team from their chosen federation
+      const country = await DatabaseClient.prisma.country.findFirst({
+        where: {
+          id: data.team.countryId,
+        },
+        include: {
+          continent: true,
+        },
+      });
+      const freeAgents = await DatabaseClient.prisma.player.findMany({
+        where: {
+          teamId: null,
+          country: {
+            continent: {
+              federationId: country.continent.federationId,
+            },
           },
         },
-      },
-    });
-    const squad = sampleSize(freeAgents, Constants.Application.SQUAD_MIN_LENGTH);
+      });
+      const squad = sampleSize(freeAgents, Constants.Application.SQUAD_MIN_LENGTH);
 
-    // save the user's profile, team, and create their player
-    const profile = await DatabaseClient.prisma.profile.create({
-      data: {
-        name: data.team.name,
-        date: data.today.toISOString(),
-        settings: JSON.stringify(Constants.Settings),
-        bonuses: {
-          connect: bonuses,
+      // update the default profile
+      const profile = await DatabaseClient.prisma.profile.findFirst();
+      await DatabaseClient.prisma.profile.update({
+        where: {
+          id: profile.id,
         },
-      },
-    });
-    const team = await DatabaseClient.prisma.team.create({
-      data: {
-        name: data.team.name,
-        slug: data.team.name,
-        blazon: data.team.blazon,
-        prestige: Constants.Prestige.findIndex(
-          (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
-        ),
-        tier: Constants.Prestige.findIndex(
-          (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
-        ),
-        country: {
-          connect: {
-            id: data.team.countryId,
+        data: {
+          name: data.team.name,
+          date: data.today.toISOString(),
+          bonuses: {
+            connect: bonuses,
           },
         },
-        players: {
-          connect: squad.map((player: Prisma.PlayerGetPayload<unknown>) => ({
-            id: player.id,
-          })),
-          create: [
-            {
-              name: data.user.name,
-              avatar: data.user.avatar,
-              profile: {
-                connect: {
-                  id: profile.id,
+      });
+
+      // create the user's team and player records
+      const team = await DatabaseClient.prisma.team.create({
+        data: {
+          name: data.team.name,
+          slug: data.team.name,
+          blazon: data.team.blazon,
+          prestige: Constants.Prestige.findIndex(
+            (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
+          ),
+          tier: Constants.Prestige.findIndex(
+            (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
+          ),
+          country: {
+            connect: {
+              id: data.team.countryId,
+            },
+          },
+          players: {
+            connect: squad.map((player: Prisma.PlayerGetPayload<unknown>) => ({
+              id: player.id,
+            })),
+            create: [
+              {
+                name: data.user.name,
+                avatar: data.user.avatar,
+                profile: {
+                  connect: {
+                    id: profile.id,
+                  },
+                },
+                country: {
+                  connect: {
+                    id: data.user.countryId,
+                  },
                 },
               },
-              country: {
-                connect: {
-                  id: data.user.countryId,
-                },
+            ],
+          },
+          personas: {
+            create: [
+              {
+                name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+                role: Constants.PersonaRole.ASSISTANT,
               },
+            ],
+          },
+          profile: {
+            connect: {
+              id: profile.id,
             },
-          ],
+          },
         },
-        personas: {
-          create: [
-            {
-              name: `${faker.name.firstName()} ${faker.name.lastName()}`,
-              role: Constants.PersonaRole.ASSISTANT,
+      });
+
+      // set the starters
+      await DatabaseClient.prisma.player.updateMany({
+        where: {
+          id: {
+            in: squad
+              .slice(0, Constants.Application.SQUAD_MIN_LENGTH - 1)
+              .map((player) => player.id),
+          },
+        },
+        data: {
+          starter: true,
+        },
+      });
+
+      // make sure squad is not transfer listed
+      await DatabaseClient.prisma.player.updateMany({
+        where: {
+          id: {
+            in: squad.map((player) => player.id),
+          },
+        },
+        data: {
+          transferListed: false,
+        },
+      });
+
+      // replace an existing team with user's team so
+      // they get picked up by the autofill module
+      //
+      // grab teams from same federation as user's team
+      const [continent] = await DatabaseClient.prisma.continent.findMany({
+        where: {
+          countries: {
+            some: {
+              id: team.countryId,
             },
-          ],
-        },
-        profile: {
-          connect: {
-            id: profile.id,
           },
         },
-      },
-    });
-
-    // set the starters
-    await DatabaseClient.prisma.player.updateMany({
-      where: {
-        id: {
-          in: squad.slice(0, Constants.Application.SQUAD_MIN_LENGTH - 1).map((player) => player.id),
+        include: {
+          federation: true,
         },
-      },
-      data: {
-        starter: true,
-      },
-    });
-
-    // make sure squad is not transfer listed
-    await DatabaseClient.prisma.player.updateMany({
-      where: {
-        id: {
-          in: squad.map((player) => player.id),
+      });
+      const teams = await DatabaseClient.prisma.team.findMany({
+        select: {
+          id: true,
+          name: true,
         },
-      },
-      data: {
-        transferListed: false,
-      },
-    });
-
-    // replace an existing team with user's team so
-    // they get picked up by the autofill module
-    //
-    // grab teams from same federation as user's team
-    const [continent] = await DatabaseClient.prisma.continent.findMany({
-      where: {
-        countries: {
-          some: {
-            id: team.countryId,
+        where: {
+          id: {
+            not: team.id,
+          },
+          tier: Constants.Prestige.findIndex(
+            (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
+          ),
+          country: {
+            continent: {
+              federationId: continent.federationId,
+            },
           },
         },
-      },
-      include: {
-        federation: true,
-      },
-    });
-    const teams = await DatabaseClient.prisma.team.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-      where: {
-        id: {
-          not: team.id,
+      });
+
+      // pick a random team and set their prestige and tier to null
+      const teamToReplace = sample(teams);
+      log.info(
+        'replacing %s from %s. total teams: %d',
+        teamToReplace.name,
+        continent.federation.name,
+        teams.length,
+      );
+
+      await DatabaseClient.prisma.team.update({
+        where: {
+          id: teamToReplace.id,
         },
-        tier: Constants.Prestige.findIndex(
-          (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
-        ),
-        country: {
-          continent: {
-            federationId: continent.federationId,
-          },
+        data: {
+          prestige: null,
+          tier: null,
         },
-      },
-    });
+      });
 
-    // pick a random team and set their prestige and tier to null
-    const teamToReplace = sample(teams);
-    log.info(
-      'replacing %s from %s. total teams: %d',
-      teamToReplace.name,
-      continent.federation.name,
-      teams.length,
-    );
+      // discover steam path
+      const settings = Util.loadSettings(settingsOverride || profile.settings);
 
-    await DatabaseClient.prisma.team.update({
-      where: {
-        id: teamToReplace.id,
-      },
-      data: {
-        prestige: null,
-        tier: null,
-      },
-    });
-
-    // discover steam path
-    const settings = Util.loadSettings(profile.settings);
-
-    if (!settings.general.steamPath) {
-      try {
-        settings.general.steamPath = await Game.discoverSteamPath();
-      } catch (error) {
-        log.warn(error.message);
+      if (!settings.general.steamPath) {
+        try {
+          settings.general.steamPath = await Game.discoverSteamPath();
+        } catch (error) {
+          log.warn(error.message);
+        }
       }
-    }
 
-    // discover game path only if steam is installed
-    if (settings.general.steamPath && !settings.general.gamePath) {
-      try {
-        settings.general.gamePath = await Game.discoverGamePath(
-          settings.general.game,
-          settings.general.steamPath,
-        );
-      } catch (error) {
-        log.warn(error.message);
+      // discover game path only if steam is installed
+      if (settings.general.steamPath && !settings.general.gamePath) {
+        try {
+          settings.general.gamePath = await Game.discoverGamePath(
+            settings.general.game,
+            settings.general.steamPath,
+          );
+        } catch (error) {
+          log.warn(error.message);
+        }
       }
-    }
 
-    // update the settings
-    return DatabaseClient.prisma.profile.update({
-      where: { id: profile.id },
-      data: { settings: JSON.stringify(settings) },
-    });
-  });
+      // update the settings
+      return DatabaseClient.prisma.profile.update({
+        where: { id: profile.id },
+        data: { settings: JSON.stringify(settings) },
+      });
+    },
+  );
   ipcMain.handle(Constants.IPCRoute.PROFILES_CURRENT, () =>
     DatabaseClient.prisma.profile.findFirst(),
   );
@@ -391,8 +401,8 @@ export default function () {
     await DatabaseClient.disconnect();
     await DatabaseClient.connect();
 
-    // filter out null values from saves list
-    return Promise.resolve(saves.filter((save) => !!save));
+    // filter out null values from saves list and the root save
+    return Promise.resolve(saves.filter((save) => !!save && save.id !== 0));
   });
   ipcMain.handle(Constants.IPCRoute.SAVES_DELETE, (_, id: number) => {
     const dbFileName = Util.getSaveFileName(id);
