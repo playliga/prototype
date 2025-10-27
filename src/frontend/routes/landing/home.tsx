@@ -26,7 +26,10 @@ export default function () {
 
   // build the action menu
   const actions = [
-    { path: '/create', label: t('landing.home.create') },
+    {
+      path: '/create',
+      label: t('landing.home.create'),
+    },
     {
       path: '/load',
       label: t('landing.home.load'),
@@ -35,6 +38,31 @@ export default function () {
     {
       path: '/exhibition',
       label: t('landing.home.exhibition'),
+    },
+    {
+      label: t('landing.home.mods'),
+      onClick: () =>
+        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+          target: '/mods',
+          payload: { parentId: Constants.WindowIdentifier.Landing },
+        }),
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: t('shared.quit'),
+      onClick: () =>
+        api.app
+          .messageBox(Constants.WindowIdentifier.Landing, {
+            type: 'question',
+            message: 'Are you sure you want to quit the application?',
+            buttons: ['Quit', 'Cancel'],
+          })
+          .then((data) => data.response === 0 && api.app.quit()),
+    },
+    {
+      type: 'divider',
     },
   ];
 
@@ -67,45 +95,25 @@ export default function () {
             </article>
           </section>
         )}
-        {actions.map((item) => (
-          <button
-            key={item.path}
-            disabled={item.disabled}
-            onClick={() => navigate(item.path)}
-            className="btn btn-ghost btn-md btn-block"
-          >
-            {item.label}
-          </button>
-        ))}
-        <button
-          className="btn btn-ghost btn-md btn-block"
-          onClick={() =>
-            api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-              target: '/mods',
-              payload: { parentId: Constants.WindowIdentifier.Landing },
-            })
+        {actions.map((item, idx) => {
+          switch (item.type) {
+            case 'divider':
+              return <span key={item?.type + idx} className="divider mt-0 mb-0" />;
+            default:
+              return (
+                <button
+                  key={item.path}
+                  disabled={item.disabled}
+                  onClick={item.onClick ? item.onClick : () => navigate(item.path)}
+                  className="btn btn-ghost btn-md btn-block"
+                >
+                  {item.label}
+                </button>
+              );
           }
-        >
-          {t('landing.home.mods')}
-        </button>
-        <span className="divider mt-0 mb-0" />
-        <button
-          className="btn btn-ghost btn-md btn-block"
-          onClick={() =>
-            api.app
-              .messageBox(Constants.WindowIdentifier.Landing, {
-                type: 'question',
-                message: 'Are you sure you want to quit the application?',
-                buttons: ['Quit', 'Cancel'],
-              })
-              .then((data) => data.response === 0 && api.app.quit())
-          }
-        >
-          {t('shared.quit')}
-        </button>
+        })}
       </nav>
       <footer className="w-full px-2">
-        <span className="divider mt-0 mb-0" />
         <p>
           <small>{'v' + state.appInfo?.version}</small>
         </p>
