@@ -34,10 +34,12 @@ export default function () {
   const [squad, setSquad] = React.useState<
     Awaited<ReturnType<typeof api.players.all<typeof Eagers.player>>>
   >([]);
+  const [worldRanking, setWorldRanking] = React.useState<number>(0);
 
   // fetch data when team changes
   React.useEffect(() => {
     api.matches.previous(Eagers.match, team.id, NUM_PREVIOUS).then(setMatches);
+    api.team.worldRanking(team.id).then(setWorldRanking);
     api.competitions
       .find({
         ...Eagers.competition,
@@ -111,7 +113,7 @@ export default function () {
           <h2>{t('shared.overview')}</h2>
         </header>
         <aside className="divide-base-content/10 flex divide-x">
-          <figure className="center w-1/2 place-content-evenly!">
+          <figure className="center w-1/2 gap-4">
             <img alt={team.name} src={team.blazon} />
             <Historial matches={matches} teamId={team.id} />
           </figure>
@@ -151,6 +153,19 @@ export default function () {
                     <span>{Util.toOrdinalSuffix(userTeam?.position)} in&nbsp;</span>
                   )}
                   {Constants.IdiomaticTier[competition.tier.slug]}
+                </td>
+              </tr>
+            </tbody>
+            <thead>
+              <tr>
+                <th>{t('shared.worldRanking')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span>#{worldRanking}</span>&nbsp;
+                  <span className="text-muted">({team.elo} Elo Rating)</span>
                 </td>
               </tr>
             </tbody>

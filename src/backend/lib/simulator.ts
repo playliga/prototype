@@ -95,18 +95,6 @@ export class Score {
   }
 
   /**
-   * Gets the expected score value using the Elo formula.
-   *
-   * @param ratingA Expected score for Team A.
-   * @param ratingB Expected score for Team B.
-   * @param scaling Scaling factor for rating differences.
-   * @function
-   */
-  private getEloWinProbability(ratingA: number, ratingB: number, scaling = 400): number {
-    return 1 / (1 + Math.pow(10, (ratingB - ratingA) / scaling));
-  }
-
-  /**
    * Generates a win probability weight based off of the
    * conditions described in the `simulate` function.
    *
@@ -189,7 +177,7 @@ export class Score {
     // calculate probability weight for team
     const homeRating = this.getTeamWinProbability(home);
     const awayRating = this.getTeamWinProbability(away);
-    const homeWinPbx = this.getEloWinProbability(
+    const homeWinPbx = Util.getEloWinProbability(
       homeRating,
       awayRating,
       getSimScaleFactor() ?? Constants.Application.SIMULATION_SCALING_FACTOR,

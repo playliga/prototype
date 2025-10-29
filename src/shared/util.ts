@@ -374,3 +374,27 @@ export function getCompetitionLogo(
 
   return `${protocol}${slug}-${federationSlug}.png`;
 }
+
+/**
+ * Gets the expected score value using the Elo formula.
+ *
+ * @param ratingA Expected score for Team A.
+ * @param ratingB Expected score for Team B.
+ * @param scaling Scaling factor for rating differences.
+ * @function
+ */
+export function getEloWinProbability(ratingA: number, ratingB: number, scaling = 400): number {
+  return 1 / (1 + Math.pow(10, (ratingB - ratingA) / scaling));
+}
+
+/**
+ * Gets the delta for a player's Elo rating.
+ *
+ * @param actualScore     The actual score.
+ * @param expectedScore   The expected score.
+ * @param k               The K-factor.
+ * @function
+ */
+export function getEloRatingDelta(actualScore: number, expectedScore: number, k = 32) {
+  return k * (actualScore - expectedScore);
+}

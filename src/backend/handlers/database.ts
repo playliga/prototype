@@ -128,6 +128,9 @@ export default function () {
   ipcMain.handle(Constants.IPCRoute.PLAYERS_FIND, (_, query: Prisma.PlayerFindFirstArgs) =>
     DatabaseClient.prisma.player.findFirst(query),
   );
+  ipcMain.handle(Constants.IPCRoute.TEAM_RANKING, async (_, id: number) =>
+    DatabaseClient.prisma.team.getWorldRanking(id),
+  );
   ipcMain.handle(Constants.IPCRoute.TEAMS_ALL, (_, query?: Prisma.TeamFindManyArgs) =>
     DatabaseClient.prisma.team.findMany(query),
   );

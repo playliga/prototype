@@ -393,6 +393,10 @@ model Team {
   prestige            Int?
   blazon              String?
   tier                Int?
+  elo                 Int?                @default(1000)
+
+  // improves sorting performance
+  @@index([elo, id])
 
   // has many
   competitions        CompetitionToTeam[]

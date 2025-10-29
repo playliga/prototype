@@ -9,6 +9,7 @@ import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { useTranslation } from '@liga/frontend/hooks';
+import { Image } from '@liga/frontend/components';
 import { findTeamOptionByValue, TeamSelect } from '@liga/frontend/components/select';
 
 /** @enum */
@@ -39,6 +40,7 @@ export default function () {
     Awaited<ReturnType<typeof api.teams.all<typeof Eagers.team>>>
   >([]);
   const [team, setTeam] = React.useState<(typeof teams)[number]>();
+  const [rankings, setRankings] = React.useState<typeof teams>([]);
 
   // build team query
   const teamQuery = React.useMemo(
@@ -53,6 +55,19 @@ export default function () {
   React.useEffect(() => {
     api.federations.all().then(setFederations);
     api.teams.all<typeof Eagers.team>(Eagers.team).then(setTeams);
+    api.teams
+      .all<typeof Eagers.team>({
+        ...Eagers.team,
+        orderBy: {
+          elo: 'desc',
+        },
+        where: {
+          tier: {
+            not: null,
+          },
+        },
+      })
+      .then(setRankings);
   }, []);
 
   // preload the user's team
@@ -110,81 +125,123 @@ export default function () {
         </button>
       </header>
       <main>
-        <form className="form-ios form-ios-col-2">
-          <fieldset>
-            <legend className="border-t-0!">{t('shared.filters')}</legend>
-            <section>
-              <header>
-                <p>{t('shared.federation')}</p>
-              </header>
-              <article>
-                <select
-                  className="select"
-                  onChange={(event) => setSelectedFederationId(Number(event.target.value))}
-                  value={selectedFederationId}
-                >
-                  <option value="">{t('shared.any')}</option>
-                  {federations
-                    .filter(
-                      (federation) => federation.slug !== Constants.FederationSlug.ESPORTS_WORLD,
-                    )
-                    .map((federation) => (
-                      <option key={federation.id} value={federation.id}>
-                        {federation.name}
+        <section>
+          <form className="form-ios form-ios-col-2">
+            <fieldset>
+              <legend className="border-t-0!">{t('shared.filters')}</legend>
+              <section>
+                <header>
+                  <p>{t('shared.federation')}</p>
+                </header>
+                <article>
+                  <select
+                    className="select"
+                    onChange={(event) => setSelectedFederationId(Number(event.target.value))}
+                    value={selectedFederationId}
+                  >
+                    <option value="">{t('shared.any')}</option>
+                    {federations
+                      .filter(
+                        (federation) => federation.slug !== Constants.FederationSlug.ESPORTS_WORLD,
+                      )
+                      .map((federation) => (
+                        <option key={federation.id} value={federation.id}>
+                          {federation.name}
+                        </option>
+                      ))}
+                  </select>
+                </article>
+              </section>
+              <section>
+                <header>
+                  <p>{t('shared.tierPrestige')}</p>
+                </header>
+                <article>
+                  <select
+                    className="select"
+                    onChange={(event) => setSelectedTierId(Number(event.target.value))}
+                    value={selectedTierId}
+                  >
+                    <option value="">{t('shared.any')}</option>
+                    {Constants.Prestige.map((prestige, prestigeId) => (
+                      <option key={prestige} value={prestigeId}>
+                        {Constants.IdiomaticTier[prestige]}
                       </option>
                     ))}
-                </select>
-              </article>
-            </section>
-            <section>
-              <header>
-                <p>{t('shared.tierPrestige')}</p>
-              </header>
-              <article>
-                <select
-                  className="select"
-                  onChange={(event) => setSelectedTierId(Number(event.target.value))}
-                  value={selectedTierId}
+                  </select>
+                </article>
+              </section>
+              <section>
+                <header>
+                  <p>{t('shared.team')}</p>
+                </header>
+                <article>
+                  <TeamSelect
+                    className="w-full"
+                    backgroundColor="var(--color-base-200)"
+                    options={teamSelectorData}
+                    value={selectedTeam}
+                    onChange={(option) =>
+                      setSelectedTeam(findTeamOptionByValue(teamSelectorData, option.value))
+                    }
+                  />
+                </article>
+              </section>
+            </fieldset>
+            <fieldset>
+              <section>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-block col-span-2!"
+                  disabled={selectedFederationId < 0 || selectedTierId < 0 || !selectedTeam}
+                  onClick={() => setTeam(teams.find((tteam) => tteam.id === selectedTeam.id))}
                 >
-                  <option value="">{t('shared.any')}</option>
-                  {Constants.Prestige.map((prestige, prestigeId) => (
-                    <option key={prestige} value={prestigeId}>
-                      {Constants.IdiomaticTier[prestige]}
-                    </option>
+                  {t('shared.apply')}
+                </button>
+              </section>
+            </fieldset>
+          </form>
+          <article className="stack-y gap-0!">
+            <header className="prose">
+              <h2>{t('shared.worldRanking')}</h2>
+            </header>
+            <footer>
+              <table className="table table-fixed">
+                <thead>
+                  <tr>
+                    <th className="w-10" />
+                    <th className="w-10" />
+                    <th>{t('shared.name')}</th>
+                    <th className="text-center">Elo Rating</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rankings.map((teamRank, rank) => (
+                    <tr
+                      key={teamRank.id + '__ranking'}
+                      className={cx(
+                        'cursor-pointer',
+                        teamRank.id === team?.id && 'bg-base-content/10',
+                      )}
+                      onClick={() => setTeam(teamRank)}
+                    >
+                      <td className="px-0 text-center">#{rank + 1}</td>
+                      <td className="px-0">
+                        <Image
+                          src={teamRank.blazon}
+                          title={teamRank.name}
+                          className="mx-auto size-8 object-cover"
+                        />
+                      </td>
+                      <td className="truncate">{teamRank.name}</td>
+                      <td className="text-center">{teamRank.elo}</td>
+                    </tr>
                   ))}
-                </select>
-              </article>
-            </section>
-            <section>
-              <header>
-                <p>{t('shared.team')}</p>
-              </header>
-              <article>
-                <TeamSelect
-                  className="w-full"
-                  backgroundColor="var(--color-base-200)"
-                  options={teamSelectorData}
-                  value={selectedTeam}
-                  onChange={(option) =>
-                    setSelectedTeam(findTeamOptionByValue(teamSelectorData, option.value))
-                  }
-                />
-              </article>
-            </section>
-          </fieldset>
-          <fieldset>
-            <section>
-              <button
-                type="button"
-                className="btn btn-primary btn-block col-span-2!"
-                disabled={selectedFederationId < 0 || selectedTierId < 0 || !selectedTeam}
-                onClick={() => setTeam(teams.find((tteam) => tteam.id === selectedTeam.id))}
-              >
-                {t('shared.apply')}
-              </button>
-            </section>
-          </fieldset>
-        </form>
+                </tbody>
+              </table>
+            </footer>
+          </article>
+        </section>
         {!team && (
           <section className="center h-full">
             <span className="loading loading-bars" />

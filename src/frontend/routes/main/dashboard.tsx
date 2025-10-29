@@ -117,6 +117,7 @@ export default function () {
   >([]);
   const [matchHistorial, setMatchHistorial] = React.useState<Array<typeof upcoming>>([[], []]);
   const [previous, setPrevious] = React.useState<typeof upcoming>([]);
+  const [worldRankings, setWorldRankings] = React.useState<Array<number>>([]);
 
   // load settings
   React.useEffect(() => {
@@ -136,7 +137,7 @@ export default function () {
     api.matches.upcoming(Eagers.match, NUM_UPCOMING).then(setUpcoming);
   }, [state.profile]);
 
-  // fetch match historial for match preview
+  // fetch match facts for spotlight
   React.useEffect(() => {
     const [nextMatch] = upcoming.slice(0, 1);
 
@@ -144,11 +145,17 @@ export default function () {
       return;
     }
 
+    // match historial
     Promise.all(
       nextMatch.competitors.map((competitor) =>
         api.matches.previous(Eagers.match, competitor.teamId),
       ),
     ).then(setMatchHistorial);
+
+    // world rankings
+    Promise.all(
+      nextMatch.competitors.map((competitor) => api.team.worldRanking(competitor.teamId)),
+    ).then(setWorldRankings);
   }, [upcoming]);
 
   // fetch previous matches if no upcoming matches
@@ -501,6 +508,7 @@ export default function () {
             const disabled = state.working || !isMatchday;
             const [home, away] = spotlight.competitors;
             const [homeHistorial, awayHistorial] = matchHistorial;
+            const [homeWorldRanking, awayWorldRanking] = worldRankings;
             const [homeSuffix, awaySuffix] = [home, away].map((competitor) => {
               if (!spotlight.competition.tier.groupSize) {
                 return Constants.IdiomaticTier[Constants.Prestige[competitor.team.tier]];
@@ -543,7 +551,10 @@ export default function () {
                       <img src={home.team.blazon} className="h-24 w-auto" />
                       <Historial matches={homeHistorial} teamId={home.teamId} />
                       <div className="text-center">
-                        <p>{home.team.name}</p>
+                        <p>
+                          {home.team.name}&nbsp;
+                          <small title={t('shared.worldRanking')}>(#{homeWorldRanking || 0})</small>
+                        </p>
                         <p>
                           <small>{homeSuffix}</small>
                         </p>
@@ -592,7 +603,10 @@ export default function () {
                       <img src={away.team.blazon} className="h-24 w-auto" />
                       <Historial matches={awayHistorial} teamId={away.teamId} />
                       <div className="text-center">
-                        <p>{away.team.name}</p>
+                        <p>
+                          {away.team.name}&nbsp;
+                          <small title="World Ranking">(#{awayWorldRanking || 0})</small>
+                        </p>
                         <p>
                           <small>{awaySuffix}</small>
                         </p>

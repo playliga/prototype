@@ -324,6 +324,7 @@ export enum IPCRoute {
   SQUAD_ALL = '/squad/all',
   SQUAD_UPDATE = '/squad/update',
   SQUAD_RELEASE_PLAYER = '/squad/release/player',
+  TEAM_RANKING = '/team/ranking',
   TEAMS_ALL = '/teams/all',
   TEAMS_CREATE = '/teams/create',
   TEAMS_UPDATE = '/teams/update',
@@ -795,6 +796,30 @@ export const Awards = [
     start: 1,
   },
 ];
+
+/**
+ * Elo actual score values.
+ *
+ * @constant
+ */
+export const EloScore = {
+  [MatchResult.WIN]: 1.0,
+  [MatchResult.DRAW]: 0.5,
+  [MatchResult.LOSS]: 0,
+};
+
+/**
+ * Elo ratings per tier.
+ *
+ * @constant
+ */
+export const EloRatings: Partial<Record<TierSlug, number>> = {
+  [TierSlug.LEAGUE_OPEN]: 1000,
+  [TierSlug.LEAGUE_INTERMEDIATE]: 1250,
+  [TierSlug.LEAGUE_MAIN]: 1500,
+  [TierSlug.LEAGUE_ADVANCED]: 1750,
+  [TierSlug.LEAGUE_PREMIER]: 2000,
+};
 
 /**
  * Game settings.

@@ -269,6 +269,7 @@
     "delete": "Apagar",
     "description": "Descrição",
     "details": "Detalhes",
+    "eloRating": "Elo Rating",
     "federation": "Federação",
     "filters": "Filtros",
     "finish": "Fim",
@@ -317,6 +318,7 @@
     "viewMatchDetails": "Ver detalhes da partida",
     "viewOffers": "Ver ofertas",
     "weaponPreference": "Arma preferida",
+    "worldRanking": "World Ranking",
     "you": "Esse é você"
   }
 }

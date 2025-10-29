@@ -1970,23 +1970,49 @@ export async function onMatchdayNPC(entry: Calendar) {
     });
   }
 
-  return DatabaseClient.prisma.match.update({
-    where: {
-      id: Number(entry.payload),
-    },
-    data: {
-      status: Constants.MatchStatus.COMPLETED,
-      competitors: {
-        update: match.competitors.map((competitor) => ({
-          where: { id: competitor.id },
-          data: {
-            score: simulationResult[competitor.team.id],
-            result: Simulator.getMatchResult(competitor.team.id, simulationResult),
+  // apply elo deltas
+  const homeExpectedScore = Util.getEloWinProbability(home.team.elo, away.team.elo);
+  const homeActualScore =
+    Constants.EloScore[Simulator.getMatchResult(home.team.id, simulationResult)];
+  const awayExpectedScore = 1 - homeExpectedScore;
+  const awayActualScore =
+    Constants.EloScore[Simulator.getMatchResult(away.team.id, simulationResult)];
+  const deltas = [
+    Util.getEloRatingDelta(homeActualScore, homeExpectedScore),
+    Util.getEloRatingDelta(awayActualScore, awayExpectedScore),
+  ];
+
+  return Promise.all([
+    ...deltas.map((delta, teamIdx) =>
+      DatabaseClient.prisma.team.update({
+        where: {
+          id: match.competitors[teamIdx].team.id,
+        },
+        data: {
+          elo: {
+            increment: delta,
           },
-        })),
+        },
+      }),
+    ),
+    DatabaseClient.prisma.match.update({
+      where: {
+        id: Number(entry.payload),
       },
-    },
-  });
+      data: {
+        status: Constants.MatchStatus.COMPLETED,
+        competitors: {
+          update: match.competitors.map((competitor) => ({
+            where: { id: competitor.id },
+            data: {
+              score: simulationResult[competitor.team.id],
+              result: Simulator.getMatchResult(competitor.team.id, simulationResult),
+            },
+          })),
+        },
+      },
+    }),
+  ]);
 }
 
 /**

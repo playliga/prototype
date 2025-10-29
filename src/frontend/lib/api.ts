@@ -263,6 +263,10 @@ export default {
         Array<Prisma.PlayerGetPayload<T>>
       >,
   },
+  team: {
+    worldRanking: (id: number) =>
+      ipcRenderer.invoke(Constants.IPCRoute.TEAM_RANKING, id) as Promise<number>,
+  },
   teams: {
     all: <T = unknown>(query?: Prisma.TeamFindManyArgs) =>
       ipcRenderer.invoke(Constants.IPCRoute.TEAMS_ALL, query) as Promise<

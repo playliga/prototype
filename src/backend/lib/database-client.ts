@@ -86,6 +86,29 @@ export default class DatabaseClient {
    */
   private static clientExtensions(prisma: PrismaClient) {
     return prisma.$extends({
+      model: {
+        team: {
+          /**
+           * Leverages SQLite's window functions to
+           * get the world Elo ranking for a team.
+           *
+           * @param id The team id.
+           */
+          async getWorldRanking(id: number) {
+            const [result] = await prisma.$queryRaw<Array<{ worldRanking: number }>>`
+              SELECT worldRanking
+              FROM (
+                SELECT
+                  id,
+                  RANK() OVER (ORDER BY elo DESC) as worldRanking
+                FROM "Team"
+              )
+              WHERE id = ${id}
+            `;
+            return Number(result.worldRanking ?? 0);
+          },
+        },
+      },
       query: {
         profile: {
           // @todo: fix typings for eager loaded relations
