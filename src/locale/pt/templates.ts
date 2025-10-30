@@ -11,91 +11,91 @@
 
 /** @enum */
 export enum AwardTypeChampion {
-  SUBJECT = 'Congratulations {{it.profile.team.name}}!',
+  SUBJECT = 'Parabéns, {{it.profile.team.name}}!',
   CONTENT = `
-  Hi, {{it.profile.player.name}}!
+  Salve, {{it.profile.player.name}}!
 
-  Congrats on winning the **{{it.competition}}**!
+  Parabéns por ganhar o **{{it.competition}}**!
 
-  Keep up the good work!
+  Foguete não tem ré! Continua assim!
   `,
 }
 
 /** @enum */
 export enum AwardTypePromotion {
-  SUBJECT = 'Moving on up!',
+  SUBJECT = 'Subiiiuuuuu!',
   CONTENT = `
-  Hi, {{it.profile.player.name}}!
+  Salve, {{it.profile.player.name}}!
 
-  Good job on getting promoted from **{{it.competition}}**!
+  Parabéns por subir de divisão no **{{it.competition}}**!
 
-  Next season we'll be playing in a tougher division so let's do our best!
+  Se prepare, porque a próxima temporada vai ser mais difícil! Vamo nessa!
   `,
 }
 
 /** @enum */
 export enum AwardTypeQualify {
-  SUBJECT = 'Qualified!',
+  SUBJECT = 'Que venha a próxima fase!',
   CONTENT = `
-  Hey, {{it.profile.player.name}}!
+  Salve, {{it.profile.player.name}}!
 
-  Good job on qualifying from the **{{it.competition}}** and moving on to the next round!
+  Mandou bem! Avançou de fase no **{{it.competition}}**!
 
-  It's only going to get tougher from here.
+  O desafio agora vai ser maior. Bala neles!
   `,
 }
 
 /** @enum */
 export enum OfferAcceptedPlayer {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hi, {{it.profile.player.name}}.
+  Olá, {{it.profile.player.name}}.
 
   {{@if(it.transfer.to && it.transfer.to.id == it.profile.team.id)}}
-  The player, **{{it.transfer.target.name}}**, has been sold to {{it.transfer.from.name}}.
+  O(a) atleta, **{{it.transfer.target.name}}**, foi transferido(a) pro {{it.transfer.from.name}}.
   {{#else}}
-  I'm pleased to inform you that **{{it.transfer.target.name}}** has accepted our offer.
+  Vim te dar a boa notícia: **{{it.transfer.target.name}}** aceitou a oferta e está chegando!
 
-  Let's use him in our squad!
+  Não se esqueça de olhar o elenco!
   {{/if}}
   `,
 }
 
 /** @enum */
 export enum OfferAcceptedTeam {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hi, {{it.profile.player.name}}.
+  Olá, {{it.profile.player.name}}.
 
-  That offer works for us. It is now up to **{{it.transfer.target.name}}** on whether they choose to accept your proposed wages.
+  Essa oferta serve pra nós. Agora o(a) **{{it.transfer.target.name}}** decide se fica com a gente ou se vai pro seu time.
   `,
 }
 
 /** @enum */
 export enum OfferAcceptedUser {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
-  CONTENT = `Accepted {{it.transfer.from.name}}'s offer.`,
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
+  CONTENT = `Ele(a) aceitou a oferta do {{it.transfer.from.name}}.`,
 }
 
 /** @enum */
 export enum OfferGeneric {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = '',
 }
 
 /** @enum */
 export enum OfferIncoming {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hello, {{it.profile.player.name}}.
+  Olá, {{it.profile.player.name}}.
 
-  **{{it.transfer.from.name}}** are interested in a transfer for **{{it.transfer.target.name}}**.
+  **{{it.transfer.from.name}}** está interessado no(na) atleta **{{it.transfer.target.name}}**.
 
-  The details are below:
+  Seguem os detalhes:
 
-  - Transfer fee: {{it.transfer.offers[0].cost | currency}}
+  - Taxa de transferência: {{it.transfer.offers[0].cost | currency}}
 
-  - Wages: {{it.transfer.offers[0].wages | currency}}
+  - Salário: {{it.transfer.offers[0].wages | currency}}
 
   ---
 
@@ -106,87 +106,87 @@ export enum OfferIncoming {
 
 /** @enum */
 export enum OfferRejectedEmailCost {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hey {{it.profile.player.name}},
+  Olá {{it.profile.player.name}},
 
-  We are not willing to sell the player for such a low cost.
+  Achamos o valor da sua oferta muito baixo, assim não terá acordo.
   `,
 }
 
 /** @enum */
 export enum OfferRejectedEmailRelocate {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hi {{it.profile.player.name}},
+  Olá {{it.profile.player.name}},
 
   {{@if(it.transfer.to && it.transfer.to.id == it.profile.team.id)}}
-  Talks between the player and **{{it.transfer.from.name}}** have broken down because they are not willing to move regions.
+  As conversas entre o(a) atleta e o clube **{{it.transfer.from.name}}** deram errado porque ele(a) não quer mudar de continente.
   {{#else}}
-  The player has rejected your offer because they are not willing to move to our region.
+  O(a) atleta rejeitou a oferta porque não quer se mudar pro seu continente.
   {{/if}}
   `,
 }
 
 /** @enum */
 export enum OfferRejectedEmailSquadDepth {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hi {{it.profile.player.name}},
+  Olá {{it.profile.player.name}},
 
-  We are not open to selling this player as they are crucial to our squad.
+  Não queremos vender esse(a) atleta porque é importante demais pra nossa equipe.
   `,
 }
 
 /** @enum */
 export enum OfferRejectedEmailUnlisted {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hey {{it.profile.player.name}},
+  Olá {{it.profile.player.name}},
 
-  We are not willing to sell the player as he is not up for transfer.
+  Este(a) atleta não está disponível para transferências. Obrigado pelo seu interesse.
   `,
 }
 
 /** @enum */
 export enum OfferRejectedEmailWages {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
-  Hey {{it.profile.player.name}},
+  Olá {{it.profile.player.name}},
 
   {{@if(it.transfer.to && it.transfer.to.id == it.profile.team.id)}}
-  Talks between the player and **{{it.transfer.from.name}}** have broken down because they could not reach an agreement on wages.
+  As conversas entre o(a) atleta e o clube **{{it.transfer.from.name}}** deram errado porque ele(a) não aceitou o salário oferecido.
   {{#else}}
-  The player has rejected your offer because they say the wages offered are too low.
+  O(a) atleta rejeitou a oferta porque achou o salário muito baixo.
 
-  We might have to spend a little more for this player, if we can afford it.
+  Voz da consciência: "talvez um salário maior resolva..."
   {{/if}}
   `,
 }
 
 /** @enum */
 export enum OfferRejectedUser {
-  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
-  CONTENT = `Rejected {{it.transfer.from.name}}'s offer.`,
+  SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
+  CONTENT = `Rejeitou a oferta do {{it.transfer.from.name}}.`,
 }
 
 /** @enum */
 export enum SponsorshipAccepted {
-  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Oferta de patrocínio do {{it.sponsorship.sponsor.name}}',
   CONTENT = `
-  Hi, {{it.profile.player.name}}.
+  Salve, {{it.profile.player.name}}.
 
-  Great news! **{{it.sponsorship.sponsor.name}}** has accepted our sponsorship application and will be supporting us moving forward.
+  Boas notícias! **{{it.sponsorship.sponsor.name}}** aceitou a proposta e é o nosso novo patrocinador!
   `,
 }
 
 /** @enum */
 export enum SponsorshipBonuses {
-  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Oferta de patrocínio do {{it.sponsorship.sponsor.name}}',
   CONTENT = `
-  Hey, {{it.profile.player.name}}.
+  Olá, {{it.profile.player.name}}.
 
-  Great job this season! **{{it.sponsorship.sponsor.name}}** is pleased with your team's performance and has awarded the following bonuses:
+  Mandou bem nessa temporada! **{{it.sponsorship.sponsor.name}}** ficou feliz com o desempenho do time e mandou um presente:
 
   {{@each(it.bonuses) => bonus}}
   - {{bonus}}
@@ -196,19 +196,19 @@ export enum SponsorshipBonuses {
 
 /** @enum */
 export enum SponsorshipGeneric {
-  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Oferta de patrocínio do {{it.sponsorship.sponsor.name}}',
   CONTENT = '',
 }
 
 /** @enum */
 export enum SponsorshipInvite {
-  SUBJECT = 'Tournament Invite for {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Convite pra torneio do {{it.sponsorship.sponsor.name}}',
   CONTENT = `
-  Hey {{it.profile.player.name}}!
+  Salve {{it.profile.player.name}}!
 
-  We've received an invitation to compete in **{{it.idiomaticTier}}**, courtesy of our sponsor **{{it.sponsorship.sponsor.name}}**.
+  Recebemos um convite pra jogar o torneio **{{it.idiomaticTier}}**, cortesia do nosso patrocinador **{{it.sponsorship.sponsor.name}}**.
 
-  It's your call—let me know if you think we should accept.
+  Você decide: vamos?
 
   ---
 
@@ -219,33 +219,33 @@ export enum SponsorshipInvite {
 
 /** @enum */
 export enum SponsorshipInviteAcceptedUser {
-  SUBJECT = 'Tournament Invite for {{it.sponsorship.sponsor.name}}',
-  CONTENT = "Accepted {{it.sponsorship.sponsor.name}}'s invitation.",
+  SUBJECT = 'Convite pra torneio do {{it.sponsorship.sponsor.name}}',
+  CONTENT = "Aceitou o convite do {{it.sponsorship.sponsor.name}}.",
 }
 
 /** @enum */
 export enum SponsorshipInviteRejectedUser {
-  SUBJECT = 'Tournament Invite for {{it.sponsorship.sponsor.name}}',
-  CONTENT = "Rejected {{it.sponsorship.sponsor.name}}'s invitation.",
+  SUBJECT = 'Convite pra torneio do {{it.sponsorship.sponsor.name}}',
+  CONTENT = "Rejeitou o convite do {{it.sponsorship.sponsor.name}}.",
 }
 
 /** @enum */
 export enum SponsorshipRejectedTier {
-  SUBJECT = 'Sponsorship Offer to {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Oferta de patrocínio para {{it.sponsorship.sponsor.name}}',
   CONTENT = `
-  Hey {{it.profile.player.name}},
+  Olá {{it.profile.player.name}},
 
-  Unfortunately, **{{it.sponsorship.sponsor.name}}** has rejected our sponsorship offer as we do not meet their minimum league division requirement.
+  Infelizmente, **{{it.sponsorship.sponsor.name}}** rejeitou nosso pedido de patrocínio porque não estamos nas divisões que eles querem. Chegaremos lá!
   `,
 }
 
 /** @enum */
 export enum SponsorshipRenew {
-  SUBJECT = 'Sponsorship Offer to {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Oferta de patrocínio para {{it.sponsorship.sponsor.name}}',
   CONTENT = `
-  Hey {{it.profile.player.name}}!
+  Salve {{it.profile.player.name}}!
 
-  Your contract has expired with **{{it.sponsorship.sponsor.name}}**, however, they are keen on continuing their partnership with us.
+  Seu patrocínio **{{it.sponsorship.sponsor.name}}** expirou, mas eles querem renovar. Aceita?
 
   ---
 
@@ -256,25 +256,25 @@ export enum SponsorshipRenew {
 
 /** @enum */
 export enum SponsorhipRenewAcceptedUser {
-  SUBJECT = 'Sponsorship Offer to {{it.sponsorship.sponsor.name}}',
-  CONTENT = `Accepted {{it.sponsorship.sponsor.name}}'s offer.`,
+  SUBJECT = 'Oferta de patrocínio para {{it.sponsorship.sponsor.name}}',
+  CONTENT = `Aceitou a oferta do {{it.sponsorship.sponsor.name}}.`,
 }
 
 /** @enum */
 export enum SponsorhipRenewRejectedUser {
-  SUBJECT = 'Sponsorship Offer to {{it.sponsorship.sponsor.name}}',
-  CONTENT = `Rejected {{it.sponsorship.sponsor.name}}'s offer.`,
+  SUBJECT = 'Oferta de patrocínio para {{it.sponsorship.sponsor.name}}',
+  CONTENT = `Rejeitou a oferta do {{it.sponsorship.sponsor.name}}.`,
 }
 
 /** @enum */
 export enum SponsorshipTerminated {
-  SUBJECT = 'Sponsorship Offer for {{it.sponsorship.sponsor.name}}',
+  SUBJECT = 'Oferta de patrocínio do {{it.sponsorship.sponsor.name}}',
   CONTENT = `
-  Hi, {{it.profile.player.name}}.
+  Olá, {{it.profile.player.name}}.
 
-  We've hit a bump in the road—**{{it.sponsorship.sponsor.name}}** has decided to terminate our sponsorship due to unmet contract requirements.
+  Temos uma péssima notícia: **{{it.sponsorship.sponsor.name}}** decidiu encerrar o patrocínio porque não atingimos as metas do contrato.
 
-  Here's what we fell short on:
+  Aqui estão as nossas falhas:
 
   {{@each(it.requirements) => requirement}}
   - {{requirement}}
@@ -284,17 +284,17 @@ export enum SponsorshipTerminated {
 
 /** @enum */
 export enum WelcomeEmail {
-  SUBJECT = 'Hey!',
+  SUBJECT = 'Olá!',
   CONTENT = `
-  Hi, {{it.profile.player.name}}!
+  Salve, {{it.profile.player.name}}!
 
-  My name is {{it.persona.name}} and I am your assistant manager. I just wanted to say hello and introduce myself.
+  Meu nome é {{it.persona.name}} e eu serei seu assistente. Só gostaria de te dar um oi e me apresentar.
 
-  Our first match is coming up so I wanted to let you know about a few things.
+  Nosso primeiro jogo tá chegando então eu quero te mostrar umas coisas:
 
-  - Once you're in-game you can type \`.ready\` in chat and the match will start immediately.
-  - You can also wait for the warm-up timer to finish.
-  - After the match is over, you can close out your game as the score will be automatically recorded.
+  - Ao entrar no jogo, a partida vai ser oficialmente iniciada quando você digitar \`.ready\` no chat
+  - Se quiser aquecer, basta jogar o aquecimento até o tempo acabar.
+  - Quando acabar a partida, você pode fechar seu jogo. O placar vai ser registrado automaticamente.
 
   GL HF!
   `,
