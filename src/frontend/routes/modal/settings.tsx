@@ -343,6 +343,22 @@ export default function () {
                 </select>
               </article>
             </section>
+            <section>
+              <header>
+                <p>{t('settings.volumeTitle')}</p>
+              </header>
+              <article>
+                <input
+                  type="range"
+                  className="range range-sm"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={settings.general.volume}
+                  onChange={(event) => onSettingsUpdate('general.volume', event.target.value)}
+                />
+              </article>
+            </section>
           </fieldset>
         )}
         {activeTab === Tab.MATCH_RULES && (

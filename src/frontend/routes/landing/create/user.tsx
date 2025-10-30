@@ -12,7 +12,7 @@ import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { AppState } from '@liga/frontend/redux/state';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 import { FaUpload } from 'react-icons/fa';
 
@@ -37,6 +37,7 @@ export default function () {
   const navigate = useNavigate();
   const location = useLocation();
   const t = useTranslation('windows');
+  const audioClick = useAudio('button-click.wav');
   const windowData = state.windowData.landing;
 
   // form setup
@@ -111,6 +112,7 @@ export default function () {
         <button
           title="Upload Avatar"
           className="btn btn-square btn-primary"
+          onMouseDown={audioClick}
           onClick={() =>
             api.app
               .dialog(Constants.WindowIdentifier.Landing, {
@@ -165,6 +167,7 @@ export default function () {
           type="submit"
           className="btn btn-primary btn-block"
           onClick={handleSubmit(onSubmit)}
+          onMouseDown={audioClick}
           disabled={
             !formState.isValid ||
             formState.isSubmitting ||

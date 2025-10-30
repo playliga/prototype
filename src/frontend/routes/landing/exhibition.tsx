@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { cloneDeep, isNull, sample, set } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { Image } from '@liga/frontend/components';
 import { findTeamOptionByValue, TeamSelect } from '@liga/frontend/components/select';
 import {
@@ -203,6 +203,10 @@ export default function () {
   const navigate = useNavigate();
   const t = useTranslation('windows');
 
+  // load audio files
+  const audioRelease = useAudio('button-release.wav');
+  const audioClick = useAudio('button-click.wav');
+
   React.useEffect(() => {
     // detect steam and game paths together
     // which avoid a race-condition
@@ -284,6 +288,7 @@ export default function () {
       <FaArrowLeft
         className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate(-1)}
+        onMouseDown={audioRelease}
       />
       <TeamSelector initialFederationId={1} initialTierId={4} onChange={setHomeTeamId} />
       <section className="center w-24 gap-4 text-center">
@@ -636,6 +641,7 @@ export default function () {
         </form>
         <button
           className="btn btn-xl btn-block btn-primary"
+          onMouseDown={audioClick}
           onClick={() =>
             api.play.exhibition(
               settings,

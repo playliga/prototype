@@ -7,7 +7,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Constants } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
 
@@ -23,6 +23,10 @@ export default function () {
   const navigate = useNavigate();
   const t = useTranslation('windows');
   const windowData = state.windowData[Constants.WindowIdentifier.Landing];
+
+  // load audio files
+  const audioRelease = useAudio('button-release.wav');
+  const audioClick = useAudio('button-click.wav');
 
   // load blazonry
   React.useEffect(() => {
@@ -79,10 +83,18 @@ export default function () {
         })}
       </article>
       <article className="join">
-        <button className="btn join-item flex-1" onClick={() => navigate(-1)}>
+        <button
+          className="btn join-item flex-1"
+          onClick={() => navigate(-1)}
+          onMouseDown={audioRelease}
+        >
           {t('shared.cancel')}
         </button>
-        <button className="btn join-item btn-primary flex-1" onClick={handleOnClick}>
+        <button
+          className="btn join-item btn-primary flex-1"
+          onClick={handleOnClick}
+          onMouseDown={audioClick}
+        >
           {t('shared.confirm')}
         </button>
       </article>

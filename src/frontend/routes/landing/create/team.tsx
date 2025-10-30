@@ -13,7 +13,7 @@ import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
 import { AppState } from '@liga/frontend/redux/state';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { FaFolderOpen, FaRecycle, FaUpload } from 'react-icons/fa';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
@@ -39,6 +39,7 @@ export default function () {
   const navigate = useNavigate();
   const location = useLocation();
   const t = useTranslation('windows');
+  const audioClick = useAudio('button-click.wav');
   const windowData = state.windowData.landing;
 
   // form setup
@@ -138,6 +139,7 @@ export default function () {
             className="btn btn-square btn-primary"
             disabled={!teamBlazon}
             onClick={() => setTeamBlazon('resources://blazonry/' + sample(blazonry))}
+            onMouseDown={audioClick}
           >
             <FaRecycle />
           </button>
@@ -145,6 +147,7 @@ export default function () {
             title={t('shared.gallery')}
             className="btn btn-square btn-primary"
             onClick={() => navigate(location.pathname + '/gallery')}
+            onMouseDown={audioClick}
           >
             <FaFolderOpen />
           </button>
@@ -162,6 +165,7 @@ export default function () {
                 )
                 .then((file) => !!file && setTeamBlazon('uploads://' + file))
             }
+            onMouseDown={audioClick}
           >
             <FaUpload />
           </button>
@@ -208,6 +212,7 @@ export default function () {
           type="submit"
           className="btn btn-primary btn-block"
           onClick={handleSubmit(onSubmit)}
+          onMouseDown={audioClick}
           disabled={
             !formState.isValid ||
             formState.isSubmitting ||

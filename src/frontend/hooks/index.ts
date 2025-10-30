@@ -8,11 +8,12 @@ import { Constants, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
 
 /**
- * Exports the translation hook.
+ * Exports other hooks.
  *
  * @exports
  */
 export * from './use-translation';
+export * from './use-audio';
 
 /**
  * Theme provider simply modifies the root container's `data-theme`

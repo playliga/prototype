@@ -221,7 +221,8 @@
       "gameTitle": "Versão do CS",
       "simTitle": "Manipular resultado",
       "steamTitle": "Endereço da steam",
-      "themeTitle": "Tema do aplicativo"
+      "themeTitle": "Tema do aplicativo",
+      "volumeTitle": "Volume Level"
     }
   },
   "components": {

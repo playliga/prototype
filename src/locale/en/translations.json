@@ -221,7 +221,8 @@
       "gameTitle": "Game",
       "simTitle": "Simulation mode",
       "steamTitle": "Steam Path",
-      "themeTitle": "Theme"
+      "themeTitle": "Theme",
+      "volumeTitle": "Volume Level"
     }
   },
   "components": {

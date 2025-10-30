@@ -9,7 +9,7 @@ import { formatRelative } from 'date-fns';
 import { useNavigate, Outlet } from 'react-router-dom';
 import { Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 
 /**
@@ -22,11 +22,16 @@ export default function () {
   const { state } = React.useContext(AppStateContext);
   const t = useTranslation('windows');
 
+  // load audio files
+  const audioRelease = useAudio('button-release.wav');
+  const audioClick = useAudio('button-click.wav');
+
   return (
     <main className="frosted center h-full w-2/5 p-5 xl:w-1/3">
       <FaArrowLeft
         className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate(-1)}
+        onMouseDown={audioRelease}
       />
       <table className="table table-fixed">
         <thead>
@@ -42,6 +47,7 @@ export default function () {
               key={profile.id}
               className="hover:bg-base-content/10 cursor-pointer"
               onClick={() => navigate('/connect/' + profile.id)}
+              onMouseDown={audioClick}
             >
               <td>
                 <p>{profile.name}</p>

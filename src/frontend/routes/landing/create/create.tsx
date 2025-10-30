@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { cx } from '@liga/frontend/lib';
 import { FaArrowLeft } from 'react-icons/fa';
 
@@ -18,6 +18,7 @@ export default function () {
   const t = useTranslation('windows');
   const navigate = useNavigate();
   const location = useLocation();
+  const audioRelease = useAudio('button-release.wav');
 
   // infer the currently loaded step
   const currentStep = React.useMemo(() => {
@@ -54,6 +55,7 @@ export default function () {
       <FaArrowLeft
         className="absolute top-5 left-5 size-5 cursor-pointer"
         onClick={() => navigate('/')}
+        onMouseDown={audioRelease}
       />
 
       {/* FORM STEPPER ITEMS */}

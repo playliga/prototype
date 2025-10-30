@@ -10,7 +10,7 @@ import { upperFirst } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { Constants, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 import { FaClock } from 'react-icons/fa';
 
 /**
@@ -23,6 +23,10 @@ export default function () {
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [profile] = state.profiles;
+
+  // load audio files
+  const audioHover = useAudio('button-hover.wav');
+  const audioClick = useAudio('button-click.wav');
 
   // build the action menu
   const actions = [
@@ -83,6 +87,8 @@ export default function () {
           <section
             className="bg-base-content/10 hover:bg-base-content/20 flex cursor-pointer items-center gap-5 rounded-md p-5"
             onClick={() => navigate('/connect/' + profile.id)}
+            onMouseEnter={audioHover}
+            onMouseDown={audioClick}
           >
             <figure>
               <FaClock className="size-12" />
@@ -113,6 +119,8 @@ export default function () {
                   disabled={item.disabled}
                   onClick={item.onClick ? item.onClick : () => navigate(item.path)}
                   className="btn btn-ghost btn-md btn-block"
+                  onMouseEnter={audioHover}
+                  onMouseDown={audioClick}
                 >
                   {item.label}
                 </button>

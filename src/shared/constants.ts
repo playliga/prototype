@@ -1208,6 +1208,7 @@ export const Settings = {
     theme: ThemeType.SYSTEM,
     botDifficulty: null as string,
     locale: null as LocaleIdentifier,
+    volume: 0.05,
   },
   calendar: {
     ignoreExits: false,

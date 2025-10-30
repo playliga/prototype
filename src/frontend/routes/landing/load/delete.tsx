@@ -7,7 +7,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppStateContext } from '@liga/frontend/redux';
 import { profilesDelete } from '@liga/frontend/redux/actions';
-import { useTranslation } from '@liga/frontend/hooks';
+import { useAudio, useTranslation } from '@liga/frontend/hooks';
 
 /**
  * Exports this module.
@@ -20,6 +20,10 @@ export default function () {
   const [deleting, setDeleting] = React.useState(false);
   const navigate = useNavigate();
   const t = useTranslation('windows');
+
+  // load audio files
+  const audioRelease = useAudio('button-release.wav');
+  const audioClick = useAudio('button-click.wav');
 
   // refresh profile when attempting delete
   const profile = React.useMemo(
@@ -42,10 +46,10 @@ export default function () {
         <h3 className="text-lg">{t('landing.delete.title')}</h3>
         <p className="py-4">{t('landing.delete.subtitle')}</p>
         <article className="modal-action">
-          <button className="btn" onClick={() => navigate(-1)}>
+          <button className="btn" onClick={() => navigate(-1)} onMouseDown={audioRelease}>
             {t('landing.delete.cancel')}
           </button>
-          <button className="btn btn-error" onClick={handleDeleteProfile}>
+          <button className="btn btn-error" onClick={handleDeleteProfile} onMouseDown={audioClick}>
             {!!deleting && <span className="loading loading-spinner"></span>}
             {t('shared.delete')}
           </button>
