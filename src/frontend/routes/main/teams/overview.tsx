@@ -206,7 +206,7 @@ export default function () {
         </aside>
         <aside>
           <header className="heading prose max-w-none border-t-0!">
-            <h2>{t('shared.noRecentMatch')}</h2>
+            <h2>{t('shared.recentMatchResults')}</h2>
           </header>
           <table className="table table-fixed">
             <tbody>

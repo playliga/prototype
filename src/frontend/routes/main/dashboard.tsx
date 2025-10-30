@@ -685,7 +685,7 @@ export default function () {
                   >
                     <header className="prose">
                       <h4 className="truncate">
-                        {competitor?.team?.name ? `${competitor.team.name}'s` : ''}&nbsp;
+                        {competitor?.team?.name}&nbsp;
                         {t('main.dashboard.headerRecentMatches')}
                       </h4>
                     </header>
