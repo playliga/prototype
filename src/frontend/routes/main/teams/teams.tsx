@@ -231,6 +231,7 @@ export default function () {
                           src={teamRank.blazon}
                           title={teamRank.name}
                           className="mx-auto size-8 object-cover"
+                          blur="blur-xs"
                         />
                       </td>
                       <td className="truncate">{teamRank.name}</td>

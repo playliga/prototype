@@ -9,6 +9,7 @@ import { cx } from '@liga/frontend/lib';
 
 /** @interface */
 interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
+  blur?: 'blur-xs' | 'blur-sm' | 'blur-md' | 'blur-lg' | 'blur-xl' | 'blur-2xl' | 'blur-3xl';
   sprite?: string;
 }
 
@@ -20,7 +21,7 @@ interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
  * @exports
  */
 export default function (props: Props) {
-  const { src, sprite, className, ...rest } = props;
+  const { src, sprite, className, blur, ...rest } = props;
   const [uri, setUri] = React.useState(props.sprite || imageSprite);
   const [loading, setLoading] = React.useState(true);
 
@@ -41,5 +42,5 @@ export default function (props: Props) {
   }, [image, src, sprite]);
 
   // render the component
-  return <img {...rest} src={uri} className={cx(className, loading && 'blur-xl')} />;
+  return <img {...rest} src={uri} className={cx(className, loading && (blur || 'blur-xl'))} />;
 }
