@@ -6,6 +6,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { random, sample } from 'lodash';
+import { useAudio } from '@liga/frontend/hooks';
 
 /** @enum */
 enum Shape {
@@ -30,7 +31,7 @@ const PARTICLE_DURATION = 5000;
  *
  * @constant
  */
-const PARTICLE_NUM = 120;
+const PARTICLE_NUM = 250;
 
 /**
  * The particle array.
@@ -40,11 +41,11 @@ const PARTICLE_NUM = 120;
 const particles: Array<Particle> = [];
 
 /**
- * The animation start time.
+ * Previous frame timestamp.
  *
- * @constant
+ * @inner
  */
-const startTime = performance.now();
+let prevFrameTime = performance.now();
 
 /**
  * The animation frame id.
@@ -207,21 +208,21 @@ class Particle {
    *
    * @constant
    */
-  private friction = 0.99;
+  private friction = 0.05;
 
   /**
    * How fast confetti falls.
    *
    * @constant
    */
-  private gravity = 0.05;
+  private gravity = 0.25;
 
   /**
    * How fast confetti travels along the axes.
    *
    * @constant
    */
-  private initialVelocity = new Vector2(4.0, 5.0);
+  private initialVelocity = new Vector2(1.5, 4.0);
 
   /**
    * The range of confetti sizes.
@@ -231,6 +232,13 @@ class Particle {
   private rangeDimensions = new Point(5, 15);
 
   /**
+   * The range of confetti flip speeds.
+   *
+   * @constant
+   */
+  private rangeFlipSpeed = new Point(5.0, 10.0);
+
+  /**
    * The range of radius sizes for confetti circles.
    *
    * @constant
@@ -238,11 +246,18 @@ class Particle {
   private rangeRadius = new Point(5, 10);
 
   /**
-   * The range for added spin to confetti.
+   * The range of confetti wobbling magnitude.
    *
    * @constant
    */
-  private rangeSpin = new Point(-0.2, 0.2);
+  private rangeWobbleMagnitude = new Point(0.08, 0.2);
+
+  /**
+   * The range of confetti wobbling speeds.
+   *
+   * @constant
+   */
+  private rangeWobbleSpeed = new Point(0.15, 0.35);
 
   /**
    * Blows confetti along the x-axis.
@@ -252,7 +267,7 @@ class Particle {
   private wind = 0;
 
   /** @constant */
-  public angle: number;
+  public angle = 0;
 
   /** @constant */
   public boundary: Point;
@@ -262,6 +277,15 @@ class Particle {
 
   /** @constant */
   public dimensions: Point;
+
+  /** @constant */
+  public flipPhase: number;
+
+  /** @constant */
+  public flipScale: number;
+
+  /** @constant */
+  public flipSpeed: number;
 
   /** @constant */
   public position: Vector2;
@@ -275,40 +299,37 @@ class Particle {
   /** @constant */
   public velocity: Vector2;
 
+  /** @constant */
+  public wobbleMagnitude: number;
+
+  /** @constant */
+  public wobblePhase: number;
+
+  /** @constant */
+  public wobbleSpeed: number;
+
   /**
-   * @param boundary    The bounding box dimensions.
-   * @param angle       The angle of the particle.
-   * @param color       The color of the particle.
-   * @param dimensions  The dimensions of the particle.
-   * @param position    The 2D position of the particle.
-   * @param radius      The radius of the particle (if a circle).
-   * @param shape       The shape of the particle.
-   * @param velocity    The angular velocity of the particle.
+   * @param boundary The bounding box dimensions.
    * @constructor
    */
-  constructor(
-    boundary: Point,
-    angle?: number,
-    color?: string,
-    dimensions?: Point,
-    position?: Vector2,
-    radius?: number,
-    shape?: Shape,
-    velocity?: Vector2,
-  ) {
+  constructor(boundary: Point) {
     this.boundary = boundary;
-    this.angle = angle || 0;
-    this.color = color || sample(Particle.colors);
-    this.dimensions = dimensions || Particle.randomDimensions(this.rangeDimensions);
-    this.position = position || Particle.randomPosition(boundary);
-    this.radius = radius || Particle.randomRadius(this.rangeRadius);
-    this.shape = shape || random(0, 1);
-    this.velocity = velocity || Particle.randomVelocity(this.initialVelocity);
+    this.recycle();
   }
 
   /** @function */
   static get colors() {
     return ['#0091d5', '#6bb187', '#dbae59', '#ac3e31'];
+  }
+
+  /**
+   * Generates a random number from a `Point`.
+   *
+   * @param range The range to choose from.
+   * @function
+   */
+  static random(range: Point) {
+    return random(range.w, range.h);
   }
 
   /**
@@ -332,23 +353,23 @@ class Particle {
   }
 
   /**
-   * Generates a random radius size.
-   *
-   * @param radius The range to choose from.
-   * @function
-   */
-  static randomRadius(radius: Point) {
-    return random(radius.w, radius.h);
-  }
-
-  /**
    * Generates a `Vector2` with a randomized velocity.
    *
    * @param velocity The range to choose from.
    * @function
    */
   static randomVelocity(velocity: Vector2) {
-    return new Vector2(random(-velocity.x, velocity.x), random(-velocity.y, 0));
+    return new Vector2(random(-velocity.x, velocity.x), random(-velocity.y, velocity.y));
+  }
+
+  /**
+   * Gets the current "flip phase" of the confetti
+   * which is used for scaling and mirroring.
+   *
+   * @function
+   */
+  public get flipAmount(): number {
+    return Math.sin(this.flipScale);
   }
 
   /**
@@ -372,9 +393,19 @@ class Particle {
     this.color = sample(Particle.colors);
     this.dimensions = Particle.randomDimensions(this.rangeDimensions);
     this.position = Particle.randomPosition(this.boundary);
-    this.radius = Particle.randomRadius(this.rangeRadius);
+    this.radius = Particle.random(this.rangeRadius);
     this.shape = random(0, 1);
     this.velocity = Particle.randomVelocity(this.initialVelocity);
+
+    // flipping properties
+    this.flipSpeed = Particle.random(this.rangeFlipSpeed);
+    this.flipPhase = random(0, 2 * Math.PI);
+    this.flipScale = Math.sin(this.flipPhase);
+
+    // wobble properties
+    this.wobbleSpeed = Particle.random(this.rangeWobbleSpeed);
+    this.wobblePhase = random(0, 2 * Math.PI);
+    this.wobbleMagnitude = Particle.random(this.rangeWobbleMagnitude);
   }
 
   /**
@@ -384,20 +415,22 @@ class Particle {
    * @function
    */
   public update(dt: number) {
-    const spin = random(this.rangeSpin.w, this.rangeSpin.h);
-    this.position = this.position.add(this.velocity);
-    this.velocity = this.velocity.add(new Vector2(this.wind, this.gravity).scale(this.friction));
-    this.angle = dt * Math.PI + spin;
-    return new Particle(
-      this.boundary,
-      this.angle,
-      this.color,
-      this.dimensions,
-      this.position,
-      this.radius,
-      this.shape,
-      this.velocity,
+    // flipping and wobble physics
+    this.flipPhase += this.flipSpeed * dt;
+    this.flipScale = Math.sin(this.flipPhase);
+    this.wobblePhase += this.wobbleSpeed * dt;
+
+    // velocity, position, and angle
+    this.velocity = this.velocity.add(
+      new Vector2(
+        this.wind + Math.cos(this.wobblePhase) * this.wobbleMagnitude,
+        this.gravity,
+      ).scale(this.friction),
     );
+    this.position = this.position.add(this.velocity);
+    this.angle += this.velocity.x * 2 * dt;
+
+    return this;
   }
 }
 
@@ -411,7 +444,9 @@ class Particle {
  */
 function animate(boundary: Point, running: boolean, ctx: CanvasRenderingContext2D) {
   const now = performance.now();
-  const dt = (now - startTime) / 1000;
+  const dt = (now - prevFrameTime) / 1000;
+
+  prevFrameTime = now;
 
   for (let i = 0; i < PARTICLE_NUM; i++) {
     const particle = particles[i] || new Particle(boundary);
@@ -446,8 +481,8 @@ function renderScene(ctx: CanvasRenderingContext2D) {
     ctx.save();
     ctx.translate(...particle.position.array());
     ctx.rotate(particle.angle);
+    ctx.scale(1, particle.flipScale);
 
-    ctx.beginPath();
     ctx.fillStyle = particle.color;
     ctx.strokeStyle = particle.color;
     ctx.lineCap = 'round';
@@ -456,13 +491,15 @@ function renderScene(ctx: CanvasRenderingContext2D) {
     switch (particle.shape) {
       case Shape.CIRCLE:
         ctx.beginPath();
-        ctx.arc(0, 0, particle.radius, 0, 2 * Math.PI);
+        ctx.ellipse(0, 0, particle.radius, particle.radius, 0, 0, 2 * Math.PI);
         ctx.fill();
         break;
       case Shape.SQUARE:
         ctx.fillRect(
-          ...particle.dimensions.rotate(particle.angle).div(new Point(-2, -2)).array(),
-          ...particle.dimensions.rotate(particle.angle).array(),
+          -particle.dimensions.w / 2,
+          -particle.dimensions.h / 2,
+          particle.dimensions.w,
+          particle.dimensions.h,
         );
         break;
     }
@@ -514,6 +551,7 @@ export function Confetti() {
   const { state } = useStore();
   const [boundary, setBoundary] = React.useState<Point>();
   const refCanvas = React.useRef<HTMLCanvasElement>();
+  const audioFirework = useAudio('firework.wav');
 
   // canvas requires width and height
   // defined to fix blurry edges
@@ -521,6 +559,15 @@ export function Confetti() {
     const { offsetWidth, offsetHeight } = refCanvas.current;
     setBoundary(new Point(offsetWidth, offsetHeight));
   }, []);
+
+  // only play audio when we're in a running state
+  React.useEffect(() => {
+    if (!state.running) {
+      return;
+    }
+
+    audioFirework();
+  }, [state.running]);
 
   // setup the engine loop
   React.useLayoutEffect(() => {
