@@ -41,7 +41,6 @@
         "flushing": "Flushing connections..."
       },
       "create": {
-        "alias": "Alias",
         "next": "Next",
         "statusSaving": "Saving player and team data...",
         "statusWorldgen": "Generating world...",
@@ -248,6 +247,7 @@
     }
   },
   "shared": {
+    "alias": "Alias",
     "amount": "Amount",
     "any": "Any",
     "apply": "Apply",

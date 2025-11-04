@@ -41,7 +41,6 @@
         "flushing": "Ripulendo le connessioni..."
       },
       "create": {
-        "alias": "Alias",
         "next": "Prossimo",
         "statusSaving": "Salvando i dati di giocatore e squadra...",
         "statusWorldgen": "Generando mondo...",
@@ -248,6 +247,7 @@
     }
   },
   "shared": {
+    "alias": "Alias",
     "amount": "Cifra",
     "any": "Qualunque",
     "apply": "Applica",

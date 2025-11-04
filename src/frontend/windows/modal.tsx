@@ -56,6 +56,10 @@ const routes = createMemoryRouter([
         path: '/transfer',
         element: <Routes.Modal.Transfer />,
       },
+      {
+        path: '/user',
+        element: <Routes.Modal.User />,
+      },
 
       // composite routes
       {

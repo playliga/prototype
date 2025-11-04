@@ -129,7 +129,7 @@ export default function () {
       <form className="stack-y">
         <section className="fieldset w-full">
           <label className="label">
-            <span className="label-text">{t('landing.create.alias')}</span>
+            <span className="label-text">{t('shared.alias')}</span>
           </label>
           <input
             {...register('name', { required: true, pattern: /^[\w]+$/, maxLength: 15 })}

@@ -299,7 +299,18 @@ function Root() {
                   })
                 }
               >
-                Edit Details
+                Edit Team Details
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() =>
+                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                    target: '/user',
+                  })
+                }
+              >
+                Edit User Details
               </a>
             </li>
             <li>
@@ -310,7 +321,7 @@ function Root() {
                   })
                 }
               >
-                Settings
+                {t('shared.settings')}
               </a>
             </li>
             <div className="divider mt-2 mb-0 before:h-px after:h-px" />

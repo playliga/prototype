@@ -41,7 +41,6 @@
         "flushing": "Vaciando conexiones..."
       },
       "create": {
-        "alias": "Alias",
         "next": "Siguiente",
         "statusSaving": "Guardando datos del jugador y del equipo...",
         "statusWorldgen": "Generando mundo...",
@@ -248,6 +247,7 @@
     }
   },
   "shared": {
+    "alias": "Alias",
     "amount": "Cantidad",
     "any": "Cualquiera",
     "apply": "Aplicar",

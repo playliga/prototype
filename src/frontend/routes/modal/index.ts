@@ -15,6 +15,7 @@ import Pregame from './pregame';
 import Settings from './settings';
 import Team from './team';
 import Transfer from './transfer';
+import User from './user';
 
 /**
  * Exports this module.
@@ -31,6 +32,7 @@ export default {
   Pregame,
   Settings,
   Transfer,
+  User,
 
   // composite routes
   Issues,

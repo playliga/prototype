@@ -41,7 +41,6 @@
         "flushing": "Vidage de connexions..."
       },
       "create": {
-        "alias": "Alias",
         "next": "Suivant",
         "statusSaving": "Sauvegarde des informations en cours...",
         "statusWorldgen": "Generation de monde en cours...",
@@ -248,6 +247,7 @@
     }
   },
   "shared": {
+    "alias": "Alias",
     "amount": "Montant",
     "any": "Tout(e)",
     "apply": "Appliquer",
