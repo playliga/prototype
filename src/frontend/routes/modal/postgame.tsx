@@ -26,6 +26,31 @@ interface ScoreboardProps {
   matchGame?: MatchGame;
 }
 
+/** @enum */
+enum Rating {
+  LOW = 0.95,
+  HIGH = 1.1,
+}
+
+/**
+ * Computed a simple HLTV-style rating using only k/d ratio.
+ *
+ * @param kills   Number of kills.
+ * @param deaths  Number of deaths.
+ * @function
+ */
+function getPlayerRating(kills: number, deaths: number) {
+  // give a small k/d boost
+  const boost = 0.05;
+  const raw = (kills + 1) / (deaths + 1) + boost * (kills - deaths);
+
+  // now scale to common or average hltv
+  // ratings you'd see in actual games
+  const scale = 0.5;
+  const offset = 0.401;
+  return scale * raw + offset;
+}
+
 /**
  * Generates a player's match performance from the
  * provided player killed or assists events array.
@@ -44,7 +69,8 @@ function getPlayerPerformance(
   const deaths = events.filter((event) => event.victimId === player.id && !event.assistId);
   const hsp = headshots.length / (kills.length || 1);
   const kd = kills.length - deaths.length;
-  return { events, assists, kills, deaths, hsp, kd };
+  const rating = getPlayerRating(kills.length, deaths.length);
+  return { events, assists, kills, deaths, hsp, kd, rating };
 }
 
 /**
@@ -104,6 +130,9 @@ function Scoreboard(props: ScoreboardProps) {
               {props.competitor.team.name}
             </p>
           </th>
+          <th title="Rating" className="w-[10%] text-center">
+            {t('postgame.rating')}
+          </th>
           <th title={t('postgame.kills')} className="w-[10%] text-center">
             {t('postgame.killsAlt')}
           </th>
@@ -135,6 +164,19 @@ function Scoreboard(props: ScoreboardProps) {
                 <td>
                   <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
                   <span>{player.name}</span>
+                </td>
+                <td
+                  className={cx(
+                    'text-center',
+                    report.rating <= Rating.LOW && 'text-error',
+                    report.rating > Rating.LOW && report.rating < Rating.HIGH && 'text-inherit',
+                    report.rating >= Rating.HIGH && 'text-success',
+                  )}
+                >
+                  {new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(report.rating)}
                 </td>
                 <td className="text-center">{report.kills.length}</td>
                 <td className="text-center">{report.deaths.length}</td>
