@@ -132,7 +132,7 @@ export function IPCGenericHandler() {
 
     // get the semver string from the what's new file
     const whatsNewContent = await fs.promises.readFile(whatsNewFile, 'utf8');
-    const [whatsNewVersion] = whatsNewContent.split('\n')[0].match(/(v.+)$/g);
+    const [whatsNewVersion] = whatsNewContent.split('\n')[0].match(/(v.+)/g);
 
     // grab last seen version
     const lastSeenVersionFilePath = path.join(app.getPath('userData'), 'LastSeenVersion');
