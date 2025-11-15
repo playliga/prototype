@@ -58,7 +58,7 @@ type AllTranslationKeys = DotKeys<Translations>;
  *
  * @type {WithShared}
  */
-type WithShared<T extends object> = T & Translations['shared'];
+type WithShared<T extends object> = T & Translations['shared'] & Translations['achievements'];
 
 /**
  * All valid dot-notation keys for a given scoped context.

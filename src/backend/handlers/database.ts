@@ -45,6 +45,9 @@ export default function () {
   );
 
   // generic database query handlers
+  ipcMain.handle(Constants.IPCRoute.ACHIEVEMENTS_ALL, () =>
+    DatabaseClient.prisma.achievement.findMany(),
+  );
   ipcMain.handle(Constants.IPCRoute.COMPETITIONS_ALL, (_, query: Prisma.CompetitionFindManyArgs) =>
     DatabaseClient.prisma.competition.findMany(query),
   );

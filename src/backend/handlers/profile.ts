@@ -12,7 +12,7 @@ import { sample, sampleSize } from 'lodash';
 import { Prisma } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
-import { DatabaseClient, Game, WindowManager } from '@liga/backend/lib';
+import { Bus, DatabaseClient, Game, WindowManager } from '@liga/backend/lib';
 
 /** @interface */
 interface ProfileCreateIPCPayload {
@@ -452,6 +452,9 @@ export default function () {
           updatedAt: new Date().toISOString(),
         },
       });
+
+      // send signal to achievement system
+      Bus.Signal.Instance.emit(Bus.MessageIdentifier.SQUAD_RELEASE_PLAYER);
 
       // return updated squad
       return profile.team.players;

@@ -20,6 +20,12 @@ type IPCRendererCallback = (...args: unknown[]) => void;
  * @exports
  */
 export default {
+  achievements: {
+    all: () =>
+      ipcRenderer.invoke(Constants.IPCRoute.ACHIEVEMENTS_ALL) as Promise<
+        Array<Prisma.AchievementGetPayload<unknown>>
+      >,
+  },
   app: {
     detectGame: (game: Constants.Game) =>
       ipcRenderer.invoke(Constants.IPCRoute.APP_DETECT_GAME, game) as Promise<string>,

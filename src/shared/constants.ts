@@ -8,6 +8,23 @@
  */
 
 /**
+ * Achievement identifiers.
+ *
+ * @enum
+ */
+export enum Achievement {
+  FLAWLESS = 'FLAWLESS',
+  KENSHI = 'KENSHI',
+  KING_OF_THE_WORLD = 'KING_OF_THE_WORLD',
+  LET_IT_GO = 'LET_IT_GO',
+  MARK_IN_HISTORY = 'MARK_IN_HISTORY',
+  MOUNT_EVEREST = 'MOUNT_EVEREST',
+  POKER = 'POKER',
+  SMOOTH_OPERATOR = 'SMOOTH_OPERATOR',
+  UNDERDOG = 'UNDERDOG',
+}
+
+/**
  * Generic settings and configuration.
  *
  * @enum
@@ -237,6 +254,8 @@ export enum LocaleIdentifier {
  * @enum
  */
 export enum IPCRoute {
+  ACHIEVEMENT_UNLOCKED = '/achievement/unlocked',
+  ACHIEVEMENTS_ALL = '/achievements/all',
   APP_DETECT_GAME = '/app/detect/game',
   APP_DETECT_STEAM = '/app/detect/steam',
   APP_DIALOG = '/app/dialog',

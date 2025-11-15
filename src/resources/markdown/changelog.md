@@ -1,3 +1,20 @@
+## [3.0.0-beta.73](https://github.com/playliga/prototype/compare/v3.0.0-beta.72...v3.0.0-beta.73) (2025-11-15)
+
+### Features
+
+- add audio to main menu ([#543](https://github.com/playliga/prototype/issues/543)) ([42dd961](https://github.com/playliga/prototype/commit/42dd9612332528fa53e7129ab37b6ddb3c551756))
+- add global settings that apply to new saves ([#515](https://github.com/playliga/prototype/issues/515)) ([5fddeba](https://github.com/playliga/prototype/commit/5fddeba2ad64af8986056649ce1929fab4e18e6a))
+- add world ranking ([#300](https://github.com/playliga/prototype/issues/300)) ([66a44a6](https://github.com/playliga/prototype/commit/66a44a63ff73f0fddf0750f4070e6403479eca89))
+- improve confetti physics and add firework sound ([#542](https://github.com/playliga/prototype/issues/542)) ([9134c37](https://github.com/playliga/prototype/commit/9134c379baca20f37463b3b58ccce35e9a4a4cb5))
+- track player ratings similar to HLTV ratings ([#541](https://github.com/playliga/prototype/issues/541)) ([27ef1da](https://github.com/playliga/prototype/commit/27ef1daad877844ac01c368e84cf66bbc1f2be3c))
+- update italian and portuguese translations ([#544](https://github.com/playliga/prototype/issues/544)) ([c579d61](https://github.com/playliga/prototype/commit/c579d61b389b8ec076befc8d0fd2f2155668a7cf))
+- users can now edit their player details after creating a new save ([#545](https://github.com/playliga/prototype/issues/545)) ([68668cc](https://github.com/playliga/prototype/commit/68668ccaad980c1ced1b9abce2509c31f772a85d))
+
+### Bug Fixes
+
+- fix recent matches header in dashboard and team profile pages ([#540](https://github.com/playliga/prototype/issues/540)) ([976c832](https://github.com/playliga/prototype/commit/976c8325ff39c98aa38dd1e3774fa64173762c8d))
+- fix whats new modal ([31fa091](https://github.com/playliga/prototype/commit/31fa091d7cdf58663daccf7905c36f5abdeb2e87))
+
 ## [3.0.0-beta.72](https://github.com/playliga/prototype/compare/v3.0.0-beta.71...v3.0.0-beta.72) (2025-10-27)
 
 ### Bug Fixes

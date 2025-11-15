@@ -7,7 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Routes from '@liga/frontend/routes';
 import { Toast, Toaster, toast } from 'react-hot-toast';
-import { FaBars, FaCaretDown, FaEnvelopeOpen } from 'react-icons/fa';
+import { FaBars, FaCaretDown, FaCrown, FaEnvelopeOpen } from 'react-icons/fa';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext, AppStateProvider } from '@liga/frontend/redux';
@@ -125,6 +125,35 @@ const routes = createMemoryRouter([
 ]);
 
 /**
+ * Custom toast for incoming achievement notifications.
+ *
+ * @param props               The root props.
+ * @param props.achievementId The achievement id.
+ * @function
+ */
+function ToastAchievement(props: Toast & { achievementId: Constants.Achievement }) {
+  const t = useTranslation('achievements');
+  const title = t(props.achievementId as keyof typeof t);
+  const subtitle = t(`${props.achievementId}_DESC` as keyof typeof t);
+  return (
+    <dialog>
+      <section>
+        <figure className="text-amber-400">
+          <FaCrown />
+        </figure>
+        <article>
+          <header title={title}>{title}</header>
+          <footer title={subtitle}>{subtitle}</footer>
+        </article>
+      </section>
+      <section>
+        <button onClick={() => toast.dismiss(props.id)}>Dismiss</button>
+      </section>
+    </dialog>
+  );
+}
+
+/**
  * Custom toast for incoming e-mail notifications.
  *
  * @param props       Root props.
@@ -184,6 +213,11 @@ function Root() {
       if (!/^(accepted|rejected)/gi.test(dialogue.content)) {
         toast((data) => <ToastEmail {...data} email={email} />);
       }
+    });
+
+    // handle incoming achievement notifications
+    api.ipc.on(Constants.IPCRoute.ACHIEVEMENT_UNLOCKED, (achievementId: Constants.Achievement) => {
+      toast((data) => <ToastAchievement {...data} achievementId={achievementId} />);
     });
 
     // handle incoming profile updates
@@ -291,6 +325,17 @@ function Root() {
             className="menu dropdown-content bg-base-100 rounded-box w-64 shadow-sm"
           >
             <li className="menu-title">{state.profile?.team.name}</li>
+            <li>
+              <a
+                onClick={() =>
+                  api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                    target: '/achievements',
+                  })
+                }
+              >
+                Achievements
+              </a>
+            </li>
             <li>
               <a
                 onClick={() =>

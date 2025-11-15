@@ -8,6 +8,7 @@ import * as Autofill from './autofill';
 import * as Simulator from './simulator';
 import * as WindowManager from './window-manager';
 import * as Engine from './engine';
+import * as Bus from './bus';
 import Tournament from '@liga/shared/tournament';
 import DatabaseClient from './database-client';
 import getLocale from './locale';
@@ -337,7 +338,7 @@ export async function createWelcomeEmail() {
  * @function
  */
 export async function distributePrizePool(
-  competition: Prisma.CompetitionGetPayload<{ include: { competitors: true; tier: true } }>,
+  competition: Prisma.CompetitionGetPayload<typeof Eagers.competitionAlt>,
   preloadedTournament?: Tournament,
 ) {
   // bail if competition is not done yet
@@ -1036,7 +1037,7 @@ export async function sendEmail(
  * @function
  */
 export async function sendUserAward(
-  competition: Prisma.CompetitionGetPayload<{ include: { competitors: true; tier: true } }>,
+  competition: Prisma.CompetitionGetPayload<typeof Eagers.competitionAlt>,
   preloadedTournament?: Tournament,
 ) {
   // bail if competition is not done yet
@@ -1056,6 +1057,9 @@ export async function sendUserAward(
   if (!userSeed) {
     return Promise.resolve();
   }
+
+  // send signal to achievement system
+  Bus.Signal.Instance.emit(Bus.MessageIdentifier.TOURNEY_COMPLETED, competition, tournament);
 
   // check if competition has any awards
   const awards = Constants.Awards.filter(
@@ -1970,6 +1974,11 @@ export async function onMatchdayNPC(entry: Calendar) {
     });
   }
 
+  // send signal to achievement system
+  if (entry.type === Constants.CalendarEntry.MATCHDAY_USER) {
+    Bus.Signal.Instance.emit(Bus.MessageIdentifier.MATCH_COMPLETED);
+  }
+
   // apply elo deltas
   const homeExpectedScore = Util.getEloWinProbability(home.team.elo, away.team.elo);
   const homeActualScore =
@@ -2294,6 +2303,9 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
   if (result.transfer.status !== Constants.TransferStatus.PLAYER_ACCEPTED) {
     return Promise.resolve();
   }
+
+  // send signal to achievement system
+  Bus.Signal.Instance.emit(Bus.MessageIdentifier.TRANSFER_COMPLETED, transfer);
 
   // update team earnings
   return Promise.all([

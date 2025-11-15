@@ -4,6 +4,7 @@
  *
  * @module
  */
+import Achievements from './achievements';
 import Brackets from './brackets';
 import Issues from './issues';
 import MapPool from './map-pool';
@@ -24,6 +25,7 @@ import User from './user';
  */
 export default {
   // standalone routes
+  Achievements,
   Brackets,
   MapPool,
   Mods,

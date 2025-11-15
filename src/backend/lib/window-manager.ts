@@ -99,15 +99,19 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
           label: 'File',
           submenu: [
             {
-              label: 'Threading',
-              click: () => {
-                get(Constants.WindowIdentifier.Threading);
-              },
+              label: 'Achievements',
+              click: () => send(Constants.WindowIdentifier.Modal, { target: '/achievements' }),
             },
             {
               label: 'Settings',
               accelerator: is.osx() ? 'Cmd+,' : 'Ctrl+,',
               click: () => send(Constants.WindowIdentifier.Modal, { target: '/settings' }),
+            },
+            {
+              label: 'Threading',
+              click: () => {
+                get(Constants.WindowIdentifier.Threading);
+              },
             },
             { type: 'separator' },
             {

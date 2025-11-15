@@ -23,6 +23,9 @@ export const competition = {
 };
 
 /** @constant */
+export const competitionAlt = { include: { competitors: true, tier: true } };
+
+/** @constant */
 export const continent = {
   include: { countries: true },
 };

@@ -22,6 +22,11 @@ datasource db {
 // Models represent the entities of your application domain
 // ----------------------------------------------------------
 
+model Achievement {
+  id                  String              @id
+  unlocked            Boolean?            @default(false)
+}
+
 model Bonus {
   id                  Int                 @id @default(autoincrement())
   type                Int

@@ -1,5 +1,7 @@
+export * as Achievements from './achievements';
 export * as Autofill from './autofill';
 export * as CachedFetch from './cached-fetch';
+export * as Bus from './bus';
 export * as Engine from './engine';
 export * as FileManager from './file-manager';
 export * as Firebase from './firebase';

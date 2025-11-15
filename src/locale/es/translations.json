@@ -247,6 +247,16 @@
       "years": "año(s)"
     }
   },
+  "achievements": {
+    "FLAWLESS": "Flawless",
+    "FLAWLESS_DESC": "Complete a division with all wins.",
+    "LET_IT_GO": "Let it go",
+    "LET_IT_GO_DESC": "Release a player from your team.",
+    "MOUNT_EVEREST": "Mount Everest",
+    "MOUNT_EVEREST_DESC": "Reach the top of the World Ranking.",
+    "SMOOTH_OPERATOR": "Smooth Operator",
+    "SMOOTH_OPERATOR_DESC": "Buy a Player for less than his market value."
+  },
   "shared": {
     "alias": "Alias",
     "amount": "Cantidad",

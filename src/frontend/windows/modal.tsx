@@ -25,6 +25,10 @@ const routes = createMemoryRouter([
     children: [
       // standalone routes
       {
+        path: '/achievements',
+        element: <Routes.Modal.Achievements />,
+      },
+      {
         path: '/brackets',
         element: <Routes.Modal.Brackets />,
       },

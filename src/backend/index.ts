@@ -9,7 +9,7 @@ import * as Protocols from '@liga/backend/protocols';
 import log from 'electron-log';
 import { app, protocol, BrowserWindow } from 'electron';
 import { Constants, Util, is } from '@liga/shared';
-import { DatabaseClient, WindowManager } from '@liga/backend/lib';
+import { Achievements, DatabaseClient, WindowManager } from '@liga/backend/lib';
 
 /**
  * This method will be called when Electron has finished
@@ -32,6 +32,9 @@ async function handleOnReady() {
 
   // register all protocol handlers
   Object.values(Protocols).forEach((protocol) => protocol.handler());
+
+  // register achievements handler
+  Achievements.handler();
 
   // create initial splash window
   WindowManager.get(WindowManager.WINDOW_CONFIGS.splash.id);
