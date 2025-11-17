@@ -898,8 +898,6 @@ export const GameSettings = {
   CSGO_GAMEDIR: 'csgo',
   CSGO_LANGUAGE_FILE: 'resource/csgo_english.txt',
   CSGO_SERVER_CONFIG_FILE: 'cfg/listenserver.cfg',
-  CSGO_STEAM_INF_FILE: 'steam.inf',
-  CSGO_VERSION: 2000258,
 
   // cssource settings
   CSSOURCE_APPID: 240,

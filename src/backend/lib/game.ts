@@ -616,30 +616,6 @@ export class Server {
   }
 
   /**
-   * Patches the `steam.inf` file to restore
-   * CS:GO inventory interactions.
-   *
-   * Since the file  is controlled client-side we
-   * cannot patch it from the SourceMod plugin.
-   *
-   * @note csgo only.
-   * @function
-   */
-  private async generateInventoryConfig() {
-    const original = path.join(
-      this.settings.general.gamePath,
-      this.baseDir,
-      this.gameDir,
-      Constants.GameSettings.CSGO_STEAM_INF_FILE,
-    );
-    const template = await fs.promises.readFile(original, 'utf8');
-    const content = template
-      .replace(/ClientVersion=[\d]+/g, `ClientVersion=${Constants.GameSettings.CSGO_VERSION}`)
-      .replace(/ServerVersion=[\d]+/g, `ServerVersion=${Constants.GameSettings.CSGO_VERSION}`);
-    return fs.promises.writeFile(original, content, 'utf8');
-  }
-
-  /**
    * Generates the MOTD text file.
    *
    * @note cs16, czero, and css only.
@@ -1242,7 +1218,6 @@ export class Server {
         await this.initLogsDir();
         break;
       default:
-        await this.generateInventoryConfig();
         await this.generateScoreboardConfig();
         await this.generateBetterBotsConfig();
         break;
