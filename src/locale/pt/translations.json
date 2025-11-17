@@ -45,6 +45,7 @@
         "statusSaving": "Salvando dados dos times e dos jogadores...",
         "statusWorldgen": "Aquecendo...",
         "teamInfo": "Dados do time",
+        "teamTier": "Divisions unlock when promoted in earlier saves.",
         "userInfo": "Dados do usuário"
       },
       "delete": {

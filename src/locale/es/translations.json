@@ -45,6 +45,7 @@
         "statusSaving": "Guardando datos del jugador y del equipo...",
         "statusWorldgen": "Generando mundo...",
         "teamInfo": "Información del Equipo",
+        "teamTier": "Divisions unlock when promoted in earlier saves.",
         "userInfo": "Información del Usuario"
       },
       "delete": {

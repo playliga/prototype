@@ -25,6 +25,7 @@ import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/componen
 const formDefaultValues: AppState['windowData'][Constants.WindowIdentifier.Landing]['team'] = {
   name: '',
   countryId: undefined,
+  tier: Constants.Prestige.findIndex((prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN),
 };
 
 /**
@@ -47,6 +48,16 @@ export default function () {
     defaultValues: windowData?.team ? windowData.team : formDefaultValues,
     mode: 'all',
   });
+
+  // determine what tiers the user has unlocked
+  const tiers = React.useMemo(() => {
+    if (!state.profiles.length) {
+      return Constants.Prestige.slice(0, 1);
+    }
+
+    const max = state.profiles.reduce((prev, profile) => Math.max(prev, profile.team.tier), 0);
+    return Constants.Prestige.filter((_, prestigeIdx) => prestigeIdx <= max);
+  }, [state.profiles]);
 
   // load country data
   const countrySelectorData = React.useMemo(
@@ -206,6 +217,24 @@ export default function () {
           />
           <footer className="label h-5">
             <span className="label-text-alt">{formState.errors?.countryId?.message}</span>
+          </footer>
+        </section>
+        <section className="fieldset w-full">
+          <label className="label">
+            <span className="label-text">{t('shared.tierPrestige')}</span>
+          </label>
+          <select className="select w-full" {...register('tier', { valueAsNumber: true })}>
+            {tiers.map((tier) => (
+              <option
+                key={tier}
+                value={Constants.Prestige.findIndex((prestige) => prestige === tier)}
+              >
+                {Constants.IdiomaticTier[tier]}
+              </option>
+            ))}
+          </select>
+          <footer className="label h-5">
+            <span className="label-text-alt">{t('landing.create.teamTier')}</span>
           </footer>
         </section>
         <button

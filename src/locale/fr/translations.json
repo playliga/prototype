@@ -45,6 +45,7 @@
         "statusSaving": "Sauvegarde des informations en cours...",
         "statusWorldgen": "Generation de monde en cours...",
         "teamInfo": "Informations de l'équipe",
+        "teamTier": "Divisions unlock when promoted in earlier saves.",
         "userInfo": "Informations personnelles"
       },
       "delete": {

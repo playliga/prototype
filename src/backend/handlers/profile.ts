@@ -124,12 +124,8 @@ export default function () {
           name: data.team.name,
           slug: data.team.name,
           blazon: data.team.blazon,
-          prestige: Constants.Prestige.findIndex(
-            (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
-          ),
-          tier: Constants.Prestige.findIndex(
-            (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
-          ),
+          prestige: data.team.tier,
+          tier: data.team.tier,
           country: {
             connect: {
               id: data.team.countryId,
@@ -223,9 +219,7 @@ export default function () {
           id: {
             not: team.id,
           },
-          tier: Constants.Prestige.findIndex(
-            (prestige) => prestige === Constants.TierSlug.LEAGUE_OPEN,
-          ),
+          tier: data.team.tier,
           country: {
             continent: {
               federationId: continent.federationId,
@@ -237,9 +231,10 @@ export default function () {
       // pick a random team and set their prestige and tier to null
       const teamToReplace = sample(teams);
       log.info(
-        'replacing %s from %s. total teams: %d',
+        'replacing "%s" from "%s: %s". total teams: %d',
         teamToReplace.name,
         continent.federation.name,
+        Constants.IdiomaticTier[Constants.Prestige[data.team.tier]],
         teams.length,
       );
 
