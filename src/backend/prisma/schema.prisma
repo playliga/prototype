@@ -431,6 +431,7 @@ model Tier {
   groupSize           Int?
   triggerTierSlug     String?
   triggerOffsetDays   Int?
+  lan                 Boolean?            @default(false)
 
   // has many
   competitions        Competition[]

@@ -40,6 +40,7 @@ const data: Array<LeagueSeedData> = [
         slug: Constants.TierSlug.LEAGUE_OPEN_PLAYOFFS,
         size: 4,
         triggerOffsetDays: 7,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.LEAGUE_INTERMEDIATE),
@@ -53,6 +54,7 @@ const data: Array<LeagueSeedData> = [
         slug: Constants.TierSlug.LEAGUE_INTERMEDIATE_PLAYOFFS,
         size: 4,
         triggerOffsetDays: 7,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.LEAGUE_MAIN),
@@ -66,6 +68,7 @@ const data: Array<LeagueSeedData> = [
         slug: Constants.TierSlug.LEAGUE_MAIN_PLAYOFFS,
         size: 4,
         triggerOffsetDays: 7,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.LEAGUE_ADVANCED),
@@ -79,6 +82,7 @@ const data: Array<LeagueSeedData> = [
         slug: Constants.TierSlug.LEAGUE_ADVANCED_PLAYOFFS,
         size: 4,
         triggerOffsetDays: 7,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.LEAGUE_PREMIER),
@@ -92,6 +96,7 @@ const data: Array<LeagueSeedData> = [
         slug: Constants.TierSlug.LEAGUE_PREMIER_PLAYOFFS,
         size: 4,
         triggerOffsetDays: 7,
+        lan: true,
       },
     ],
   },
@@ -164,6 +169,7 @@ const data: Array<LeagueSeedData> = [
         groupSize: 4,
         triggerOffsetDays: 7,
         triggerTierSlug: Constants.TierSlug.ESWC_LEGENDS,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.ESWC_LEGENDS),
@@ -172,6 +178,7 @@ const data: Array<LeagueSeedData> = [
         groupSize: 4,
         triggerOffsetDays: 3,
         triggerTierSlug: Constants.TierSlug.ESWC_CHAMPIONS,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.ESWC_CHAMPIONS),
@@ -180,12 +187,14 @@ const data: Array<LeagueSeedData> = [
         groupSize: 4,
         triggerOffsetDays: 3,
         triggerTierSlug: Constants.TierSlug.ESWC_PLAYOFFS,
+        lan: true,
       },
       {
         name: startCase(Constants.TierSlug.ESWC_PLAYOFFS),
         slug: Constants.TierSlug.ESWC_PLAYOFFS,
         size: 8,
         triggerOffsetDays: 3,
+        lan: true,
       },
     ],
   },

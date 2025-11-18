@@ -786,6 +786,14 @@ export class Server {
           bombTimer: this.settings.matchRules.bombTimer,
           defuserAllocation: this.settings.matchRules.defuserAllocation,
 
+          // dynamic ping (goldsrc and css only)
+          ping: this.match.competition.tier.lan
+            ? Constants.GameSettings.SERVER_CVAR_PING_LAN
+            : Constants.GameSettings.SERVER_CVAR_PING_ONLINE,
+          ping_flux: this.match.competition.tier.lan
+            ? Constants.GameSettings.SERVER_CVAR_PING_LAN_FLUX
+            : Constants.GameSettings.SERVER_CVAR_PING_ONLINE_FLUX,
+
           // csgo only
           match_stat: this.match.competition.tier.name,
           teamflag_t: home.team.country.code,
