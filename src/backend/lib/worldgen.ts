@@ -911,14 +911,8 @@ export async function recordMatchResults() {
         }
       }
 
-      // awards and prize pool distribution
-      await Promise.all([
-        sendUserAward(competition, tournament),
-        distributePrizePool(competition, tournament),
-      ]);
-
       // update the competition database record
-      return DatabaseClient.prisma.competition.update({
+      await DatabaseClient.prisma.competition.update({
         where: { id: Number(competitionId) },
         data: {
           status: tournament.$base.isDone()
@@ -941,6 +935,12 @@ export async function recordMatchResults() {
           },
         },
       });
+
+      // awards and prize pool distribution
+      return Promise.all([
+        sendUserAward(competition, tournament),
+        distributePrizePool(competition, tournament),
+      ]);
     }),
   );
 }
@@ -1059,7 +1059,7 @@ export async function sendUserAward(
   }
 
   // send signal to achievement system
-  Bus.Signal.Instance.emit(Bus.MessageIdentifier.TOURNEY_COMPLETED, competition, tournament);
+  Bus.Signal.Instance.emit(Bus.MessageIdentifier.TOURNEY_COMPLETED, competition);
 
   // check if competition has any awards
   const awards = Constants.Awards.filter(
@@ -1886,6 +1886,10 @@ export async function onEmailSend(entry: Calendar) {
  * @function
  */
 export async function onSeasonStart() {
+  // send signal to achievement system
+  Bus.Signal.Instance.emit(Bus.MessageIdentifier.SEASON_START);
+
+  // run start of season tasks
   Engine.Runtime.Instance.log.info('Starting the season...');
   return createWelcomeEmail()
     .then(scheduleNextSeasonStart)

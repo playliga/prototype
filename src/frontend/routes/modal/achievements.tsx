@@ -17,11 +17,6 @@ function Achievement(props: Awaited<ReturnType<typeof api.achievements.all>>[num
   const title = t(props.id as keyof typeof t);
   const subtitle = t(`${props.id}_DESC` as keyof typeof t);
 
-  // @todo: remove after beta
-  if (title === props.id) {
-    return null;
-  }
-
   return (
     <tr>
       <td>

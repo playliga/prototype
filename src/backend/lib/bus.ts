@@ -5,7 +5,6 @@
  * @module
  */
 import events from 'node:events';
-import Tournament from '@liga/shared/tournament';
 import { Prisma } from '@prisma/client';
 import { Eagers } from '@liga/shared';
 
@@ -17,7 +16,7 @@ import { Eagers } from '@liga/shared';
 export enum MessageIdentifier {
   MATCH_COMPLETED = 'MATCH_COMPLETED',
   MATCH_UPDATE_MAP_LIST = 'MATCH_UPDATE_MAP_LIST',
-  SEASON_COMPLETED = 'SEASON_COMPLETED',
+  SEASON_START = 'SEASON_START',
   SQUAD_RELEASE_PLAYER = 'SQUAD_RELEASE_PLAYER',
   TRAINING_COMPLETED = 'TRAINING_COMPLETED',
   TOURNEY_COMPLETED = 'TOURNEY_COMPLETED',
@@ -31,11 +30,12 @@ export enum MessageIdentifier {
  */
 interface Events {
   [MessageIdentifier.MATCH_COMPLETED]: () => void;
+  [MessageIdentifier.SEASON_START]: () => void;
   [MessageIdentifier.SQUAD_RELEASE_PLAYER]: () => void;
   [MessageIdentifier.TOURNEY_COMPLETED]: (
     competition: Prisma.CompetitionGetPayload<typeof Eagers.competitionAlt>,
-    tournament: Tournament,
   ) => void;
+  [MessageIdentifier.TRAINING_COMPLETED]: () => void;
   [MessageIdentifier.TRANSFER_COMPLETED]: (
     transfer: Prisma.TransferGetPayload<typeof Eagers.transfer>,
   ) => void;

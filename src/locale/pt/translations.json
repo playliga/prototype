@@ -251,12 +251,22 @@
   "achievements": {
     "FLAWLESS": "Flawless",
     "FLAWLESS_DESC": "Complete a division with all wins.",
+    "KENSHI": "Kenshi",
+    "KENSHI_DESC": "Train a player to max stats.",
+    "KING_OF_THE_WORLD": "King of the World",
+    "KING_OF_THE_WORLD_DESC": "Win your first major.",
     "LET_IT_GO": "Let it go",
     "LET_IT_GO_DESC": "Release a player from your team.",
+    "MARK_IN_HISTORY": "Mark in History",
+    "MARK_IN_HISTORY_DESC": "Remain unbeaten for 31 consecutive matches.",
     "MOUNT_EVEREST": "Mount Everest",
     "MOUNT_EVEREST_DESC": "Reach the top of the World Ranking.",
+    "POKER": "Poker",
+    "POKER_DESC": "Win the major, division playoffs, and the open cup in one season.",
     "SMOOTH_OPERATOR": "Smooth Operator",
-    "SMOOTH_OPERATOR_DESC": "Buy a Player for less than his market value."
+    "SMOOTH_OPERATOR_DESC": "Buy a Player for less than his market value.",
+    "UNDERDOG": "Underdog",
+    "UNDERDOG_DESC": "Win a major without buying any player."
   },
   "shared": {
     "alias": "Apelido",

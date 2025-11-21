@@ -310,6 +310,9 @@ export default function () {
       ),
     );
 
+    // send signal to achievement system
+    Bus.Signal.Instance.emit(Bus.MessageIdentifier.TRAINING_COMPLETED);
+
     // and then update the profile record to rehydrate
     // the cache with updated player stats and gains
     return DatabaseClient.prisma.profile.update({
