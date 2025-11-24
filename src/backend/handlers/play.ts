@@ -5,9 +5,10 @@
  */
 import type { Prisma } from '@prisma/client';
 import log from 'electron-log';
-import { ipcMain } from 'electron';
+import AppInfo from 'package.json';
+import { dialog, ipcMain, shell } from 'electron';
 import { flatten, merge, sample } from 'lodash';
-import { Constants, Eagers, Util } from '@liga/shared';
+import { Constants, Dedent, Eagers, Util } from '@liga/shared';
 import {
   DatabaseClient,
   Game,
@@ -147,8 +148,43 @@ export default function () {
     const settings = Util.loadSettings(profile.settings);
 
     // start the server and play the match
+    let gameServerError: NodeJS.ErrnoException = null;
     const gameServer = new Game.Server(profile, match, null, spectating);
-    await gameServer.start();
+
+    try {
+      await gameServer.start();
+    } catch (error) {
+      mainWindow.restore();
+      log.error(error);
+      gameServerError = error;
+    }
+
+    // show an error dialog if we ran into issues
+    if (gameServerError) {
+      const res = await dialog.showMessageBox(mainWindow, {
+        type: 'error',
+        buttons: ['OK', 'View Troubleshooting Wiki'],
+        cancelId: 0,
+        message: 'Counter-Strike Game Session Error',
+        detail: Dedent.dedent`
+          Common causes include missing game plugins, permissions, or firewall issues.
+
+          For workarounds and other known issues, please visit the troubleshooting wiki.
+
+          Error Details:
+
+          __ERROR__
+        `.replace('__ERROR__', JSON.stringify(gameServerError, null, 4)),
+      });
+
+      if (res.response === 1) {
+        await shell.openExternal(
+          `${AppInfo.repository.url.replace('.git', '')}/wiki/troubleshooting`,
+        );
+      }
+
+      return;
+    }
 
     // game over; collect postgame info
     const [homeScore, awayScore] = gameServer.result.score;
