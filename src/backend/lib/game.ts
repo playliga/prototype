@@ -1272,7 +1272,8 @@ export class Server {
       this.log.error(error);
     });
 
-    // connect to rcon
+    // rcon let's us know when the server is ready so the
+    // scorebot can start tailing the latest log file
     this.rcon = new RCON.Client(
       this.getLocalIP(),
       Constants.GameSettings.RCON_PORT,
@@ -1315,19 +1316,6 @@ export class Server {
       this.scorebotEvents.push({ type: Scorebot.EventIdentifier.ROUND_OVER, payload }),
     );
 
-    // @todo: remove when metamod/cssharp are fixed post cs2 july update
-    this.scorebot.on(Scorebot.EventIdentifier.SAY, async (payload) => {
-      if (payload === '.ready' && this.settings.general.game === Constants.Game.CS2) {
-        this.rcon.send('mp_warmup_end');
-      }
-    });
-    this.scorebot.on(Scorebot.EventIdentifier.PLAYER_ENTERED, async () => {
-      if (this.settings.general.game === Constants.Game.CS2) {
-        await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 500);
-        this.rcon.send('exec liga-bots');
-      }
-    });
-
     // scorebot game over handler resolves our promise
     return new Promise((resolve) => {
       this.scorebot.on(Scorebot.EventIdentifier.GAME_OVER, async (payload) => {
@@ -1338,11 +1326,6 @@ export class Server {
           this.settings.general.game === Constants.Game.CSGO
         ) {
           await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000);
-        }
-
-        // @todo: remove when metamod/cssharp are fixed post cs2 july update
-        if (this.settings.general.game === Constants.Game.CS2) {
-          await this.rcon.send('quit');
         }
 
         // in csgo and cs2, overtimes affect the order of the final
