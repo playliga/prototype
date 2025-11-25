@@ -1,3 +1,17 @@
+## [3.0.0-beta.74](https://github.com/playliga/prototype/compare/v3.0.0-beta.73...v3.0.0-beta.74) (2025-11-25)
+
+### Features
+
+- add lan pings for high-profile tournaments ([#547](https://github.com/playliga/prototype/issues/547)) ([8c22a7e](https://github.com/playliga/prototype/commit/8c22a7e288e1ffaff4c66e2a953e57d8a6e71e90))
+- add more achievements ([#552](https://github.com/playliga/prototype/issues/552)) ([ff8149f](https://github.com/playliga/prototype/commit/ff8149f4682fddd1d62ef7b27bb6f5f0ddd983ef))
+- divisions can be unlocked when promoted in earlier saves ([#531](https://github.com/playliga/prototype/issues/531)) ([697b56a](https://github.com/playliga/prototype/commit/697b56a46f74d8c19843bc567b55c7db246cd428))
+
+### Bug Fixes
+
+- improved logging and error handling when launching counter-strike ([#554](https://github.com/playliga/prototype/issues/554)) ([273f898](https://github.com/playliga/prototype/commit/273f898a8c127c377851fdf0e1fc0b851d570e09))
+- reintegrate cs2sharp game plugin ([#453](https://github.com/playliga/prototype/issues/453)) ([e208438](https://github.com/playliga/prototype/commit/e2084387aa51f567fe1396d667e011aaa88cbec0))
+- remove csgo inventory patch since it no longer works. thanks valve ([#549](https://github.com/playliga/prototype/issues/549)) ([d846c87](https://github.com/playliga/prototype/commit/d846c8766ba1d1e590855112de90b93e2ac162f4))
+
 ## [3.0.0-beta.73](https://github.com/playliga/prototype/compare/v3.0.0-beta.72...v3.0.0-beta.73) (2025-11-15)
 
 ### Features
