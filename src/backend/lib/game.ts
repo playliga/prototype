@@ -1273,25 +1273,23 @@ export class Server {
     });
 
     // connect to rcon
-    //
-    // @todo: remove when metamod/cssharp are fixed post cs2 july update
-    if (this.settings.general.game === Constants.Game.CS2) {
-      this.rcon = new RCON.Client(
-        this.getLocalIP(),
-        Constants.GameSettings.RCON_PORT,
-        Constants.GameSettings.RCON_PASSWORD,
-        {
-          tcp: true,
-          retryMax: Constants.GameSettings.RCON_MAX_ATTEMPTS,
-        },
-      );
+    this.rcon = new RCON.Client(
+      this.getLocalIP(),
+      Constants.GameSettings.RCON_PORT,
+      Constants.GameSettings.RCON_PASSWORD,
+      {
+        tcp:
+          this.settings.general.game !== Constants.Game.CS16 &&
+          this.settings.general.game !== Constants.Game.CZERO,
+        retryMax: Constants.GameSettings.RCON_MAX_ATTEMPTS,
+      },
+    );
 
-      try {
-        await this.rcon.init();
-      } catch (error) {
-        gameClientProcess.kill();
-        throw error;
-      }
+    try {
+      await this.rcon.init();
+    } catch (error) {
+      gameClientProcess.kill();
+      throw error;
     }
 
     // start the scorebot
