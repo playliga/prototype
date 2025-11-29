@@ -174,7 +174,10 @@ export default function () {
           Error Details:
 
           __ERROR__
-        `.replace('__ERROR__', JSON.stringify(gameServerError, null, 4)),
+        `.replace(
+          '__ERROR__',
+          JSON.stringify(gameServerError, Object.getOwnPropertyNames(gameServerError), 4),
+        ),
       });
 
       if (res.response === 1) {

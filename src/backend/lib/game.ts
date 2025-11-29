@@ -172,6 +172,53 @@ export function getGameExecutable(game: string, rootPath: string | null) {
 }
 
 /**
+ * Gets the specified game's log directory.
+ *
+ * @param game      The game.
+ * @param rootPath  The game's root directory.
+ * @function
+ */
+export function getGameLogDirectory(game: string, rootPath: string) {
+  switch (game) {
+    case Constants.Game.CS16:
+      return path.join(
+        rootPath,
+        Constants.GameSettings.CS16_BASEDIR,
+        Constants.GameSettings.CS16_GAMEDIR,
+        Constants.GameSettings.LOGS_DIR,
+      );
+    case Constants.Game.CS2:
+      return path.join(
+        rootPath,
+        Constants.GameSettings.CS2_BASEDIR,
+        Constants.GameSettings.CS2_GAMEDIR,
+        Constants.GameSettings.LOGS_DIR,
+      );
+    case Constants.Game.CSS:
+      return path.join(
+        rootPath,
+        Constants.GameSettings.CSSOURCE_BASEDIR,
+        Constants.GameSettings.CSSOURCE_GAMEDIR,
+        Constants.GameSettings.LOGS_DIR,
+      );
+    case Constants.Game.CZERO:
+      return path.join(
+        rootPath,
+        Constants.GameSettings.CZERO_BASEDIR,
+        Constants.GameSettings.CZERO_GAMEDIR,
+        Constants.GameSettings.LOGS_DIR,
+      );
+    default:
+      return path.join(
+        rootPath,
+        Constants.GameSettings.CSGO_BASEDIR,
+        Constants.GameSettings.CSGO_GAMEDIR,
+        Constants.GameSettings.LOGS_DIR,
+      );
+  }
+}
+
+/**
  * Gets the specified game's log file.
  *
  * @param game      The game.
@@ -179,47 +226,9 @@ export function getGameExecutable(game: string, rootPath: string | null) {
  * @function
  */
 export async function getGameLogFile(game: string, rootPath: string) {
-  const basePath = (() => {
-    switch (game) {
-      case Constants.Game.CS16:
-        return path.join(
-          rootPath,
-          Constants.GameSettings.CS16_BASEDIR,
-          Constants.GameSettings.CS16_GAMEDIR,
-          Constants.GameSettings.LOGS_DIR,
-        );
-      case Constants.Game.CS2:
-        return path.join(
-          rootPath,
-          Constants.GameSettings.CS2_BASEDIR,
-          Constants.GameSettings.CS2_GAMEDIR,
-          Constants.GameSettings.LOGS_DIR,
-        );
-      case Constants.Game.CSS:
-        return path.join(
-          rootPath,
-          Constants.GameSettings.CSSOURCE_BASEDIR,
-          Constants.GameSettings.CSSOURCE_GAMEDIR,
-          Constants.GameSettings.LOGS_DIR,
-        );
-      case Constants.Game.CZERO:
-        return path.join(
-          rootPath,
-          Constants.GameSettings.CZERO_BASEDIR,
-          Constants.GameSettings.CZERO_GAMEDIR,
-          Constants.GameSettings.LOGS_DIR,
-        );
-      default:
-        return path.join(
-          rootPath,
-          Constants.GameSettings.CSGO_BASEDIR,
-          Constants.GameSettings.CSGO_GAMEDIR,
-          Constants.GameSettings.LOGS_DIR,
-        );
-    }
-  })();
-
   // bail early if the logs path does not exist
+  const basePath = getGameLogDirectory(game, rootPath);
+
   try {
     await fs.promises.access(basePath, fs.constants.F_OK);
   } catch (_) {
@@ -272,6 +281,7 @@ export class Server {
   private serverConfigFile: string;
   private settings: typeof Constants.Settings;
   private spectating?: boolean;
+  private startTime: Date;
   private weaponPbxWeight: Record<string, number>;
   public competitors: Server['match']['competitors'];
   public log: log.LogFunctions;
@@ -314,6 +324,7 @@ export class Server {
     this.settings = Util.loadSettings(profile.settings);
     this.scorebotEvents = [];
     this.spectating = Boolean(spectating);
+    this.startTime = new Date();
 
     // handle game override
     if (gameOverride) {
@@ -1240,6 +1251,52 @@ export class Server {
   }
 
   /**
+   * Waits for the server to create a new log file by ensuring the
+   * log file discovered is newer than the marked timestamp.
+   *
+   * @function
+   */
+  private async waitForLogFile() {
+    const logsBaseDir = getGameLogDirectory(
+      this.settings.general.game,
+      this.settings.general.gamePath,
+    );
+
+    let logFilePath: string;
+
+    for (
+      let logsRetryNum = 0;
+      logsRetryNum < Constants.GameSettings.LOGS_MAX_ATTEMPTS;
+      logsRetryNum++
+    ) {
+      this.log.debug('Waiting for new server log file (attempt #%d)...', logsRetryNum + 1);
+      const files = await glob('*.log', {
+        cwd: logsBaseDir,
+        withFileTypes: true,
+        stat: true,
+      });
+      const [logFile] = files.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+
+      if (!logFile || logFile.mtime <= this.startTime) {
+        await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000);
+        continue;
+      }
+
+      logFilePath = path.join(logsBaseDir, logFile.name);
+      this.log.debug('Found %s!', logFilePath);
+      break;
+    }
+
+    if (!logFilePath) {
+      throw Error(
+        `Could not find log file or one that is newer than ${this.startTime.toString()}.`,
+      );
+    }
+
+    return logFilePath;
+  }
+
+  /**
    * Starts the game client.
    *
    * If CS16 is enabled, also starts the game server.
@@ -1269,45 +1326,14 @@ export class Server {
         break;
     }
 
-    // attach client process event handlers
-    //
-    // @todo: better error handling here
-    gameClientProcess.on('error', (error) => {
-      this.log.error(error);
-    });
-
-    // rcon let's us know when the server is ready so the
-    // scorebot can start tailing the latest log file
-    this.rcon = new RCON.Client(
-      this.getLocalIP(),
-      Constants.GameSettings.RCON_PORT,
-      Constants.GameSettings.RCON_PASSWORD,
-      {
-        tcp:
-          this.settings.general.game !== Constants.Game.CS16 &&
-          this.settings.general.game !== Constants.Game.CZERO,
-        retryMax: Constants.GameSettings.RCON_MAX_ATTEMPTS,
-      },
-    );
-
+    // start the scorebot
     try {
-      await this.rcon.init();
+      this.scorebot = new Scorebot.Watcher(await this.waitForLogFile());
+      await this.scorebot.start();
     } catch (error) {
       if (gameClientProcess) {
         gameClientProcess.kill();
       }
-      throw error;
-    }
-
-    // start the scorebot
-    this.scorebot = new Scorebot.Watcher(
-      await getGameLogFile(this.settings.general.game, this.settings.general.gamePath),
-    );
-
-    try {
-      await this.scorebot.start();
-    } catch (error) {
-      this.log.error(error);
       throw error;
     }
 
