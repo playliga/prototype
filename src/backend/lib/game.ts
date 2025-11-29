@@ -1293,7 +1293,9 @@ export class Server {
     try {
       await this.rcon.init();
     } catch (error) {
-      gameClientProcess.kill();
+      if (gameClientProcess) {
+        gameClientProcess.kill();
+      }
       throw error;
     }
 
