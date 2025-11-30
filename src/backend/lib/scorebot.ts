@@ -281,25 +281,15 @@ export class Watcher extends events.EventEmitter {
   public async start() {
     // handle race condition where this is called before the path
     // to the log file can be created by the game server
-    try {
-      await FileManager.touch(this.file);
-    } catch (error) {
-      this.log.error(error);
-      throw error;
-    }
+    await FileManager.touch(this.file);
 
     // if we got this far; we can tail the log file
-    try {
-      this.log.info('Starting...');
-      await this.tail.start();
-      this.lineSplitter = readline.createInterface({ input: this.tail });
-      this.lineSplitter.on('line', this.onLine.bind(this));
-      this.log.info('Connected.');
-      return Promise.resolve();
-    } catch (error) {
-      this.log.error(error);
-      throw error;
-    }
+    this.log.info('Starting...');
+    await this.tail.start();
+    this.lineSplitter = readline.createInterface({ input: this.tail });
+    this.lineSplitter.on('line', this.onLine.bind(this));
+    this.log.info('Connected.');
+    return Promise.resolve();
   }
 
   /**
