@@ -38,12 +38,26 @@ class Manager {
    */
   private static async markUnlocked(achievementId: Constants.Achievement) {
     // mark achievement as unlocked
-    await DatabaseClient.prisma.achievement.update({
+    const achievement = await DatabaseClient.prisma.achievement.update({
       where: {
         id: achievementId,
       },
       data: {
         unlocked: true,
+      },
+    });
+
+    // award the user's team
+    await DatabaseClient.prisma.team.updateMany({
+      where: {
+        profile: {
+          isNot: null,
+        },
+      },
+      data: {
+        earnings: {
+          increment: achievement.award,
+        },
       },
     });
 

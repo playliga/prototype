@@ -24,6 +24,7 @@ datasource db {
 
 model Achievement {
   id                  String              @id
+  award               Int?                @default(0)
   unlocked            Boolean?            @default(false)
 }
 

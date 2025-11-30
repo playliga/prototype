@@ -631,6 +631,23 @@ export enum Zones {
 }
 
 /**
+ * Tracks monetary awards per achievement.
+ *
+ * @constant
+ */
+export const AchievementAwards: Record<Achievement, number> = {
+  [Achievement.FLAWLESS]: 100_000,
+  [Achievement.KENSHI]: 10_000,
+  [Achievement.KING_OF_THE_WORLD]: 250_000,
+  [Achievement.LET_IT_GO]: 2000,
+  [Achievement.MARK_IN_HISTORY]: 100_000,
+  [Achievement.MOUNT_EVEREST]: 250_000,
+  [Achievement.POKER]: 250_000,
+  [Achievement.SMOOTH_OPERATOR]: 25_000,
+  [Achievement.UNDERDOG]: 500_000,
+};
+
+/**
  * Tracks possible competition awards.
  *
  * @constant

@@ -17,6 +17,7 @@ export default async function (prisma: PrismaClient) {
     prisma.achievement.create({
       data: {
         id: achievementId,
+        award: Constants.AchievementAwards[achievementId as Constants.Achievement],
       },
     }),
   );
