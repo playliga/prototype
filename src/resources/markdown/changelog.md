@@ -1,3 +1,14 @@
+## [3.0.0-beta.75](https://github.com/playliga/prototype/compare/v3.0.0-beta.74...v3.0.0-beta.75) (2025-11-30)
+
+### Features
+
+- add cash rewards when unlocking achievements ([#553](https://github.com/playliga/prototype/issues/553)) ([305cbc4](https://github.com/playliga/prototype/commit/305cbc47b6f21526af21241c94191be025f5e7fe))
+
+### Bug Fixes
+
+- add ip launch arg for cs2 and csgo ([#556](https://github.com/playliga/prototype/issues/556)) ([c2c4a60](https://github.com/playliga/prototype/commit/c2c4a60f2a81942a941fbc27cbf0a971d1d8323c))
+- improved game error handling and removed dependency on rcon ([#560](https://github.com/playliga/prototype/issues/560)) ([ddd483d](https://github.com/playliga/prototype/commit/ddd483d6cdaed8959de77a4d33fb9e6acfeac0a2))
+
 ## [3.0.0-beta.74](https://github.com/playliga/prototype/compare/v3.0.0-beta.73...v3.0.0-beta.74) (2025-11-25)
 
 ### Features
