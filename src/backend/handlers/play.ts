@@ -27,22 +27,37 @@ import {
  */
 async function renderErrorDialog(
   parentWindow: Electron.BrowserWindow,
-  error: NodeJS.ErrnoException,
+  error: NodeJS.ErrnoException | string,
 ) {
+  // infer error message
+  let errorStr: string;
+
+  if (error instanceof Error) {
+    errorStr = error.message;
+  } else if (typeof error === 'string') {
+    errorStr = error;
+  } else {
+    errorStr = JSON.stringify(error, Object.getOwnPropertyNames(error), 4);
+  }
+
+  // build detail string template
+  const detailStr = Dedent.dedent`
+    Common causes include missing game plugins, permissions, or firewall issues.
+
+    For workarounds and other known issues, please visit the troubleshooting wiki.
+
+    Error Details:
+
+    __ERROR__
+  `;
+
+  // render dialog and handle if wiki link is clicked
   const res = await dialog.showMessageBox(parentWindow, {
     type: 'error',
     buttons: ['OK', 'View Troubleshooting Wiki'],
     cancelId: 0,
     message: 'Counter-Strike Game Session Error',
-    detail: Dedent.dedent`
-      Common causes include missing game plugins, permissions, or firewall issues.
-
-      For workarounds and other known issues, please visit the troubleshooting wiki.
-
-      Error Details:
-
-      __ERROR__
-    `.replace('__ERROR__', JSON.stringify(error, Object.getOwnPropertyNames(error), 4)),
+    detail: detailStr.replace('__ERROR__', errorStr),
   });
 
   if (res.response === 1) {
