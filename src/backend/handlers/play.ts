@@ -19,6 +19,38 @@ import {
 } from '@liga/backend/lib';
 
 /**
+ * Renders an error message in a dialog window,
+ *
+ * @param parentWindow  The parent window.
+ * @param error         The error object.
+ * @function
+ */
+async function renderErrorDialog(
+  parentWindow: Electron.BrowserWindow,
+  error: NodeJS.ErrnoException,
+) {
+  const res = await dialog.showMessageBox(parentWindow, {
+    type: 'error',
+    buttons: ['OK', 'View Troubleshooting Wiki'],
+    cancelId: 0,
+    message: 'Counter-Strike Game Session Error',
+    detail: Dedent.dedent`
+      Common causes include missing game plugins, permissions, or firewall issues.
+
+      For workarounds and other known issues, please visit the troubleshooting wiki.
+
+      Error Details:
+
+      __ERROR__
+    `.replace('__ERROR__', JSON.stringify(error, Object.getOwnPropertyNames(error), 4)),
+  });
+
+  if (res.response === 1) {
+    await shell.openExternal(`${AppInfo.repository.url.replace('.git', '')}/wiki/troubleshooting`);
+  }
+}
+
+/**
  * Register the IPC event handlers.
  *
  * @function
@@ -101,8 +133,21 @@ export default function () {
       } as Prisma.MatchGetPayload<typeof Eagers.match>;
 
       // start the server and play the match
+      let gameServerError: NodeJS.ErrnoException = null;
       const gameServer = new Game.Server(profile, match);
-      await gameServer.start();
+
+      try {
+        await gameServer.start();
+      } catch (error) {
+        landingWindow.restore();
+        log.error(error);
+        gameServerError = error;
+      }
+
+      // show an error dialog if we ran into issues
+      if (gameServerError) {
+        return renderErrorDialog(landingWindow, gameServerError);
+      }
 
       // restore window
       landingWindow.restore();
@@ -161,32 +206,7 @@ export default function () {
 
     // show an error dialog if we ran into issues
     if (gameServerError) {
-      const res = await dialog.showMessageBox(mainWindow, {
-        type: 'error',
-        buttons: ['OK', 'View Troubleshooting Wiki'],
-        cancelId: 0,
-        message: 'Counter-Strike Game Session Error',
-        detail: Dedent.dedent`
-          Common causes include missing game plugins, permissions, or firewall issues.
-
-          For workarounds and other known issues, please visit the troubleshooting wiki.
-
-          Error Details:
-
-          __ERROR__
-        `.replace(
-          '__ERROR__',
-          JSON.stringify(gameServerError, Object.getOwnPropertyNames(gameServerError), 4),
-        ),
-      });
-
-      if (res.response === 1) {
-        await shell.openExternal(
-          `${AppInfo.repository.url.replace('.git', '')}/wiki/troubleshooting`,
-        );
-      }
-
-      return;
+      return renderErrorDialog(mainWindow, gameServerError);
     }
 
     // game over; collect postgame info

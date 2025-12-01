@@ -1266,7 +1266,7 @@ export class Server {
 
     for (
       let logsRetryNum = 0;
-      logsRetryNum < Constants.GameSettings.LOGS_MAX_ATTEMPTS;
+      logsRetryNum < this.settings.general.gameLogsMaxAttempts;
       logsRetryNum++
     ) {
       this.log.debug('Waiting for new server log file (attempt #%d)...', logsRetryNum + 1);

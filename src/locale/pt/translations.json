@@ -209,6 +209,8 @@
     "settings": {
       "botChatterTitle": "Frequência dos rádios (dos bots)",
       "botDifficultyTitle": "Dificuldade  dos bots",
+      "gameLogsMaxAttemptsTitle": "Game Launch Timeout",
+      "gameLogsMaxAttemptsSubtitle": "Increase if your game generally needs a bit more time to start up.",
       "gamePathSubtitle": "Importante se o seu jogo tá instalado em um endereço diferente.",
       "gamePathTitle": "Endereço da pasta do jogo",
       "gameSubtitle": "Escolha a versão do CS que vai ser usada nas partidas.",

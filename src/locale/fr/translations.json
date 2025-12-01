@@ -209,6 +209,8 @@
     "settings": {
       "botChatterTitle": "Communications bots",
       "botDifficultyTitle": "Difficulté bots",
+      "gameLogsMaxAttemptsTitle": "Game Launch Timeout",
+      "gameLogsMaxAttemptsSubtitle": "Increase if your game generally needs a bit more time to start up.",
       "gamePathSubtitle": "Dans le cas où vos jeux sont installés dans un dossier différent",
       "gamePathTitle": "Chemin d'accès du jeu",
       "gameSubtitle": "Choisissez un jeu à lancer pour votre prochain match",

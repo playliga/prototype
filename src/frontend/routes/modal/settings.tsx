@@ -267,6 +267,24 @@ export default function () {
             </section>
             <section>
               <header>
+                <p>{t('settings.gameLogsMaxAttemptsTitle')}</p>
+                <p>{t('settings.gameLogsMaxAttemptsSubtitle')}</p>
+              </header>
+              <article>
+                <input
+                  type="number"
+                  min={Constants.GameSettings.LOGS_MAX_ATTEMPTS}
+                  max={99}
+                  className="input"
+                  value={settings.general.gameLogsMaxAttempts}
+                  onChange={(event) =>
+                    onSettingsUpdate('general.gameLogsMaxAttempts', event.target.value)
+                  }
+                />
+              </article>
+            </section>
+            <section>
+              <header>
                 <p>{t('settings.launchOptionsTitle')}</p>
                 <p>{t('settings.launchOptionsSubtitle')}</p>
               </header>

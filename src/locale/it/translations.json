@@ -209,6 +209,8 @@
     "settings": {
       "botChatterTitle": "Bot Chatter",
       "botDifficultyTitle": "Difficoltà Bot",
+      "gameLogsMaxAttemptsTitle": "Game Launch Timeout",
+      "gameLogsMaxAttemptsSubtitle": "Increase if your game generally needs a bit more time to start up.",
       "gamePathSubtitle": "Utile se i tuoi giochi sono scaricati in un drive diverso.",
       "gamePathTitle": "Percorso della Libreria del Gioco",
       "gameSubtitle": "Questo avvierà il gioco selezionato quando giocherai le partite.",

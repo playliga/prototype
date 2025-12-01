@@ -209,6 +209,8 @@
     "settings": {
       "botChatterTitle": "Bot Chatter",
       "botDifficultyTitle": "Bot Difficulty",
+      "gameLogsMaxAttemptsTitle": "Game Launch Timeout",
+      "gameLogsMaxAttemptsSubtitle": "Increase if your game generally needs a bit more time to start up.",
       "gamePathSubtitle": "Useful if your games are installed on a different drive.",
       "gamePathTitle": "Game Library Path",
       "gameSubtitle": "This will launch the selected game when playing matches.",

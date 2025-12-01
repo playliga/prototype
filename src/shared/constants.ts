@@ -1248,6 +1248,7 @@ export const Settings = {
     botDifficulty: null as string,
     locale: null as LocaleIdentifier,
     volume: 0.05,
+    gameLogsMaxAttempts: GameSettings.LOGS_MAX_ATTEMPTS,
   },
   calendar: {
     ignoreExits: false,
