@@ -122,7 +122,11 @@ function TeamSelector(props: TeamSelectorProps) {
           <span className="loading loading-spinner loading-lg" />
         </article>
       )}
-      {!!team && <Image src={team.blazon} className="h-48 w-auto" />}
+      {!!team && (
+        <figure className="center h-48 w-full">
+          <Image src={team.blazon} className="h-auto w-1/2" />
+        </figure>
+      )}
       <form className="w-3/4">
         <fieldset className="stack-y">
           <article>
