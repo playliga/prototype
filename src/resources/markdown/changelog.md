@@ -1,3 +1,11 @@
+## [3.0.0-beta.76](https://github.com/playliga/prototype/compare/v3.0.0-beta.75...v3.0.0-beta.76) (2025-12-01)
+
+### Bug Fixes
+
+- configurable game launch timeout setting ([#561](https://github.com/playliga/prototype/issues/561)) ([bb733c0](https://github.com/playliga/prototype/commit/bb733c0ae369e0dee8ebf7be356f95f079241beb))
+- cosmetic fixes to team logos on exhibition page ([#562](https://github.com/playliga/prototype/issues/562)) ([93697a2](https://github.com/playliga/prototype/commit/93697a217219ab9200d9319ef1d99385fddd3ac4))
+- improve game launch error reporting message ([#563](https://github.com/playliga/prototype/issues/563)) ([c9a1eee](https://github.com/playliga/prototype/commit/c9a1eeed78fac306fc6ca18b51405c8bbfcbb3f8))
+
 ## [3.0.0-beta.75](https://github.com/playliga/prototype/compare/v3.0.0-beta.74...v3.0.0-beta.75) (2025-11-30)
 
 ### Features
