@@ -241,6 +241,7 @@ export enum LogLevel {
  * @enum
  */
 export enum LocaleIdentifier {
+  DE = 'de',
   EN = 'en',
   ES = 'es',
   FR = 'fr',
