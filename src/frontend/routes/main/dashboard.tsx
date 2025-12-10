@@ -118,6 +118,9 @@ export default function () {
   const [matchHistorial, setMatchHistorial] = React.useState<Array<typeof upcoming>>([[], []]);
   const [previous, setPrevious] = React.useState<typeof upcoming>([]);
   const [worldRankings, setWorldRankings] = React.useState<Array<number>>([]);
+  const [transfers, setTransfers] = React.useState<
+    Awaited<ReturnType<typeof api.transfers.all<typeof Eagers.transfer>>>
+  >([]);
 
   // load settings
   React.useEffect(() => {
@@ -135,6 +138,31 @@ export default function () {
     }
 
     api.matches.upcoming(Eagers.match, NUM_UPCOMING).then(setUpcoming);
+  }, [state.profile]);
+
+  // fetch recent transfers
+  React.useEffect(() => {
+    if (!state.profile) {
+      return;
+    }
+
+    api.transfers
+      .all({
+        include: Eagers.transfer.include,
+        take: NUM_PREVIOUS,
+        where: {
+          status: {
+            in: [Constants.TransferStatus.PLAYER_ACCEPTED, Constants.TransferStatus.TEAM_ACCEPTED],
+          },
+          to: {
+            isNot: null,
+          },
+        },
+        orderBy: {
+          id: 'desc',
+        },
+      })
+      .then(setTransfers);
   }, [state.profile]);
 
   // fetch match facts for spotlight
@@ -484,195 +512,236 @@ export default function () {
                 );
               })}
           </section>
-          {(() => {
-            // placeholder while things are loading
-            // or if there are no matches
-            if (!spotlight) {
+          <div className="divide-base-content/10 flex divide-x">
+            {(() => {
+              // placeholder while things are loading
+              // or if there are no matches
+              if (!spotlight) {
+                return (
+                  <article className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none! before:opacity-50!">
+                    <figure>
+                      <Image
+                        className="h-full w-full"
+                        src={Util.convertMapPool('de_dust2', Constants.Game.CSGO, true)}
+                      />
+                    </figure>
+                    <aside className="card-body items-center justify-center">
+                      {t('main.dashboard.noMatch')}
+                    </aside>
+                  </article>
+                );
+              }
+
+              // the suffix is either the current position
+              // or their league tier if it's a cup
+              const disabled = state.working || !isMatchday;
+              const [home, away] = spotlight.competitors;
+              const [homeHistorial, awayHistorial] = matchHistorial;
+              const [homeWorldRanking, awayWorldRanking] = worldRankings;
+              const [homeSuffix, awaySuffix] = [home, away].map((competitor) => {
+                if (!spotlight.competition.tier.groupSize) {
+                  return Constants.IdiomaticTier[Constants.Prestige[competitor.team.tier]];
+                }
+
+                return Util.toOrdinalSuffix(
+                  userGroupCompetitors.findIndex((a) => a.teamId === competitor.teamId) + 1,
+                );
+              });
+
               return (
-                <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none! before:opacity-50!">
+                <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none!">
+                  {spotlight.status === Constants.MatchStatus.PLAYING && (
+                    <figure className="center absolute top-2 left-1/2 z-10 -translate-x-1/2 gap-1 uppercase">
+                      <article className="inline-grid *:[grid-area:1/1]">
+                        <span className="status status-error animate-ping" />
+                        <span className="status status-error" />
+                      </article>
+                      <span>
+                        <strong>Live&nbsp;</strong>
+                        <em>
+                          ({spotlight.competitors.map((competitor) => competitor.score).join(' - ')}
+                          )
+                        </em>
+                      </span>
+                    </figure>
+                  )}
                   <figure>
                     <Image
                       className="h-full w-full"
-                      src={Util.convertMapPool('de_dust2', Constants.Game.CSGO, true)}
+                      src={Util.convertMapPool(
+                        settings.matchRules.mapOverride || spotlight.games[0].map,
+                        settings.general.game,
+                        true,
+                      )}
                     />
                   </figure>
-                  <article className="card-body items-center justify-center">
-                    {t('main.dashboard.noMatch')}
+                  <article className="card-body">
+                    <header className="grid h-full grid-cols-3 place-items-center">
+                      <aside className="stack-y items-center">
+                        <img src={home.team.blazon} className="h-24 w-auto" />
+                        <Historial matches={homeHistorial} teamId={home.teamId} />
+                        <div className="text-center">
+                          <p>
+                            {home.team.name}&nbsp;
+                            <small title={t('shared.worldRanking')}>
+                              (#{homeWorldRanking || 0})
+                            </small>
+                          </p>
+                          <p>
+                            <small>{homeSuffix}</small>
+                          </p>
+                        </div>
+                      </aside>
+                      <aside className="center h-full gap-4">
+                        <Image
+                          title={`${spotlight.competition.tier.league.name}: ${Constants.IdiomaticTier[spotlight.competition.tier.slug]}`}
+                          className="size-24"
+                          src={Util.getCompetitionLogo(
+                            spotlight.competition.tier.slug,
+                            spotlight.competition.federation.slug,
+                          )}
+                        />
+                        <p>
+                          <em>{format(spotlight.date, 'PPPP')}</em>
+                        </p>
+                        <ul>
+                          <li className="stack-x items-center">
+                            <FaMapSigns />
+                            <span>
+                              {Util.convertMapPool(
+                                settings.matchRules.mapOverride || spotlight.games[0].map,
+                                settings.general.game,
+                              )}
+                            </span>
+                          </li>
+                          <li className="stack-x items-center">
+                            <FaCalendarDay />
+                            <span>
+                              {spotlight.competition.tier.groupSize
+                                ? `${t('shared.matchday')} ${spotlight.round}`
+                                : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
+                            </span>
+                          </li>
+                          <li className="stack-x items-center">
+                            <FaStream />
+                            <span>
+                              {t('shared.bestOf')}&nbsp;
+                              {spotlight.games.length}
+                            </span>
+                          </li>
+                        </ul>
+                      </aside>
+                      <aside className="stack-y items-center">
+                        <img src={away.team.blazon} className="h-24 w-auto" />
+                        <Historial matches={awayHistorial} teamId={away.teamId} />
+                        <div className="text-center">
+                          <p>
+                            {away.team.name}&nbsp;
+                            <small title="World Ranking">(#{awayWorldRanking || 0})</small>
+                          </p>
+                          <p>
+                            <small>{awaySuffix}</small>
+                          </p>
+                        </div>
+                      </aside>
+                    </header>
+                    <footer className="join justify-center">
+                      <button
+                        title={t('main.dashboard.matchSetup')}
+                        className="btn join-item"
+                        disabled={disabled || !!state.appStatus}
+                        onClick={() =>
+                          api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                            target: '/pregame',
+                            payload: spotlight.id,
+                          })
+                        }
+                      >
+                        <FaCog />
+                      </button>
+                      <button
+                        className="btn btn-primary join-item btn-wide"
+                        disabled={disabled || !!state.appStatus}
+                        onClick={() => {
+                          // jump directly into game if it's a bo1
+                          // or there is a map already in-progress
+                          if (
+                            spotlight.games.length === 1 ||
+                            spotlight.games.some(
+                              (matchGame) => matchGame.status === Constants.MatchStatus.PLAYING,
+                            )
+                          ) {
+                            return dispatch(play(spotlight.id));
+                          }
+
+                          api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                            target:
+                              spotlight.status === Constants.MatchStatus.PLAYING
+                                ? '/postgame'
+                                : '/play',
+                            payload: spotlight.id,
+                          });
+                        }}
+                      >
+                        {t('main.dashboard.play')}
+                      </button>
+                      <button
+                        className="btn join-item btn-wide"
+                        disabled={disabled || spotlight.status !== Constants.MatchStatus.READY}
+                        onClick={() => api.calendar.sim().then(() => dispatch(calendarAdvance(1)))}
+                      >
+                        {t('main.dashboard.simulate')}
+                      </button>
+                      <button
+                        title={t('main.dashboard.spectateMatch')}
+                        className="btn btn-secondary join-item"
+                        disabled={disabled || !!state.appStatus}
+                        onClick={() => dispatch(play(spotlight.id, true))}
+                      >
+                        <FaTv />
+                      </button>
+                    </footer>
                   </article>
                 </section>
               );
-            }
-
-            // the suffix is either the current position
-            // or their league tier if it's a cup
-            const disabled = state.working || !isMatchday;
-            const [home, away] = spotlight.competitors;
-            const [homeHistorial, awayHistorial] = matchHistorial;
-            const [homeWorldRanking, awayWorldRanking] = worldRankings;
-            const [homeSuffix, awaySuffix] = [home, away].map((competitor) => {
-              if (!spotlight.competition.tier.groupSize) {
-                return Constants.IdiomaticTier[Constants.Prestige[competitor.team.tier]];
-              }
-
-              return Util.toOrdinalSuffix(
-                userGroupCompetitors.findIndex((a) => a.teamId === competitor.teamId) + 1,
-              );
-            });
-
-            return (
-              <section className="card image-full card-sm h-80 flex-grow rounded-none before:rounded-none!">
-                {spotlight.status === Constants.MatchStatus.PLAYING && (
-                  <figure className="center absolute top-2 left-1/2 z-10 -translate-x-1/2 gap-1 uppercase">
-                    <article className="inline-grid *:[grid-area:1/1]">
-                      <span className="status status-error animate-ping" />
-                      <span className="status status-error" />
-                    </article>
-                    <span>
-                      <strong>Live&nbsp;</strong>
-                      <em>
-                        ({spotlight.competitors.map((competitor) => competitor.score).join(' - ')})
-                      </em>
-                    </span>
-                  </figure>
-                )}
-                <figure>
-                  <Image
-                    className="h-full w-full"
-                    src={Util.convertMapPool(
-                      settings.matchRules.mapOverride || spotlight.games[0].map,
-                      settings.general.game,
-                      true,
-                    )}
-                  />
-                </figure>
-                <article className="card-body">
-                  <header className="grid h-full grid-cols-3 place-items-center">
-                    <aside className="stack-y items-center">
-                      <img src={home.team.blazon} className="h-24 w-auto" />
-                      <Historial matches={homeHistorial} teamId={home.teamId} />
-                      <div className="text-center">
-                        <p>
-                          {home.team.name}&nbsp;
-                          <small title={t('shared.worldRanking')}>(#{homeWorldRanking || 0})</small>
-                        </p>
-                        <p>
-                          <small>{homeSuffix}</small>
-                        </p>
-                      </div>
-                    </aside>
-                    <aside className="center h-full gap-4">
-                      <Image
-                        title={`${spotlight.competition.tier.league.name}: ${Constants.IdiomaticTier[spotlight.competition.tier.slug]}`}
-                        className="size-24"
-                        src={Util.getCompetitionLogo(
-                          spotlight.competition.tier.slug,
-                          spotlight.competition.federation.slug,
-                        )}
-                      />
-                      <p>
-                        <em>{format(spotlight.date, 'PPPP')}</em>
-                      </p>
-                      <ul>
-                        <li className="stack-x items-center">
-                          <FaMapSigns />
-                          <span>
-                            {Util.convertMapPool(
-                              settings.matchRules.mapOverride || spotlight.games[0].map,
-                              settings.general.game,
-                            )}
-                          </span>
-                        </li>
-                        <li className="stack-x items-center">
-                          <FaCalendarDay />
-                          <span>
-                            {spotlight.competition.tier.groupSize
-                              ? `${t('shared.matchday')} ${spotlight.round}`
-                              : Util.parseCupRounds(spotlight.round, spotlight.totalRounds)}
-                          </span>
-                        </li>
-                        <li className="stack-x items-center">
-                          <FaStream />
-                          <span>
-                            {t('shared.bestOf')}&nbsp;
-                            {spotlight.games.length}
-                          </span>
-                        </li>
-                      </ul>
-                    </aside>
-                    <aside className="stack-y items-center">
-                      <img src={away.team.blazon} className="h-24 w-auto" />
-                      <Historial matches={awayHistorial} teamId={away.teamId} />
-                      <div className="text-center">
-                        <p>
-                          {away.team.name}&nbsp;
-                          <small title="World Ranking">(#{awayWorldRanking || 0})</small>
-                        </p>
-                        <p>
-                          <small>{awaySuffix}</small>
-                        </p>
-                      </div>
-                    </aside>
-                  </header>
-                  <footer className="join justify-center">
-                    <button
-                      title={t('main.dashboard.matchSetup')}
-                      className="btn join-item"
-                      disabled={disabled || !!state.appStatus}
-                      onClick={() =>
-                        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                          target: '/pregame',
-                          payload: spotlight.id,
-                        })
-                      }
-                    >
-                      <FaCog />
-                    </button>
-                    <button
-                      className="btn btn-primary join-item btn-wide"
-                      disabled={disabled || !!state.appStatus}
-                      onClick={() => {
-                        // jump directly into game if it's a bo1
-                        // or there is a map already in-progress
-                        if (
-                          spotlight.games.length === 1 ||
-                          spotlight.games.some(
-                            (matchGame) => matchGame.status === Constants.MatchStatus.PLAYING,
-                          )
-                        ) {
-                          return dispatch(play(spotlight.id));
-                        }
-
-                        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                          target:
-                            spotlight.status === Constants.MatchStatus.PLAYING
-                              ? '/postgame'
-                              : '/play',
-                          payload: spotlight.id,
-                        });
-                      }}
-                    >
-                      {t('main.dashboard.play')}
-                    </button>
-                    <button
-                      className="btn join-item btn-wide"
-                      disabled={disabled || spotlight.status !== Constants.MatchStatus.READY}
-                      onClick={() => api.calendar.sim().then(() => dispatch(calendarAdvance(1)))}
-                    >
-                      {t('main.dashboard.simulate')}
-                    </button>
-                    <button
-                      title={t('main.dashboard.spectateMatch')}
-                      className="btn btn-secondary join-item"
-                      disabled={disabled || !!state.appStatus}
-                      onClick={() => dispatch(play(spotlight.id, true))}
-                    >
-                      <FaTv />
-                    </button>
-                  </footer>
-                </article>
-              </section>
-            );
-          })()}
+            })()}
+            <section className="w-1/4 shrink-0">
+              <header className="prose border-t-0!">
+                <h4 className="truncate">{t('shared.recentTransfers')}</h4>
+              </header>
+              <table className="table table-fixed">
+                <tbody>
+                  {transfers.slice(0, NUM_PREVIOUS).map((transfer) => (
+                    <tr key={transfer.id + '__transfer'}>
+                      <td className="p-0 text-center">
+                        <img
+                          title={transfer.target.name}
+                          className="mr-2 inline-block size-6"
+                          src={transfer.target.avatar || 'resources://avatars/empty.png'}
+                        />
+                        <img
+                          title={transfer.to.name}
+                          className="inline-block size-6"
+                          src={transfer.to.blazon}
+                        />
+                      </td>
+                      <td className="text-center">&rarr;</td>
+                      <td title={transfer.from.name} className="p-0 text-center">
+                        <img className="inline-block size-6" src={transfer.from.blazon} />
+                      </td>
+                    </tr>
+                  ))}
+                  {[...Array(Math.max(0, NUM_PREVIOUS - transfers.length))].map((_, idx) => (
+                    <tr key={`${idx}__filler_transfers`} className="text-muted">
+                      <td className="text-center">-</td>
+                      <td className="text-center">&rarr;</td>
+                      <td className="text-center">-</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          </div>
           <section className="divide-base-content/10 grid grid-cols-2 divide-x">
             {((!!spotlight && spotlight.competitors) || [...Array(2)]).map(
               (competitor, competitorIdx) => {

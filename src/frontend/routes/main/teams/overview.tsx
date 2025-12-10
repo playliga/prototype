@@ -34,6 +34,9 @@ export default function () {
   const [squad, setSquad] = React.useState<
     Awaited<ReturnType<typeof api.players.all<typeof Eagers.player>>>
   >([]);
+  const [transfers, setTransfers] = React.useState<
+    Awaited<ReturnType<typeof api.transfers.all<typeof Eagers.transfer>>>
+  >([]);
   const [worldRanking, setWorldRanking] = React.useState<number>(0);
 
   // fetch data when team changes
@@ -66,6 +69,7 @@ export default function () {
         },
       })
       .then(setSquad);
+    api.team.transfers(team.id).then(setTransfers);
   }, [team]);
 
   // load settings
@@ -275,6 +279,42 @@ export default function () {
                   <td className="w-4/12 text-center">-</td>
                   <td className="w-4/12">{t('shared.noRecentMatch')}</td>
                   <td className="w-3/12">-</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </aside>
+        <aside>
+          <header className="heading prose max-w-none border-t-0!">
+            <h2>{t('shared.recentTransfers')}</h2>
+          </header>
+          <table className="table table-fixed">
+            <tbody>
+              {transfers.slice(0, NUM_PREVIOUS).map((transfer) => (
+                <tr key={transfer.id + '__transfer'}>
+                  <td className="p-0 text-center">
+                    <img
+                      title={transfer.target.name}
+                      className="mr-2 inline-block size-6"
+                      src={transfer.target.avatar || 'resources://avatars/empty.png'}
+                    />
+                    <img
+                      title={transfer.to.name}
+                      className="inline-block size-6"
+                      src={transfer.to.blazon}
+                    />
+                  </td>
+                  <td className="text-center">&rarr;</td>
+                  <td title={transfer.from.name} className="p-0 text-center">
+                    <img className="inline-block size-6" src={transfer.from.blazon} />
+                  </td>
+                </tr>
+              ))}
+              {[...Array(Math.max(0, NUM_PREVIOUS - transfers.length))].map((_, idx) => (
+                <tr key={`${idx}__filler_transfers`} className="text-muted">
+                  <td className="text-center">-</td>
+                  <td className="text-center">&rarr;</td>
+                  <td className="text-center">-</td>
                 </tr>
               ))}
             </tbody>

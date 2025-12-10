@@ -441,14 +441,14 @@ function parsePlayerTransferOffer(
   //
   // note that the player is willing to consider
   // relocating if the wages are good enough
-  const modifier =
+  const relocateModifier =
     Constants.TransferSettings.PBX_PLAYER_RELOCATE *
     Constants.TransferSettings.PBX_PLAYER_HIGHBALL_MODIFIER *
     Math.max(0, offer.wages - transfer.target.wages);
 
   if (
     transfer.from.country.continentId !== transfer.target.country.continentId &&
-    !Chance.rollD2(Math.floor(Constants.TransferSettings.PBX_PLAYER_RELOCATE + modifier))
+    !Chance.rollD2(Math.floor(Constants.TransferSettings.PBX_PLAYER_RELOCATE + relocateModifier))
   ) {
     Engine.Runtime.Instance.log.info(
       '%s rejected offer. Reason: Not willing to relocate.',
@@ -739,14 +739,14 @@ export function parseTeamTransferOffer(
   //
   // note that the team is willing to consider selling
   // the unlisted player if the offer is good enough
-  const modifier =
+  const unlistedModifier =
     Constants.TransferSettings.PBX_TEAM_SELL_UNLISTED *
     Constants.TransferSettings.PBX_TEAM_HIGHBALL_MODIFIER *
     Math.max(0, offer.cost - transfer.target.cost);
 
   if (
     !transfer.target.transferListed &&
-    !Chance.rollD2(Math.floor(Constants.TransferSettings.PBX_TEAM_SELL_UNLISTED + modifier))
+    !Chance.rollD2(Math.floor(Constants.TransferSettings.PBX_TEAM_SELL_UNLISTED + unlistedModifier))
   ) {
     Engine.Runtime.Instance.log.info('%s rejected offer. Reason: Not for sale.', transfer.to.name);
     return {
@@ -1030,6 +1030,220 @@ export async function sendEmail(
 }
 
 /**
+ * Determine whether to send an npc transfer offer.
+ *
+ * @function
+ */
+export async function sendNPCTransferOffer() {
+  // roll if we're sending an offer today
+  if (!Chance.rollD2(Constants.TransferSettings.PBX_NPC_CONSIDER)) {
+    return;
+  }
+
+  // roll what tier will be sending the offer today
+  const tierSlug = Chance.pluck(Constants.Prestige, Constants.TransferSettings.PBX_NPC_TIER);
+
+  // roll if buying from different region
+  const relocate = Chance.rollD2(Constants.TransferSettings.PBX_NPC_RELOCATE);
+
+  // build the pool of teams
+  const teams = await DatabaseClient.prisma.team.findMany({
+    where: {
+      tier: Constants.Prestige.findIndex((prestige) => prestige === tierSlug),
+      profile: null,
+    },
+    include: {
+      players: true,
+      country: {
+        include: {
+          continent: true,
+        },
+      },
+    },
+  });
+
+  // determine offer participants
+  const from = sample(teams);
+  const to = sample(
+    teams.filter((team) =>
+      team.id !== from.id &&
+      team.players.length > Constants.Application.SQUAD_MIN_LENGTH &&
+      !relocate
+        ? team.country.continent.federationId === from.country.continent.federationId
+        : true,
+    ),
+  );
+
+  if (!to) {
+    return;
+  }
+
+  return sendTransferOffer(from, to);
+}
+
+/**
+ * Final checks on whether a transfer offer should be sent.
+ *
+ * @param from  The sender.
+ * @param to    The recipient.
+ * @function
+ */
+export async function sendTransferOffer(
+  from: Prisma.TeamGetPayload<typeof Eagers.team>,
+  to: Prisma.TeamGetPayload<typeof Eagers.team>,
+) {
+  // build the player pool
+  const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  const players = to.players
+    .filter((player) => player.id !== profile.playerId)
+    .sort(
+      (a, b) => Bot.Exp.getTotalXP(JSON.parse(b.stats)) - Bot.Exp.getTotalXP(JSON.parse(a.stats)),
+    );
+  const transferPool = players.filter((player) => player.transferListed);
+
+  // bail early if target does not have any players to spare
+  if (to.players.length <= Constants.Application.SQUAD_MIN_LENGTH) {
+    return;
+  }
+
+  // roll whether we continue if the target has no transfer listed players
+  if (!transferPool.length && !Chance.rollD2(Constants.TransferSettings.PBX_USER_SELL_UNLISTED)) {
+    return;
+  }
+
+  // roll whether we try to poach their top player
+  const target = Chance.pluck(
+    transferPool.length
+      ? Chance.rollD2(Constants.TransferSettings.PBX_USER_POACH)
+        ? players
+        : transferPool
+      : players,
+    Constants.TransferSettings.PBX_USER_TARGET,
+  );
+
+  // are we sending them a lowball offer?
+  let cost = target.cost;
+
+  if (Chance.rollD2(Constants.TransferSettings.PBX_USER_LOWBALL_OFFER)) {
+    const percent = random(
+      Constants.TransferSettings.PBX_USER_LOWBALL_OFFER_MIN,
+      Constants.TransferSettings.PBX_USER_LOWBALL_OFFER_MAX,
+    );
+    cost = Math.round(target.cost * percent);
+  }
+
+  // what about above asking price?
+  if (cost === target.cost && Chance.rollD2(Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER)) {
+    const percent = random(
+      Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER_MIN,
+      Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER_MAX,
+    );
+    cost = Math.round(target.cost * percent);
+  }
+
+  // for npc-to-npc transfers bail if these two
+  // parties have already traded the same guy
+  if (
+    to.id !== profile.teamId &&
+    (await DatabaseClient.prisma.transfer.findFirst({
+      where: {
+        from: {
+          id: {
+            in: [from.id, to.id],
+          },
+        },
+        to: {
+          id: {
+            in: [from.id, to.id],
+          },
+        },
+        target: {
+          id: target.id,
+        },
+        status: Constants.TransferStatus.PLAYER_ACCEPTED,
+      },
+    }))
+  ) {
+    Engine.Runtime.Instance.log.info(
+      '%s (prestige: %d) has already sent an offer to %s for %s',
+      from.name,
+      from.prestige,
+      to.name,
+      target.name,
+    );
+    return;
+  }
+
+  // create transfer offer
+  const transfer = await DatabaseClient.prisma.transfer.create({
+    data: {
+      status: Constants.TransferStatus.TEAM_PENDING,
+      from: {
+        connect: { id: from.id },
+      },
+      to: {
+        connect: { id: to.id },
+      },
+      target: {
+        connect: { id: target.id },
+      },
+      offers: {
+        create: [
+          {
+            status: Constants.TransferStatus.TEAM_PENDING,
+            cost,
+            wages: target.wages,
+          },
+        ],
+      },
+    },
+    include: Eagers.transfer.include,
+  });
+
+  Engine.Runtime.Instance.log.info(
+    '%s (prestige: %d) sent an offer to %s for %s',
+    from.name,
+    from.prestige,
+    to.name,
+    target.name,
+  );
+
+  // for npc-to-npc transfer's we need to schedule when
+  // to send a response and then our job is done
+  if (to.id !== profile.teamId) {
+    return DatabaseClient.prisma.calendar.create({
+      data: {
+        type: Constants.CalendarEntry.TRANSFER_PARSE,
+        date: addDays(
+          profile.date,
+          random(
+            Constants.TransferSettings.RESPONSE_MIN_DAYS,
+            Constants.TransferSettings.RESPONSE_MAX_DAYS,
+          ),
+        ).toISOString(),
+        payload: String(transfer.id),
+      },
+    });
+  }
+
+  // for npc-to-user transfers we need to send an e-mail instead
+  const persona = await DatabaseClient.prisma.persona.findFirst({
+    where: {
+      teamId: from.id,
+      role: Constants.PersonaRole.MANAGER,
+    },
+  });
+  const locale = getLocale(profile);
+
+  await sendEmail(
+    Sqrl.render(locale.templates.OfferIncoming.SUBJECT, { transfer }),
+    Sqrl.render(locale.templates.OfferIncoming.CONTENT, { transfer, profile }),
+    persona,
+    profile.date,
+  );
+}
+
+/**
  * Determine whether to send the user an award.
  *
  * @param competition         The competition database record.
@@ -1134,44 +1348,17 @@ export async function sendUserAward(
  * @function
  */
 export async function sendUserTransferOffer() {
+  // roll if we're sending an offer today
+  if (!Chance.rollD2(Constants.TransferSettings.PBX_USER_CONSIDER)) {
+    return;
+  }
+
+  // grab user profile
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
   const to = await DatabaseClient.prisma.team.findFirst({
     where: { id: profile.teamId },
-    include: { players: true, personas: true },
+    include: Eagers.team.include,
   });
-
-  // build the player pool
-  const players = to.players
-    .filter((player) => player.id !== profile.playerId)
-    .sort(
-      (a, b) => Bot.Exp.getTotalXP(JSON.parse(b.stats)) - Bot.Exp.getTotalXP(JSON.parse(a.stats)),
-    );
-  const transferPool = players.filter((player) => player.transferListed);
-
-  // bail early if user does not have any players to spare
-  if (to.players.length <= Constants.Application.SQUAD_MIN_LENGTH) {
-    return Promise.resolve();
-  }
-
-  // roll if we're sending an offer today
-  if (!Chance.rollD2(Constants.TransferSettings.PBX_USER_CONSIDER)) {
-    return Promise.resolve();
-  }
-
-  // roll whether we continue if the user has no transfer listed players
-  if (!transferPool.length && !Chance.rollD2(Constants.TransferSettings.PBX_USER_SELL_UNLISTED)) {
-    return Promise.resolve();
-  }
-
-  // roll whether we try to poach their top player
-  const target = Chance.pluck(
-    transferPool.length
-      ? Chance.rollD2(Constants.TransferSettings.PBX_USER_POACH)
-        ? players
-        : transferPool
-      : players,
-    Constants.TransferSettings.PBX_USER_TARGET,
-  );
 
   // figure out what prestige level to fetch a buyer from
   const [prestigeHigh, prestigeSame, prestigeLow] =
@@ -1185,74 +1372,12 @@ export async function sendUserTransferOffer() {
       prestige: Constants.Prestige.findIndex((prestigex) => prestigex === prestige),
       id: { not: profile.team.id },
     },
-    include: { personas: true },
+    include: Eagers.team.include,
   });
+
+  // grab the sender
   const from = sample(teams);
-
-  // are we sending them a lowball offer?
-  let cost = target.cost;
-
-  if (Chance.rollD2(Constants.TransferSettings.PBX_USER_LOWBALL_OFFER)) {
-    const percent = random(
-      Constants.TransferSettings.PBX_USER_LOWBALL_OFFER_MIN,
-      Constants.TransferSettings.PBX_USER_LOWBALL_OFFER_MAX,
-    );
-    cost = Math.round(target.cost * percent);
-  }
-
-  // what about above asking price?
-  if (cost === target.cost && Chance.rollD2(Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER)) {
-    const percent = random(
-      Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER_MIN,
-      Constants.TransferSettings.PBX_USER_HIGHBALL_OFFER_MAX,
-    );
-    cost = Math.round(target.cost * percent);
-  }
-
-  // create transfer offer
-  const transfer = await DatabaseClient.prisma.transfer.create({
-    data: {
-      status: Constants.TransferStatus.TEAM_PENDING,
-      from: {
-        connect: { id: from.id },
-      },
-      to: {
-        connect: { id: to.id },
-      },
-      target: {
-        connect: { id: target.id },
-      },
-      offers: {
-        create: [
-          {
-            status: Constants.TransferStatus.TEAM_PENDING,
-            cost,
-            wages: target.wages,
-          },
-        ],
-      },
-    },
-    include: Eagers.transfer.include,
-  });
-
-  // send e-mail
-  const locale = getLocale(profile);
-  await sendEmail(
-    Sqrl.render(locale.templates.OfferIncoming.SUBJECT, { transfer }),
-    Sqrl.render(locale.templates.OfferIncoming.CONTENT, { transfer, profile }),
-    from.personas.find((persona) => persona.role === Constants.PersonaRole.MANAGER),
-    profile.date,
-  );
-
-  // wrap it up
-  Engine.Runtime.Instance.log.info(
-    '%s (prestige: %d) sent an offer to %s for %s',
-    from.name,
-    from.prestige,
-    to.name,
-    target.name,
-  );
-  return Promise.resolve();
+  return sendTransferOffer(from, to);
 }
 
 /**
@@ -2284,24 +2409,25 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
     },
   });
 
-  // send response e-mail
-  const email = await sendEmail(
-    Sqrl.render(locale.templates.OfferGeneric.SUBJECT, { transfer }),
-    Sqrl.render(result.dialogue.content, { transfer, profile }),
-    result.dialogue.from,
-    profile.date,
-  );
+  // for transfers involving the user, we need to send e-mails
+  if (transfer.from.id === profile.teamId || transfer.to.id === profile.teamId) {
+    const email = await sendEmail(
+      Sqrl.render(locale.templates.OfferGeneric.SUBJECT, { transfer }),
+      Sqrl.render(result.dialogue.content, { transfer, profile }),
+      result.dialogue.from,
+      profile.date,
+    );
 
-  // update existing dialogues attached to this transfer
-  // and toggle their action as completed
-  await DatabaseClient.prisma.dialogue.updateMany({
-    where: {
-      emailId: email.id,
-    },
-    data: {
-      completed: true,
-    },
-  });
+    // set existing dialogue actions as completed
+    await DatabaseClient.prisma.dialogue.updateMany({
+      where: {
+        emailId: email.id,
+      },
+      data: {
+        completed: true,
+      },
+    });
+  }
 
   // unless the player accepted, we have nothing else to do
   if (result.transfer.status !== Constants.TransferStatus.PLAYER_ACCEPTED) {

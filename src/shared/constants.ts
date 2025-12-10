@@ -344,6 +344,7 @@ export enum IPCRoute {
   SQUAD_UPDATE = '/squad/update',
   SQUAD_RELEASE_PLAYER = '/squad/release/player',
   TEAM_RANKING = '/team/ranking',
+  TEAM_TRANSFERS = '/team/transfers',
   TEAMS_ALL = '/teams/all',
   TEAMS_CREATE = '/teams/create',
   TEAMS_UPDATE = '/teams/update',
@@ -1744,6 +1745,15 @@ export const TransferSettings = {
   // how long do teams and players take to respond
   RESPONSE_MIN_DAYS: 1,
   RESPONSE_MAX_DAYS: 3,
+
+  // npc-to-npc transfer probability
+  PBX_NPC_CONSIDER: 75,
+
+  // how likely to buy a player from another region
+  PBX_NPC_RELOCATE: 15,
+
+  // how likely each tier is to send an offer
+  PBX_NPC_TIER: [5, 5, 5, 20, 65],
 
   // how much percent to add (per dollar) over the wages
   PBX_PLAYER_HIGHBALL_MODIFIER: 0.01,

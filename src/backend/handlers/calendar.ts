@@ -94,6 +94,9 @@ async function onTickEnd(input: Calendar[], status?: Engine.LoopStatus) {
   // record today's match results
   await Worldgen.recordMatchResults();
 
+  // npc transfers
+  await Worldgen.sendNPCTransferOffer();
+
   // bump the calendar date by one day
   let profile = await DatabaseClient.prisma.profile.findFirst();
   profile = await DatabaseClient.prisma.profile.update({
