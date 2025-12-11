@@ -1,76 +1,116 @@
-# v3.0.0-beta.29
+# v3.0.0-beta.77
 
-## CS2 Support Added
+After more than a year, the app is finally out of beta and into the release candidate phase for `v3.0.0`.
+
+A big thank you goes out to the community over in [discord](https://discord.gg/ZaEwHfDD5N) for providing such valuable feedback, feature requests, and even contributions that have helped shaped the project into what it is today.
+
+Below is a summary of some of the most notable features since [Beta 29](https://github.com/orgs/playliga/discussions/350).
+
+## Exhibition Mode
 
 <video muted loop playsInline autoplay>
-  <source src="resources://markdown/whats-new/cs2.mp4#t=0.1" type="video/mp4" />
+  <source src="resources://markdown/whats-new/exhibition.mp4#t=0.1" type="video/mp4" />
 </video>
 
-The long-awaited update is finally here!
+This mode allows users to jump right into the action without needing to start a new career.
 
-After months of waiting for CS2 to stabilize and previously removed features to be re-implemented, you can play your matches in CS2.
+Pick your team, your opponent's team, and select the starting side.
 
-However, please note that this feature is still _very experimental_. Many functionalities available in other versions of Counter-Strike are not yet fully supported.
+Further customization is planned in the future including picking the starters per team.
 
-One of the most glaring issues is the state of bot mechanics in CS2. The current implementation falls short in terms of reaching feature-parity with CS:GO, with several limitations:
+## Map Vetos
 
-- Bots often struggle with navigation; resulting in them getting stuck or failing to perform critical tasks.
-- Waypoints and pathfinding behavior remain inconsistent across various maps.
-- Bomb-related actions such as planting and defusing may fail in certain scenarios.
+![veto](resources://markdown/whats-new/veto.png)
 
-### Other Known Issues
+An oft-requested feature is the introduction of best-of series for certain matches.
 
-- Ready-up messages are not printed out by the server.
-- Users are not automatically added to the correct team upon joining the server.
-- The postgame modal will render all match events under the first half.
+The semi-finals and finals of the most esteemed tournaments will be best-of-3 and best-of-5 matches, respectively. In addition, a simulated map veto process was added to determine the map pool for the series.
 
-## Improved Bot Mechanics for CS:GO
+## Custom Map Pools
 
-Big shoutout to the creator of the [CSGO Better Bots](https://github.com/manicogaming/CSGOBetterBots) SourceMod plugin.
+![pool](resources://markdown/whats-new/pool.png)
 
-Thanks to their work, bots in the app now have enhanced mechanics, including the ability to execute nade line-ups on specific maps. Their overall use of equipment has also seen a noticeable improvement, making matches feel more dynamic and realistic.
+> [!NOTE]
+> This setting is not retroactive; thus, changes will not apply to matches that have already been scheduled.
 
-Check out this [demo video](https://imgur.com/a/liga-esports-manager-cs-go-better-bots-demo-dvoJIgY) to see a bot pulling off a smoke line-up on `de_dust2`.
+A feature that has been frequently sought after is the ability to customize the map pool for each game. Not everybody is a fan of Vertigo or `de_cpl_fire` (for the CS 1.6 fans), so it is now possible to swap these out of the active map pool.
 
-## Mod Manager
+## Achievements
 
-![](resources://markdown/whats-new/mod-manager.png)
+![achievements](resources://markdown/whats-new/achievements.png)
 
-You can now create custom database entries and team logos, then publish them for others to download and enjoy.
+This feature should hopefully add some more satisfaction and guidance to your manager careers. To sweeten the deal, every achievement unlocked comes coupled with a cash reward.
 
-This opens the door for the community to craft mods—like adding real pro-team names and logos—and makes it effortless for users to discover, download, and install them directly from within the app.
+Many thanks to **MattyRedemption** for providing a good starter set of achievements that should keep players busy until the next batch arrives.
 
-Interested in creating your own mod? Check out the [modding docs](https://github.com/playliga/prototype/wiki/Modding) for all the details on customizing databases and team logos.
+## LAN Pings
 
-_Please note the above docs are still a work-in-progress!_
+![pings](resources://markdown/whats-new/pings.jpg)
 
-## League Playoffs
+> [!NOTE]
+> Only applicable to CS 1.6, CS:CZ, and CS:S.
 
-![](resources://markdown/whats-new/playoffs.png)
+A small quality-of-life change that should help with in-game immersion.
 
-League divisions now have a definitive way to crown champions.
+Elite competitions such as the league playoffs or the Electronic Sports World Cup will be considered LAN tournaments.
 
-Playoffs have been introduced for all divisions, from Open to Premier. The top three teams from these playoffs earn a promotion to the next division, while the 4th-placed team stays to fight another season in their current division.
+This is an in-game aesthetic change where player ping will be modified to simulate LAN latency, usually ranging from `3-5ms`.
 
-## Transfer Market
+## Sponsor Tournaments
 
-![](resources://markdown/whats-new/offer.png)
+![sponsors](resources://markdown/whats-new/sponsors.png)
 
-The Transfer Market is back and better than ever. Now, you can actively shape your roster by sending offers to other teams, while also receiving incoming offers for your players.
+As you rise through the competitive divisions, you'll unlock the ability to secure sponsorships that will bring in additional revenue for your team.
 
-Here's how it works:
+Furthermore, certain sponsors will hold yearly invitationals boasting significant prize pools.
 
-- **Make an Offer:** Submit an offer to a team. If they find it reasonable, they'll approve the deal.
-- **Sweeten the Deal:** If your offer is rejected, don't give up! You can offer above asking price and they will be more likely to change their mind.
-- **Player Approval:** Even after the team accepts, the deal isn't final. The Player must agree to the proposed wages and destination team.
-- **Pro Tip:** Signing players from other regions can be challenging—they might hesitate to relocate.
+## Competition Logos
+
+![competitions](resources://markdown/whats-new/competitions.png)
+
+> [!NOTE]
+> Thank you, **Ramos**, for providing these awesome competition logos!
+
+Competition logos are a great addition that enhances the look-and-feel of the user interface by assigning a unique logo to each competition.
+
+Additionally, each league division has a color hue incorporated into its logo that corresponds to its prestige.
+
+For example, the Open division, being the lowest, has a humble bronze color in its logo. In contrast, a royal purple hue is used for the Premier division, befitting its stature as the highest division in the game.
+
+## Player Avatars
+
+![avatars](resources://markdown/whats-new/avatars.png)
+
+> [!NOTE]
+> Special shoutout to **DrRitzy** for creating the initial realism mod and **MattyRedemption** for further improving upon that foundation.
+
+Although the app doesn't directly incorporate player avatars, this particular feature broadens the scope of customization for modders; allowing for improved realism and immersion when constructing database mods.
+
+If you are interested in making your own database mod, check out the [Modding wiki](https://github.com/playliga/prototype/wiki/Modding)!
 
 ## Discord Server
 
-![](resources://markdown/whats-new/discord.png)
+![discord](resources://markdown/whats-new/discord.png)
 
 There is now a discord server!
 
 The server aims to keep everyone informed about the latest developments and serve as a hub for streamlined feedback. You'll be able to share suggestions, report bugs, and stay up-to-date with the project, all in one place.
 
 - [discord.gg/ZaEwHfDD5N](https://discord.gg/ZaEwHfDD5N)
+
+## Other Notable Changes
+
+- [Added a spectator mode](https://github.com/playliga/prototype/commit/d99c3e01fa99f967056ba15491ad4333e0690d35).
+- [Added translation support](https://github.com/playliga/prototype/commit/5550b55897e3dcc1b25550d4e193529d7c3ddfb4).
+- Added Spanish, French, Brazilian Portuguese, Italian, and German translations.
+  - Thank you **Smokybird**, for the [French translation](https://github.com/playliga/prototype/commit/c4373c49803373e1bfaf6e51e902fc2f6b0f6ed7)!
+  - Thank you **MattyRedemption**, for the [Italian translation](https://github.com/playliga/prototype/commit/c3ff66b24ea28bca2ea3778dd85708fcea91b50c)!
+  - Thank you **Ramos**, for the [Brazilian Portuguese translation](https://github.com/playliga/prototype/commit/9eb887f537618d31ec9296036dcadd10bc096620)!
+  - Thank you **rxpev**, for the [German translation](https://github.com/playliga/prototype/commit/19c84918983da2fdd568433e87fd1eaee09f7643)!
+- [Added a calendar view to see all upcoming matches.](https://github.com/playliga/prototype/commit/ad78aa26262fcff72e6c6719ed20b7e995c75635)
+- [Added custom team logos](https://github.com/playliga/prototype/commit/ab54ff9d357a74d85c96531f88f4f7779aae60e0).
+- [Users can now edit team details after creating a new save](https://github.com/playliga/prototype/commit/3cfe3e550e0d91c0bdfe230e4e65c336894f5407).
+- [Added global settings that apply to new saves](https://github.com/playliga/prototype/commit/5fddeba2ad64af8986056649ce1929fab4e18e6a).
+- [Added world rankings](https://github.com/playliga/prototype/commit/66a44a63ff73f0fddf0750f4070e6403479eca89).
+- [Added player ratings similar to hltv ratings](https://github.com/playliga/prototype/commit/27ef1daad877844ac01c368e84cf66bbc1f2be3c).
+- [Divisions can now be unlocked when promoted in earlier saves](https://github.com/playliga/prototype/commit/697b56a46f74d8c19843bc567b55c7db246cd428).
