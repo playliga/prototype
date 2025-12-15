@@ -322,7 +322,7 @@ export default function () {
                   {[...Array(Constants.Prestige.length)].map((_, idx) => (
                     <span
                       key={idx + '__player_prestige'}
-                      className="mask mask-star bg-yellow-500"
+                      className="mask mask-star bg-yellow-500 max-sm:size-3"
                       aria-current={idx + 1 <= player.prestige + 1}
                     />
                   ))}
