@@ -1065,12 +1065,11 @@ export async function sendNPCTransferOffer() {
   // determine offer participants
   const from = sample(teams);
   const to = sample(
-    teams.filter((team) =>
-      team.id !== from.id &&
-      team.players.length > Constants.Application.SQUAD_MIN_LENGTH &&
-      !relocate
-        ? team.country.continent.federationId === from.country.continent.federationId
-        : true,
+    teams.filter(
+      (team) =>
+        team.id !== from.id &&
+        team.players.length > Constants.Application.SQUAD_MIN_LENGTH &&
+        (relocate || team.country.continent.federationId === from.country.continent.federationId),
     ),
   );
 
