@@ -33,11 +33,12 @@ export function handler() {
   protocol.handle('uploads', async (request) => {
     const { host, pathname } = new URL(request.url);
 
-    // trim trailing slash since uploads usually
-    // do not have a parent folder
-    const targetPath = path
-      .join(app.getPath('userData'), 'uploads', host, pathname)
-      .replace(/[/\\]$/, '');
+    // trim trailing slash since uploads usually do not have a parent
+    // folder and url-decode it since the constructor above encodes
+    // it which breaks when accessing it on the filesystem
+    const targetPath = decodeURI(
+      path.join(app.getPath('userData'), 'uploads', host, pathname).replace(/[/\\]$/, ''),
+    );
 
     try {
       await fs.promises.access(targetPath, fs.constants.F_OK);
