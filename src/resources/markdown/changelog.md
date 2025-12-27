@@ -1,3 +1,11 @@
+## [3.0.0-rc.1](https://github.com/playliga/prototype/compare/v3.0.0-beta.77...v3.0.0-rc.1) (2025-12-27)
+
+### Bug Fixes
+
+- fix custom team logos and players avatars ([#571](https://github.com/playliga/prototype/issues/571)) ([ed6d9fb](https://github.com/playliga/prototype/commit/ed6d9fb37b4c8f684c76c824811158507d85a70f))
+- fix teams trading players... with themselves ([#574](https://github.com/playliga/prototype/issues/574)) ([62518ae](https://github.com/playliga/prototype/commit/62518ae4818f4048bbc85a71634dc79d18678e6b))
+- improve support for smaller screens on transfer modal ([#546](https://github.com/playliga/prototype/issues/546)) ([e809e1a](https://github.com/playliga/prototype/commit/e809e1a709ef3cb4638276f907dc81d745887155))
+
 ## [3.0.0-beta.77](https://github.com/playliga/prototype/compare/v3.0.0-beta.76...v3.0.0-beta.77) (2025-12-11)
 
 ### Features
