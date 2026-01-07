@@ -170,6 +170,7 @@
       }
     },
     "mods": {
+      "author": "Author",
       "download": "Herunterladen und installieren",
       "empty": "Ups! Es sind keine Mods verfügbar.",
       "install": "Installieren",
@@ -302,7 +303,9 @@
     "gallery": "Galerie",
     "group": "Gruppe",
     "home": "Heim",
+    "homepage": "Homepage",
     "labels": "Labels",
+    "launch": "Launch",
     "mapOverrideTitle": "Kartenüberschreibung",
     "mapPool": "Kartenpool",
     "matchday": "Spieltag",
@@ -328,6 +331,7 @@
     "shortlisted": "Auf Beobachtungsliste",
     "shortlistAdd": "Zur Beobachtungsliste hinzufügen",
     "shortlistRemove": "Von der Beobachtungsliste entfernen",
+    "size": "Size",
     "specialCharactersError": "Sonderzeichen werden nicht unterstützt.",
     "squad": "Kader",
     "standings": "Tabelle",

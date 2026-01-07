@@ -4,9 +4,9 @@
  * @module
  */
 import React from 'react';
-import { Constants } from '@liga/shared';
+import { Constants, Util } from '@liga/shared';
 import { useTranslation } from '@liga/frontend/hooks';
-import { FaDownload, FaTrashAlt } from 'react-icons/fa';
+import { FaChevronRight, FaDownload, FaExternalLinkAlt, FaTrashAlt } from 'react-icons/fa';
 
 /**
  * Exports this module.
@@ -16,7 +16,7 @@ import { FaDownload, FaTrashAlt } from 'react-icons/fa';
 export default function () {
   const t = useTranslation('windows');
   const [downloading, setDownloading] = React.useState<string>();
-  const [installed, setInstalled] = React.useState<string>();
+  const [installed, setInstalled] = React.useState<Array<string>>([]);
   const [mods, setMods] = React.useState<Awaited<ReturnType<typeof api.mods.all>>>();
   const [progress, setProgress] = React.useState<number>();
   const [status, setStatus] = React.useState<string>();
@@ -25,7 +25,7 @@ export default function () {
     api.mods
       .all()
       .then(setMods)
-      .catch(() => setMods([]));
+      .catch(() => setMods([[], []]));
     api.mods.installed().then(setInstalled);
 
     // register mod manager event handlers
@@ -39,6 +39,12 @@ export default function () {
       api.mods.installed().then(setInstalled);
     });
   }, []);
+
+  const [metadata, assets] = React.useMemo(() => mods || [[], []], [mods]);
+  const installedModList = React.useMemo(
+    () => installed.map((mod) => mod.toLowerCase().replace('.zip', '')),
+    [installed],
+  );
 
   if (!mods) {
     return (
@@ -59,25 +65,26 @@ export default function () {
         </p>
       </header>
       <section className="h-0 flex-grow overflow-y-scroll">
-        <table className="table-pin-rows table table-fixed">
+        <table className="table-pin-rows table-sm table table-fixed">
           <thead>
             <tr className="border-t-base-content/10 border-t">
-              <th className="w-3/12">{t('shared.name')}</th>
-              <th className="w-4/12">{t('shared.description')}</th>
-              <th className="w-1/12">{t('mods.version')}</th>
-              <th className="w-2/12 text-center">{t('mods.install')}</th>
-              <th className="w-2/12 text-center">{t('shared.status')}</th>
+              <th className="w-[20%]">{t('shared.name')}</th>
+              <th className="w-[30%]">{t('shared.description')}</th>
+              <th className="text-center">{t('mods.author')}</th>
+              <th className="text-center">{t('shared.homepage')}</th>
+              <th className="text-center">{t('mods.install')}</th>
+              <th className="text-center">{t('shared.size')}</th>
             </tr>
           </thead>
           <tbody>
-            {!mods.length && (
+            {!metadata.length && (
               <tr>
                 <td colSpan={5} className="text-center">
                   {t('mods.empty')}
                 </td>
               </tr>
             )}
-            {mods.map((mod) => (
+            {metadata.map((mod) => (
               <tr key={mod.name + '__available'}>
                 <td title={mod.name} className="truncate">
                   {mod.name}
@@ -85,12 +92,21 @@ export default function () {
                 <td title={mod.description} className="truncate">
                   {mod.description}
                 </td>
-                <td>
-                  <code>{mod.version}</code>
+                <td title={mod.author} className="truncate text-center">
+                  {mod.author}
                 </td>
                 <td className="text-center">
-                  {((!downloading &&
-                    installed.toLowerCase().replace('.zip', '') !== mod.name.toLowerCase()) ||
+                  <button
+                    title={mod.homepage || t('shared.homepage')}
+                    className="btn btn-sm btn-ghost"
+                    disabled={!mod.homepage}
+                    onClick={() => api.app.external(mod.homepage)}
+                  >
+                    <FaExternalLinkAlt />
+                  </button>
+                </td>
+                <td className="text-center">
+                  {((!downloading && !installedModList.includes(mod.name.toLowerCase())) ||
                     (!!downloading && downloading !== mod.name)) && (
                     <button
                       title={t('mods.download')}
@@ -104,26 +120,55 @@ export default function () {
                     </button>
                   )}
                   {!!downloading && downloading === mod.name && (
-                    <progress className="progress" value={progress} max="100" />
+                    <progress title={status} className="progress" value={progress} max="100" />
                   )}
                   {!downloading &&
-                    installed.toLowerCase().replace('.zip', '') === mod.name.toLowerCase() && (
+                    installedModList.includes(mod.name.toLowerCase()) &&
+                    !mod.executable && (
                       <button
                         title={t('mods.uninstall')}
                         className="btn btn-error btn-sm"
                         onClick={() => {
-                          api.mods.delete().then(() => setInstalled(''));
+                          api.mods.delete().then(api.mods.installed).then(setInstalled);
                         }}
                       >
                         <FaTrashAlt />
                       </button>
                     )}
+                  {!downloading &&
+                    installedModList.includes(mod.name.toLowerCase()) &&
+                    !!mod.executable && (
+                      <button
+                        title={t('shared.launch')}
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          api.app
+                            .messageBox(Constants.WindowIdentifier.Modal, {
+                              type: 'question',
+                              message:
+                                'This mod will run as its own app. ' +
+                                'Do you want to close the current app after launching?',
+                              buttons: ['Yes', 'Cancel'],
+                            })
+                            .then((data) =>
+                              data.response === 0 ? api.mods.launch() : Promise.reject(),
+                            )
+                            .then(api.app.quit)
+                            .catch(() => null);
+                        }}
+                      >
+                        <FaChevronRight />
+                      </button>
+                    )}
                 </td>
                 <td className="text-center">
-                  {!!downloading && downloading === mod.name && status}
-                  {!downloading &&
-                    installed.toLowerCase().replace('.zip', '') === mod.name.toLowerCase() &&
-                    t('mods.statusInstalled')}
+                  <code>
+                    {(() => {
+                      const size =
+                        assets.find((asset) => asset.name === mod.name + '.zip')?.size || 0;
+                      return Util.formatBytes(size, 1);
+                    })()}
+                  </code>
                 </td>
               </tr>
             ))}

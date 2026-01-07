@@ -3,7 +3,11 @@
  *
  * @module
  */
-import { ipcMain } from 'electron';
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawn } from 'node:child_process';
+import { app, ipcMain } from 'electron';
+import { glob } from 'glob';
 import { Constants } from '@liga/shared';
 import { Mods } from '@liga/backend/lib';
 
@@ -43,5 +47,55 @@ export default function () {
     await mods.download(data);
     await mods.extract();
   });
-  ipcMain.handle(Constants.IPCRoute.MODS_GET_INSTALLED, Mods.Manager.getInstalledModName);
+  ipcMain.handle(Constants.IPCRoute.MODS_GET_INSTALLED, Mods.Manager.getInstalledModList);
+  ipcMain.handle(Constants.IPCRoute.MODS_LAUNCH, async () => {
+    // load available mods from upstream repo
+    const mods = new Mods.Manager(MODS_REPO_URL);
+    await mods.all();
+
+    // launch app if already installed
+    let execFilePath: string;
+
+    try {
+      const modName = await Mods.Manager.getInstalledModExecutableName();
+      const metadata = mods.metadata.find((metadata) => modName === metadata.name + '.zip');
+
+      if (!metadata) {
+        throw 'mod metadata not found!';
+      }
+
+      execFilePath = path.join(app.getPath('appData'), '../Local/' + metadata.executable);
+      await fs.promises.access(execFilePath, fs.constants.F_OK);
+    } catch (_) {
+      execFilePath = null;
+    }
+
+    // fallback to exe in mods folder
+    if (!execFilePath) {
+      try {
+        const [execFileLocal] = await glob('*.exe', { cwd: Mods.getPath(), withFileTypes: true });
+
+        if (!execFileLocal) {
+          throw 'no mod executable found!';
+        }
+
+        execFilePath = path.join(execFileLocal.parent.fullpath(), execFileLocal.name);
+        await fs.promises.access(execFilePath, fs.constants.F_OK);
+      } catch (_) {
+        execFilePath = null;
+      }
+    }
+
+    // bail if a file path could not be found
+    if (!execFilePath) {
+      return;
+    }
+
+    // otherwise, try and launch it
+    const ps = spawn(execFilePath, {
+      detached: true,
+      stdio: 'ignore',
+    });
+    ps.unref();
+  });
 }

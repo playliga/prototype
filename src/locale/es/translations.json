@@ -170,6 +170,7 @@
       }
     },
     "mods": {
+      "author": "Author",
       "download": "Descargar e Instalar",
       "empty": "¡Ups! No hay mods disponibles.",
       "install": "Instalar",
@@ -302,9 +303,11 @@
     "gallery": "Gallery",
     "group": "Grupo",
     "labels": "Etiquetas",
+    "launch": "Launch",
     "matchday": "Jornada",
     "matchDetails": "Detalles",
     "home": "Local",
+    "homepage": "Homepage",
     "mapOverrideTitle": "Sustitución de Mapa",
     "mapPool": "Grupo de Mapas",
     "maxRoundsTitle": "Rondas Máximas",
@@ -328,6 +331,7 @@
     "shortlisted": "Shortlisted",
     "shortlistAdd": "Add to Shortlist",
     "shortlistRemove": "Remove from Shortlist",
+    "size": "Size",
     "specialCharactersError": "Caracteres especiales no soportados.",
     "squad": "Escuadra",
     "standings": "Clasificación",

@@ -398,3 +398,23 @@ export function getEloWinProbability(ratingA: number, ratingB: number, scaling =
 export function getEloRatingDelta(actualScore: number, expectedScore: number, k = 32) {
   return k * (actualScore - expectedScore);
 }
+
+/**
+ * Convert size in bytes to human-readable format.
+ *
+ * @param bytes     The bytes to convert.
+ * @param decimals  The number of decimals to use.
+ * @function
+ */
+export function formatBytes(bytes: number, decimals = 2) {
+  if (bytes == 0) {
+    return '0 Bytes';
+  }
+
+  const k = 1024;
+  const dm = decimals || 2;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}

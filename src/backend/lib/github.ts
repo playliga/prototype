@@ -11,17 +11,6 @@ import log from 'electron-log';
 import { is } from '@liga/shared';
 
 /** @interface */
-export interface Asset {
-  url: string;
-  id: number;
-  name: string;
-  download_count: number;
-  size: number;
-  created_at: string;
-  browser_download_url: string;
-}
-
-/** @interface */
 interface Cache {
   installId: number;
   jwt: string;
@@ -45,7 +34,7 @@ export interface ReleaseResponse {
   published_at: string;
   tag_name: string;
   tarball_url: string;
-  assets: Asset[];
+  assets: Array<GitHubAsset>;
   body: string;
 }
 

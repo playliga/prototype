@@ -1,6 +1,17 @@
 /** @type {ExtractBaseType} */
 type ExtractBaseType<T> = T extends unknown[] ? T[number] : T;
 
+/** @interface */
+interface GitHubAsset {
+  url: string;
+  id: number;
+  name: string;
+  download_count: number;
+  size: number;
+  created_at: string;
+  browser_download_url: string;
+}
+
 /**
  * GitHub API comment response body.
  *
@@ -84,6 +95,8 @@ interface ModMetadata {
   author: string;
   version: string;
   description: string;
+  homepage?: string;
+  executable?: string;
 }
 
 /**

@@ -170,6 +170,7 @@
       }
     },
     "mods": {
+      "author": "Author",
       "download": "Télécharger et installer",
       "empty": "Oops! There are no mods available.",
       "install": "Installer",
@@ -302,7 +303,9 @@
     "gallery": "Gallery",
     "group": "Groupe",
     "home": "Domicile",
+    "homepage": "Homepage",
     "labels": "Labels",
+    "launch": "Launch",
     "mapOverrideTitle": "Carte à remplacer",
     "mapPool": "Sélection de cartes",
     "matchday": "Jour de match",
@@ -328,6 +331,7 @@
     "shortlisted": "Shortlisted",
     "shortlistAdd": "Add to Shortlist",
     "shortlistRemove": "Remove from Shortlist",
+    "size": "Size",
     "specialCharactersError": "Les caractères spéciaux ne sont pas pris en charge.",
     "squad": "Équipe",
     "standings": "Classements",

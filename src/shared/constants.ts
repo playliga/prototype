@@ -312,6 +312,7 @@ export enum IPCRoute {
   MODS_FINISHED = '/mods/finished',
   MODS_GET_INSTALLED = '/mods/get-installed',
   MODS_INSTALLING = '/mods/installing',
+  MODS_LAUNCH = '/mods/launch',
   PLAY_EXHIBITION = '/play/exhibition',
   PLAY_START = '/play/start',
   PLAYERS_ALL = '/players/all',

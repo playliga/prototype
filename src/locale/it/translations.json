@@ -170,6 +170,7 @@
       }
     },
     "mods": {
+      "author": "Author",
       "download": "scarica e Installa",
       "empty": "Oops! Non ci sono mod disponibili.",
       "install": "Installa",
@@ -302,7 +303,9 @@
     "gallery": "Galleria",
     "group": "Gruppo",
     "home": "Casa",
+    "homepage": "Homepage",
     "labels": "Labels",
+    "launch": "Launch",
     "mapOverrideTitle": "Sovrascrivi Mappa",
     "mapPool": "Gruppo di Mappe",
     "matchday": "Giornata",
@@ -328,6 +331,7 @@
     "shortlisted": "Aggiunto ai Preferiti",
     "shortlistAdd": "Aggiungi ai Preferiti",
     "shortlistRemove": "Rimuovi dai Preferiti",
+    "size": "Size",
     "specialCharactersError": "Caratteri speciali non supportati.",
     "squad": "Squadra",
     "standings": "Classifica",

@@ -170,6 +170,7 @@
       }
     },
     "mods": {
+      "author": "Author",
       "download": "Baixar e instalar",
       "empty": "Eita, não tem mods disponíveis :(",
       "install": "Instalar",
@@ -302,7 +303,9 @@
     "gallery": "Galeria",
     "group": "Grupo",
     "home": "Casa",
+    "homepage": "Homepage",
     "labels": "Etiquetas",
+    "launch": "Launch",
     "mapOverrideTitle": "Forçar mapa",
     "mapPool": "Map Pool",
     "matchday": "Dia de jogo",
@@ -328,6 +331,7 @@
     "shortlisted": "Shortlisted",
     "shortlistAdd": "Add to Shortlist",
     "shortlistRemove": "Remove from Shortlist",
+    "size": "Size",
     "specialCharactersError": "Letras especiais não suportadas :(",
     "squad": "Elenco",
     "standings": "Classificação",

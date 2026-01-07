@@ -61,8 +61,8 @@ export function getPath() {
  * @class
  */
 export class Manager extends events.EventEmitter {
-  private asset: GitHub.Asset;
-  private assets: Array<GitHub.Asset>;
+  private asset: GitHubAsset;
+  private assets: Array<GitHubAsset>;
   private github: GitHub.Application;
   public log: log.LogFunctions;
   public metadata: Array<ModMetadata>;
@@ -76,6 +76,15 @@ export class Manager extends events.EventEmitter {
   }
 
   /**
+   * Gets the list of installed mods.
+   *
+   * @method
+   */
+  public static async getInstalledModList() {
+    return Promise.all([Manager.getInstalledModExecutableName(), Manager.getInstalledModName()]);
+  }
+
+  /**
    * Gets the name of the mod that is installed.
    *
    * @method
@@ -86,6 +95,17 @@ export class Manager extends events.EventEmitter {
   }
 
   /**
+   * Same as `Manager.getInstalledModName` but for mods that are total
+   * conversions and as such contain their own installer and executable.
+   *
+   * @method
+   */
+  public static async getInstalledModExecutableName() {
+    await FileManager.touch(Manager.getInstalledModExecutableFilePath());
+    return fs.promises.readFile(Manager.getInstalledModExecutableFilePath(), 'utf8');
+  }
+
+  /**
    * Getter for the flat file that tracks
    * of what mod is installed.
    *
@@ -93,6 +113,16 @@ export class Manager extends events.EventEmitter {
    */
   private static getInstalledModFilePath() {
     return path.join(path.dirname(getPath()), 'InstalledMod');
+  }
+
+  /**
+   * Same as `Manager.getInstalledModFilePath` but for mods that are total
+   * conversions and as such contain their own installer and executable.
+   *
+   * @method
+   */
+  private static getInstalledModExecutableFilePath() {
+    return path.join(path.dirname(getPath()), 'InstalledModExecutable');
   }
 
   /**
@@ -164,7 +194,7 @@ export class Manager extends events.EventEmitter {
       return Promise.reject('Could not find index.json file');
     }
 
-    return Promise.resolve(this.metadata);
+    return [this.metadata, this.assets];
   }
 
   /**
@@ -275,8 +305,15 @@ export class Manager extends events.EventEmitter {
         this.emit(EventIdentifier.ERROR);
       })
       .on('finish', async () => {
-        await FileManager.touch(Manager.getInstalledModFilePath());
-        await fs.promises.writeFile(Manager.getInstalledModFilePath(), this.asset.name, 'utf8');
+        const metadata = this.metadata.find(
+          (metadata) => this.asset.name === metadata.name + '.zip',
+        );
+        const modFilePath = metadata.executable
+          ? Manager.getInstalledModExecutableFilePath()
+          : Manager.getInstalledModFilePath();
+
+        await FileManager.touch(modFilePath);
+        await fs.promises.writeFile(modFilePath, this.asset.name, 'utf8');
         await this.install();
       })
       .on('entry', async (file, stream, next) => {
@@ -311,6 +348,18 @@ export class Manager extends events.EventEmitter {
    * @method
    */
   public async install() {
+    // bail early if this mod has no save file to load
+    try {
+      await fs.promises.access(
+        path.join(getPath(), Constants.Application.DATABASES_DIR, Util.getSaveFileName(0)),
+        fs.constants.F_OK,
+      );
+    } catch (_) {
+      this.log.warn('no root save to load for mod: %s', this.asset.name);
+      this.emit(EventIdentifier.FINISHED);
+      return;
+    }
+
     try {
       await DatabaseClient.disconnect();
       await DatabaseClient.initModdedDatabase(

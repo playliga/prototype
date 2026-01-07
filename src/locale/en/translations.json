@@ -170,6 +170,7 @@
       }
     },
     "mods": {
+      "author": "Author",
       "download": "Download and Install",
       "empty": "Oops! There are no mods available.",
       "install": "Install",
@@ -302,7 +303,9 @@
     "gallery": "Gallery",
     "group": "Group",
     "home": "Home",
+    "homepage": "Homepage",
     "labels": "Labels",
+    "launch": "Launch",
     "mapOverrideTitle": "Map Override",
     "mapPool": "Map Pool",
     "matchday": "Matchday",
@@ -328,6 +331,7 @@
     "shortlisted": "Shortlisted",
     "shortlistAdd": "Add to Shortlist",
     "shortlistRemove": "Remove from Shortlist",
+    "size": "Size",
     "specialCharactersError": "Special characters not supported.",
     "squad": "Squad",
     "standings": "Standings",

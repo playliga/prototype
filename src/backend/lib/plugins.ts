@@ -66,7 +66,7 @@ export function getPath() {
  * @class
  */
 export class Manager extends events.EventEmitter {
-  private asset: GitHub.Asset;
+  private asset: GitHubAsset;
   private github: GitHub.Application;
   public log: log.LogFunctions;
   public url: string;

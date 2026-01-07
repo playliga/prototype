@@ -181,10 +181,15 @@ export default {
       >,
   },
   mods: {
-    all: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_ALL) as Promise<Array<ModMetadata>>,
+    all: () =>
+      ipcRenderer.invoke(Constants.IPCRoute.MODS_ALL) as Promise<
+        [Array<ModMetadata>, Array<GitHubAsset>]
+      >,
     delete: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_DELETE) as Promise<Array<void>>,
     download: (name: string) => ipcRenderer.send(Constants.IPCRoute.MODS_DOWNLOAD, name),
-    installed: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<string>,
+    installed: () =>
+      ipcRenderer.invoke(Constants.IPCRoute.MODS_GET_INSTALLED) as Promise<Array<string>>,
+    launch: () => ipcRenderer.invoke(Constants.IPCRoute.MODS_LAUNCH) as Promise<void>,
   },
   play: {
     exhibition: (settings: typeof Constants.Settings, teamIds: Array<number>, teamId: number) =>
