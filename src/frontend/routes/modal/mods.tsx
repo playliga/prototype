@@ -154,7 +154,7 @@ export default function () {
                               data.response === 0 ? api.mods.launch() : Promise.reject(),
                             )
                             .then(api.app.quit)
-                            .catch(() => null);
+                            .catch(() => null as void);
                         }}
                       >
                         <FaChevronRight />
