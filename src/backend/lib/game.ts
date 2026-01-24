@@ -762,9 +762,7 @@ export class Server {
             (competitor.teamId !== this.profile.teamId || this.spectating)
           ) {
             player.stats = JSON.stringify(
-              Bot.Templates.find(
-                (template) => template.name === this.settings.general.botDifficulty,
-              ).stats,
+              Bot.Exp.getRandomStats(this.settings.general.botDifficulty),
             );
           }
 

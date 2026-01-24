@@ -8,6 +8,7 @@ import * as Chance from './chance';
 import * as Constants from './constants';
 import log from 'electron-log';
 import type { Prisma } from '@prisma/client';
+import { random } from 'lodash';
 
 /**
  * Individual bot template stats.
@@ -220,6 +221,26 @@ export class Exp {
     if (bonuses) {
       bonuses.forEach(this.initBonuses, this);
     }
+  }
+
+  /**
+   * Randomizes and returns the stats
+   * for the specified bot template.
+   *
+   * @param name The name of the bot template.
+   * @function
+   */
+  public static getRandomStats(name: string) {
+    const templateIdx = Templates.findIndex((template) => template.name === name);
+    const template = Templates[templateIdx];
+    const minTemplate = Templates[Math.max(1, templateIdx - 1)];
+    const maxTemplate = Templates[Math.min(Templates.length - 1, templateIdx + 1)];
+
+    Object.keys(template.stats).forEach((key) => {
+      template.stats[key] = random(minTemplate.stats[key], maxTemplate.stats[key]);
+    });
+
+    return template.stats;
   }
 
   /**
