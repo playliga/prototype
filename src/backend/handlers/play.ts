@@ -445,6 +445,30 @@ export default function () {
       }
     }
 
+    // apply elo deltas
+    const homeExpectedScore = Util.getEloWinProbability(home.team.elo, away.team.elo);
+    const homeActualScore = Constants.EloScore[Simulator.getMatchResult(home.team.id, globalScore)];
+    const awayExpectedScore = 1 - homeExpectedScore;
+    const awayActualScore = Constants.EloScore[Simulator.getMatchResult(away.team.id, globalScore)];
+    const deltas = [
+      Util.getEloRatingDelta(homeActualScore, homeExpectedScore),
+      Util.getEloRatingDelta(awayActualScore, awayExpectedScore),
+    ];
+    await Promise.all(
+      deltas.map((delta, teamIdx) =>
+        DatabaseClient.prisma.team.update({
+          where: {
+            id: match.competitors[teamIdx].team.id,
+          },
+          data: {
+            elo: {
+              increment: delta,
+            },
+          },
+        }),
+      ),
+    );
+
     // check if user won any awards
     await Worldgen.sendUserAward(match.competition);
 
