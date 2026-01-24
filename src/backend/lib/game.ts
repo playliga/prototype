@@ -477,9 +477,13 @@ export class Server {
     }
 
     // restore files
-    return FileManager.restore(
-      path.join(this.settings.general.gamePath, this.baseDir, this.gameDir),
-    );
+    try {
+      await FileManager.restore(
+        path.join(this.settings.general.gamePath, this.baseDir, this.gameDir),
+      );
+    } catch (error) {
+      this.log.warn(error);
+    }
   }
 
   /**
