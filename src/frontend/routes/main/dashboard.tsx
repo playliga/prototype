@@ -578,7 +578,9 @@ export default function () {
                   <article className="card-body">
                     <header className="grid h-full grid-cols-3 place-items-center">
                       <aside className="stack-y items-center">
-                        <img src={home.team.blazon} className="h-24 w-auto" />
+                        <figure className="center h-24 w-auto">
+                          <Image src={home.team.blazon} className="h-full w-auto" />
+                        </figure>
                         <Historial matches={homeHistorial} teamId={home.teamId} />
                         <div className="text-center">
                           <p>
@@ -632,7 +634,9 @@ export default function () {
                         </ul>
                       </aside>
                       <aside className="stack-y items-center">
-                        <img src={away.team.blazon} className="h-24 w-auto" />
+                        <figure className="center h-24 w-auto">
+                          <Image src={away.team.blazon} className="h-full w-auto" />
+                        </figure>
                         <Historial matches={awayHistorial} teamId={away.teamId} />
                         <div className="text-center">
                           <p>
