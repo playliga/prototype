@@ -1,3 +1,17 @@
+## [3.0.0-rc.2](https://github.com/playliga/prototype/compare/v3.0.0-rc.1...v3.0.0-rc.2) (2026-01-24)
+
+### Features
+
+- add support for total conversion mods ([#580](https://github.com/playliga/prototype/issues/580)) ([8c0ee7e](https://github.com/playliga/prototype/commit/8c0ee7ed5ed964665e404d315162cbf9f9c191b8))
+- randomize bot stats when using difficulty override ([#567](https://github.com/playliga/prototype/issues/567)) ([c59af5e](https://github.com/playliga/prototype/commit/c59af5e99295ac1ae8a6ee26469552ef63895939))
+
+### Bug Fixes
+
+- fix elo ratings only updating when simulating matches ([#586](https://github.com/playliga/prototype/issues/586)) ([ac05449](https://github.com/playliga/prototype/commit/ac0544971230064c2a72ba08662376f10d7dd59f))
+- fix matches not being recorded in cs2 ([#581](https://github.com/playliga/prototype/issues/581)) ([6f9f65d](https://github.com/playliga/prototype/commit/6f9f65d224190a29996336d5c93f64dab86f5f73))
+- improved team logo scaling on dashboard ([#564](https://github.com/playliga/prototype/issues/564)) ([d4b23f7](https://github.com/playliga/prototype/commit/d4b23f793005a06a4c8914ccc6fe6f6e9eafcac7))
+- simulated scores now honor current max rounds setting ([#579](https://github.com/playliga/prototype/issues/579)) ([e6fa652](https://github.com/playliga/prototype/commit/e6fa65215cf4aaf47590a4beb38c25bdfac55efe))
+
 ## [3.0.0-rc.1](https://github.com/playliga/prototype/compare/v3.0.0-beta.77...v3.0.0-rc.1) (2025-12-27)
 
 ### Bug Fixes
