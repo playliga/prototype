@@ -2065,11 +2065,12 @@ export async function onMatchdayNPC(entry: Calendar) {
   }
 
   // load sim settings if this is a user matchday
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const settings = Util.loadSettings(profile.settings);
   const simulator = new Simulator.Score();
+  simulator.maxRounds = settings.matchRules.maxRounds;
 
   if (entry.type === Constants.CalendarEntry.MATCHDAY_USER) {
-    const profile = await DatabaseClient.prisma.profile.findFirst();
-    const settings = Util.loadSettings(profile.settings);
     simulator.mode = settings.general.simulationMode;
     simulator.userPlayerId = profile.playerId;
     simulator.userTeamId = profile.teamId;

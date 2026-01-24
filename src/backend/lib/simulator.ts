@@ -43,14 +43,6 @@ function getSimScaleFactor() {
 /** @type {Team} */
 type Team = Prisma.TeamGetPayload<{ include: { players: true } }>;
 
-/** @enum */
-enum SimulationResult {
-  DRAW = 15,
-  LOSE_HIGH = 14,
-  LOSE_LOW = 0,
-  WIN = 16,
-}
-
 /**
  * Gets the match result for the specified competitor id.
  *
@@ -77,21 +69,70 @@ export function getMatchResult(
  * @class
  */
 export class Score {
+  /**
+   * Scoped logging instance.
+   *
+   * @constant
+   */
   private log: log.LogFunctions;
-  public allowDraw: boolean;
-  public mode: Constants.SimulationMode;
-  public userPlayerId: number;
-  public userTeamId: number;
 
   /**
-   * @param allowDraw Allow draws.
-   * @param mode      The simulation mode.
-   * @constructor
+   * Allows draws.
+   *
+   * @constant
    */
-  constructor(allowDraw = false, mode = Constants.SimulationMode.DEFAULT) {
+  public allowDraw = false;
+
+  /**
+   * Maximum rounds.
+   *
+   * @constant
+   */
+  public maxRounds = Constants.Settings.matchRules.maxRounds;
+
+  /**
+   * The simulation mode.
+   *
+   * @constant
+   */
+  public mode = Constants.SimulationMode.DEFAULT;
+
+  /**
+   * The user's player id.
+   *
+   * @constant
+   */
+  public userPlayerId: number;
+
+  /**
+   * The user's team id.
+   *
+   * @constant
+   */
+  public userTeamId: number;
+
+  /** @constructor */
+  constructor() {
     this.log = log.scope('simulator');
-    this.allowDraw = allowDraw;
-    this.mode = mode;
+  }
+
+  /**
+   * Generates a simulation score based off
+   * of the provided match result.
+   *
+   * @param result The match result.
+   * @function
+   */
+  private getSimulationResult(result: Constants.MatchResult) {
+    switch (result) {
+      case Constants.MatchResult.WIN:
+        return this.maxRounds / 2 + 1;
+      case Constants.MatchResult.LOSS:
+        return random(0, this.maxRounds / 2 - 2);
+      case Constants.MatchResult.DRAW:
+      default:
+        return this.maxRounds / 2;
+    }
   }
 
   /**
@@ -155,8 +196,8 @@ export class Score {
 
     // simulate final scores
     const score = {
-      winner: SimulationResult.WIN,
-      loser: random(SimulationResult.LOSE_LOW, SimulationResult.LOSE_HIGH),
+      winner: this.getSimulationResult(Constants.MatchResult.WIN),
+      loser: this.getSimulationResult(Constants.MatchResult.LOSS),
     };
 
     // handle sim mode early since that won't
@@ -205,8 +246,8 @@ export class Score {
     // was it a draw?
     if (this.allowDraw && winner === Constants.SimulationMode.DRAW) {
       return {
-        [home.id]: SimulationResult.DRAW,
-        [away.id]: SimulationResult.DRAW,
+        [home.id]: this.getSimulationResult(Constants.MatchResult.DRAW),
+        [away.id]: this.getSimulationResult(Constants.MatchResult.DRAW),
       };
     }
 
