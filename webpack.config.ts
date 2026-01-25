@@ -28,21 +28,6 @@ const WebpackSharedConfig = {
   module: {
     rules: [
       {
-        test: /native_modules\/.+\.node$/,
-        use: 'node-loader',
-      },
-      {
-        test: /\.(m?js|node)$/,
-        exclude: /\.prisma/,
-        parser: { amd: false },
-        use: {
-          loader: '@vercel/webpack-asset-relocator-loader',
-          options: {
-            outputAssetBase: 'native_modules',
-          },
-        },
-      },
-      {
         test: /\.tsx?$/,
         exclude: /(node_modules|\.webpack)/,
         use: {
@@ -65,6 +50,26 @@ const WebpackSharedConfig = {
 export const ElectronMainWebpackConfig: Configuration = {
   ...WebpackSharedConfig,
   entry: './src/backend/index.ts',
+  module: {
+    rules: [
+      {
+        test: /native_modules\/.+\.node$/,
+        use: 'node-loader',
+      },
+      {
+        test: /\.(m?js|node)$/,
+        exclude: /\.prisma/,
+        parser: { amd: false },
+        use: {
+          loader: '@vercel/webpack-asset-relocator-loader',
+          options: {
+            outputAssetBase: 'native_modules',
+          },
+        },
+      },
+      ...WebpackSharedConfig.module.rules,
+    ],
+  },
   plugins: [
     ...WebpackSharedConfig.plugins,
     new EnvironmentPlugin([

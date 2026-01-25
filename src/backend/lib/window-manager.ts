@@ -107,12 +107,6 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
               accelerator: is.osx() ? 'Cmd+,' : 'Ctrl+,',
               click: () => send(Constants.WindowIdentifier.Modal, { target: '/settings' }),
             },
-            {
-              label: 'Threading',
-              click: () => {
-                get(Constants.WindowIdentifier.Threading);
-              },
-            },
             { type: 'separator' },
             {
               label: 'Save and Exit to Main Menu',
@@ -214,21 +208,6 @@ export const WINDOW_CONFIGS: Record<string, WindowConfig> = {
       ...sharedWindowConfigs.frameless,
       height: 400,
       width: 300,
-    },
-  },
-  [Constants.WindowIdentifier.Threading]: {
-    id: Constants.WindowIdentifier.Threading,
-    url: is.main() && THREADING_WINDOW_WEBPACK_ENTRY,
-    options: {
-      height: 384,
-      width: 512,
-      x: 0,
-      y: 0,
-      webPreferences: {
-        contextIsolation: false,
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true,
-      },
     },
   },
 };

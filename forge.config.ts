@@ -95,12 +95,6 @@ const config: ForgeConfig = {
           },
           {
             html: './src/frontend/assets/index.html',
-            js: './src/frontend/windows/threading.tsx',
-            name: 'threading_window',
-            nodeIntegration: true,
-          },
-          {
-            html: './src/frontend/assets/index.html',
             js: './src/frontend/windows/modal.tsx',
             name: 'modal_window',
             preload: {

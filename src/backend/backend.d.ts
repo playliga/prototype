@@ -6,4 +6,3 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const MODAL_WINDOW_WEBPACK_ENTRY: string;
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
-declare const THREADING_WINDOW_WEBPACK_ENTRY: string;

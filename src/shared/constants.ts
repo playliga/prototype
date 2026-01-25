@@ -547,28 +547,6 @@ export enum ThemeType {
   SYSTEM = 'system',
 }
 
-/**
- * Threading status types.
- *
- * @enum
- */
-export enum ThreadingStatus {
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  RUNNING = 'running',
-}
-
-/**
- * Types of threading targets, or functions
- * that will run in their own thread.
- *
- * @enum
- */
-export enum ThreadingTarget {
-  FIBONACCI = 'fibonacci',
-  LISTING = 'listing',
-}
-
 /** @enum */
 export enum TransferStatus {
   TEAM_ACCEPTED,
@@ -600,7 +578,6 @@ export enum WindowIdentifier {
   Main = 'main',
   Modal = 'modal',
   Splash = 'splash',
-  Threading = 'threading',
 }
 
 /**

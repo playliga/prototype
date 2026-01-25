@@ -9,8 +9,8 @@
 
 # APIs and Technologies
 
-- Node `v22.14.x`.
-- Electron `v36.x`.
+- Node `v24.11.1`.
+- Electron `v40.0.0`.
 - SQLite `v5.x`.
   - On Windows, Python `3.10` or above [is required](https://github.com/nodejs/node-gyp#on-windows).
 
@@ -113,3 +113,10 @@ convert autotrace:src/assets/logo.png src/icons/logo.svg
 ## Error: Cannot find module 'undefinedbuild/Release/node_sqlite3.node'
 
 This is caused by editing files while the app is transpiling.
+
+## Error: Could not detect abi for version and runtime electron
+
+```bash
+rm -rf package-lock.json node_modules
+npm install
+```
