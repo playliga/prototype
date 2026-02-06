@@ -691,8 +691,7 @@ export default function () {
                 game={settings.general.game}
                 player={player}
                 onClickStarter={
-                  (starters.length < Constants.Application.SQUAD_MIN_LENGTH - 1 ||
-                    player.starter) &&
+                  (starters.length < Constants.Application.SQUAD_MIN_LENGTH || player.starter) &&
                   (() => {
                     api.squad
                       .update({
