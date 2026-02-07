@@ -198,14 +198,14 @@ export class Application {
         typ: 'JWT',
         alg: 'RS256',
       }),
-    ).toString('base64');
+    ).toString('base64url');
     const payload = Buffer.from(
       JSON.stringify({
         iat: Math.round(Date.now() / 1000),
         exp: Math.round(Date.now() / 1000) + 300,
         iss: this.clientId,
       }),
-    ).toString('base64');
+    ).toString('base64url');
 
     // sign the payload
     const signer = crypto.createSign('RSA-SHA256');
@@ -213,7 +213,7 @@ export class Application {
     signer.end();
 
     // return the signed jwt
-    cache.jwt = `${header}.${payload}.${signer.sign(signingKey, 'base64')}`;
+    cache.jwt = `${header}.${payload}.${signer.sign(signingKey, 'base64url')}`;
     return Promise.resolve(cache.jwt);
   }
 
