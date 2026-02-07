@@ -1,3 +1,14 @@
+## [3.0.0-rc.3](https://github.com/playliga/prototype/compare/v3.0.0-rc.2...v3.0.0-rc.3) (2026-02-07)
+
+### Features
+
+- increase prize pool for sponsors and other select tournaments ([#588](https://github.com/playliga/prototype/issues/588)) ([b5645a9](https://github.com/playliga/prototype/commit/b5645a9654b1b3e24d3a8531177c8c6bc4d263c1))
+
+### Bug Fixes
+
+- allow selecting five starters to improve simulation odds ([#591](https://github.com/playliga/prototype/issues/591)) ([12ee7ca](https://github.com/playliga/prototype/commit/12ee7ca1d1fff451ea60d13356c088442a19ad18))
+- fix the plugins and mods download api ([109dda7](https://github.com/playliga/prototype/commit/109dda76ee3bc90f9114b47ce7220a98a1d25ccb))
+
 ## [3.0.0-rc.2](https://github.com/playliga/prototype/compare/v3.0.0-rc.1...v3.0.0-rc.2) (2026-01-24)
 
 ### Features
