@@ -10,7 +10,7 @@ import { Prisma } from '@prisma/client';
 import { random, sample } from 'lodash';
 import { addDays, addYears } from 'date-fns';
 import { Constants, Eagers } from '@liga/shared';
-import { DatabaseClient, getLocale, Worldgen } from '@liga/backend/lib';
+import { DatabaseClient, Locale, Worldgen } from '@liga/backend/lib';
 
 /**
  * Register the IPC event handlers.
@@ -106,7 +106,7 @@ export default function () {
   ipcMain.handle(Constants.IPCRoute.SPONSORSHIP_INVITE_ACCEPT, async (_, id: string) => {
     // load user locale
     const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
-    const locale = getLocale(profile);
+    const locale = Locale.getLocale(profile);
 
     // load sponsorship record
     const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
@@ -189,7 +189,7 @@ export default function () {
   ipcMain.handle(Constants.IPCRoute.SPONSORSHIP_INVITE_REJECT, async (_, id: string) => {
     // load user locale
     const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
-    const locale = getLocale(profile);
+    const locale = Locale.getLocale(profile);
 
     // load sponsorship record
     const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({

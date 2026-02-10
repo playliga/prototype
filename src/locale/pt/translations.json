@@ -216,6 +216,8 @@
       "gamePathTitle": "Endereço da pasta do jogo",
       "gameSubtitle": "Escolha a versão do CS que vai ser usada nas partidas.",
       "gameSubtitleCS2": "Aviso: o uso do CS2 ainda está em fase de testes.",
+      "languageSubtitle": "Requires an app restart",
+      "languageTitle": "Language",
       "launchOptionsSubtitle": "Só pra quem manja, use com cuidado!",
       "launchOptionsTitle": "Ajustes extras pro CS",
       "loopExitSubtitle": "Normalmente o avanço do calendário para pra e-mails ou dia de partida.",

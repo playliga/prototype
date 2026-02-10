@@ -216,6 +216,8 @@
       "gamePathTitle": "Percorso della Libreria del Gioco",
       "gameSubtitle": "Questo avvierà il gioco selezionato quando giocherai le partite.",
       "gameSubtitleCS2": "Attenzione! Il supporto per CS2 è sperimentale.",
+      "languageSubtitle": "Requires an app restart",
+      "languageTitle": "Language",
       "launchOptionsSubtitle": "Solo per utenti avanzati. Utilizza con cauzione!",
       "launchOptionsTitle": "Opzioni di Avvio",
       "loopExitSubtitle": "Solitamente il loop del calendario si ferma per eventi come giorno-partita ed e-mail.",

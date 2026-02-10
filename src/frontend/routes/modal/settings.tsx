@@ -33,6 +33,9 @@ export default function () {
   const [settings, setSettings] = React.useState(Util.loadSettings(state.profile.settings));
   const [appStatus, setAppStatus] = React.useState<NodeJS.ErrnoException>();
   const [mapPool, setMapPool] = React.useState<Awaited<ReturnType<typeof api.mapPool.find>>>([]);
+  const [systemLocaleIdentifier, setSystemLocaleIdentifier] = React.useState<
+    Awaited<ReturnType<typeof api.app.localeIdentifier>>
+  >(Constants.LocaleIdentifier.EN);
 
   // load settings
   React.useEffect(() => {
@@ -56,6 +59,9 @@ export default function () {
       );
       return;
     }
+
+    // get system locale identifier
+    api.app.localeIdentifier().then(setSystemLocaleIdentifier);
 
     setSettings(localSettings);
   }, [state.profile]);
@@ -112,7 +118,7 @@ export default function () {
 
   return (
     <main>
-      <header role="tablist" className="tabs-box tabs sticky top-0 left-0 rounded-none">
+      <header role="tablist" className="tabs-box tabs sticky top-0 left-0 z-30 rounded-none">
         {Object.keys(Tab)
           .filter((tabKey) => isNaN(Number(tabKey)))
           .map((tabKey: keyof typeof Tab) => (
@@ -375,6 +381,25 @@ export default function () {
                   value={settings.general.volume}
                   onChange={(event) => onSettingsUpdate('general.volume', event.target.value)}
                 />
+              </article>
+            </section>
+            <section>
+              <header>
+                <p>{t('settings.languageTitle')}</p>
+                <p>{t('settings.languageSubtitle')}</p>
+              </header>
+              <article>
+                <select
+                  className="select"
+                  onChange={(event) => onSettingsUpdate('general.locale', event.target.value)}
+                  value={settings.general.locale || systemLocaleIdentifier}
+                >
+                  {Object.values(Constants.LocaleIdentifier).map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
               </article>
             </section>
           </fieldset>

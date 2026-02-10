@@ -216,6 +216,8 @@
       "gamePathTitle": "Ruta de la Biblioteca de Juegos",
       "gameSubtitle": "Esto lanzará el juego seleccionado al jugar partidos.",
       "gameSubtitleCS2": "¡Advertencia! El soporte para CS2 es experimental.",
+      "languageSubtitle": "Requires an app restart",
+      "languageTitle": "Language",
       "launchOptionsSubtitle": "Solo para usuarios avanzados. ¡Usar con precaución!",
       "launchOptionsTitle": "Opciones de Lanzamiento",
       "loopExitSubtitle": "Normalmente el calendario se detiene por cosas como días de partido y correos electrónicos.",

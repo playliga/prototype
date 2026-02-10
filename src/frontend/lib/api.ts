@@ -38,6 +38,10 @@ export default {
       ) as Promise<Electron.OpenDialogReturnValue>,
     external: (url: string) => ipcRenderer.invoke(Constants.IPCRoute.APP_EXTERNAL, url),
     locale: () => ipcRenderer.invoke(Constants.IPCRoute.APP_LOCALE) as Promise<LocaleData>,
+    localeIdentifier: () =>
+      ipcRenderer.invoke(
+        Constants.IPCRoute.APP_LOCALE_IDENTIFIER,
+      ) as Promise<Constants.LocaleIdentifier>,
     messageBox: (parentId: string, options: Electron.MessageBoxOptions) =>
       ipcRenderer.invoke(
         Constants.IPCRoute.APP_MESSAGE_BOX,

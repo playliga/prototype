@@ -216,6 +216,8 @@
       "gamePathTitle": "Game Library Path",
       "gameSubtitle": "This will launch the selected game when playing matches.",
       "gameSubtitleCS2": "Warning! CS2 support is experimental.",
+      "languageSubtitle": "Requires an app restart",
+      "languageTitle": "Language",
       "launchOptionsSubtitle": "Advanced users only. Use with caution!",
       "launchOptionsTitle": "Launch Options",
       "loopExitSubtitle": "Usually the calendar loop is stopped for things like matchdays and e-mails.",

@@ -12,9 +12,9 @@ import {
   DatabaseClient,
   FileManager,
   Game,
+  Locale,
   Plugins,
   WindowManager,
-  getLocale,
 } from '@liga/backend/lib';
 
 export { default as IPCDatabaseHandler } from './database';
@@ -82,8 +82,9 @@ export function IPCGenericHandler() {
   ipcMain.handle(Constants.IPCRoute.APP_INFO, () => Promise.resolve(getApplicationInfo()));
   ipcMain.handle(Constants.IPCRoute.APP_LOCALE, async () => {
     const profile = await DatabaseClient.prisma.profile.findFirst();
-    return getLocale(profile);
+    return Locale.getLocale(profile);
   });
+  ipcMain.handle(Constants.IPCRoute.APP_LOCALE_IDENTIFIER, Locale.getLocaleIdentifier);
   ipcMain.handle(Constants.IPCRoute.APP_QUIT, () => app.quit());
   ipcMain.handle(Constants.IPCRoute.APP_STATUS, async (_, settings: typeof Constants.Settings) => {
     if (!settings) {

@@ -216,6 +216,8 @@
       "gamePathTitle": "Spielebibliothek-Pfad",
       "gameSubtitle": "Startet das ausgewählte Spiel beim Spielen von Matches.",
       "gameSubtitleCS2": "Warnung! CS2-Unterstützung ist experimentell.",
+      "languageSubtitle": "Requires an app restart",
+      "languageTitle": "Language",
       "launchOptionsSubtitle": "Nur für fortgeschrittene Benutzer. Mit Vorsicht verwenden!",
       "launchOptionsTitle": "Startoptionen",
       "loopExitSubtitle": "Normalerweise wird die Kalenderschleife für Dinge wie Spieltage und E-Mails angehalten.",

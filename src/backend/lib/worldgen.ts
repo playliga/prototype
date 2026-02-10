@@ -8,10 +8,10 @@ import * as Autofill from './autofill';
 import * as Simulator from './simulator';
 import * as WindowManager from './window-manager';
 import * as Engine from './engine';
+import * as Locale from './locale';
 import * as Bus from './bus';
 import Tournament from '@liga/shared/tournament';
 import DatabaseClient from './database-client';
-import getLocale from './locale';
 import { addDays, addWeeks, addYears, differenceInDays, format, setDay } from 'date-fns';
 import { compact, differenceBy, flatten, groupBy, random, sample, shuffle } from 'lodash';
 import { Calendar, Prisma } from '@prisma/client';
@@ -311,7 +311,7 @@ async function createMatchdays(
  */
 export async function createWelcomeEmail() {
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   if (new Date().getFullYear() === profile.date.getFullYear()) {
     const [persona] = profile.team.personas;
@@ -1232,7 +1232,7 @@ export async function sendTransferOffer(
       role: Constants.PersonaRole.MANAGER,
     },
   });
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   await sendEmail(
     Sqrl.render(locale.templates.OfferIncoming.SUBJECT, { transfer }),
@@ -1297,7 +1297,7 @@ export async function sendUserAward(
   }
 
   // figure out the type of e-mail to send
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
   let email: (typeof locale.templates)[keyof typeof locale.templates];
 
   switch (award.type) {
@@ -1441,7 +1441,7 @@ export async function sponsorshipCheck() {
   );
 
   // check contract conditions
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   return flatten(
     await Promise.all(
@@ -1556,7 +1556,7 @@ export async function sponsorshipCheck() {
 export async function sponsorshipInvite(id: number, status?: Constants.SponsorshipStatus) {
   // load user locale
   const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   // load sponsorship contract info
   const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
@@ -1734,7 +1734,7 @@ export async function sponsorshipRenew(id: number) {
 
   // load user locale
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   // bail early if sponsorship not expired
   if (profile.date.toISOString() < offer.end.toISOString()) {
@@ -2209,7 +2209,7 @@ export async function onSponsorshipOffer(entry: Partial<Calendar>) {
 
   // load user locale
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   // grab latest offer
   const sponsorship = await DatabaseClient.prisma.sponsorship.findFirst({
@@ -2360,7 +2360,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
 
   // load user locale
   const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
-  const locale = getLocale(profile);
+  const locale = Locale.getLocale(profile);
 
   // grab latest offer
   const transfer = await DatabaseClient.prisma.transfer.findFirst({

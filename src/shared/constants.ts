@@ -262,6 +262,7 @@ export enum IPCRoute {
   APP_DIALOG = '/app/dialog',
   APP_EXTERNAL = '/app/external',
   APP_LOCALE = '/app/locale',
+  APP_LOCALE_IDENTIFIER = '/app/locale/identifier',
   APP_MESSAGE_BOX = '/app/messageBox',
   APP_INFO = '/app/info',
   APP_QUIT = '/app/quit',
