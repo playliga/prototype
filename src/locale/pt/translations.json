@@ -274,6 +274,7 @@
     "UNDERDOG_DESC": "Win a major without buying any player."
   },
   "shared": {
+    "age": "Age",
     "alias": "Apelido",
     "amount": "Quantidade",
     "any": "Qualquer",

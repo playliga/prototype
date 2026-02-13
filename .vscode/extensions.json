@@ -5,6 +5,7 @@
     "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
     "prisma.prisma",
+    "ReneSaarsoo.sql-formatter-vsc",
     "yoavbls.pretty-ts-errors"
   ],
   "unwantedRecommendations": []

@@ -1,4 +1,7 @@
 {
+  "[sql]": {
+    "editor.defaultFormatter": "ReneSaarsoo.sql-formatter-vsc"
+  },
   "editor.quickSuggestions": {
     "strings": "on"
   },
@@ -10,5 +13,6 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
-  "prisma.pinToPrisma6": true
+  "prisma.pinToPrisma6": true,
+  "SQL-Formatter-VSCode.dialect": "sqlite"
 }

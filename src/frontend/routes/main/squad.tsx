@@ -690,6 +690,7 @@ export default function () {
                 key={player.id + '__squad'}
                 game={settings.general.game}
                 player={player}
+                profile={state.profile}
                 onClickStarter={
                   (starters.length < Constants.Application.SQUAD_MIN_LENGTH || player.starter) &&
                   (() => {

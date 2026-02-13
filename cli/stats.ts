@@ -43,6 +43,7 @@ export async function generateStats(args?: typeof DEFAULT_ARGS) {
   const mergedArgs = { ...DEFAULT_ARGS, ...args };
 
   // grab all players to train
+  const profile = await prisma.profile.findFirst();
   const players = await prisma.player.findMany();
   log.info('Generating Stats for %s Players...', players.length);
 
@@ -50,7 +51,7 @@ export async function generateStats(args?: typeof DEFAULT_ARGS) {
   const queries = players.map((player) => {
     // randomly pick the amount of training sessions
     // allocated to this particular player
-    const xp = new Bot.Exp(player);
+    const xp = new Bot.Exp(player, null, profile.date);
     const totalSessions = random(Number(mergedArgs.min), Number(mergedArgs.max));
 
     for (let i = 0; i < totalSessions; i++) {

@@ -302,6 +302,7 @@ model Player {
   transferListed      Boolean             @default(false)
   avatar              String?
   prestige            Int?
+  dob                 DateTime?
 
   // has many
   matches             Match[]

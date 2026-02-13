@@ -290,7 +290,7 @@ export default function () {
 
     // train players first
     await DatabaseClient.prisma.$transaction(
-      Bot.Exp.trainAll(profile.team.players, selectedBonuses).map((player) =>
+      Bot.Exp.trainAll(profile.team.players, selectedBonuses, profile.date).map((player) =>
         DatabaseClient.prisma.player.update({
           where: { id: player.id },
           data: player.xp,

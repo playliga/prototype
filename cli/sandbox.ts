@@ -304,13 +304,43 @@ async function sandboxFirebase() {
 async function sandboxTraining() {
   const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
   for (const player of profile.team.players) {
-    const xp = new Bot.Exp(player);
+    const xp = new Bot.Exp(player, null, profile.date);
     const totalSessions = 5;
     for (let i = 0; i < totalSessions; i++) {
       xp.train();
     }
     break;
   }
+}
+
+/**
+ * Tests age dampening algorithm.
+ *
+ * @function
+ */
+async function sandboxTrainingAge() {
+  const pbxConfig: Record<string, 'auto' | number> = {
+    '2': 40,
+    '3': 10,
+  };
+
+  const out = [
+    {
+      age: 0,
+      factor: 0.0,
+      values: Object.values(pbxConfig),
+    },
+  ];
+
+  [0.02, 0.009, 0.005].forEach((factor) => {
+    [15, 20, 25, 30, 35, 40].forEach((age) => {
+      const values = Object.values(Bot.Exp.dampen(pbxConfig, age, factor));
+      out.push({ age, factor, values });
+    });
+  });
+
+  console.table(out);
+  return;
 }
 
 /**
@@ -433,6 +463,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'file-manager',
     'firebase',
     'training',
+    'training-age',
     'github',
     'plugin-manager',
     'mod-manager',
@@ -448,6 +479,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxFileManager
     | typeof sandboxFirebase
     | typeof sandboxTraining
+    | typeof sandboxTrainingAge
     | typeof sandboxGithub
     | typeof sandboxPluginManager
     | typeof sandboxModManager
@@ -461,6 +493,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxFileManager,
     sandboxFirebase,
     sandboxTraining,
+    sandboxTrainingAge,
     sandboxGithub,
     sandboxPluginManager,
     sandboxModManager,

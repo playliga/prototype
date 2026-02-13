@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { random } from 'lodash';
+import { differenceInYears } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -19,7 +20,7 @@ import {
 } from '@liga/frontend/components/select';
 
 /** @constant */
-const NUM_COLUMNS = 6;
+const NUM_COLUMNS = 7;
 
 /** @constant */
 const PAGE_SIZE = 100;
@@ -437,6 +438,7 @@ export default function () {
               <tr>
                 <th>{t('shared.name')}</th>
                 <th>{t('shared.team')}</th>
+                <th className="text-center">{t('shared.age')}</th>
                 <th
                   className="hover:bg-base-300 cursor-pointer"
                   onClick={() =>
@@ -528,6 +530,9 @@ export default function () {
                           <span>{player.team.name}</span>
                         </>
                       )}
+                    </td>
+                    <td className="text-center">
+                      {differenceInYears(state.profile.date, player.dob)}
                     </td>
                     <td className="text-center">
                       {!!player.team &&

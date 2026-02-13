@@ -2130,6 +2130,19 @@ export async function onMatchdayNPC(entry: Calendar) {
           elo: {
             increment: delta,
           },
+          ...(Simulator.getMatchResult(match.competitors[teamIdx].team.id, simulationResult) ===
+            Constants.MatchResult.WIN && {
+            players: {
+              update: Bot.Exp.trainAll(
+                match.competitors[teamIdx].team.players,
+                null,
+                profile.date,
+              ).map((player) => ({
+                where: { id: player.id },
+                data: player.xp,
+              })),
+            },
+          }),
         },
       }),
     ),

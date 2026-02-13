@@ -274,6 +274,7 @@
     "UNDERDOG_DESC": "Gewinne ein Major, ohne einen einzigen Spieler zu kaufen."
   },
   "shared": {
+    "age": "Age",
     "alias": "Alias",
     "amount": "Betrag",
     "any": "Beliebig",

@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { startCase } from 'lodash';
+import { differenceInYears } from 'date-fns';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
@@ -12,6 +13,9 @@ import { FaFolderOpen, FaShoppingBag, FaStar, FaUserSlash } from 'react-icons/fa
 
 /** @type {Player} */
 type Player = Awaited<ReturnType<typeof api.players.all<typeof Eagers.player>>>[number];
+
+/** @type {Profile} */
+type Profile = Awaited<ReturnType<typeof api.profiles.current>>;
 
 /** @interface */
 interface XPBarProps {
@@ -32,6 +36,7 @@ interface PlayerCardProps extends React.ComponentProps<'article'> {
   className?: string;
   compact?: boolean;
   noStats?: boolean;
+  profile?: Profile;
   onClickStarter?: () => void;
   onClickTransferListed?: () => void;
   onClickViewOffers?: () => void;
@@ -174,6 +179,11 @@ export default function (props: PlayerCardProps) {
         </figure>
         <nav className="w-2/3 py-4">
           <h3 className="truncate">{props.player.name}</h3>
+          {!!props.profile && (
+            <p className="text-sm">
+              {t('shared.age')}: {differenceInYears(props.profile.date, props.player.dob)}
+            </p>
+          )}
           <p className="text-sm">
             <span className={cx('fp', props.player.country.code.toLowerCase())} />
             <span>&nbsp;{props.player.country.name}</span>

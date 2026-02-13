@@ -9,6 +9,7 @@ import * as Constants from './constants';
 import log from 'electron-log';
 import type { Prisma } from '@prisma/client';
 import { random } from 'lodash';
+import { differenceInYears } from 'date-fns';
 
 /**
  * Individual bot template stats.
@@ -166,22 +167,26 @@ export const Templates: Array<Template> = [
  *
  * @constant
  */
-const GainsPbxWeight: Record<keyof Stats, Record<string, number>> = {
+const GainsPbxWeight: Record<keyof Stats, Record<string, 'auto' | number>> = {
   skill: {
-    '1': 99,
-    '2': 1,
+    '1': 'auto',
+    '2': 40,
+    '3': 10,
   },
   aggression: {
-    '1': 99,
-    '2': 1,
+    '1': 'auto',
+    '2': 40,
+    '3': 10,
   },
   reactionTime: {
-    '-.001': 99,
-    '-.003': 1,
+    '-.001': 'auto',
+    '-.003': 40,
+    '-.005': 10,
   },
   attackDelay: {
-    '-.001': 99,
-    '-.003': 1,
+    '-.001': 'auto',
+    '-.003': 40,
+    '-.005': 10,
   },
 };
 
@@ -206,14 +211,20 @@ export class Exp {
   public gains: Partial<Stats>;
   public stats: Stats;
   private bonuses: typeof this.gains;
+  private today: Date;
   private log: log.LogFunctions;
   private player: Prisma.PlayerGetPayload<unknown>;
 
-  constructor(player: typeof this.player, bonuses?: Array<Prisma.BonusGetPayload<unknown>>) {
+  constructor(
+    player: typeof this.player,
+    bonuses?: Array<Prisma.BonusGetPayload<unknown>>,
+    today = new Date(),
+  ) {
     this.log = log.scope('training');
     this.stats = player.stats ? JSON.parse(player.stats) : { ...Templates[0].stats };
     this.gains = player.gains ? JSON.parse(player.gains) : {};
     this.player = player;
+    this.today = today;
 
     // initialize training bonuses
     this.bonuses = {};
@@ -221,6 +232,40 @@ export class Exp {
     if (bonuses) {
       bonuses.forEach(this.initBonuses, this);
     }
+  }
+
+  /**
+   * Dampens probability weights based on age.
+   *
+   * Uses exponential decay (`P = P0 e^{-k t}`) for steeper
+   * reductions at older ages. The formula evaluates to:
+   *
+   * - `P0` = starting probability
+   * - `k` = damping factor
+   * - `t` = age
+   *
+   * @param weights Probability weights.
+   * @param age     The player age.
+   * @param factor  The damping factor.
+   * @function
+   */
+  public static dampen(
+    weights: (typeof GainsPbxWeight)[number],
+    age: number,
+    factor = Constants.Application.TRAINING_AGE_DAMPING,
+  ) {
+    // ensures a milder decay for players below the threshold
+    const ageFactor = Math.max(0, age - Constants.Application.TRAINING_AGE_DECAY_THRESHOLD);
+    const adaptiveFactor =
+      Number(factor) + ageFactor * Constants.Application.TRAINING_AGE_DECAY_MULTIPLIER;
+    const dampingAmount = Math.exp(-adaptiveFactor * age);
+
+    return Object.fromEntries(
+      Object.entries(weights).map(([key, value]) => [
+        key,
+        value === 'auto' ? 'auto' : Math.round(value * dampingAmount),
+      ]),
+    ) as typeof weights;
   }
 
   /**
@@ -288,14 +333,16 @@ export class Exp {
    *
    * @param players The array of players to train.
    * @param bonuses Training bonuses to apply.
+   * @param today   Used for age-based xp dampening.
    * @function
    */
   public static trainAll(
     players: Array<Prisma.PlayerGetPayload<unknown>>,
     bonuses?: Array<Prisma.BonusGetPayload<unknown>>,
+    today?: Date,
   ) {
     return players.map((player) => {
-      const xp = new Exp(player, bonuses);
+      const xp = new Exp(player, bonuses, today);
       xp.train();
 
       return {
@@ -429,7 +476,11 @@ export class Exp {
 
     // run some drills
     drills.forEach((drill) => {
-      const gains = Number(Chance.roll(GainsPbxWeight[drill]));
+      const gains = Number(
+        Chance.roll(
+          Exp.dampen(GainsPbxWeight[drill], differenceInYears(this.today, this.player.dob)),
+        ),
+      );
       const bonus = gains * this.bonuses[drill];
       const total = gains < 0 ? gains + (bonus || 0) : Math.round(gains + (bonus || 0));
       this.stats[drill] += total;
