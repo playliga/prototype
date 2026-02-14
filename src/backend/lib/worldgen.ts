@@ -794,7 +794,15 @@ export async function recordMatchResults() {
       status: Constants.MatchStatus.COMPLETED,
     },
     include: {
-      competitors: true,
+      competitors: {
+        include: {
+          team: {
+            include: {
+              players: true,
+            },
+          },
+        },
+      },
       competition: {
         include: {
           competitors: true,
@@ -818,23 +826,48 @@ export async function recordMatchResults() {
       const tournamentData = JSON.parse(competition.tournament);
       const tournament = Tournament.restore(tournamentData as ReturnType<Tournament['save']>);
 
-      // record match results with tourney
-      matches.forEach((match) => {
+      // record match results with tourney and any
+      // possible xp updates to winning squads
+      const squadUpdates = matches.map((match) => {
+        // skip if this match is a BYE
         const cluxMatch = tournament.$base.findMatch(JSON.parse(match.payload));
 
-        // skip if this match is a BYE
         if (cluxMatch.p.includes(-1)) {
           return;
         }
 
         // get home and away scores based off of their seeds since
         // the competitors array is not in the correct order
-        const [home, away] = cluxMatch.p;
-        const homeScore = match.competitors.find((competitor) => home === competitor.seed);
-        const awayScore = match.competitors.find((competitor) => away === competitor.seed);
+        const home = match.competitors.find((competitor) => cluxMatch.p[0] === competitor.seed);
+        const away = match.competitors.find((competitor) => cluxMatch.p[1] === competitor.seed);
 
         // record the score
-        tournament.$base.score(cluxMatch.id, [homeScore.score, awayScore.score]);
+        tournament.$base.score(cluxMatch.id, [home.score, away.score]);
+
+        // the winning squad gets xp
+        //
+        // @todo: only update participating players
+        const winner = [home, away].find(
+          (competitor) => competitor.result === Constants.MatchResult.WIN,
+        );
+
+        if (!winner) {
+          return;
+        }
+
+        return DatabaseClient.prisma.team.update({
+          where: {
+            id: winner.team.id,
+          },
+          data: {
+            players: {
+              update: Bot.Exp.trainAll(winner.team.players, null, profile.date).map((player) => ({
+                where: { id: player.id },
+                data: player.xp,
+              })),
+            },
+          },
+        });
       });
 
       // check if a new cup round must be generated
@@ -911,35 +944,40 @@ export async function recordMatchResults() {
         }
       }
 
-      // update the competition database record
-      await DatabaseClient.prisma.competition.update({
-        where: { id: Number(competitionId) },
-        data: {
-          status: tournament.$base.isDone()
-            ? Constants.CompetitionStatus.COMPLETED
-            : Constants.CompetitionStatus.STARTED,
-          tournament: JSON.stringify(tournament.save()),
-          competitors: {
-            update: tournament.competitors.map((id) => {
-              const competitor = tournament.$base.resultsFor(tournament.getSeedByCompetitorId(id));
-              return {
-                where: { id },
-                data: {
-                  position: competitor.gpos || competitor.pos,
-                  win: competitor.wins,
-                  loss: competitor.losses,
-                  draw: competitor.draws,
-                },
-              };
-            }),
-          },
-        },
-      });
-
-      // awards and prize pool distribution
       return Promise.all([
+        // update the competition database record
+        DatabaseClient.prisma.competition.update({
+          where: { id: Number(competitionId) },
+          data: {
+            status: tournament.$base.isDone()
+              ? Constants.CompetitionStatus.COMPLETED
+              : Constants.CompetitionStatus.STARTED,
+            tournament: JSON.stringify(tournament.save()),
+            competitors: {
+              update: tournament.competitors.map((id) => {
+                const competitor = tournament.$base.resultsFor(
+                  tournament.getSeedByCompetitorId(id),
+                );
+                return {
+                  where: { id },
+                  data: {
+                    position: competitor.gpos || competitor.pos,
+                    win: competitor.wins,
+                    loss: competitor.losses,
+                    draw: competitor.draws,
+                  },
+                };
+              }),
+            },
+          },
+        }),
+
+        // awards and prize pool distribution
         sendUserAward(competition, tournament),
         distributePrizePool(competition, tournament),
+
+        // squad xp updates
+        ...squadUpdates,
       ]);
     }),
   );
@@ -2130,19 +2168,6 @@ export async function onMatchdayNPC(entry: Calendar) {
           elo: {
             increment: delta,
           },
-          ...(Simulator.getMatchResult(match.competitors[teamIdx].team.id, simulationResult) ===
-            Constants.MatchResult.WIN && {
-            players: {
-              update: Bot.Exp.trainAll(
-                match.competitors[teamIdx].team.players,
-                null,
-                profile.date,
-              ).map((player) => ({
-                where: { id: player.id },
-                data: player.xp,
-              })),
-            },
-          }),
         },
       }),
     ),
