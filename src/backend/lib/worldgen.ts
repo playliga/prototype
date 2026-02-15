@@ -1964,6 +1964,7 @@ export async function onCompetitionStart(entry: Calendar) {
     groupSize: competition.tier.groupSize,
     meetTwice: false,
     short: true,
+    scoresBreak: true,
   });
   tournament.addCompetitors(shuffle(competition.competitors).map((competitor) => competitor.id));
   tournament.start();
