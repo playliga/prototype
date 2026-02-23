@@ -255,9 +255,9 @@ export class Exp {
     factor = Constants.Application.TRAINING_AGE_DAMPING,
   ) {
     // ensures a milder decay for players below the threshold
-    const ageFactor = Math.max(0, age - Constants.Application.TRAINING_AGE_DECAY_THRESHOLD);
+    const ageFactor = Math.max(0, age - Constants.Application.TRAINING_AGE_DAMPING_THRESHOLD);
     const adaptiveFactor =
-      Number(factor) + ageFactor * Constants.Application.TRAINING_AGE_DECAY_MULTIPLIER;
+      Number(factor) + ageFactor * Constants.Application.TRAINING_AGE_DAMPING_MULTIPLIER;
     const dampingAmount = Math.exp(-adaptiveFactor * age);
 
     return Object.fromEntries(
@@ -266,6 +266,29 @@ export class Exp {
         value === 'auto' ? 'auto' : Math.round(value * dampingAmount),
       ]),
     ) as typeof weights;
+  }
+
+  /**
+   * Grabs the maximum amount of experience
+   * points that can be attained.
+   *
+   * @function
+   */
+  public static getMaximumXP() {
+    const [lastTemplate] = Templates.slice(-1);
+    return Exp.getTotalXP(lastTemplate.stats);
+  }
+
+  /**
+   * Grabs the maximum amount of experience points
+   * that can be attained for a specific stat.
+   *
+   * @function
+   * @param name The name of the stat.
+   */
+  public static getMaximumXPForStat(name: string) {
+    const [lastTemplate] = Templates.slice(-1);
+    return lastTemplate.stats[name];
   }
 
   /**
@@ -303,29 +326,6 @@ export class Exp {
     return Object.keys(stats)
       .map((key) => stats[key])
       .reduce((total, current) => total + current);
-  }
-
-  /**
-   * Grabs the maximum amount of experience
-   * points that can be attained.
-   *
-   * @function
-   */
-  public static getMaximumXP() {
-    const [lastTemplate] = Templates.slice(-1);
-    return Exp.getTotalXP(lastTemplate.stats);
-  }
-
-  /**
-   * Grabs the maximum amount of experience points
-   * that can be attained for a specific stat.
-   *
-   * @function
-   * @param name The name of the stat.
-   */
-  public static getMaximumXPForStat(name: string) {
-    const [lastTemplate] = Templates.slice(-1);
-    return lastTemplate.stats[name];
   }
 
   /**
@@ -368,36 +368,6 @@ export class Exp {
         ? this.stats[key] > maxTemplate.stats[key]
         : this.stats[key] < maxTemplate.stats[key],
     );
-  }
-
-  /**
-   * Calculates the stats and gains by adjusting
-   * values for inverted stats by normalizing
-   * and clamping them into a [0,1] range.
-   *
-   * @param stat The stat to normalize.
-   * @function
-   */
-  public normalize(stat: string) {
-    let gain = this.gains[stat];
-    let value = this.stats[stat];
-    let max: string | number = Exp.getMaximumXPForStat(stat);
-
-    if (StatModifiers.SUBTRACT.includes(stat)) {
-      const min = Templates[0].stats[stat];
-      const valueNormalized = (value - min) / (max - min);
-      const valueClamped = Math.max(0, Math.min(1, valueNormalized));
-      const gainNormalized = gain / (max - min);
-      value = Number(valueClamped.toFixed(2));
-      gain = -gainNormalized;
-      max = Number(1).toFixed(2);
-    }
-
-    return {
-      gain,
-      value,
-      max,
-    };
   }
 
   /**
@@ -453,12 +423,52 @@ export class Exp {
   }
 
   /**
+   * Calculates the stats and gains by adjusting
+   * values for inverted stats by normalizing
+   * and clamping them into a [0,1] range.
+   *
+   * @param stat The stat to normalize.
+   * @function
+   */
+  public normalize(stat: string) {
+    let gain = this.gains[stat];
+    let value = this.stats[stat];
+    let max: string | number = Exp.getMaximumXPForStat(stat);
+
+    if (StatModifiers.SUBTRACT.includes(stat)) {
+      const min = Templates[0].stats[stat];
+      const valueNormalized = (value - min) / (max - min);
+      const valueClamped = Math.max(0, Math.min(1, valueNormalized));
+      const gainNormalized = gain / (max - min);
+      value = Number(valueClamped.toFixed(2));
+      gain = -gainNormalized;
+      max = Number(1).toFixed(2);
+    }
+
+    return {
+      gain,
+      value,
+      max,
+    };
+  }
+
+  /**
    * Randomly pick from list of stats that can still
    * be trained for the current bot difficulty.
+   *
+   * If the player is older than the configured threshold then this
+   * function will short-circuit and call `untrain()` instead.
    *
    * @function
    */
   public train() {
+    if (
+      differenceInYears(this.today, this.player.dob) >=
+      Constants.Application.TRAINING_AGE_DECAY_START
+    ) {
+      return this.untrain();
+    }
+
     // randomly pick stats to train
     const [lastTemplate] = Templates.slice(-1);
     const drills = Chance.pluckMultiple(
@@ -482,7 +492,7 @@ export class Exp {
         ),
       );
       const bonus = gains * this.bonuses[drill];
-      const total = gains < 0 ? gains + (bonus || 0) : Math.round(gains + (bonus || 0));
+      const total = gains < 0 ? gains - (bonus || 0) : Math.round(gains + (bonus || 0));
       this.stats[drill] += total;
 
       // gains may not be initialized as they are reset
@@ -500,8 +510,67 @@ export class Exp {
 
       this.log.debug('[%s] trained %s. %o', this.player.name, drill, {
         base: gains.toFixed(3),
-        bonus: bonus.toFixed(3),
+        bonus: (bonus || 0).toFixed(3),
         total: total.toFixed(3),
+      });
+    });
+  }
+
+  /**
+   * The inverse of `Exp.train`.
+   *
+   * @function
+   */
+  public untrain() {
+    // randomly pick stats to untrain
+    const [firstTemplate] = Templates;
+    const untrainable = (() => {
+      const idx = Templates.findIndex((template) => template.prestige === this.player.prestige);
+      const maxTemplate = Templates[idx - 1] || Templates[idx];
+      return Object.keys(this.stats).filter((key) =>
+        StatModifiers.SUBTRACT.includes(key)
+          ? this.stats[key] < maxTemplate.stats[key]
+          : this.stats[key] > maxTemplate.stats[key],
+      );
+    })();
+    const drills = Chance.pluckMultiple(
+      untrainable,
+      untrainable.map((stat) => StatsPbxWeight[stat]),
+    );
+
+    if (!drills.length) {
+      this.log.debug('[%s] nothing to train', this.player.name);
+      return;
+    }
+
+    this.log.debug('[%s] beginning training on %s', this.player.name, drills);
+
+    // run some drills
+    drills.forEach((drill) => {
+      const gains = Number(
+        Chance.roll(
+          Exp.dampen(GainsPbxWeight[drill], differenceInYears(this.today, this.player.dob)),
+        ),
+      );
+      const total = gains < 0 ? gains : Math.round(gains);
+      this.stats[drill] -= total;
+
+      // gains may not be initialized as they are reset
+      // every season so make sure it defaults to zero
+      this.gains[drill] = (this.gains[drill] || 0) - total;
+
+      // clamp gains to lowest xp possible
+      if (
+        (gains < 0 && this.stats[drill] > firstTemplate.stats[drill]) ||
+        (gains > 0 && this.stats[drill] < firstTemplate.stats[drill])
+      ) {
+        this.log.debug('clamping %s to %d', drill, firstTemplate.stats[drill]);
+        this.stats[drill] = firstTemplate.stats[drill];
+      }
+
+      this.log.debug('[%s] trained %s. %o', this.player.name, drill, {
+        base: -gains.toFixed(3),
+        total: -total.toFixed(3),
       });
     });
   }

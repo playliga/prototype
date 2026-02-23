@@ -4,7 +4,7 @@
  * @module
  */
 import React from 'react';
-import { flatten, startCase } from 'lodash';
+import { flatten } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
@@ -342,7 +342,7 @@ export default function () {
                 return (
                   <td key={`xp__${player.name}_${stat}_value`}>
                     <XPBar
-                      title={`${startCase(stat)}`}
+                      title={stat}
                       subtitle={`${value}/${max}`}
                       value={value}
                       max={Number(max)}

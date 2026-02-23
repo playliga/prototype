@@ -344,6 +344,23 @@ async function sandboxTrainingAge() {
 }
 
 /**
+ * Tests bot untraining module.
+ *
+ * @function
+ */
+async function sandboxUntraining() {
+  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+  for (const player of profile.team.players) {
+    const xp = new Bot.Exp(player, null, profile.date);
+    const totalSessions = 5;
+    for (let i = 0; i < totalSessions; i++) {
+      xp.untrain();
+    }
+    break;
+  }
+}
+
+/**
  * Tests github module.
  *
  * @function
@@ -464,6 +481,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'firebase',
     'training',
     'training-age',
+    'untraining',
     'github',
     'plugin-manager',
     'mod-manager',
@@ -480,6 +498,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxFirebase
     | typeof sandboxTraining
     | typeof sandboxTrainingAge
+    | typeof sandboxUntraining
     | typeof sandboxGithub
     | typeof sandboxPluginManager
     | typeof sandboxModManager
@@ -494,6 +513,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxFirebase,
     sandboxTraining,
     sandboxTrainingAge,
+    sandboxUntraining,
     sandboxGithub,
     sandboxPluginManager,
     sandboxModManager,

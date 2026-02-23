@@ -52,15 +52,20 @@ interface PlayerCardProps extends React.ComponentProps<'article'> {
  * @function
  */
 export function XPBar(props: XPBarProps) {
+  const title = props.title ? startCase(props.title) : null;
+  const direction = Bot.StatModifiers.SUBTRACT.includes(props.title)
+    ? props.gains < 0
+    : props.gains > 0;
   return (
     <div className={cx('stack-y', props.className)}>
-      {!!props.title && (
+      {!!title && (
         <div className="stack-x justify-between text-xs">
-          <p title={props.title.replace(/(delay|time)/i, 'speed')} className="truncate capitalize">
-            {props.title.replace(/(delay|time)/i, 'speed')}
+          <p title={title.replace(/(delay|time)/i, 'speed')} className="truncate capitalize">
+            {title.replace(/(delay|time)/i, 'speed')}
             {!!props.gains && (
-              <span className="text-success font-mono">
-                &nbsp;+{Util.toOptionalDecimal(Math.abs(props.gains))}
+              <span className={cx('font-mono', direction ? 'text-success' : 'text-error')}>
+                &nbsp;{direction ? '+' : '-'}
+                {Util.toOptionalDecimal(Math.abs(props.gains))}
               </span>
             )}
           </p>
@@ -244,7 +249,7 @@ export default function (props: PlayerCardProps) {
         return (
           <aside key={`xp__${props.player.name}_${stat}`} className="px-10 py-4">
             <XPBar
-              title={`${startCase(stat)}`}
+              title={stat}
               gains={gain}
               subtitle={`${value}/${max}`}
               value={value}
