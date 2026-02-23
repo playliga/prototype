@@ -1,3 +1,14 @@
+## [3.0.0-rc.4](https://github.com/playliga/prototype/compare/v3.0.0-rc.3...v3.0.0-rc.4) (2026-02-23)
+
+### Features
+
+- add language dropdown in settings ([#592](https://github.com/playliga/prototype/issues/592)) ([4c178f4](https://github.com/playliga/prototype/commit/4c178f495a5d4f1857c5665944f414a56c41371d))
+- added player ages which can affect xp growth rate ([#590](https://github.com/playliga/prototype/issues/590)) ([2afcda9](https://github.com/playliga/prototype/commit/2afcda96572dd63a29adb56ca7378b068986ce2a))
+
+### Bug Fixes
+
+- improve group stage tie-breaking logic ([#429](https://github.com/playliga/prototype/issues/429)) ([c82ec97](https://github.com/playliga/prototype/commit/c82ec97147a4b3d02c2e6ae8512a6a0e779936af))
+
 ## [3.0.0-rc.3](https://github.com/playliga/prototype/compare/v3.0.0-rc.2...v3.0.0-rc.3) (2026-02-07)
 
 ### Features
