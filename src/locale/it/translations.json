@@ -216,7 +216,7 @@
       "gamePathTitle": "Percorso della Libreria del Gioco",
       "gameSubtitle": "Questo avvierà il gioco selezionato quando giocherai le partite.",
       "gameSubtitleCS2": "Attenzione! Il supporto per CS2 è sperimentale.",
-      "languageSubtitle": "Requires an app restart",
+      "languageSubtitle": "Requires an app restart.",
       "languageTitle": "Language",
       "launchOptionsSubtitle": "Solo per utenti avanzati. Utilizza con cauzione!",
       "launchOptionsTitle": "Opzioni di Avvio",
@@ -228,6 +228,8 @@
       "simTitle": "Modalità Simulazione",
       "steamTitle": "Percorso Steam",
       "themeTitle": "Tema",
+      "transfersTitle": "Transfers",
+      "transfersSubtitle": "Enable transfers between NPC teams.",
       "volumeTitle": "Volume Level"
     }
   },

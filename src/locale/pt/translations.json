@@ -216,7 +216,7 @@
       "gamePathTitle": "Endereço da pasta do jogo",
       "gameSubtitle": "Escolha a versão do CS que vai ser usada nas partidas.",
       "gameSubtitleCS2": "Aviso: o uso do CS2 ainda está em fase de testes.",
-      "languageSubtitle": "Requires an app restart",
+      "languageSubtitle": "Requires an app restart.",
       "languageTitle": "Language",
       "launchOptionsSubtitle": "Só pra quem manja, use com cuidado!",
       "launchOptionsTitle": "Ajustes extras pro CS",
@@ -228,6 +228,8 @@
       "simTitle": "Manipular resultado",
       "steamTitle": "Endereço da steam",
       "themeTitle": "Tema do aplicativo",
+      "transfersTitle": "Transfers",
+      "transfersSubtitle": "Enable transfers between NPC teams.",
       "volumeTitle": "Volume Level"
     }
   },

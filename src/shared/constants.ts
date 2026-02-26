@@ -1234,6 +1234,7 @@ export const Settings = {
     locale: null as LocaleIdentifier,
     volume: 0.05,
     gameLogsMaxAttempts: GameSettings.LOGS_MAX_ATTEMPTS,
+    transfers: true,
   },
   calendar: {
     ignoreExits: false,

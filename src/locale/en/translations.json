@@ -216,7 +216,7 @@
       "gamePathTitle": "Game Library Path",
       "gameSubtitle": "This will launch the selected game when playing matches.",
       "gameSubtitleCS2": "Warning! CS2 support is experimental.",
-      "languageSubtitle": "Requires an app restart",
+      "languageSubtitle": "Requires an app restart.",
       "languageTitle": "Language",
       "launchOptionsSubtitle": "Advanced users only. Use with caution!",
       "launchOptionsTitle": "Launch Options",
@@ -228,6 +228,8 @@
       "simTitle": "Simulation mode",
       "steamTitle": "Steam Path",
       "themeTitle": "Theme",
+      "transfersTitle": "Transfers",
+      "transfersSubtitle": "Enable transfers between NPC teams.",
       "volumeTitle": "Volume Level"
     }
   },

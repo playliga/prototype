@@ -1078,6 +1078,14 @@ export async function sendNPCTransferOffer() {
     return;
   }
 
+  // bail early if transfers are disabled
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const settings = Util.loadSettings(profile.settings);
+
+  if (!settings.general.transfers) {
+    return;
+  }
+
   // roll what tier will be sending the offer today
   const tierSlug = Chance.pluck(Constants.Prestige, Constants.TransferSettings.PBX_NPC_TIER);
 

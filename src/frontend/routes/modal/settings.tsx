@@ -402,6 +402,21 @@ export default function () {
                 </select>
               </article>
             </section>
+            <section>
+              <header>
+                <p>{t('settings.transfersTitle')}</p>
+                <p>{t('settings.transfersSubtitle')}</p>
+              </header>
+              <article>
+                <input
+                  type="checkbox"
+                  className="toggle"
+                  onChange={(event) => onSettingsUpdate('general.transfers', event.target.checked)}
+                  checked={settings.general.transfers}
+                  value={String(settings.general.transfers)}
+                />
+              </article>
+            </section>
           </fieldset>
         )}
         {activeTab === Tab.MATCH_RULES && (

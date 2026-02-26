@@ -216,7 +216,7 @@
       "gamePathTitle": "Chemin d'accès du jeu",
       "gameSubtitle": "Choisissez un jeu à lancer pour votre prochain match",
       "gameSubtitleCS2": "Attention, le support pour CS2 est encore à un stade expérimental.",
-      "languageSubtitle": "Requires an app restart",
+      "languageSubtitle": "Requires an app restart.",
       "languageTitle": "Language",
       "launchOptionsSubtitle": "Pour utilisateurs avancés : à utiliser avec précaution !",
       "launchOptionsTitle": "Options de lancement",
@@ -228,6 +228,8 @@
       "simTitle": "Mode de simulation",
       "steamTitle": "Chemin d'accès Steam",
       "themeTitle": "Thème",
+      "transfersTitle": "Transfers",
+      "transfersSubtitle": "Enable transfers between NPC teams.",
       "volumeTitle": "Volume Level"
     }
   },

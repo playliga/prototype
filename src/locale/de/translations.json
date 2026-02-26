@@ -216,7 +216,7 @@
       "gamePathTitle": "Spielebibliothek-Pfad",
       "gameSubtitle": "Startet das ausgewählte Spiel beim Spielen von Matches.",
       "gameSubtitleCS2": "Warnung! CS2-Unterstützung ist experimentell.",
-      "languageSubtitle": "Requires an app restart",
+      "languageSubtitle": "Requires an app restart.",
       "languageTitle": "Language",
       "launchOptionsSubtitle": "Nur für fortgeschrittene Benutzer. Mit Vorsicht verwenden!",
       "launchOptionsTitle": "Startoptionen",
@@ -228,6 +228,8 @@
       "simTitle": "Simulationsmodus",
       "steamTitle": "Steam-Pfad",
       "themeTitle": "Design",
+      "transfersTitle": "Transfers",
+      "transfersSubtitle": "Enable transfers between NPC teams.",
       "volumeTitle": "Lautstärke"
     }
   },
