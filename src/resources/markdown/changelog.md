@@ -1,3 +1,15 @@
+## [3.0.0-rc.5](https://github.com/playliga/prototype/compare/v3.0.0-rc.4...v3.0.0-rc.5) (2026-02-26)
+
+### Features
+
+- add hidden gems to free agents ([#600](https://github.com/playliga/prototype/issues/600)) ([ff09cc1](https://github.com/playliga/prototype/commit/ff09cc1e544d6d8b154a7ad1063aaf6a613104f6))
+- allow npc to npc transfers to be turned off ([#584](https://github.com/playliga/prototype/issues/584)) ([c893863](https://github.com/playliga/prototype/commit/c8938638eec2bbfa2035b1a5c5c0e9010e7c4702))
+
+### Bug Fixes
+
+- adjust team earnings when starting a new career in a higher division ([#596](https://github.com/playliga/prototype/issues/596)) ([c16d1b2](https://github.com/playliga/prototype/commit/c16d1b2058e03cd8dfc0fe6a8e69d751bb761197))
+- fix discrepancies in world rankings ([#599](https://github.com/playliga/prototype/issues/599)) ([d74960c](https://github.com/playliga/prototype/commit/d74960c92dc72ce46c5e2f0ce10e1edb2cde238a))
+
 ## [3.0.0-rc.4](https://github.com/playliga/prototype/compare/v3.0.0-rc.3...v3.0.0-rc.4) (2026-02-23)
 
 ### Features
