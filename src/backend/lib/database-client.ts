@@ -102,6 +102,7 @@ export default class DatabaseClient {
                   id,
                   RANK() OVER (ORDER BY elo DESC) as worldRanking
                 FROM "Team"
+                WHERE tier IS NOT NULL
               )
               WHERE id = ${id}
             `;
