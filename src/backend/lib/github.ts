@@ -165,7 +165,7 @@ export class Application {
    */
   private async getInstallId() {
     if (cache.installId) {
-      this.log.debug('Using cached installation id...');
+      this.log.info('Using cached installation id...');
       return Promise.resolve(cache.installId);
     }
 
@@ -187,7 +187,7 @@ export class Application {
    */
   private async getJwt() {
     if (this.validateJwt()) {
-      this.log.debug('Using cached JWT...');
+      this.log.info('Using cached JWT...');
       return Promise.resolve(cache.jwt);
     }
 
@@ -224,7 +224,7 @@ export class Application {
    */
   private async getToken() {
     if (this.validateToken()) {
-      this.log.debug('Using cached token...');
+      this.log.info('Using cached token...');
       return Promise.resolve(cache.token);
     }
 
@@ -239,7 +239,7 @@ export class Application {
       throw new Error(`could not generate token: ${JSON.stringify(data)}`);
     }
 
-    this.log.debug('Token created. Expires: %s', data.expires_at);
+    this.log.info('Token created. Expires: %s', data.expires_at);
     cache.token = data.token;
     cache.tokenExpiry = new Date(data.expires_at);
     return Promise.resolve(cache.token);

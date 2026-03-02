@@ -130,7 +130,7 @@ export class Storage {
    */
   private async getJwt() {
     if (this.validateJwt()) {
-      this.log.debug('Using cached JWT...');
+      this.log.info('Using cached JWT...');
       return Promise.resolve(cache.jwt);
     }
 
@@ -170,7 +170,7 @@ export class Storage {
    */
   private async getToken() {
     if (this.validateToken()) {
-      this.log.debug('Using cached token...');
+      this.log.info('Using cached token...');
       return Promise.resolve(cache.token);
     }
 

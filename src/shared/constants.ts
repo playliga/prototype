@@ -36,7 +36,7 @@ export enum Application {
   DATABASES_DIR = 'saves',
   LOCALE_DIR = 'locale',
   GH_API_BODY_LIMIT = 65536,
-  LOGGING_LEVEL = 'debug',
+  LOGGING_LEVEL = 'info',
   MAP_POOL_LENGTH = 7,
   PLUGINS_DIR = 'plugins',
   SQUAD_MIN_LENGTH = 5,

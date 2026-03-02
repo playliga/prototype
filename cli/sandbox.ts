@@ -407,11 +407,11 @@ async function sandboxVdf() {
     'utf8',
   );
   const { libraryfolders } = VDF.parse(librariesFileContent);
-  log.debug(libraryfolders);
+  log.info(libraryfolders);
   const library = Object.values(libraryfolders).find((folder: Record<string, unknown>) => {
     return Object.keys(folder.apps).includes(String(Constants.GameSettings.CSGO_APPID));
   }) as Record<string, unknown>;
-  log.debug(library);
+  log.info(library);
 }
 
 /**
@@ -456,7 +456,7 @@ async function sandboxVpk() {
   const vpk = new VPK.Parser(vpkSource);
   await vpk.create();
   const endTime = performance.now();
-  log.debug(`Function execution time: ${endTime - startTime} ms`);
+  log.info(`Function execution time: ${endTime - startTime} ms`);
 }
 
 /**

@@ -1271,7 +1271,7 @@ export class Server {
       logsRetryNum < this.settings.general.gameLogsMaxAttempts;
       logsRetryNum++
     ) {
-      this.log.debug('Waiting for new server log file (attempt #%d)...', logsRetryNum + 1);
+      this.log.info('Waiting for new server log file (attempt #%d)...', logsRetryNum + 1);
       const files = await glob('*.log', {
         cwd: logsBaseDir,
         withFileTypes: true,
@@ -1285,7 +1285,7 @@ export class Server {
       }
 
       logFilePath = path.join(logsBaseDir, logFile.name);
-      this.log.debug('Found %s!', logFilePath);
+      this.log.info('Found %s!', logFilePath);
       break;
     }
 

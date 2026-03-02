@@ -206,7 +206,7 @@ export class Parser {
   private async buildTree(directory = this.vpk, offset = 0) {
     const entries = await fs.promises.readdir(directory, { withFileTypes: true });
 
-    this.log.debug('Building tree for directory: %s', directory);
+    this.log.info('Building tree for directory: %s', directory);
 
     for (const entry of entries) {
       const fullPath = path.join(directory, entry.name);
@@ -241,7 +241,7 @@ export class Parser {
           Terminator: TERMINATOR,
         };
 
-        this.log.debug(
+        this.log.info(
           'Added file to tree: %s (extension: %s, directory: %s, offset: %s)',
           baseName,
           extension,
@@ -506,8 +506,8 @@ export class Parser {
     }
 
     // save to vpk file
-    this.log.debug(JSON.stringify(this.header, null, 2));
-    this.log.debug(JSON.stringify(this.tree, null, 2));
+    this.log.info(JSON.stringify(this.header, null, 2));
+    this.log.info(JSON.stringify(this.tree, null, 2));
     return fs.promises.writeFile(outFile, this.buffer);
   }
 
@@ -532,8 +532,8 @@ export class Parser {
     }
 
     this.readTree();
-    this.log.debug(JSON.stringify(this.header, null, 2));
-    this.log.debug(JSON.stringify(this.tree, null, 2));
+    this.log.info(JSON.stringify(this.header, null, 2));
+    this.log.info(JSON.stringify(this.tree, null, 2));
     throw new Error('Not implemented');
   }
 }

@@ -186,7 +186,7 @@ export default function () {
         },
       });
 
-      Engine.Runtime.Instance.log.debug(
+      Engine.Runtime.Instance.log.info(
         'First run detected. Skipping %d days...',
         circuit.startOffsetDays,
       );
@@ -231,7 +231,7 @@ export default function () {
       },
     });
 
-    Engine.Runtime.Instance.log.debug(
+    Engine.Runtime.Instance.log.info(
       'Received request to sim for match(payload=%s) on %s',
       entry.payload,
       format(entry.date, Constants.Application.CALENDAR_DATE_FORMAT),

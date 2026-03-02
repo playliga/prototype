@@ -96,7 +96,7 @@ export async function createCompetitions() {
           }
 
           // create the calendar entry for when this competition starts
-          Engine.Runtime.Instance.log.debug(
+          Engine.Runtime.Instance.log.info(
             'Scheduling start date for %s - %s...',
             federation.name,
             tier.name,
@@ -196,7 +196,7 @@ async function createMatchdays(
           where: { payload: String(existingMatch.id) },
         });
         if (match.p.includes(userSeed)) {
-          Engine.Runtime.Instance.log.debug(
+          Engine.Runtime.Instance.log.info(
             'User has new match(id=%d) on %s',
             existingEntry.id,
             format(existingEntry.date, Constants.Application.CALENDAR_DATE_FORMAT),
@@ -921,7 +921,7 @@ export async function recordMatchResults() {
             return Promise.resolve();
           }
 
-          Engine.Runtime.Instance.log.debug(
+          Engine.Runtime.Instance.log.info(
             'Scheduling start date for %s on %s...',
             triggeredCompetition.tier.name,
             format(date, Constants.Application.CALENDAR_DATE_FORMAT),
@@ -1931,7 +1931,7 @@ export async function onCompetitionStart(entry: Calendar) {
     include: Eagers.competition.include,
   });
 
-  Engine.Runtime.Instance.log.debug('Starting %s...', competition.tier.name);
+  Engine.Runtime.Instance.log.info('Starting %s...', competition.tier.name);
 
   // if autofill was triggered then we must reload the competition
   // model with the updated competitor relationships
@@ -2100,7 +2100,7 @@ export async function onMatchdayNPC(entry: Calendar) {
   });
 
   if (entry.type === Constants.CalendarEntry.MATCHDAY_USER) {
-    Engine.Runtime.Instance.log.debug('Found match(id=%d) with status: %s', match.id, match.status);
+    Engine.Runtime.Instance.log.info('Found match(id=%d) with status: %s', match.id, match.status);
   }
 
   if (match.status !== Constants.MatchStatus.READY) {

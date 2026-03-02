@@ -320,7 +320,7 @@ export default class DatabaseClient {
     // connect to the database directly through sqlite3 in order
     // to get the list of migrations that have been executed
     const cnx = new sqlite3.Database(targetDBPath, () =>
-      DatabaseClient.log.debug('Migrating database %s...', targetDBPath),
+      DatabaseClient.log.info('Migrating database %s...', targetDBPath),
     );
     const migrationsExisting = await new Promise<Array<PrismaMigration>>((resolve) =>
       cnx.all('SELECT * FROM _prisma_migrations', (_, rows: Array<PrismaMigration>) =>
@@ -345,7 +345,7 @@ export default class DatabaseClient {
     // run through the migrations
     for (const migration of migrationsNew) {
       if (migrationsExisting.some((existing) => existing.migration_name === migration.name)) {
-        DatabaseClient.log.debug('Migration %s already applied. Skipping.', migration.name);
+        DatabaseClient.log.info('Migration %s already applied. Skipping.', migration.name);
         continue;
       }
 
@@ -361,7 +361,7 @@ export default class DatabaseClient {
         .filter((query) => query.trim());
 
       // run this migration
-      DatabaseClient.log.debug('Applying migration `%s`...', migration.name);
+      DatabaseClient.log.info('Applying migration `%s`...', migration.name);
 
       await new Promise((resolve) => {
         cnx.serialize(() => {
