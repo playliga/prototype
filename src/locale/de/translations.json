@@ -104,6 +104,8 @@
         "selection": "Konversationen ausgewählt."
       },
       "players": {
+        "ageMax": "Age Max",
+        "ageMin": "Age Min",
         "player": "Spieler",
         "playerNameFilter": "Nach Spielername filtern",
         "reset": "Filter zurücksetzen",

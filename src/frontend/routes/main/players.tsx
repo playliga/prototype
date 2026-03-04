@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { random } from 'lodash';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, subYears } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -25,6 +25,9 @@ const NUM_COLUMNS = 7;
 /** @constant */
 const PAGE_SIZE = 100;
 
+/** @constant */
+const PLAYER_AGE_MAX = 50;
+
 /**
  * Builds player query from provided filters.
  *
@@ -37,6 +40,8 @@ const PAGE_SIZE = 100;
  * @param playerName      Filter by player name.
  * @param prestige        Filter player's prestige level.
  * @param weapon          Filter by player weapon preference.
+ * @param dobMin          Filter by player's age, min.
+ * @param dobMax          Filter by player's age, max.
  * @function
  */
 function buildPlayerQuery(
@@ -49,6 +54,8 @@ function buildPlayerQuery(
   playerName?: string,
   prestige?: number,
   weapon?: string,
+  dobMin?: Date,
+  dobMax?: Date,
 ): Parameters<typeof api.players.all>[number] {
   return {
     ...(orderBy ? { orderBy } : {}),
@@ -77,6 +84,22 @@ function buildPlayerQuery(
         ...(Number.isInteger(tier) ? { tier } : {}),
         ...(teamId ? { id: teamId } : {}),
       },
+      ...(dobMin || dobMax
+        ? {
+            dob: {
+              ...(dobMin
+                ? {
+                    lte: dobMin.toISOString(),
+                  }
+                : {}),
+              ...(dobMax
+                ? {
+                    gte: dobMax.toISOString(),
+                  }
+                : {}),
+            },
+          }
+        : {}),
     },
   };
 }
@@ -113,6 +136,21 @@ export default function () {
   const [selectedPlayerOrderBy, setSelectedPlayerOrderBy] = React.useState<
     ExtractBaseType<Parameters<typeof api.players.all>[number]['orderBy']>
   >({});
+  const [selectedPlayerAgeMin, setSelectedPlayerAgeMin] = React.useState<number>();
+  const [selectedPlayerAgeMax, setSelectedPlayerAgeMax] = React.useState<number>();
+
+  // convert player age (number) to dob (date)
+  const [playerDobMin, playerDobMax] = React.useMemo(
+    () => [
+      selectedPlayerAgeMin &&
+        selectedPlayerAgeMin <= PLAYER_AGE_MAX &&
+        subYears(state.profile.date, selectedPlayerAgeMin),
+      selectedPlayerAgeMax &&
+        selectedPlayerAgeMax <= PLAYER_AGE_MAX &&
+        subYears(state.profile.date, selectedPlayerAgeMax),
+    ],
+    [selectedPlayerAgeMin, selectedPlayerAgeMax, state.profile.date],
+  );
 
   // build query information
   const totalPages = React.useMemo(() => Math.ceil(numPlayers / PAGE_SIZE), [numPlayers]);
@@ -132,6 +170,8 @@ export default function () {
         selectedPlayerName,
         selectedPlayerPrestige,
         selectedPlayerWeapon,
+        playerDobMin,
+        playerDobMax,
       ),
     [
       selectedFederationId,
@@ -143,6 +183,8 @@ export default function () {
       selectedPlayerName,
       selectedPlayerPrestige,
       selectedPlayerWeapon,
+      playerDobMin,
+      playerDobMax,
     ],
   );
 
@@ -360,6 +402,38 @@ export default function () {
             </section>
             <section>
               <header>
+                <p>{t('main.players.ageMin')}</p>
+              </header>
+              <article>
+                <input
+                  placeholder={t('shared.any')}
+                  type="number"
+                  min="1"
+                  max={PLAYER_AGE_MAX}
+                  className="input"
+                  value={selectedPlayerAgeMin ?? ''}
+                  onChange={(event) => setSelectedPlayerAgeMin(Number(event.target.value))}
+                />
+              </article>
+            </section>
+            <section>
+              <header>
+                <p>{t('main.players.ageMax')}</p>
+              </header>
+              <article>
+                <input
+                  placeholder={t('shared.any')}
+                  type="number"
+                  min="1"
+                  max={PLAYER_AGE_MAX}
+                  className="input"
+                  value={selectedPlayerAgeMax ?? ''}
+                  onChange={(event) => setSelectedPlayerAgeMax(Number(event.target.value))}
+                />
+              </article>
+            </section>
+            <section>
+              <header>
                 <p>{t('shared.team')}</p>
               </header>
               <article>
@@ -425,6 +499,8 @@ export default function () {
                   setSelectedTierId('' as unknown as number);
                   setSelectedTransferStatus(null);
                   setSelectedTeam(null);
+                  setSelectedPlayerAgeMin(null);
+                  setSelectedPlayerAgeMax(null);
                 }}
               >
                 {t('main.players.reset')}
@@ -438,7 +514,25 @@ export default function () {
               <tr>
                 <th>{t('shared.name')}</th>
                 <th>{t('shared.team')}</th>
-                <th className="text-center">{t('shared.age')}</th>
+                <th
+                  className="hover:bg-base-300 cursor-pointer"
+                  onClick={() =>
+                    setSelectedPlayerOrderBy(
+                      Util.parseSortingDirection('dob', selectedPlayerOrderBy?.dob),
+                    )
+                  }
+                >
+                  <header className="flex items-center justify-center gap-2">
+                    {t('shared.age')}
+                    <span className={cx(selectedPlayerOrderBy?.dob && 'text-primary')}>
+                      {selectedPlayerOrderBy?.dob === 'desc' ? (
+                        <FaSortAmountDown />
+                      ) : (
+                        <FaSortAmountDownAlt />
+                      )}
+                    </span>
+                  </header>
+                </th>
                 <th
                   className="hover:bg-base-300 cursor-pointer"
                   onClick={() =>

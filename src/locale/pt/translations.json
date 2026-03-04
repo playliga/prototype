@@ -104,6 +104,8 @@
         "selection": "conversas selecionadas."
       },
       "players": {
+        "ageMax": "Age Max",
+        "ageMin": "Age Min",
         "player": "Jogador",
         "playerNameFilter": "Filtrar pelo nome",
         "reset": "Reiniciar filtros",
