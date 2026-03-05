@@ -896,11 +896,11 @@ export const GameSettings = {
   CS2_VPK_METAMOD: 'addons/metamod',
 
   // csgo settings
-  CSGO_APPID: 730,
+  CSGO_APPID: 4465480,
   CSGO_BETTER_BOTS_NAMES_FILE: 'addons/sourcemod/configs/bot_names.txt',
   CSGO_BOT_COMMAND_FILE: 'cfg/liga-bots.cfg',
   CSGO_BOT_CONFIG: 'botprofile.db',
-  CSGO_BASEDIR: 'steamapps/common/Counter-Strike Global Offensive',
+  CSGO_BASEDIR: 'steamapps/common/csgo legacy',
   CSGO_EXE: 'csgo.exe',
   CSGO_GAMEDIR: 'csgo',
   CSGO_LANGUAGE_FILE: 'resource/csgo_english.txt',

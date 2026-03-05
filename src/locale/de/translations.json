@@ -76,7 +76,6 @@
       },
       "dashboard": {
         "advanceCalendar": "Kalender fortsetzen",
-        "csgoNotDetected": "CS:GO wurde nicht erkannt! Aktiviere die CS:GO Legacy-Version im Betas-Reiter.",
         "gameNotDetected": "nicht erkannt! Bitte installiere das Spiel, um deine Matches im Spiel austragen zu können.",
         "headerRecentMatches": "Letzte Matches",
         "headerUpcomingMatches": "Bevorstehende Matches",

@@ -76,7 +76,6 @@
       },
       "dashboard": {
         "advanceCalendar": "Avanzar Calendario",
-        "csgoNotDetected": "¡CS:GO no detectado! Habilita la versión Legacy de CS:GO desde la pestaña de Betas.",
         "gameNotDetected": "¡no detectado! Por favor instale el juego para poder jugar tus partidos.",
         "headerRecentMatches": "Partidos Recientes",
         "headerUpcomingMatches": "Próximos Partidos",

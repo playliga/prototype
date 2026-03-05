@@ -76,7 +76,6 @@
       },
       "dashboard": {
         "advanceCalendar": "Avancer dans le calendrier",
-        "csgoNotDetected": "CS:GO n'a pas été détecté ! Vérifiez que vous avez bien activé la version 'Legacy' dans l'onglet 'Betas'.",
         "gameNotDetected": "n'a pas été détecté ! Vérifiez que vous avez bien indiqué le chemin d'accès au jeu, et si celui-ci est bien installé.",
         "headerRecentMatches": "derniers matchs",
         "headerUpcomingMatches": "Matchs à suivre",

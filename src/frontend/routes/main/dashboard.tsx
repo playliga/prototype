@@ -78,7 +78,9 @@ export function StatusBanner(props: StatusBannerProps) {
 
       {error.code === Constants.ErrorCode.ENOENT && message === Constants.GameSettings.CSGO_EXE && (
         <React.Fragment>
-          <p>{t('main.dashboard.csgoNotDetected')}</p>
+          <p>
+            {message} {t('main.dashboard.gameNotDetected')}
+          </p>
           <button
             className="btn btn-neutral btn-sm rounded-none"
             onClick={() => {

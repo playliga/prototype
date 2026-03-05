@@ -76,7 +76,6 @@
       },
       "dashboard": {
         "advanceCalendar": "Avançar",
-        "csgoNotDetected": "CS:GO não encontrado! Ative a versão CS:GO Legacy na janela 'Betas'.",
         "gameNotDetected": "jogo não encontrado! Instale alguma versão do CS pra jogar suas partidas dentro do jogo.",
         "headerRecentMatches": "Partidas recentes",
         "headerUpcomingMatches": "Próximas partidas",
