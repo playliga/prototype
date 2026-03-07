@@ -3,6 +3,7 @@
 ### Features
 
 - add age filter in player search page ([#603](https://github.com/playliga/prototype/issues/603)) ([8d8db5d](https://github.com/playliga/prototype/commit/8d8db5dcd5c812b2bf30c7f1799498c1fc68a3d0))
+- show team picks in postgame modal ([#597](https://github.com/playliga/prototype/issues/597)) ([2e91582](https://github.com/playliga/prototype/commit/2e91582e4401e49d7104c74951892740ccc56b30))
 - switch to standalone csgo ([#604](https://github.com/playliga/prototype/issues/604)) ([ac0f9d8](https://github.com/playliga/prototype/commit/ac0f9d8907e47f69ba25eddd92c2b46ce4e32017))
 
 ## [3.0.0-rc.5](https://github.com/playliga/prototype/compare/v3.0.0-rc.4...v3.0.0-rc.5) (2026-02-26)
