@@ -1,3 +1,10 @@
+## [3.0.0-rc.6](https://github.com/playliga/prototype/compare/v3.0.0-rc.5...v3.0.0-rc.6) (2026-03-07)
+
+### Features
+
+- add age filter in player search page ([#603](https://github.com/playliga/prototype/issues/603)) ([8d8db5d](https://github.com/playliga/prototype/commit/8d8db5dcd5c812b2bf30c7f1799498c1fc68a3d0))
+- switch to standalone csgo ([#604](https://github.com/playliga/prototype/issues/604)) ([ac0f9d8](https://github.com/playliga/prototype/commit/ac0f9d8907e47f69ba25eddd92c2b46ce4e32017))
+
 ## [3.0.0-rc.5](https://github.com/playliga/prototype/compare/v3.0.0-rc.4...v3.0.0-rc.5) (2026-02-26)
 
 ### Features
