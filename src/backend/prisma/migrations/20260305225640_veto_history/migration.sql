@@ -1,0 +1,10 @@
+-- CreateTable
+CREATE TABLE "MatchVeto" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "type" TEXT NOT NULL,
+    "map" TEXT NOT NULL,
+    "matchId" INTEGER NOT NULL,
+    "teamId" INTEGER,
+    CONSTRAINT "MatchVeto_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "MatchVeto_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);

@@ -78,6 +78,11 @@ export const match = {
         },
       },
     },
+    vetoes: {
+      include: {
+        team: true,
+      },
+    },
   },
 };
 

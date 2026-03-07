@@ -163,6 +163,12 @@ export default {
       >,
     updateMapList: (id: number, mapList: Array<string>) =>
       ipcRenderer.invoke(Constants.IPCRoute.MATCH_UPDATE_MAP_LIST, id, mapList) as Promise<unknown>,
+    updateVetoList: (id: number, vetoList: Array<Partial<Prisma.MatchVetoGetPayload<unknown>>>) =>
+      ipcRenderer.invoke(
+        Constants.IPCRoute.MATCH_UPDATE_VETO_LIST,
+        id,
+        vetoList,
+      ) as Promise<unknown>,
   },
   matches: {
     all: <T = typeof Eagers.match>(query: Prisma.MatchFindManyArgs) =>

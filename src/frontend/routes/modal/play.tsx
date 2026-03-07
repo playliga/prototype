@@ -21,12 +21,8 @@ enum Tab {
   SETTINGS,
 }
 
-/** @interface */
-interface MapVetoAction {
-  team?: Awaited<ReturnType<typeof api.teams.all>>[number];
-  type: Constants.MapVetoAction;
-  map: string;
-}
+/** @type {MapVetoAction} */
+type MapVetoAction = Parameters<typeof api.match.updateVetoList>[1][number];
 
 /** @type {Matches} */
 type Matches<T = typeof Eagers.match> = Awaited<ReturnType<typeof api.matches.all<T>>>;
@@ -158,7 +154,9 @@ export default function () {
   const vetoMapList = React.useMemo(
     () =>
       vetoHistory.filter((item) =>
-        [Constants.MapVetoAction.DECIDER, Constants.MapVetoAction.PICK].includes(item.type),
+        [Constants.MapVetoAction.DECIDER, Constants.MapVetoAction.PICK].includes(
+          item.type as Constants.MapVetoAction,
+        ),
       ),
     [vetoHistory],
   );
@@ -197,7 +195,7 @@ export default function () {
     setVetoHistory([
       ...vetoHistory,
       {
-        team: match.competitors[vetoSequenceStep.team].team,
+        teamId: match.competitors[vetoSequenceStep.team].team.id,
         type: vetoSequenceStep.type,
         map,
       },
@@ -360,6 +358,8 @@ export default function () {
           >
             {mapPool.map((map) => {
               const picked = vetoHistory.find((item) => item.map === map.gameMap.name);
+              const competitor =
+                picked && match.competitors.find((c) => c.teamId === picked.teamId);
 
               return (
                 <figure key={map.gameMap.name} className="relative h-full w-full">
@@ -376,7 +376,7 @@ export default function () {
                       'h-full border object-cover shadow-md',
                       !picked && !vetoSequenceComplete && !working && 'cursor-pointer',
                       picked
-                        ? VETO_STYLES.border[picked.type]
+                        ? VETO_STYLES.border[picked.type as Constants.MapVetoAction]
                         : 'border-base-content/50 shadow-base-content/50',
                     )}
                   />
@@ -385,13 +385,13 @@ export default function () {
                       <span
                         className={cx(
                           'badge badge-xs absolute top-2 left-1/2 -translate-x-1/2',
-                          VETO_STYLES.badge[picked.type],
+                          VETO_STYLES.badge[picked.type as Constants.MapVetoAction],
                         )}
                       >
                         {picked.type.toUpperCase()}
                       </span>
-                      {!!picked.team && (
-                        <Image src={picked.team.blazon} className="absolute bottom-0 size-16" />
+                      {!!competitor && (
+                        <Image src={competitor.team.blazon} className="absolute bottom-0 size-16" />
                       )}
                     </React.Fragment>
                   )}
@@ -631,17 +631,17 @@ export default function () {
         disabled={!vetoSequenceComplete}
         onClick={() => {
           setWorking(true);
-
-          api.match
-            .updateMapList(
+          Promise.all([
+            api.match.updateMapList(
               match.id,
               vetoMapList.map((item) => item.map),
-            )
-            .then(() => {
-              setWorking(false);
-              api.window.send(Constants.WindowIdentifier.Main, match.id, null);
-              api.window.close(Constants.WindowIdentifier.Modal);
-            });
+            ),
+            api.match.updateVetoList(match.id, vetoMapList),
+          ]).then(() => {
+            setWorking(false);
+            api.window.send(Constants.WindowIdentifier.Main, match.id, null);
+            api.window.close(Constants.WindowIdentifier.Modal);
+          });
         }}
       >
         {t('main.dashboard.play')}

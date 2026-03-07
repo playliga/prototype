@@ -66,6 +66,22 @@ export default function () {
       });
     },
   );
+  ipcMain.handle(
+    Constants.IPCRoute.MATCH_UPDATE_VETO_LIST,
+    async (_, id: number, data: Array<Partial<Prisma.MatchVetoGetPayload<unknown>>>) =>
+      DatabaseClient.prisma.match.update({
+        where: { id },
+        data: {
+          vetoes: {
+            create: data.map((item) => ({
+              type: item.type,
+              map: item.map,
+              teamId: item.teamId,
+            })),
+          },
+        },
+      }),
+  );
   ipcMain.handle(Constants.IPCRoute.MATCHES_ALL, (_, query: Prisma.MatchFindManyArgs) =>
     DatabaseClient.prisma.match.findMany(query),
   );

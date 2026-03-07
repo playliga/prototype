@@ -117,6 +117,10 @@ function Scoreboard(props: ScoreboardProps) {
     () => matchEvents.filter((event) => event.weapon !== null || event.assistId),
     [matchEvents],
   );
+  const veto = React.useMemo(
+    () => props.matchGame && props.match.vetoes.find((veto) => veto.map === props.matchGame.map),
+    [props.match, props.matchGame],
+  );
 
   return (
     <table className="table-xs table">
@@ -128,6 +132,9 @@ function Scoreboard(props: ScoreboardProps) {
                 <img src={props.competitor.team.blazon} className="mr-2 inline-block size-4" />
               )}
               {props.competitor.team.name}
+              {!!veto && veto.teamId === props.competitor.teamId && (
+                <span className="badge badge-xs uppercase">&nbsp;{t('shared.pick')}</span>
+              )}
             </p>
           </th>
           <th title="Rating" className="w-[10%] text-center">

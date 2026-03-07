@@ -324,6 +324,7 @@
     "overtimeSubtitle": "Whether to go into overtime if the game ends in a draw.",
     "overtimeTitle": "Allow Overtime",
     "overview": "Overview",
+    "pick": "Pick",
     "quit": "Quit",
     "randomize": "Randomize",
     "recentMatchResults": "Recent Match Results",

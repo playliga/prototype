@@ -304,6 +304,7 @@ export enum IPCRoute {
   MAP_POOL_UPDATE_MANY = '/mapPool/updateMany',
   MATCH_FIND = '/match/find',
   MATCH_UPDATE_MAP_LIST = '/match/update/map-list',
+  MATCH_UPDATE_VETO_LIST = '/match/update/veto-list',
   MATCHES_ALL = '/matches/all',
   MATCHES_COUNT = '/matches/count',
   MATCHES_PREVIOUS = '/matches/previous',
