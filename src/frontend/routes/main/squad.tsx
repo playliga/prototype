@@ -4,6 +4,7 @@
  * @module
  */
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { groupBy } from 'lodash';
 import { differenceInDays } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
@@ -353,11 +354,13 @@ export default function () {
                       {transfers.map((transfer) => (
                         <tr key={transfer.id + '__transfer'}>
                           <td title={transfer.from.name} className="truncate">
-                            <Image
-                              src={transfer.from.blazon}
-                              title={transfer.from.name}
-                              className="mx-auto size-8"
-                            />
+                            <Link to={'/teams?id=' + transfer.teamIdFrom}>
+                              <Image
+                                src={transfer.from.blazon}
+                                title={transfer.from.name}
+                                className="mx-auto size-8"
+                              />
+                            </Link>
                           </td>
                           <td title={transfer.target.name} className="truncate">
                             {transfer.target.name}

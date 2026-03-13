@@ -4,6 +4,7 @@
  * @module
  */
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   addMonths,
   eachDayOfInterval,
@@ -182,11 +183,13 @@ export default function () {
                     <header className="heading w-full border-t-0! py-2! text-center">
                       <p>{opponent.team.name}</p>
                     </header>
-                    <Image
-                      title={opponent.team.name}
-                      src={opponent.team.blazon}
-                      className="size-32"
-                    />
+                    <Link to={'/teams?id=' + opponent.teamId}>
+                      <Image
+                        title={opponent.team.name}
+                        src={opponent.team.blazon}
+                        className="size-32"
+                      />
+                    </Link>
                     {spotlight.status === Constants.MatchStatus.COMPLETED && (
                       <span
                         className={cx(

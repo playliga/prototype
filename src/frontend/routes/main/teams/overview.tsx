@@ -4,7 +4,7 @@
  * @module
  */
 import React from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -23,6 +23,7 @@ const NUM_PREVIOUS = 5;
  */
 export default function () {
   const t = useTranslation('windows');
+  const navigate = useNavigate();
   const { state } = React.useContext(AppStateContext);
   const { team } = useOutletContext<RouteContextTeams>();
   const [competition, setCompetition] =
@@ -245,7 +246,11 @@ export default function () {
                       <td className={cx('w-3/12 text-center', Util.getResultTextColor(result))}>
                         {match.competitors.map((competitor) => competitor.score).join(' : ') || '-'}
                       </td>
-                      <td className="w-4/12 truncate" title={opponent?.team.name || '-'}>
+                      <td
+                        className="w-4/12 cursor-pointer truncate"
+                        title={opponent?.team.name || '-'}
+                        onClick={() => !!opponent && navigate('/teams?id=' + opponent.teamId)}
+                      >
                         {!!opponent?.team && (
                           <img
                             src={opponent?.team.blazon || 'resources://blazonry/009400.png'}
@@ -352,6 +357,7 @@ export default function () {
             competition.tier.groupSize &&
             (Constants.TierZones[competition.tier.slug] || Constants.TierZones.default)
           }
+          onClick={(competitor) => navigate('/teams?id=' + competitor.teamId)}
         />
       </article>
     </section>

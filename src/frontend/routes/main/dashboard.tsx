@@ -4,6 +4,7 @@
  * @module
  */
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { addDays, differenceInDays, format } from 'date-fns';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
@@ -112,6 +113,7 @@ export function StatusBanner(props: StatusBannerProps) {
  */
 export default function () {
   const t = useTranslation('windows');
+  const navigate = useNavigate();
   const { state, dispatch } = React.useContext(AppStateContext);
   const [settings, setSettings] = React.useState(Constants.Settings);
   const [upcoming, setUpcoming] = React.useState<
@@ -276,7 +278,11 @@ export default function () {
                       <td className="w-1/6" title={format(match.date, 'PPPP')}>
                         {format(match.date, 'MM/dd')}
                       </td>
-                      <td className="w-3/6 truncate" title={opponent?.team.name || '-'}>
+                      <td
+                        className="w-3/6 cursor-pointer truncate"
+                        title={opponent?.team.name || '-'}
+                        onClick={() => navigate('/teams?id=' + opponent?.teamId)}
+                      >
                         <img
                           src={opponent?.team.blazon || 'resources://blazonry/009400.png'}
                           className="mr-2 inline-block size-4"
@@ -360,6 +366,7 @@ export default function () {
                           (Constants.TierZones[standings.competition.tier.slug] ||
                             Constants.TierZones.default)
                         }
+                        onClick={(competitor) => navigate('/teams?id=' + competitor.teamId)}
                       />
                     </article>
                   );
@@ -398,11 +405,13 @@ export default function () {
                     <aside className="grid grid-cols-2 place-items-center pb-2">
                       {standings.competitors.map((competitor) => (
                         <figure key={`${competitor.id}__cup_splotlight`} className="center">
-                          <Image
-                            title={competitor.team.name}
-                            src={competitor.team.blazon}
-                            className="size-32"
-                          />
+                          <Link to={'/teams?id=' + competitor.teamId}>
+                            <Image
+                              title={competitor.team.name}
+                              src={competitor.team.blazon}
+                              className="size-32"
+                            />
+                          </Link>
                         </figure>
                       ))}
                     </aside>
@@ -580,7 +589,10 @@ export default function () {
                   <article className="card-body">
                     <header className="grid h-full grid-cols-3 place-items-center">
                       <aside className="stack-y items-center">
-                        <figure className="center h-24 w-auto">
+                        <figure
+                          className="center h-24 w-auto cursor-pointer"
+                          onClick={() => navigate('/teams?id=' + home.teamId)}
+                        >
                           <Image src={home.team.blazon} className="h-full w-auto" />
                         </figure>
                         <Historial matches={homeHistorial} teamId={home.teamId} />
@@ -636,7 +648,10 @@ export default function () {
                         </ul>
                       </aside>
                       <aside className="stack-y items-center">
-                        <figure className="center h-24 w-auto">
+                        <figure
+                          className="center h-24 w-auto cursor-pointer"
+                          onClick={() => navigate('/teams?id=' + away.teamId)}
+                        >
                           <Image src={away.team.blazon} className="h-full w-auto" />
                         </figure>
                         <Historial matches={awayHistorial} teamId={away.teamId} />
@@ -725,15 +740,23 @@ export default function () {
                           className="mr-2 inline-block size-6"
                           src={transfer.target.avatar || 'resources://avatars/empty.png'}
                         />
-                        <img
-                          title={transfer.to.name}
-                          className="inline-block size-6"
-                          src={transfer.to.blazon}
-                        />
+                        <Link to={'/teams?id=' + transfer.teamIdTo}>
+                          <img
+                            title={transfer.to.name}
+                            className="inline-block size-6"
+                            src={transfer.to.blazon}
+                          />
+                        </Link>
                       </td>
                       <td className="text-center">&rarr;</td>
-                      <td title={transfer.from.name} className="p-0 text-center">
-                        <img className="inline-block size-6" src={transfer.from.blazon} />
+                      <td className="p-0 text-center">
+                        <Link to={'/teams?id=' + transfer.teamIdFrom}>
+                          <img
+                            title={transfer.from.name}
+                            className="inline-block size-6"
+                            src={transfer.from.blazon}
+                          />
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -815,7 +838,11 @@ export default function () {
                                     .map((competitor) => competitor.score)
                                     .join(' : ') || '-'}
                                 </td>
-                                <td className="w-4/12 truncate" title={opponent?.team.name || '-'}>
+                                <td
+                                  className="w-4/12 cursor-pointer truncate"
+                                  title={opponent?.team.name || '-'}
+                                  onClick={() => navigate('/teams?id=' + opponent?.teamId)}
+                                >
                                   {!!opponent?.team && (
                                     <img
                                       className="mr-2 inline-block size-4"

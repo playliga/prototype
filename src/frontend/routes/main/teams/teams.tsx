@@ -4,7 +4,7 @@
  * @module
  */
 import React from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -29,6 +29,7 @@ export default function () {
   const location = useLocation();
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
+  const [searchParams] = useSearchParams();
   const [federations, setFederations] = React.useState<
     Awaited<ReturnType<typeof api.federations.all>>
   >([]);
@@ -70,14 +71,26 @@ export default function () {
       .then(setRankings);
   }, []);
 
+  // reset team data when a team id query param is set
+  const teamId = React.useMemo(() => Number(searchParams.get('id')), [searchParams]);
+
+  React.useEffect(() => {
+    if (!teamId) {
+      return;
+    }
+
+    setTeam(null);
+    api.teams.all<typeof Eagers.team>(Eagers.team).then(setTeams);
+  }, [teamId]);
+
   // preload the user's team
   React.useEffect(() => {
     if (!state.profile || !teams.length || team) {
       return;
     }
 
-    setTeam(teams.find((tteam) => tteam.id === state.profile.teamId));
-  }, [state.profile, teams, team]);
+    setTeam(teams.find((tteam) => tteam.id === (teamId || state.profile.teamId)));
+  }, [state.profile, teams, team, teamId]);
 
   // apply team filters
   React.useEffect(() => {

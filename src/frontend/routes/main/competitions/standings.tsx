@@ -4,7 +4,7 @@
  * @module
  */
 import React from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { groupBy } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -28,6 +28,7 @@ function PureBrackets(props: React.ComponentProps<typeof Brackets>) {
  */
 export default function () {
   const t = useTranslation();
+  const navigate = useNavigate();
   const { state } = React.useContext(AppStateContext);
   const { competition } = useOutletContext<RouteContextCompetitions>();
   const [bracket, setBracket] =
@@ -70,6 +71,7 @@ export default function () {
               competition.status === Constants.CompetitionStatus.STARTED &&
               (Constants.TierZones[competition.tier.slug] || Constants.TierZones.default)
             }
+            onClick={(competitor) => navigate('/teams?id=' + competitor.teamId)}
           />
         ))}
       </section>

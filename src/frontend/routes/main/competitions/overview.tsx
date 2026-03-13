@@ -6,7 +6,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { groupBy } from 'lodash';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -24,6 +24,7 @@ const NUM_PREVIOUS = 5;
  */
 export default function () {
   const t = useTranslation('windows');
+  const navigate = useNavigate();
   const { state } = React.useContext(AppStateContext);
   const { competition } = useOutletContext<RouteContextCompetitions>();
   const [competitionDates, setCompetitionDates] = React.useState<
@@ -351,6 +352,7 @@ export default function () {
             competition.tier.groupSize &&
             (Constants.TierZones[competition.tier.slug] || Constants.TierZones.default)
           }
+          onClick={(competitor) => navigate('/teams?id=' + competitor.teamId)}
         />
       </article>
     </section>

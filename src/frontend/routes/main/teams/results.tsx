@@ -6,7 +6,7 @@
 import React from 'react';
 import { random } from 'lodash';
 import { format } from 'date-fns';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { useTranslation } from '@liga/frontend/hooks';
@@ -48,6 +48,7 @@ function getCompetitionLabel(
  */
 export default function () {
   const t = useTranslation('windows');
+  const navigate = useNavigate();
   const { team } = useOutletContext<RouteContextTeams>();
   const [matches, setMatches] = React.useState<
     Awaited<ReturnType<typeof api.matches.all<typeof Eagers.match>>>
@@ -173,7 +174,11 @@ export default function () {
                   <td title={format(match.date, 'PPPP')} className="text-center">
                     {format(match.date, Constants.Application.CALENDAR_DATE_FORMAT)}
                   </td>
-                  <td className="truncate text-right" title={home.team.name}>
+                  <td
+                    className="cursor-pointer truncate text-right"
+                    title={home.team.name}
+                    onClick={() => navigate('/teams?id=' + home.teamId)}
+                  >
                     <span>{home.team.name}</span>
                     <img src={home.team.blazon} className="ml-2 inline-block size-4" />
                   </td>
@@ -187,7 +192,11 @@ export default function () {
                       </article>
                     )}
                   </td>
-                  <td className="truncate" title={away?.team.name || 'BYE'}>
+                  <td
+                    className="cursor-pointer truncate"
+                    title={away?.team.name || 'BYE'}
+                    onClick={() => !!away && navigate('/teams?id=' + away.teamId)}
+                  >
                     {!away && 'BYE'}
                     {!!away && (
                       <>
