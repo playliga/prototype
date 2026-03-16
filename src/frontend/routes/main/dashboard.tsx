@@ -737,8 +737,14 @@ export default function () {
                       <td className="p-0 text-center">
                         <img
                           title={transfer.target.name}
-                          className="mr-2 inline-block size-6"
+                          className="mr-2 inline-block size-6 cursor-pointer"
                           src={transfer.target.avatar || 'resources://avatars/empty.png'}
+                          onClick={() =>
+                            api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                              target: '/transfer',
+                              payload: transfer.target.id,
+                            })
+                          }
                         />
                         <Link to={'/teams?id=' + transfer.teamIdTo}>
                           <img
