@@ -164,6 +164,10 @@ export default function () {
     Constants.CalendarEntry.TRANSFER_PARSE,
     Worldgen.onTransferOffer,
   );
+  Engine.Runtime.Instance.register(
+    Constants.CalendarEntry.TRANSFER_WAGE_PAYMENT,
+    Worldgen.onTransferWagePayment,
+  );
 
   // set up the ipc handlers
   ipcMain.handle(Constants.IPCRoute.CALENDAR_CREATE, (_, data: Prisma.CalendarCreateInput) =>

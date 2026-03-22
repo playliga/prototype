@@ -485,6 +485,9 @@ function parsePlayerTransferOffer(
       DatabaseClient.prisma.player.update({
         where: { id: transfer.target.id },
         data: {
+          cost: offer.cost,
+          wages: offer.wages,
+          wagesDue: 0,
           transferListed: false,
           team: {
             connect: {
@@ -498,6 +501,9 @@ function parsePlayerTransferOffer(
           where: {
             id: {
               not: transfer.id,
+            },
+            status: {
+              not: Constants.TransferStatus.PLAYER_ACCEPTED,
             },
             target: {
               id: transfer.target.id,
@@ -665,6 +671,8 @@ export function parseTeamTransferOffer(
         status: Constants.TransferStatus.PLAYER_PENDING,
         wages: offer.wages,
         cost: offer.cost,
+        start: offer.start,
+        end: offer.end,
         transfer: {
           connect: { id: transfer.id },
         },
@@ -1220,6 +1228,10 @@ export async function sendTransferOffer(
   }
 
   // create transfer offer
+  const [offerStart, offerEnd] = Util.getContractPeriod(
+    profile.date,
+    random(Constants.TransferSettings.OFFER_MIN_YEARS, Constants.TransferSettings.OFFER_MAX_YEARS),
+  );
   const transfer = await DatabaseClient.prisma.transfer.create({
     data: {
       status: Constants.TransferStatus.TEAM_PENDING,
@@ -1238,6 +1250,8 @@ export async function sendTransferOffer(
             status: Constants.TransferStatus.TEAM_PENDING,
             cost,
             wages: target.wages,
+            start: offerStart.toISOString(),
+            end: offerEnd.toISOString(),
           },
         ],
       },
@@ -2456,7 +2470,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
     },
   });
 
-  // for transfers involving the user, we need to send e-mails
+  // send e-mails
   if (transfer.from.id === profile.teamId || transfer.to.id === profile.teamId) {
     const email = await sendEmail(
       Sqrl.render(locale.templates.OfferGeneric.SUBJECT, { transfer }),
@@ -2481,6 +2495,55 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
     return Promise.resolve();
   }
 
+  // cancel any existing wage payments
+  const prevTransfer = await DatabaseClient.prisma.transfer.findFirst({
+    where: {
+      status: Constants.TransferStatus.PLAYER_ACCEPTED,
+      from: {
+        id: transfer.target.team?.id,
+      },
+      target: {
+        id: transfer.target.id,
+      },
+    },
+  });
+
+  if (prevTransfer) {
+    await DatabaseClient.prisma.calendar.deleteMany({
+      where: {
+        type: Constants.CalendarEntry.TRANSFER_WAGE_PAYMENT,
+        payload: prevTransfer.id.toString(),
+        date: {
+          gte: profile.date.toISOString(),
+        },
+      },
+    });
+  }
+
+  // setup the scheduled payments
+  const payments: Array<Prisma.PrismaPromise<typeof entry>> = [];
+
+  if (transfer.from.id === profile.teamId) {
+    while (offer.start <= offer.end) {
+      if (offer.start < profile.date) {
+        offer.start = addWeeks(offer.start, Constants.CalendarFrequency.WEEKLY);
+        continue;
+      }
+
+      payments.push(
+        DatabaseClient.prisma.calendar.create({
+          data: {
+            type: Constants.CalendarEntry.TRANSFER_WAGE_PAYMENT,
+            date: offer.start.toISOString(),
+            payload: transfer.id.toString(),
+          },
+        }),
+      );
+
+      offer.start = addWeeks(offer.start, Constants.CalendarFrequency.WEEKLY);
+    }
+  }
+
   // send signal to achievement system
   Bus.Signal.Instance.emit(Bus.MessageIdentifier.TRANSFER_COMPLETED, transfer);
 
@@ -2488,6 +2551,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
   return Promise.all([
     Promise.resolve(WindowManager.sendAll(Constants.IPCRoute.SHORTLIST_UPDATE)),
     Promise.resolve(WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE)),
+    DatabaseClient.prisma.$transaction(payments),
     DatabaseClient.prisma.team.update({
       where: {
         id: transfer.from.id,
@@ -2516,4 +2580,80 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
         })
       : Promise.resolve(),
   ]);
+}
+
+/**
+ * Engine loop handler.
+ *
+ * Distributes a scheduled transfer wage payment.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onTransferWagePayment(entry: Partial<Calendar>) {
+  // grab transfer details
+  const transfer = await DatabaseClient.prisma.transfer.findFirst({
+    where: {
+      id: Number(entry.payload),
+    },
+    include: {
+      ...Eagers.transfer.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+
+  // update team earnings
+  if (transfer.from.earnings >= transfer.target.wages) {
+    return Promise.all([
+      DatabaseClient.prisma.team.update({
+        where: {
+          id: transfer.from.id,
+        },
+        data: {
+          earnings: {
+            decrement: transfer.target.wages,
+          },
+        },
+      }),
+      DatabaseClient.prisma.player.update({
+        where: {
+          id: transfer.target.id,
+        },
+        data: {
+          wagesDue: Math.max(0, transfer.target.wagesDue - transfer.target.wages),
+        },
+      }),
+    ]);
+  }
+
+  // send an e-mail if the user cannot afford to pay wages
+  if (!transfer.target.wagesDue) {
+    const profile = await DatabaseClient.prisma.profile.findFirst();
+    const locale = Locale.getLocale(profile);
+    const persona = transfer.from.personas.find(
+      (persona) =>
+        persona.role === Constants.PersonaRole.MANAGER ||
+        persona.role === Constants.PersonaRole.ASSISTANT,
+    );
+    await sendEmail(
+      Sqrl.render(locale.templates.WagesUnpaid.SUBJECT, { transfer }),
+      Sqrl.render(locale.templates.WagesUnpaid.CONTENT, { transfer, profile }),
+      persona,
+      profile.date,
+    );
+  }
+
+  // force bench the player and start accumulating debt
+  return DatabaseClient.prisma.player.update({
+    where: {
+      id: transfer.target.id,
+    },
+    data: {
+      starter: false,
+      transferListed: true,
+      wagesDue: {
+        increment: transfer.target.wages,
+      },
+    },
+  });
 }

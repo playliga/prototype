@@ -137,6 +137,7 @@ export enum CalendarEntry {
   SPONSORSHIP_PAYMENT = '/sponsorship/payment',
   SPONSORSHIP_RENEW = '/sponsorship/renew',
   TRANSFER_PARSE = '/transfer/parse',
+  TRANSFER_WAGE_PAYMENT = '/transfer/wage/payment',
 }
 
 /**
@@ -1728,6 +1729,10 @@ export const TierZones: Record<string | 'default', number[][]> = {
  * @constant
  */
 export const TransferSettings = {
+  // upper and lower bounds of the average offer length
+  OFFER_MIN_YEARS: 3,
+  OFFER_MAX_YEARS: 5,
+
   // how long do teams and players take to respond
   RESPONSE_MIN_DAYS: 1,
   RESPONSE_MAX_DAYS: 3,

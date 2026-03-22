@@ -696,6 +696,7 @@ export default function () {
                 profile={state.profile}
                 onClickStarter={
                   (starters.length < Constants.Application.SQUAD_MIN_LENGTH || player.starter) &&
+                  !player.wagesDue &&
                   (() => {
                     api.squad
                       .update({

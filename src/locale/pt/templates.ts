@@ -220,13 +220,13 @@ export enum SponsorshipInvite {
 /** @enum */
 export enum SponsorshipInviteAcceptedUser {
   SUBJECT = 'Convite pra torneio do {{it.sponsorship.sponsor.name}}',
-  CONTENT = "Aceitou o convite do {{it.sponsorship.sponsor.name}}.",
+  CONTENT = 'Aceitou o convite do {{it.sponsorship.sponsor.name}}.',
 }
 
 /** @enum */
 export enum SponsorshipInviteRejectedUser {
   SUBJECT = 'Convite pra torneio do {{it.sponsorship.sponsor.name}}',
-  CONTENT = "Rejeitou o convite do {{it.sponsorship.sponsor.name}}.",
+  CONTENT = 'Rejeitou o convite do {{it.sponsorship.sponsor.name}}.',
 }
 
 /** @enum */
@@ -279,6 +279,20 @@ export enum SponsorshipTerminated {
   {{@each(it.requirements) => requirement}}
   - {{requirement}}
   {{/each}}
+  `,
+}
+
+/** @enum */
+export enum WagesUnpaid {
+  SUBJECT = 'Wages Unpaid',
+  CONTENT = `
+  Hello {{it.profile.player.name}},
+
+  We currently lack the funds to cover the wages of **{{it.transfer.target.name}}**.
+
+  Until this situation is resolved, they will remain unavailable for selection.
+
+  We should consider transferring or selling the player as soon as possible.
   `,
 }
 

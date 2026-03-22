@@ -283,6 +283,20 @@ export enum SponsorshipTerminated {
 }
 
 /** @enum */
+export enum WagesUnpaid {
+  SUBJECT = 'Wages Unpaid',
+  CONTENT = `
+  Hello {{it.profile.player.name}},
+
+  We currently lack the funds to cover the wages of **{{it.transfer.target.name}}**.
+
+  Until this situation is resolved, they will remain unavailable for selection.
+
+  We should consider transferring or selling the player as soon as possible.
+  `,
+}
+
+/** @enum */
 export enum WelcomeEmail {
   SUBJECT = 'Hey!',
   CONTENT = `

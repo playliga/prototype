@@ -310,6 +310,7 @@ model Player {
   stats               String?
   cost                Int?                @default(0)
   wages               Int?                @default(0)
+  wagesDue            Int?                @default(0)
   weapon              String?
   starter             Boolean             @default(false)
   transferListed      Boolean             @default(false)
@@ -478,6 +479,8 @@ model Offer {
   status              Int
   cost                Int?                @default(0)
   wages               Int?                @default(0)
+  start               DateTime?
+  end                 DateTime?
 
   // belongs to
   transfer            Transfer            @relation(fields: [transferId], references: [id])

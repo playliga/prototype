@@ -4,6 +4,7 @@
  * @module
  */
 import React from 'react';
+import { differenceInYears } from 'date-fns';
 import { flatten } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -20,6 +21,7 @@ import {
   FaDollarSign,
   FaExclamationTriangle,
   FaPiggyBank,
+  FaScroll,
   FaTag,
   FaWallet,
 } from 'react-icons/fa';
@@ -41,6 +43,7 @@ type Transfer = Awaited<ReturnType<typeof api.transfers.all<typeof Eagers.transf
 const formDefaultValues = {
   cost: 0,
   wages: 0,
+  contractLength: 1,
 };
 
 /** @constant */
@@ -108,6 +111,8 @@ export default function () {
 
   // handle form submission
   const onSubmit = (data: typeof formDefaultValues) => {
+    const [offerStart, offerEnd] = Util.getContractPeriod(state.profile.date, data.contractLength);
+
     api.transfers
       .create(
         {
@@ -128,6 +133,8 @@ export default function () {
         {
           cost: data.cost,
           wages: data.wages,
+          start: offerStart.toISOString(),
+          end: offerEnd.toISOString(),
         },
       )
       .then(() => fetchTransfers(player.id))
@@ -204,6 +211,13 @@ export default function () {
       setActiveTab(Tab.SEND_OFFER);
     }
   }, [isTeammate]);
+
+  // does the player have an active contract
+  const contract = React.useMemo(
+    () =>
+      !!offers && offers.find((item) => item.status === Constants.TransferStatus.PLAYER_ACCEPTED),
+    [offers],
+  );
 
   if (!player || activeTab === null) {
     return (
@@ -295,8 +309,7 @@ export default function () {
             <tr>
               <th>Name</th>
               <th>Country</th>
-              <th>Team</th>
-              <th>Potential</th>
+              <th colSpan={2}>Potential</th>
             </tr>
           </thead>
           <tbody>
@@ -308,6 +321,27 @@ export default function () {
                 <span className={cx('fp', 'mr-2', player.country.code.toLowerCase())} />
                 <span>{player.country.name}</span>
               </td>
+              <td>
+                <figure className="rating gap-1">
+                  {[...Array(Constants.Prestige.length)].map((_, idx) => (
+                    <span
+                      key={idx + '__player_prestige'}
+                      className="mask mask-star bg-yellow-500"
+                      aria-current={idx + 1 <= player.prestige + 1}
+                    />
+                  ))}
+                </figure>
+              </td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th colSpan={3}>Contract Length</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-base-content/10 border-l">
               <td title={player.team?.name || 'Free Agent'} className="truncate">
                 {!!player.team && (
                   <>
@@ -318,15 +352,23 @@ export default function () {
                 {!player.team && <span>Free Agent</span>}
               </td>
               <td>
-                <figure className="rating gap-1">
-                  {[...Array(Constants.Prestige.length)].map((_, idx) => (
-                    <span
-                      key={idx + '__player_prestige'}
-                      className="mask mask-star bg-yellow-500 max-sm:size-3"
-                      aria-current={idx + 1 <= player.prestige + 1}
-                    />
-                  ))}
-                </figure>
+                {(() => {
+                  if (!contract || !contract.start || !contract.end) {
+                    return '-';
+                  }
+
+                  const numYears = differenceInYears(contract.end, contract.start);
+
+                  return (
+                    <>
+                      <span>
+                        {contract.start.getFullYear()} - {contract.end.getFullYear()}
+                      </span>
+                      <span>&nbsp;</span>
+                      <span>({numYears} years)</span>
+                    </>
+                  );
+                })()}
               </td>
             </tr>
           </tbody>
@@ -496,6 +538,32 @@ export default function () {
                     valueAsNumber: true,
                     min: 0,
                     max: state.profile.team.earnings,
+                  })}
+                />
+              </label>
+            </section>
+            <section>
+              <header>
+                <p>Length</p>
+                <p>How many years in the contract.</p>
+              </header>
+              <label
+                className={cx(
+                  'input bg-base-200 w-full items-center gap-2',
+                  formState.errors?.contractLength && 'input-error',
+                )}
+              >
+                <FaScroll className="size-4 opacity-20" />
+                <input
+                  type="number"
+                  className="h-full grow"
+                  min={1}
+                  max={10}
+                  disabled={activeOffer || !canAfford}
+                  {...register('contractLength', {
+                    valueAsNumber: true,
+                    min: 1,
+                    max: 10,
                   })}
                 />
               </label>

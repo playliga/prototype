@@ -7,6 +7,7 @@
  * @module
  */
 import type { Prisma } from '@prisma/client';
+import { addYears } from 'date-fns';
 import { differenceBy, merge, set } from 'lodash';
 import * as Constants from './constants';
 
@@ -279,7 +280,8 @@ export function getSquad(
     forceSize || Constants.GameSettings.SQUAD_STARTERS_NUM - +(team.id === profile.teamId);
 
   // ensure the squad does not include the user
-  let squad = team.players.filter((player) => player.id !== profile.playerId);
+  // nor any players who have unpaid wages
+  let squad = team.players.filter((player) => player.id !== profile.playerId && !player.wagesDue);
 
   // build the squad using starters first
   const starters = squad.filter((player) => player.starter);
@@ -417,4 +419,21 @@ export function formatBytes(bytes: number, decimals = 2) {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+/**
+ * Gets the start and end dates for the specified contract length.
+ *
+ * @param today The date object.
+ * @param num   The number of years in the contract.
+ * @function
+ */
+export function getContractPeriod(today: Date, num: number) {
+  const offerStart = new Date(
+    today.getFullYear(),
+    Constants.Application.SEASON_START_MONTH,
+    Constants.Application.SEASON_START_DAY,
+  );
+  const offerEnd = addYears(offerStart, num);
+  return [offerStart, offerEnd];
 }

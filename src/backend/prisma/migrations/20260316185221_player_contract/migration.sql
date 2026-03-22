@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "Offer"
+ADD COLUMN "end" DATETIME;
+
+ALTER TABLE "Offer"
+ADD COLUMN "start" DATETIME;
+
+ALTER TABLE "Player"
+ADD COLUMN "wagesDue" INTEGER DEFAULT 0;

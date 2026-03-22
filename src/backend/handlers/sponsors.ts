@@ -8,8 +8,8 @@ import log from 'electron-log';
 import { ipcMain } from 'electron';
 import { Prisma } from '@prisma/client';
 import { random, sample } from 'lodash';
-import { addDays, addYears } from 'date-fns';
-import { Constants, Eagers } from '@liga/shared';
+import { addDays } from 'date-fns';
+import { Constants, Eagers, Util } from '@liga/shared';
 import { DatabaseClient, Locale, Worldgen } from '@liga/backend/lib';
 
 /**
@@ -32,12 +32,7 @@ export default function () {
 
       // calculate offer start and end based on season
       const profile = await DatabaseClient.prisma.profile.findFirst();
-      const offerStart = new Date(
-        profile.date.getFullYear(),
-        Constants.Application.SEASON_START_MONTH,
-        Constants.Application.SEASON_START_DAY,
-      );
-      const offerEnd = addYears(offerStart, terms.length);
+      const [offerStart, offerEnd] = Util.getContractPeriod(profile.date, terms.length);
 
       // build offer database record
       const offer = {
@@ -226,12 +221,7 @@ export default function () {
 
     // calculate offer start and end based on season
     const profile = await DatabaseClient.prisma.profile.findFirst();
-    const offerStart = new Date(
-      profile.date.getFullYear(),
-      Constants.Application.SEASON_START_MONTH,
-      Constants.Application.SEASON_START_DAY,
-    );
-    const offerEnd = addYears(offerStart, terms.length);
+    const [offerStart, offerEnd] = Util.getContractPeriod(profile.date, terms.length);
 
     // build offer database record
     const offer = {
