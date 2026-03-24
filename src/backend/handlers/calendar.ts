@@ -76,9 +76,12 @@ async function onTickEnd(input: Calendar[], status?: Engine.LoopStatus) {
   );
 
   // mark today's calendar entries as completed
+  //
+  // @note: using `updateMany` here in case any entries
+  //        got deleted during the engine loop
   await Promise.all(
     input.map((calendar) =>
-      DatabaseClient.prisma.calendar.update({
+      DatabaseClient.prisma.calendar.updateMany({
         where: { id: calendar.id },
         data: { completed: true },
       }),

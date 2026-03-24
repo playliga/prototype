@@ -302,6 +302,59 @@ async function createMatchdays(
 }
 
 /**
+ * Checks if an active transfer discussion happening between the two parties
+ * and appends to that. Otherwise, creates a brand new transfer discusson.
+ *
+ * @param transferDetails The details of the transfer.
+ * @param offerDetails    The details of the offer.
+ * @function
+ */
+export async function createTransferDiscussion(
+  transferDetails: Prisma.TransferCreateInput,
+  offerDetails: Prisma.OfferCreateWithoutTransferInput,
+) {
+  // see if there's an active transfer discussion
+  // happening between these two parties
+  const transfer = await DatabaseClient.prisma.transfer.findFirst({
+    where: {
+      from: {
+        id: transferDetails.from.connect.id,
+      },
+      to: {
+        id: transferDetails.to?.connect?.id,
+      },
+      target: {
+        id: transferDetails.target.connect.id,
+      },
+    },
+  });
+
+  if (transfer) {
+    return DatabaseClient.prisma.transfer.update({
+      where: {
+        id: transfer.id,
+      },
+      data: {
+        status: transferDetails.status,
+        offers: {
+          create: [offerDetails],
+        },
+      },
+    });
+  }
+
+  // create the transfer if it doesn't already exist.
+  return DatabaseClient.prisma.transfer.create({
+    data: {
+      ...transferDetails,
+      offers: {
+        create: [offerDetails],
+      },
+    },
+  });
+}
+
+/**
  * Sends a welcome e-mail to the user upon creating a new career.
  *
  * A new career is determined by comparing the current
@@ -397,11 +450,13 @@ export async function distributePrizePool(
  *
  * @param transfer  The transfer offer to parse.
  * @param locale    The locale.
+ * @param status    Force accepts or rejects the transfer.
  * @function
  */
 function parsePlayerTransferOffer(
   transfer: Prisma.TransferGetPayload<typeof Eagers.transfer>,
   locale: LocaleData,
+  status?: Constants.TransferStatus,
 ): {
   dialogue: Partial<Prisma.DialogueGetPayload<{ include: { from: true } }>>;
   transfer: Partial<Prisma.TransferGetPayload<typeof Eagers.transfer>>;
@@ -416,6 +471,84 @@ function parsePlayerTransferOffer(
       persona.role === Constants.PersonaRole.MANAGER ||
       persona.role === Constants.PersonaRole.ASSISTANT,
   );
+
+  // action items that must happen when an offer is accepted
+  const paperwork = () => [
+    DatabaseClient.prisma.shortlist.deleteMany({
+      where: {
+        playerId: transfer.target.id,
+        teamId: transfer.from.id,
+      },
+    }),
+    DatabaseClient.prisma.player.update({
+      where: { id: transfer.target.id },
+      data: {
+        cost: offer.cost,
+        wages: offer.wages,
+        wagesDue: 0,
+        transferListed: false,
+        team: {
+          connect: {
+            id: transfer.from.id,
+          },
+        },
+      },
+    }),
+    DatabaseClient.prisma.transfer
+      .findMany({
+        where: {
+          id: {
+            not: transfer.id,
+          },
+          status: {
+            not: Constants.TransferStatus.PLAYER_ACCEPTED,
+          },
+          target: {
+            id: transfer.target.id,
+          },
+        },
+      })
+      .then((transfers) =>
+        Promise.all([
+          DatabaseClient.prisma.transfer.updateMany({
+            where: {
+              id: {
+                in: transfers.map((otherTransfer) => otherTransfer.id),
+              },
+            },
+            data: {
+              status: Constants.TransferStatus.PLAYER_REJECTED,
+            },
+          }),
+          DatabaseClient.prisma.offer.updateMany({
+            where: {
+              transferId: {
+                in: transfers.map((otherTransfer) => otherTransfer.id),
+              },
+            },
+            data: {
+              status: Constants.TransferStatus.PLAYER_REJECTED,
+            },
+          }),
+        ]),
+      ),
+  ];
+
+  // bail early if a transfer status was set
+  if (typeof status === 'number') {
+    const email =
+      status === Constants.TransferStatus.PLAYER_ACCEPTED
+        ? locale.templates.OfferAcceptedPlayer
+        : locale.templates.OfferRejectedEmailWages;
+    return {
+      transfer: { status },
+      dialogue: {
+        from: persona,
+        content: email.CONTENT,
+      },
+      paperwork: status === Constants.TransferStatus.PLAYER_ACCEPTED && paperwork(),
+    };
+  }
 
   // roll if player is willing to accept lowball offer
   if (
@@ -475,66 +608,7 @@ function parsePlayerTransferOffer(
       from: persona,
       content: locale.templates.OfferAcceptedPlayer.CONTENT,
     },
-    paperwork: [
-      DatabaseClient.prisma.shortlist.deleteMany({
-        where: {
-          playerId: transfer.target.id,
-          teamId: transfer.from.id,
-        },
-      }),
-      DatabaseClient.prisma.player.update({
-        where: { id: transfer.target.id },
-        data: {
-          cost: offer.cost,
-          wages: offer.wages,
-          wagesDue: 0,
-          transferListed: false,
-          team: {
-            connect: {
-              id: transfer.from.id,
-            },
-          },
-        },
-      }),
-      DatabaseClient.prisma.transfer
-        .findMany({
-          where: {
-            id: {
-              not: transfer.id,
-            },
-            status: {
-              not: Constants.TransferStatus.PLAYER_ACCEPTED,
-            },
-            target: {
-              id: transfer.target.id,
-            },
-          },
-        })
-        .then((transfers) =>
-          Promise.all([
-            DatabaseClient.prisma.transfer.updateMany({
-              where: {
-                id: {
-                  in: transfers.map((otherTransfer) => otherTransfer.id),
-                },
-              },
-              data: {
-                status: Constants.TransferStatus.PLAYER_REJECTED,
-              },
-            }),
-            DatabaseClient.prisma.offer.updateMany({
-              where: {
-                transferId: {
-                  in: transfers.map((otherTransfer) => otherTransfer.id),
-                },
-              },
-              data: {
-                status: Constants.TransferStatus.PLAYER_REJECTED,
-              },
-            }),
-          ]),
-        ),
-    ],
+    paperwork: paperwork(),
   };
 }
 
@@ -1232,8 +1306,8 @@ export async function sendTransferOffer(
     profile.date,
     random(Constants.TransferSettings.OFFER_MIN_YEARS, Constants.TransferSettings.OFFER_MAX_YEARS),
   );
-  const transfer = await DatabaseClient.prisma.transfer.create({
-    data: {
+  const transfer = await createTransferDiscussion(
+    {
       status: Constants.TransferStatus.TEAM_PENDING,
       from: {
         connect: { id: from.id },
@@ -1244,21 +1318,15 @@ export async function sendTransferOffer(
       target: {
         connect: { id: target.id },
       },
-      offers: {
-        create: [
-          {
-            status: Constants.TransferStatus.TEAM_PENDING,
-            cost,
-            wages: target.wages,
-            start: offerStart.toISOString(),
-            end: offerEnd.toISOString(),
-          },
-        ],
-      },
     },
-    include: Eagers.transfer.include,
-  });
-
+    {
+      status: Constants.TransferStatus.TEAM_PENDING,
+      cost,
+      wages: target.wages,
+      start: offerStart.toISOString(),
+      end: offerEnd.toISOString(),
+    },
+  );
   Engine.Runtime.Instance.log.info(
     '%s (prestige: %d) sent an offer to %s for %s',
     from.name,
@@ -2443,7 +2511,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
       result = parseTeamTransferOffer(transfer, profile, locale, transferStatus);
       break;
     case Constants.TransferStatus.PLAYER_PENDING:
-      result = parsePlayerTransferOffer(transfer, locale);
+      result = parsePlayerTransferOffer(transfer, locale, transferStatus);
       break;
     default:
       return Promise.resolve();
@@ -2626,15 +2694,17 @@ export async function onTransferWagePayment(entry: Partial<Calendar>) {
     ]);
   }
 
-  // send an e-mail if the user cannot afford to pay wages
+  // if we got this far, player wages are unpaid
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const locale = Locale.getLocale(profile);
+  const persona = transfer.from.personas.find(
+    (persona) =>
+      persona.role === Constants.PersonaRole.MANAGER ||
+      persona.role === Constants.PersonaRole.ASSISTANT,
+  );
+
+  // send initial warning e-mail
   if (!transfer.target.wagesDue) {
-    const profile = await DatabaseClient.prisma.profile.findFirst();
-    const locale = Locale.getLocale(profile);
-    const persona = transfer.from.personas.find(
-      (persona) =>
-        persona.role === Constants.PersonaRole.MANAGER ||
-        persona.role === Constants.PersonaRole.ASSISTANT,
-    );
     await sendEmail(
       Sqrl.render(locale.templates.WagesUnpaid.SUBJECT, { transfer }),
       Sqrl.render(locale.templates.WagesUnpaid.CONTENT, { transfer, profile }),
@@ -2643,17 +2713,103 @@ export async function onTransferWagePayment(entry: Partial<Calendar>) {
     );
   }
 
-  // force bench the player and start accumulating debt
-  return DatabaseClient.prisma.player.update({
+  // each unpaid week that passes increases the
+  // probability of force selling the player
+  const unpaidWeeks = Math.max(0, Math.floor(transfer.target.wagesDue / transfer.target.wages));
+  const unpaidModifier = unpaidWeeks * Constants.TransferSettings.PBX_USER_UNPAID_WAGES_MODIFIER;
+  const unpaidPbx = Constants.TransferSettings.PBX_USER_UNPAID_WAGES + unpaidModifier;
+
+  // bail early if we're not going to be force selling the player and
+  // instead simply bench the player and start accumulating wages due
+  if (!Chance.rollD2(unpaidPbx)) {
+    return DatabaseClient.prisma.player.update({
+      where: {
+        id: transfer.target.id,
+      },
+      data: {
+        starter: false,
+        transferListed: true,
+        wagesDue: {
+          increment: transfer.target.wages,
+        },
+      },
+    });
+  }
+
+  // find a team of equivalent continent and prestige
+  const xp = new Bot.Exp(transfer.target);
+  const [continent] = await DatabaseClient.prisma.continent.findMany({
     where: {
-      id: transfer.target.id,
+      countries: {
+        some: {
+          id: transfer.target.country.id,
+        },
+      },
     },
-    data: {
-      starter: false,
-      transferListed: true,
-      wagesDue: {
-        increment: transfer.target.wages,
+    include: {
+      federation: true,
+    },
+  });
+  const teams = await DatabaseClient.prisma.team.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    where: {
+      id: {
+        not: transfer.target.team.id,
+      },
+      tier: xp.getBotTemplate().prestige,
+      country: {
+        continent: {
+          federationId: continent.federationId,
+        },
       },
     },
   });
+  const team = sample(teams);
+
+  // force sell the player
+  const [offerStart, offerEnd] = Util.getContractPeriod(
+    profile.date,
+    random(Constants.TransferSettings.OFFER_MIN_YEARS, Constants.TransferSettings.OFFER_MAX_YEARS),
+  );
+  const newTransfer = await createTransferDiscussion(
+    {
+      status: Constants.TransferStatus.PLAYER_PENDING,
+      from: {
+        connect: {
+          id: team.id,
+        },
+      },
+      to: {
+        connect: {
+          id: transfer.target.team.id,
+        },
+      },
+      target: {
+        connect: {
+          id: transfer.target.id,
+        },
+      },
+    },
+    {
+      status: Constants.TransferStatus.PLAYER_PENDING,
+      wages: transfer.target.wages,
+      cost: transfer.target.cost,
+      start: offerStart.toISOString(),
+      end: offerEnd.toISOString(),
+    },
+  );
+  return Promise.all([
+    onTransferOffer({
+      payload: JSON.stringify([newTransfer.id, Constants.TransferStatus.PLAYER_ACCEPTED]),
+    }),
+    sendEmail(
+      Sqrl.render(locale.templates.WagesUnpaidSold.SUBJECT, { transfer }),
+      Sqrl.render(locale.templates.WagesUnpaidSold.CONTENT, { profile, transfer, team }),
+      persona,
+      profile.date,
+    ),
+  ]);
 }

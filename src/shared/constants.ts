@@ -1798,6 +1798,12 @@ export const TransferSettings = {
   // the user's players array which should
   // ideally be sorted by their xp
   PBX_USER_TARGET: [90, 5],
+
+  // chance of force selling the player for unpaid wages
+  PBX_USER_UNPAID_WAGES: 2,
+
+  // how much percent to add per week of unpaid wages
+  PBX_USER_UNPAID_WAGES_MODIFIER: 2,
 };
 
 /**

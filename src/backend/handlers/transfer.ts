@@ -41,68 +41,17 @@ export default function () {
     async (
       _,
       transferDetails: Prisma.TransferCreateInput,
-      offerDetails: Partial<Prisma.OfferCreateInput>,
+      offerDetails: Prisma.OfferCreateWithoutTransferInput,
     ) => {
-      // we go directly to player pending
-      // if there is no team (free agent)
-      const status = !transferDetails.to
+      // go directly to `PLAYER_PENDING` if free agent
+      transferDetails.status = !transferDetails.to
         ? Constants.TransferStatus.PLAYER_PENDING
         : Constants.TransferStatus.TEAM_PENDING;
+      offerDetails.status = transferDetails.status;
 
-      // see if there's an active transfer discussion
-      // happening between these two parties
-      let transfer = await DatabaseClient.prisma.transfer.findFirst({
-        where: {
-          from: {
-            id: transferDetails.from.connect.id,
-          },
-          to: {
-            id: transferDetails.to?.connect?.id,
-          },
-          target: {
-            id: transferDetails.target.connect.id,
-          },
-        },
-      });
-
-      // create the transfer if it doesn't already exist.
-      if (!transfer) {
-        transfer = await DatabaseClient.prisma.transfer.create({
-          data: {
-            ...transferDetails,
-            status,
-            offers: {
-              create: [
-                {
-                  ...offerDetails,
-                  status,
-                },
-              ],
-            },
-          },
-        });
-      } else {
-        // otherwise attach new offer to existing transfer
-        await DatabaseClient.prisma.transfer.update({
-          where: {
-            id: transfer.id,
-          },
-          data: {
-            status,
-            offers: {
-              create: [
-                {
-                  ...offerDetails,
-                  status,
-                },
-              ],
-            },
-          },
-        });
-      }
-
-      // schedule when to send a response
+      const transfer = await Worldgen.createTransferDiscussion(transferDetails, offerDetails);
       const profile = await DatabaseClient.prisma.profile.findFirst();
+
       return DatabaseClient.prisma.calendar.create({
         data: {
           type: Constants.CalendarEntry.TRANSFER_PARSE,

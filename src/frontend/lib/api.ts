@@ -318,7 +318,7 @@ export default {
       >,
     create: (
       transfer: Partial<Prisma.TransferCreateInput>,
-      offer: Partial<Prisma.OfferCreateInput>,
+      offer: Partial<Prisma.OfferCreateWithoutTransferInput>,
     ) =>
       ipcRenderer.invoke(Constants.IPCRoute.TRANSFER_CREATE, transfer, offer) as Promise<
         Prisma.TransferGetPayload<typeof Eagers.transfer>

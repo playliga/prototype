@@ -297,6 +297,20 @@ export enum WagesUnpaid {
 }
 
 /** @enum */
+export enum WagesUnpaidSold {
+  SUBJECT = 'Wages Unpaid',
+  CONTENT = `
+  {{it.profile.player.name}},
+
+  Due to outstanding wages, **{{it.transfer.target.name}}** has been sold to **{{it.team.name}}**.
+
+  Please ensure you handle your finances with greater care going forward.
+
+  We owed **{{it.transfer.target.wagesDue | currency}}** which is not a good look for us.
+  `,
+}
+
+/** @enum */
 export enum WelcomeEmail {
   SUBJECT = 'Hey!',
   CONTENT = `
