@@ -43,7 +43,7 @@ export type AppActions = AppAction<AppState[keyof AppState]>;
 export type AppDispatch = (action: AppActions | ThunkAction) => void;
 
 /** @type {ThunkAction} */
-export type ThunkAction = (dispatch: AppDispatch) => void | Promise<void>;
+export type ThunkAction = (dispatch: AppDispatch, state?: AppState) => void | Promise<void>;
 
 /** @constant */
 export const InitialState: AppState = {

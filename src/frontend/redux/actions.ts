@@ -109,10 +109,37 @@ export function localeUpdate(payload: AppState['locale']) {
  *
  * @param id          The match id to play.
  * @param spectating  Will user be spectating this match.
+ * @param simulate    Simulate the match instead.
  * @function
  */
-export function play(id: number, spectating?: boolean) {
-  return async (dispatch: AppDispatch) => {
+export function play(id: number, spectating?: boolean, simulate?: boolean) {
+  return async (dispatch: AppDispatch, state?: AppState) => {
+    // sanity check squad depth
+    if (
+      Util.loadSettings(state.profile.settings).general.simulationMode ===
+        Constants.SimulationMode.DEFAULT &&
+      Util.getSquad(state.profile.team, state.profile, true).length <
+        Constants.Application.SQUAD_MIN_LENGTH
+    ) {
+      const data = await api.app.messageBox(Constants.WindowIdentifier.Main, {
+        type: 'question',
+        message: 'This match will be forfeited because you do not have players.',
+        buttons: ['Yes', 'Cancel'],
+      });
+
+      if (data.response !== 0) {
+        return;
+      }
+
+      simulate = true;
+    }
+
+    if (simulate) {
+      await api.calendar.sim();
+      dispatch(calendarAdvance(1));
+      return;
+    }
+
     dispatch(playingUpdate(true));
     await Util.sleep(1000);
     await api.play.start(spectating);

@@ -136,13 +136,13 @@ export class Score {
   }
 
   /**
-   * Generates a win probability weight based off of the
-   * conditions described in the `simulate` function.
+   * A wrapper for `Util.getSquad` that manually
+   * builds the needed params for that function.
    *
    * @param team  The team.
    * @function
    */
-  private getTeamWinProbability(team: Team) {
+  private getSquad(team: Team) {
     // build a profile object for the `getSquad` function
     const profile = {
       teamId: this.userTeamId,
@@ -151,12 +151,25 @@ export class Score {
 
     // only backfill with the user's player if they
     // happen to only have 4 bots + themselves
-    const players = Util.getSquad(
+    return Util.getSquad(
       team as Prisma.TeamGetPayload<{ include: { players: { include: { country: true } } } }>,
       profile as Prisma.ProfileGetPayload<unknown>,
       team.id === this.userTeamId && team.players.length <= Constants.Application.SQUAD_MIN_LENGTH,
       Constants.Application.SQUAD_MIN_LENGTH,
     );
+  }
+
+  /**
+   * Generates a win probability weight based off of the
+   * conditions described in the `simulate` function.
+   *
+   * @param team  The team.
+   * @function
+   */
+  private getTeamWinProbability(team: Team) {
+    // only backfill with the user's player if they
+    // happen to only have 4 bots + themselves
+    const players = this.getSquad(team);
 
     if (this.userPlayerId) {
       this.log.info(
@@ -192,6 +205,23 @@ export class Score {
         'Scaling factor: %d',
         getSimScaleFactor() ?? Constants.Application.SIMULATION_SCALING_FACTOR,
       );
+
+      // check if user should forfeit
+      if (
+        this.mode === Constants.SimulationMode.DEFAULT &&
+        this.getSquad(home.id === this.userTeamId ? home : away).length <
+          Constants.Application.SQUAD_MIN_LENGTH
+      ) {
+        this.log.info('User forfeiting match due to squad depth.');
+        const score = {
+          winner: this.getSimulationResult(Constants.MatchResult.WIN),
+          loser: 0,
+        };
+        return {
+          [home.id]: home.id === this.userTeamId ? score.loser : score.winner,
+          [away.id]: away.id === this.userTeamId ? score.loser : score.winner,
+        };
+      }
     }
 
     // simulate final scores

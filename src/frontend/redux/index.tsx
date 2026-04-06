@@ -32,8 +32,9 @@ export function AppStateProvider(props: { children: React.ReactNode }) {
 
   // add thunk support
   const dispatch: AppDispatch = React.useMemo(
-    () => (action) => (typeof action === 'function' ? action(dispatch) : dispatchBase(action)),
-    [dispatchBase],
+    () => (action) =>
+      typeof action === 'function' ? action(dispatch, state) : dispatchBase(action),
+    [dispatchBase, state],
   );
 
   return (

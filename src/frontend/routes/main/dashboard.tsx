@@ -709,7 +709,7 @@ export default function () {
                       <button
                         className="btn join-item btn-wide"
                         disabled={disabled || spotlight.status !== Constants.MatchStatus.READY}
-                        onClick={() => api.calendar.sim().then(() => dispatch(calendarAdvance(1)))}
+                        onClick={() => dispatch(play(spotlight.id, false, true))}
                       >
                         {t('main.dashboard.simulate')}
                       </button>
