@@ -5,8 +5,8 @@
 @plugin "daisyui" {
   exclude: scrollbar rootscrollgutter;
   themes:
-    fantasy --default,
-    sunset --prefersdark;
+    silk --default,
+    abyss --prefersdark;
 }
 
 /** for smoother startups */
@@ -186,7 +186,7 @@ meter::-webkit-meter-bar {
   }
 
   &.day-btn {
-    @apply btn btn-neutral btn-block border-base-content/10 h-full rounded-none border-0 border-b;
+    @apply btn btn-block border-base-content/10 h-full rounded-none border-0 border-b;
 
     &:hover {
       @apply border-base-content/10;

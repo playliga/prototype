@@ -539,8 +539,8 @@ export enum TierSlug {
  * @enum
  */
 export enum ThemeSetting {
-  LIGHT = 'fantasy',
-  DARK = 'sunset',
+  LIGHT = 'silk',
+  DARK = 'abyss',
 }
 
 /**
