@@ -590,10 +590,10 @@ export default function () {
                     <header className="grid h-full grid-cols-3 place-items-center">
                       <aside className="stack-y items-center">
                         <figure
-                          className="center h-24 w-auto cursor-pointer"
+                          className="center h-24 w-full cursor-pointer"
                           onClick={() => navigate('/teams?id=' + home.teamId)}
                         >
-                          <Image src={home.team.blazon} className="h-full w-auto" />
+                          <Image src={home.team.blazon} className="h-24 w-auto" />
                         </figure>
                         <Historial matches={homeHistorial} teamId={home.teamId} />
                         <div className="text-center">
@@ -649,10 +649,10 @@ export default function () {
                       </aside>
                       <aside className="stack-y items-center">
                         <figure
-                          className="center h-24 w-auto cursor-pointer"
+                          className="center h-24 w-full cursor-pointer"
                           onClick={() => navigate('/teams?id=' + away.teamId)}
                         >
-                          <Image src={away.team.blazon} className="h-full w-auto" />
+                          <Image src={away.team.blazon} className="h-24 w-auto" />
                         </figure>
                         <Historial matches={awayHistorial} teamId={away.teamId} />
                         <div className="text-center">

@@ -1997,6 +1997,31 @@ export async function syncWages() {
 }
 
 /**
+ * Trains free agents at the end of the season since
+ * they do not grow naturally from playing matches.
+ *
+ * @function
+ */
+export async function trainFreeAgents() {
+  const freeAgents = await DatabaseClient.prisma.player.findMany({
+    where: {
+      team: null,
+    },
+  });
+
+  Engine.Runtime.Instance.log.info('Training %d free agents...', freeAgents.length);
+
+  return DatabaseClient.prisma.$transaction(
+    Bot.Exp.trainAll(freeAgents).map((player) =>
+      DatabaseClient.prisma.player.update({
+        where: { id: player.id },
+        data: player.xp,
+      }),
+    ),
+  );
+}
+
+/**
  * Engine loop handler.
  *
  * Starts the provided competition.
@@ -2151,7 +2176,8 @@ export async function onSeasonStart() {
     .then(resetTrainingGains)
     .then(sponsorshipCheck)
     .then(syncTiers)
-    .then(syncWages);
+    .then(syncWages)
+    .then(trainFreeAgents);
 }
 
 /**
