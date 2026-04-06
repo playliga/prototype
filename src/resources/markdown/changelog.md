@@ -1,3 +1,17 @@
+## [3.0.0-rc.7](https://github.com/playliga/prototype/compare/v3.0.0-rc.6...v3.0.0-rc.7) (2026-04-06)
+
+### Features
+
+- add hyperlinks for team names ([#598](https://github.com/playliga/prototype/issues/598)) ([8656548](https://github.com/playliga/prototype/commit/8656548ffadebe41a0ff619c8df080b3773c9df3))
+- color theme refresh ([ae05272](https://github.com/playliga/prototype/commit/ae052722516ea5abeef69664052555b193a41981))
+- force sell players if wages are unpaid for a long enough time ([#555](https://github.com/playliga/prototype/issues/555)) ([991f9ff](https://github.com/playliga/prototype/commit/991f9ff8550ab5885ba15b1fc411b35c1ff43e41))
+- player contracts ([#555](https://github.com/playliga/prototype/issues/555)) ([bd71ae0](https://github.com/playliga/prototype/commit/bd71ae0bdda3e231a7d4b7130c566a711ac5d022))
+- user will forfeit matches if squad minimum not met ([#555](https://github.com/playliga/prototype/issues/555)) ([272737d](https://github.com/playliga/prototype/commit/272737d2480553aed32f0c220aa2d752aafb66a0))
+
+### Bug Fixes
+
+- free agents also gain xp ([#607](https://github.com/playliga/prototype/issues/607)) ([7f5abb7](https://github.com/playliga/prototype/commit/7f5abb77d53d8a45e9e855f885570441fcf385fb))
+
 ## [3.0.0-rc.6](https://github.com/playliga/prototype/compare/v3.0.0-rc.5...v3.0.0-rc.6) (2026-03-07)
 
 ### Features
