@@ -78,7 +78,7 @@
     "postcss-loader": "8.1.0",
     "prettier": "3.5.3",
     "prettier-plugin-tailwindcss": "0.6.11",
-    "prisma": "5.1.0",
+    "prisma": "5.22.0",
     "style-loader": "3.3.1",
     "tailwindcss": "4.1.6",
     "ts-loader": "9.5.4",
@@ -90,7 +90,7 @@
   "dependencies": {
     "@faker-js/faker": "7.6.0",
     "@g-loot/react-tournament-brackets": "1.0.31-rc",
-    "@prisma/client": "5.1.0",
+    "@prisma/client": "5.22.0",
     "chart.js": "4.4.6",
     "commander": "9.4.0",
     "compressing": "1.10.4",
@@ -112,7 +112,7 @@
     "react-router-dom": "6.30.3",
     "react-select": "5.7.0",
     "rehype-raw": "7.0.0",
-    "sqlite3": "5.1.7",
+    "sqlite3": "6.0.1",
     "squirrelly": "9.1.0"
   }
 }

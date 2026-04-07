@@ -170,11 +170,7 @@ export default class DatabaseClient {
 
     // initialize the new client
     const prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: `file:${newSavePath}?connection_limit=1`,
-        },
-      },
+      datasourceUrl: `file:${newSavePath}?connection_limit=1`,
     });
     pool[id] = {
       client: DatabaseClient.clientExtensions(prisma),

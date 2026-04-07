@@ -4,6 +4,7 @@
 @plugin "@tailwindcss/typography";
 @plugin "daisyui" {
   exclude: scrollbar rootscrollgutter;
+  logs: false;
   themes:
     silk --default,
     abyss --prefersdark;
