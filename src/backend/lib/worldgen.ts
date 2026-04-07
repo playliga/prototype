@@ -340,6 +340,10 @@ export async function createTransferDiscussion(
           create: [offerDetails],
         },
       },
+      include: {
+        ...Eagers.transfer.include,
+        offers: { orderBy: { id: 'desc' } },
+      },
     });
   }
 
@@ -350,6 +354,10 @@ export async function createTransferDiscussion(
       offers: {
         create: [offerDetails],
       },
+    },
+    include: {
+      ...Eagers.transfer.include,
+      offers: { orderBy: { id: 'desc' } },
     },
   });
 }
