@@ -1,3 +1,9 @@
+## [3.0.0-rc.8](https://github.com/playliga/prototype/compare/v3.0.0-rc.7...v3.0.0-rc.8) (2026-04-07)
+
+### Bug Fixes
+
+- fix issue with playing bo3s and bo5s ([5e5f559](https://github.com/playliga/prototype/commit/5e5f559ae561113bbfba62297f55489eed49716e))
+
 ## [3.0.0-rc.7](https://github.com/playliga/prototype/compare/v3.0.0-rc.6...v3.0.0-rc.7) (2026-04-06)
 
 ### Features
