@@ -30,11 +30,18 @@ export const AppStateContext = React.createContext<{
 export function AppStateProvider(props: { children: React.ReactNode }) {
   const [state, dispatchBase] = React.useReducer(reducers, InitialState);
 
+  // prevent stale state
+  const stateRef = React.useRef(state);
+
+  React.useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
   // add thunk support
   const dispatch: AppDispatch = React.useMemo(
     () => (action) =>
-      typeof action === 'function' ? action(dispatch, state) : dispatchBase(action),
-    [dispatchBase, state],
+      typeof action === 'function' ? action(dispatch, stateRef.current) : dispatchBase(action),
+    [dispatchBase],
   );
 
   return (
