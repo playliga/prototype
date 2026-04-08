@@ -45,7 +45,7 @@ export function useTheme() {
   if (container && settings?.general?.theme) {
     switch (settings.general.theme) {
       case Constants.ThemeType.SYSTEM:
-        container.dataset.theme = null;
+        delete container.dataset.theme;
         break;
       default:
         container.dataset.theme = theme;
