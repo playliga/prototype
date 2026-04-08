@@ -1,3 +1,10 @@
+## [3.0.0-rc.9](https://github.com/playliga/prototype/compare/v3.0.0-rc.8...v3.0.0-rc.9) (2026-04-08)
+
+### Bug Fixes
+
+- fix issues with system theme detection ([#609](https://github.com/playliga/prototype/issues/609)) ([0ad9aa5](https://github.com/playliga/prototype/commit/0ad9aa56d976e9f90b793103998aa7e871e5c7ea))
+- fix spontaneous crashing related to npc transfers ([6a855a8](https://github.com/playliga/prototype/commit/6a855a8f05485313053baafc05ff73a9b68441b9))
+
 ## [3.0.0-rc.8](https://github.com/playliga/prototype/compare/v3.0.0-rc.7...v3.0.0-rc.8) (2026-04-07)
 
 ### Bug Fixes
