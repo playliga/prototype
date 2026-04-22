@@ -132,7 +132,7 @@ export default function (props: PlayerCardProps) {
         </figure>
         <aside className="stack-x col-span-2 gap-4 px-4">
           <button
-            title={t('playerCard.setAsStarter')}
+            title={props.onClickStarter ? t('playerCard.setAsStarter') : ''}
             className={cx(!!props.onClickStarter && 'cursor-pointer [&_svg]:hover:text-yellow-500')}
             disabled={!props.onClickStarter}
             onClick={props.onClickStarter || null}
@@ -260,7 +260,7 @@ export default function (props: PlayerCardProps) {
       })}
       <aside className="grid grid-cols-4">
         <button
-          title={t('playerCard.setAsStarter')}
+          title={props.onClickStarter ? t('playerCard.setAsStarter') : ''}
           className="btn btn-ghost btn-block rounded-none disabled:bg-transparent!"
           disabled={!props.onClickStarter}
           onClick={props.onClickStarter || null}
