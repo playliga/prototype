@@ -37,6 +37,7 @@ interface PlayerCardProps extends React.ComponentProps<'article'> {
   compact?: boolean;
   noStats?: boolean;
   profile?: Profile;
+  onClick?: () => void;
   onClickStarter?: () => void;
   onClickTransferListed?: () => void;
   onClickViewOffers?: () => void;
@@ -122,7 +123,9 @@ export default function (props: PlayerCardProps) {
           'grid grid-cols-4 items-center divide-x border',
           'divide-base-content/10 border-base-content/10 bg-base-200 border-b-0',
           props.className,
+          !!props.onClick && 'hover:bg-base-content/10 cursor-pointer',
         )}
+        onClick={props?.onClick}
       >
         <figure className="center">
           <img

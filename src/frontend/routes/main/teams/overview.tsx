@@ -195,6 +195,12 @@ export default function () {
                       game={settings.general.game}
                       player={player}
                       noStats={player.id === state.profile.playerId}
+                      onClick={() =>
+                        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
+                          target: '/transfer',
+                          payload: player.id,
+                        })
+                      }
                     />
                   </td>
                 </tr>
