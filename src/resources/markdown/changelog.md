@@ -1,3 +1,14 @@
+## [3.0.0-rc.10](https://github.com/playliga/prototype/compare/v3.0.0-rc.9...v3.0.0-rc.10) (2026-04-22)
+
+### Features
+
+- add player hyperlinks to team overview page ([#606](https://github.com/playliga/prototype/issues/606)) ([ad116e5](https://github.com/playliga/prototype/commit/ad116e58a676ebfe18c9347dc8f3bb88b2599d3e))
+
+### Bug Fixes
+
+- fix incorrect set as starter tooltip ([#611](https://github.com/playliga/prototype/issues/611)) ([6fffe10](https://github.com/playliga/prototype/commit/6fffe106024cc8997676ae7ac6b4b0ef6e7fc40c))
+- fix player ratings in bo3 and bo5 matches ([#605](https://github.com/playliga/prototype/issues/605)) ([3c81980](https://github.com/playliga/prototype/commit/3c819800b411bca163372a01fbf97f70b80a5904))
+
 ## [3.0.0-rc.9](https://github.com/playliga/prototype/compare/v3.0.0-rc.8...v3.0.0-rc.9) (2026-04-08)
 
 ### Bug Fixes
