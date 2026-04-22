@@ -4,7 +4,7 @@
  * @module
  */
 import React from 'react';
-import { intersectionBy } from 'lodash';
+import { groupBy, intersectionBy } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
@@ -166,6 +166,18 @@ function Scoreboard(props: ScoreboardProps) {
           )
           .map((player) => {
             const report = getPlayerPerformance(player, killOrAssistEvents);
+
+            // if we don't have a match game defined, our rating should be based
+            // off of the average rating of all games rather than just the k/d
+            let rating = report.rating;
+
+            if (!props.matchGame) {
+              const ratings = Object.values(groupBy(killOrAssistEvents, 'gameId')).map(
+                (data) => getPlayerPerformance(player, data).rating,
+              );
+              rating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+            }
+
             return (
               <tr key={player.name + '__scoreboard'}>
                 <td>
@@ -175,15 +187,15 @@ function Scoreboard(props: ScoreboardProps) {
                 <td
                   className={cx(
                     'text-center',
-                    report.rating <= Rating.LOW && 'text-error',
-                    report.rating > Rating.LOW && report.rating < Rating.HIGH && 'text-inherit',
-                    report.rating >= Rating.HIGH && 'text-success',
+                    rating <= Rating.LOW && 'text-error',
+                    rating > Rating.LOW && rating < Rating.HIGH && 'text-inherit',
+                    rating >= Rating.HIGH && 'text-success',
                   )}
                 >
                   {new Intl.NumberFormat('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  }).format(report.rating)}
+                  }).format(rating)}
                 </td>
                 <td className="text-center">{report.kills.length}</td>
                 <td className="text-center">{report.deaths.length}</td>
