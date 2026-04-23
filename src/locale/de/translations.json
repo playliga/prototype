@@ -210,6 +210,8 @@
     },
     "settings": {
       "botChatterTitle": "Bot-Kommunikation",
+      "botControllableTitle": "Bot Controllable",
+      "botControllableSubtitle": "If players can control bots. CSGO and CS2 only.",
       "botDifficultyTitle": "Bot-Schwierigkeit",
       "gameLogsMaxAttemptsTitle": "Spielstart-Timeout",
       "gameLogsMaxAttemptsSubtitle": "Erhöhen, wenn dein Spiel in der Regel etwas länger zum Starten benötigt.",

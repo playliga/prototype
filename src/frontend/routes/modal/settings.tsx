@@ -351,6 +351,23 @@ export default function () {
             </section>
             <section>
               <header>
+                <p>{t('settings.botControllableTitle')}</p>
+                <p>{t('settings.botControllableSubtitle')}</p>
+              </header>
+              <article>
+                <input
+                  type="checkbox"
+                  className="toggle"
+                  onChange={(event) =>
+                    onSettingsUpdate('general.botControllable', event.target.checked)
+                  }
+                  checked={settings.general.botControllable}
+                  value={String(settings.general.botControllable)}
+                />
+              </article>
+            </section>
+            <section>
+              <header>
                 <p>{t('settings.themeTitle')}</p>
               </header>
               <article>

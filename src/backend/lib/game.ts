@@ -810,7 +810,7 @@ export class Server {
             ? Constants.GameSettings.SERVER_CVAR_PING_LAN_FLUX
             : Constants.GameSettings.SERVER_CVAR_PING_ONLINE_FLUX,
 
-          // csgo only
+          // csgo and cs2 only
           match_stat: this.match.competition.tier.name,
           teamflag_t: home.team.country.code,
           teamflag_ct: away.team.country.code,
@@ -818,9 +818,37 @@ export class Server {
           shortname_ct: away.team.slug,
           stat_t: Util.toOrdinalSuffix(homeStats.position),
           stat_ct: Util.toOrdinalSuffix(awayStats.position),
+
+          // cs2 only
+          bot_controllable: +this.settings.general.botControllable,
         }),
       ),
     ]);
+  }
+
+  /**
+   * Generates custom plugin cvars in the sourcemod config file.
+   *
+   * @function
+   */
+  private async generateSourcemodConfig() {
+    // set up the server config paths
+    const original = path.join(
+      this.settings.general.gamePath,
+      this.baseDir,
+      this.gameDir,
+      Constants.GameSettings.SOURCEMOD_CONFIG_FILE,
+    );
+    const template = await fs.promises.readFile(original, 'utf8');
+
+    // write the config files
+    return fs.promises.writeFile(
+      original,
+      Sqrl.render(template, {
+        // csgo-better-bots
+        bot_controllable: +this.settings.general.botControllable,
+      }),
+    );
   }
 
   /**
@@ -1248,6 +1276,7 @@ export class Server {
       default:
         await this.generateScoreboardConfig();
         await this.generateBetterBotsConfig();
+        await this.generateSourcemodConfig();
         break;
     }
   }

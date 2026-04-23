@@ -865,6 +865,7 @@ export const GameSettings = {
   SERVER_CVAR_PING_ONLINE_FLUX: 10,
   SERVER_CVAR_PING_LAN: 5,
   SERVER_CVAR_PING_LAN_FLUX: 3,
+  SOURCEMOD_CONFIG_FILE: 'cfg/sourcemod/sourcemod.cfg',
   SQUAD_STARTERS_NUM: 5,
   STEAM_EXE: 'steam.exe',
   STEAM_LIBRARIES_FILE: 'steamapps/libraryfolders.vdf',
@@ -1237,6 +1238,7 @@ export const Settings = {
     volume: 0.05,
     gameLogsMaxAttempts: GameSettings.LOGS_MAX_ATTEMPTS,
     transfers: true,
+    botControllable: true,
   },
   calendar: {
     ignoreExits: false,
