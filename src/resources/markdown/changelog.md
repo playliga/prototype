@@ -1,3 +1,9 @@
+## [3.0.0-rc.11](https://github.com/playliga/prototype/compare/v3.0.0-rc.10...v3.0.0-rc.11) (2026-04-27)
+
+### Features
+
+- enable or disable whether bots can be controlled ([#612](https://github.com/playliga/prototype/issues/612)) ([9c3e452](https://github.com/playliga/prototype/commit/9c3e452bf718a888fe30b4a1b0944884ff2f16b8))
+
 ## [3.0.0-rc.10](https://github.com/playliga/prototype/compare/v3.0.0-rc.9...v3.0.0-rc.10) (2026-04-22)
 
 ### Features
