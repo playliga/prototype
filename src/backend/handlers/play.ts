@@ -432,7 +432,10 @@ export default function () {
       mainWindow.webContents.send(Constants.IPCRoute.PROFILES_CURRENT, profile);
       return WindowManager.send(Constants.WindowIdentifier.Modal, {
         target: '/postgame',
-        payload: match.id,
+        payload: {
+          matchId: match.id,
+          spectating,
+        } as RouteStateBestOf,
       });
     }
 

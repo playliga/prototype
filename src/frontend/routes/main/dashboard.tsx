@@ -695,13 +695,18 @@ export default function () {
                             return dispatch(play(spotlight.id));
                           }
 
-                          api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                            target:
-                              spotlight.status === Constants.MatchStatus.PLAYING
-                                ? '/postgame'
-                                : '/play',
-                            payload: spotlight.id,
-                          });
+                          api.window.send<ModalRequest<RouteStateBestOf>>(
+                            Constants.WindowIdentifier.Modal,
+                            {
+                              target:
+                                spotlight.status === Constants.MatchStatus.PLAYING
+                                  ? '/postgame'
+                                  : '/play',
+                              payload: {
+                                matchId: spotlight.id,
+                              },
+                            },
+                          );
                         }}
                       >
                         {t('main.dashboard.play')}
@@ -717,7 +722,32 @@ export default function () {
                         title={t('main.dashboard.spectateMatch')}
                         className="btn btn-secondary join-item"
                         disabled={disabled || !!state.appStatus}
-                        onClick={() => dispatch(play(spotlight.id, true))}
+                        onClick={() => {
+                          // jump directly into game if it's a bo1
+                          // or there is a map already in-progress
+                          if (
+                            spotlight.games.length === 1 ||
+                            spotlight.games.some(
+                              (matchGame) => matchGame.status === Constants.MatchStatus.PLAYING,
+                            )
+                          ) {
+                            return dispatch(play(spotlight.id, true));
+                          }
+
+                          api.window.send<ModalRequest<RouteStateBestOf>>(
+                            Constants.WindowIdentifier.Modal,
+                            {
+                              target:
+                                spotlight.status === Constants.MatchStatus.PLAYING
+                                  ? '/postgame'
+                                  : '/play',
+                              payload: {
+                                matchId: spotlight.id,
+                                spectating: true,
+                              },
+                            },
+                          );
+                        }}
                       >
                         <FaTv />
                       </button>

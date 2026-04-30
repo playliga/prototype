@@ -234,7 +234,9 @@ function Root() {
     api.ipc.on(Constants.IPCRoute.CONFETTI_START, Confetti.start);
 
     // handle play events
-    api.ipc.on(Constants.IPCRoute.WINDOW_SEND, (matchId: number) => dispatch(play(matchId)));
+    api.ipc.on(Constants.IPCRoute.WINDOW_SEND, (payload: RouteStateBestOf) =>
+      dispatch(play(payload.matchId, payload.spectating)),
+    );
 
     // setup app status heartbeat
     const heartbeat = setInterval(

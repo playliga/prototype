@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { groupBy, intersectionBy } from 'lodash';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Location } from 'react-router-dom';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
 import { AppStateContext } from '@liga/frontend/redux';
@@ -228,7 +228,7 @@ function Scoreboard(props: ScoreboardProps) {
  * @exports
  */
 export default function () {
-  const location = useLocation();
+  const location = useLocation() as Location<RouteStateBestOf>;
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [match, setMatch] = React.useState<Matches<typeof Eagers.matchEvents>[number]>();
@@ -244,7 +244,7 @@ export default function () {
     api.matches
       .all<typeof Eagers.matchEvents>({
         where: {
-          id: location.state,
+          id: location.state.matchId,
         },
         include: Eagers.matchEvents.include,
       })
@@ -493,11 +493,18 @@ export default function () {
         <button
           className="btn btn-xl btn-block btn-secondary rounded-none active:translate-0!"
           onClick={() => {
-            api.window.send(Constants.WindowIdentifier.Main, match.id, null);
+            api.window.send<RouteStateBestOf>(
+              Constants.WindowIdentifier.Main,
+              {
+                matchId: match.id,
+                spectating: location.state.spectating,
+              },
+              null,
+            );
             api.window.close(Constants.WindowIdentifier.Modal);
           }}
         >
-          {t('main.dashboard.play')}
+          {t(location.state.spectating ? 'main.dashboard.spectateMatch' : 'main.dashboard.play')}
         </button>
       )}
     </main>

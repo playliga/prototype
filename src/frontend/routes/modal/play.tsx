@@ -5,7 +5,7 @@
  * @module
  */
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Location } from 'react-router-dom';
 import { cloneDeep, differenceBy, isNull, merge, pick, random, sample, set } from 'lodash';
 import { Constants, Eagers, Util } from '@liga/shared';
 import { cx } from '@liga/frontend/lib';
@@ -79,7 +79,7 @@ function SettingsOverrideLabel(props: { left: unknown; right: unknown }) {
  * @exports
  */
 export default function () {
-  const location = useLocation();
+  const location = useLocation() as Location<RouteStateBestOf>;
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState<Tab>(Tab.MAPS);
@@ -130,7 +130,7 @@ export default function () {
     api.matches
       .all({
         where: {
-          id: location.state,
+          id: location.state.matchId,
         },
         include: Eagers.match.include,
       })
@@ -639,12 +639,19 @@ export default function () {
             api.match.updateVetoList(match.id, vetoMapList),
           ]).then(() => {
             setWorking(false);
-            api.window.send(Constants.WindowIdentifier.Main, match.id, null);
+            api.window.send<RouteStateBestOf>(
+              Constants.WindowIdentifier.Main,
+              {
+                matchId: match.id,
+                spectating: location.state.spectating,
+              },
+              null,
+            );
             api.window.close(Constants.WindowIdentifier.Modal);
           });
         }}
       >
-        {t('main.dashboard.play')}
+        {t(location.state.spectating ? 'main.dashboard.spectateMatch' : 'main.dashboard.play')}
       </button>
     </main>
   );
