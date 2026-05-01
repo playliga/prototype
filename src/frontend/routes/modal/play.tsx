@@ -79,7 +79,7 @@ function SettingsOverrideLabel(props: { left: unknown; right: unknown }) {
  * @exports
  */
 export default function () {
-  const location = useLocation() as Location<RouteStateBestOf>;
+  const location = useLocation() as Location<RouteStateMatch>;
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [activeTab, setActiveTab] = React.useState<Tab>(Tab.MAPS);
@@ -639,7 +639,7 @@ export default function () {
             api.match.updateVetoList(match.id, vetoMapList),
           ]).then(() => {
             setWorking(false);
-            api.window.send<RouteStateBestOf>(
+            api.window.send<RouteStateMatch>(
               Constants.WindowIdentifier.Main,
               {
                 matchId: match.id,

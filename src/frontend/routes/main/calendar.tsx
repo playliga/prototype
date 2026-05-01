@@ -225,10 +225,13 @@ export default function () {
                       }
                       onClick={() =>
                         spotlight._count.events > 0 &&
-                        api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                          target: '/postgame',
-                          payload: spotlight.id,
-                        })
+                        api.window.send<ModalRequest<RouteStateMatch>>(
+                          Constants.WindowIdentifier.Modal,
+                          {
+                            target: '/postgame',
+                            payload: { matchId: spotlight.id },
+                          },
+                        )
                       }
                     >
                       {t('shared.viewMatchDetails')}

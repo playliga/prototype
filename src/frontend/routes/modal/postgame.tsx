@@ -175,7 +175,10 @@ function Scoreboard(props: ScoreboardProps) {
               const ratings = Object.values(groupBy(killOrAssistEvents, 'gameId')).map(
                 (data) => getPlayerPerformance(player, data).rating,
               );
-              rating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+
+              if (ratings.length > 1) {
+                rating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+              }
             }
 
             return (
@@ -228,7 +231,7 @@ function Scoreboard(props: ScoreboardProps) {
  * @exports
  */
 export default function () {
-  const location = useLocation() as Location<RouteStateBestOf>;
+  const location = useLocation() as Location<RouteStateMatch>;
   const t = useTranslation('windows');
   const { state } = React.useContext(AppStateContext);
   const [match, setMatch] = React.useState<Matches<typeof Eagers.matchEvents>[number]>();
@@ -493,7 +496,7 @@ export default function () {
         <button
           className="btn btn-xl btn-block btn-secondary rounded-none active:translate-0!"
           onClick={() => {
-            api.window.send<RouteStateBestOf>(
+            api.window.send<RouteStateMatch>(
               Constants.WindowIdentifier.Main,
               {
                 matchId: match.id,

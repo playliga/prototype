@@ -34,15 +34,15 @@ declare interface RouteContextTeams {
 }
 
 /** @interface */
-declare interface RouteStateBestOf {
-  matchId: number;
-  spectating?: boolean;
-}
-
-/** @interface */
 declare interface RouteStateMapPool {
   from: string;
   label: string;
+}
+
+/** @interface */
+declare interface RouteStateMatch {
+  matchId: number;
+  spectating?: boolean;
 }
 
 /** @module */

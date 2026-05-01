@@ -149,10 +149,13 @@ export default function () {
               const onClick =
                 match._count.events > 0
                   ? () =>
-                      api.window.send<ModalRequest>(Constants.WindowIdentifier.Modal, {
-                        target: '/postgame',
-                        payload: match.id,
-                      })
+                      api.window.send<ModalRequest<RouteStateMatch>>(
+                        Constants.WindowIdentifier.Modal,
+                        {
+                          target: '/postgame',
+                          payload: { matchId: match.id },
+                        },
+                      )
                   : null;
 
               return (

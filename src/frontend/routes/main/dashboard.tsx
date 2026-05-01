@@ -695,7 +695,7 @@ export default function () {
                             return dispatch(play(spotlight.id));
                           }
 
-                          api.window.send<ModalRequest<RouteStateBestOf>>(
+                          api.window.send<ModalRequest<RouteStateMatch>>(
                             Constants.WindowIdentifier.Modal,
                             {
                               target:
@@ -734,7 +734,7 @@ export default function () {
                             return dispatch(play(spotlight.id, true));
                           }
 
-                          api.window.send<ModalRequest<RouteStateBestOf>>(
+                          api.window.send<ModalRequest<RouteStateMatch>>(
                             Constants.WindowIdentifier.Modal,
                             {
                               target:
@@ -836,11 +836,11 @@ export default function () {
                             const onClick =
                               match._count.events > 0
                                 ? () =>
-                                    api.window.send<ModalRequest>(
+                                    api.window.send<ModalRequest<RouteStateMatch>>(
                                       Constants.WindowIdentifier.Modal,
                                       {
                                         target: '/postgame',
-                                        payload: match.id,
+                                        payload: { matchId: match.id },
                                       },
                                     )
                                 : null;

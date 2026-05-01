@@ -234,7 +234,7 @@ function Root() {
     api.ipc.on(Constants.IPCRoute.CONFETTI_START, Confetti.start);
 
     // handle play events
-    api.ipc.on(Constants.IPCRoute.WINDOW_SEND, (payload: RouteStateBestOf) =>
+    api.ipc.on(Constants.IPCRoute.WINDOW_SEND, (payload: RouteStateMatch) =>
       dispatch(play(payload.matchId, payload.spectating)),
     );
 

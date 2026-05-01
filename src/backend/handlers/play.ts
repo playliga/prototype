@@ -435,7 +435,7 @@ export default function () {
         payload: {
           matchId: match.id,
           spectating,
-        } as RouteStateBestOf,
+        } as RouteStateMatch,
       });
     }
 
@@ -479,7 +479,9 @@ export default function () {
     mainWindow.restore();
     WindowManager.send(Constants.WindowIdentifier.Modal, {
       target: '/postgame',
-      payload: match.id,
+      payload: {
+        matchId: match.id,
+      } as RouteStateMatch,
     });
   });
 }
