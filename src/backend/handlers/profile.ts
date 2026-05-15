@@ -128,15 +128,11 @@ export default function () {
           tier: data.team.tier,
           earnings: (() => {
             // sync earnings to their selected tier
-            const prestige = Constants.Prestige[
-              data.team.tier
-            ] as keyof typeof Constants.PlayerWages;
-
-            if (!(prestige in Constants.PlayerWages)) {
-              return 0;
-            }
-
-            return Constants.PlayerWages[prestige][0].high * Constants.Application.SQUAD_MIN_LENGTH;
+            const [potential] = Bot.Templates.filter(
+              (template) => template.prestige === data.team.tier,
+            ).slice(-1);
+            const wages = Util.getPlayerWages(Bot.Exp.getTotalXP(potential.stats));
+            return wages * Constants.Application.SQUAD_MIN_LENGTH;
           })(),
           country: {
             connect: {

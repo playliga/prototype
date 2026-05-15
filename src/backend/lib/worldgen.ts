@@ -1913,6 +1913,47 @@ export async function sponsorshipRenew(id: number) {
 }
 
 /**
+ * Sync player cost and wages.
+ *
+ * @function
+ */
+export async function syncCostAndWages() {
+  const players = await DatabaseClient.prisma.player.findMany({
+    where: {
+      prestige: {
+        not: null,
+      },
+      team: {
+        isNot: null,
+      },
+    },
+  });
+
+  // build a transaction for all the updates
+  const transaction = players.map((player) => {
+    const totalXp = Bot.Exp.getTotalXP(JSON.parse(player.stats));
+
+    // calculate the diff between their current xp and
+    // maximum achievable xp per their given potential
+    const [potential] = Bot.Templates.filter(
+      (template) => template.prestige === player.prestige,
+    ).slice(-1);
+    const potentialDiff = Math.max(0, Bot.Exp.getTotalXP(potential.stats) - totalXp);
+
+    // calculate their cost and wages
+    const cost = Util.getPlayerCost(totalXp, potentialDiff, player.prestige);
+    const wages = Util.getPlayerWages(totalXp);
+    return DatabaseClient.prisma.player.update({
+      where: { id: player.id },
+      data: { cost, wages },
+    });
+  });
+
+  // run the transaction
+  return DatabaseClient.prisma.$transaction(transaction);
+}
+
+/**
  * Sync teams to their current tier.
  *
  * By the time this function runs, the new season's league
@@ -1950,55 +1991,6 @@ export async function syncTiers() {
       },
     }),
   );
-
-  // run the transaction
-  return DatabaseClient.prisma.$transaction(transaction);
-}
-
-/**
- * Sync player wages.
- *
- * Currently, only the user's players can gain XP throughout the season
- * but this may change in the future. At which point this function
- * would be a mirror of the `061-wages.ts` seeder.
- *
- * @todo move the transaction logic to a shared function
- * @function
- */
-export async function syncWages() {
-  // get the user's squad
-  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
-
-  // build a transaction for all the updates
-  const transaction = profile.team.players.map((player) => {
-    const xp = new Bot.Exp(player);
-    const tier = Constants.Prestige[xp.getBotTemplate().prestige];
-    const wageConfigs = Constants.PlayerWages[tier as keyof typeof Constants.PlayerWages];
-
-    if (!wageConfigs) {
-      return DatabaseClient.prisma.player.update({
-        where: { id: player.id },
-        data: { cost: 0, wages: 0 },
-      });
-    }
-
-    // build probability weights
-    const wagePbxWeight = {} as Parameters<typeof Chance.roll>[number];
-    wageConfigs.forEach((weight, idx) => (wagePbxWeight[idx] = weight.percent));
-
-    // pick the wage range for the player
-    const wageConfigIdx = Chance.roll(wagePbxWeight);
-    const wageConfig = wageConfigs[Number(wageConfigIdx)];
-
-    // calculate cost from wage
-    const wages = random(wageConfig.low, wageConfig.high);
-    const cost = wages * wageConfig.multiplier;
-
-    return DatabaseClient.prisma.player.update({
-      where: { id: player.id },
-      data: { cost, wages },
-    });
-  });
 
   // run the transaction
   return DatabaseClient.prisma.$transaction(transaction);
@@ -2184,7 +2176,7 @@ export async function onSeasonStart() {
     .then(resetTrainingGains)
     .then(sponsorshipCheck)
     .then(syncTiers)
-    .then(syncWages)
+    .then(syncCostAndWages)
     .then(trainFreeAgents);
 }
 

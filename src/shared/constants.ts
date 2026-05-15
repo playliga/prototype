@@ -1148,24 +1148,33 @@ export const MatchDayWeights: Record<string, Record<number, number | 'auto'>> = 
 };
 
 /**
- * Player wages sorted by tiers.
+ * Player cost and wage settings.
  *
- * Each tier is split into top, mid, and low positions
- * which affects the wages and player costs.
- *
- * @property percent    Percentage considered for the current tier.
- * @property low        Lowest wage possible for this tier.
- * @property high       Highest wage possible for this tier.
- * @property multiplier Player cost is calculated by multiplying the wages by this number.
  * @constant
  */
-export const PlayerWages = {
-  [TierSlug.LEAGUE_ADVANCED]: [{ percent: 20, low: 1_000, high: 5_000, multiplier: 2 }],
-  [TierSlug.LEAGUE_PREMIER]: [
-    { percent: 20, low: 5_000, high: 10_000, multiplier: 2 },
-    { percent: 80, low: 10_000, high: 15_000, multiplier: 4 },
-    { percent: 20, low: 15_000, high: 20_000, multiplier: 6 },
-  ],
+export const PlayerCostWageSettings = {
+  // derived by raising the maximum achievable xp to the xp
+  // multiplier and dividing by the maximum player cost
+  //
+  // `Math.pow(200, 5) / 1_000_000`
+  CostMultiplier: 320_000,
+  CostXPMultiplier: 5,
+
+  // derived by raising the maximum achievable xp to the xp
+  // multiplier and dividing by the maximum player wages
+  //
+  // `Math.pow(200, 3) / 20_000`
+  WagesMultiplier: 400,
+  WagesXPMultiplier: 3,
+
+  // affects total cost when combined when potential diff
+  PrestigeMultipliers: new Map([
+    [0, 10],
+    [1, 150],
+    [2, 500],
+    [3, 1000],
+    [4, 5000],
+  ]),
 };
 
 /**

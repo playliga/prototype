@@ -437,3 +437,32 @@ export function getContractPeriod(today: Date, num: number) {
   const offerEnd = addYears(offerStart, num);
   return [offerStart, offerEnd];
 }
+
+/**
+ * Calculate player cost.
+ *
+ * @param xp        The player xp.
+ * @param diff      Diff between their current xp and maximum achievable xp per their given potential.
+ * @param potential The player potential.
+ * @function
+ */
+export function getPlayerCost(xp: number, diff: number, potential: number) {
+  return (
+    Math.pow(xp, Constants.PlayerCostWageSettings.CostXPMultiplier) /
+      Constants.PlayerCostWageSettings.CostMultiplier +
+    Constants.PlayerCostWageSettings.PrestigeMultipliers.get(potential) * diff
+  );
+}
+
+/**
+ * Calculate player wages.
+ *
+ * @param xp The player xp.
+ * @function
+ */
+export function getPlayerWages(xp: number) {
+  return (
+    Math.pow(xp, Constants.PlayerCostWageSettings.WagesXPMultiplier) /
+    Constants.PlayerCostWageSettings.WagesMultiplier
+  );
+}
