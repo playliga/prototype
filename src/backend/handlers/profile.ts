@@ -75,10 +75,39 @@ export default function () {
   ipcMain.handle(
     Constants.IPCRoute.PROFILES_CREATE,
     async (_, data: ProfileCreateIPCPayload, settingsOverride?: string) => {
-      // grab free xp bonuses to assign to user's profile
+      // if a team id was provided then the user is starting a new career
+      // as an existing team so we must fetch that data first
+      if (data.team.id) {
+        const team = await DatabaseClient.prisma.team.findFirst({
+          where: {
+            id: data.team.id,
+          },
+        });
+
+        data.team.countryId = team.countryId;
+        data.team.name = team.name;
+        data.team.blazon = team.blazon;
+        data.team.tier = team.tier;
+      }
+
+      // grab free xp bonuses to assign to user's
+      // profile alongside their team information
       const bonuses = await DatabaseClient.prisma.bonus.findMany({
         where: {
           cost: null,
+        },
+      });
+      const profile = await DatabaseClient.prisma.profile.findFirst();
+      await DatabaseClient.prisma.profile.update({
+        where: {
+          id: profile.id,
+        },
+        data: {
+          name: data.team.name,
+          date: data.today.toISOString(),
+          bonuses: {
+            connect: bonuses,
+          },
         },
       });
 
@@ -103,24 +132,55 @@ export default function () {
       });
       const squad = sampleSize(freeAgents, Constants.Application.SQUAD_MIN_LENGTH);
 
-      // update the default profile
-      const profile = await DatabaseClient.prisma.profile.findFirst();
-      await DatabaseClient.prisma.profile.update({
+      // create the user's team and player records
+      const team = await DatabaseClient.prisma.team.upsert({
         where: {
-          id: profile.id,
+          id: data.team.id || -1,
         },
-        data: {
-          name: data.team.name,
-          date: data.today.toISOString(),
-          bonuses: {
-            connect: bonuses,
+        update: {
+          earnings: (() => {
+            // sync earnings to their selected tier
+            const [potential] = Bot.Templates.filter(
+              (template) => template.prestige === data.team.tier,
+            ).slice(-1);
+            const wages = Util.getPlayerWages(Bot.Exp.getTotalXP(potential.stats));
+            return wages * Constants.Application.SQUAD_MIN_LENGTH;
+          })(),
+          players: {
+            create: [
+              {
+                name: data.user.name,
+                avatar: data.user.avatar,
+                profile: {
+                  connect: {
+                    id: profile.id,
+                  },
+                },
+                country: {
+                  connect: {
+                    id: data.user.countryId,
+                  },
+                },
+              },
+            ],
+          },
+          personas: {
+            updateMany: {
+              where: {
+                role: Constants.PersonaRole.MANAGER,
+              },
+              data: {
+                role: Constants.PersonaRole.ASSISTANT,
+              },
+            },
+          },
+          profile: {
+            connect: {
+              id: profile.id,
+            },
           },
         },
-      });
-
-      // create the user's team and player records
-      const team = await DatabaseClient.prisma.team.create({
-        data: {
+        create: {
           name: data.team.name,
           slug: data.team.name,
           blazon: data.team.blazon,
@@ -176,85 +236,88 @@ export default function () {
         },
       });
 
-      // set the starters
-      await DatabaseClient.prisma.player.updateMany({
-        where: {
-          id: {
-            in: squad
-              .slice(0, Constants.Application.SQUAD_MIN_LENGTH - 1)
-              .map((player) => player.id),
-          },
-        },
-        data: {
-          starter: true,
-        },
-      });
-
-      // make sure squad is not transfer listed
-      await DatabaseClient.prisma.player.updateMany({
-        where: {
-          id: {
-            in: squad.map((player) => player.id),
-          },
-        },
-        data: {
-          transferListed: false,
-        },
-      });
-
-      // replace an existing team with user's team so
-      // they get picked up by the autofill module
-      //
-      // grab teams from same federation as user's team
-      const [continent] = await DatabaseClient.prisma.continent.findMany({
-        where: {
-          countries: {
-            some: {
-              id: team.countryId,
+      // specific tasks needed for new team careers
+      if (!data.team.id) {
+        // set the starters
+        await DatabaseClient.prisma.player.updateMany({
+          where: {
+            id: {
+              in: squad
+                .slice(0, Constants.Application.SQUAD_MIN_LENGTH - 1)
+                .map((player) => player.id),
             },
           },
-        },
-        include: {
-          federation: true,
-        },
-      });
-      const teams = await DatabaseClient.prisma.team.findMany({
-        select: {
-          id: true,
-          name: true,
-        },
-        where: {
-          id: {
-            not: team.id,
+          data: {
+            starter: true,
           },
-          tier: data.team.tier,
-          country: {
-            continent: {
-              federationId: continent.federationId,
+        });
+
+        // make sure squad is not transfer listed
+        await DatabaseClient.prisma.player.updateMany({
+          where: {
+            id: {
+              in: squad.map((player) => player.id),
             },
           },
-        },
-      });
+          data: {
+            transferListed: false,
+          },
+        });
 
-      // pick a random team and set their prestige and tier to null
-      const teamToReplace = sample(teams);
-      log.info(
-        'replacing "%s" from "%s: %s". total teams: %d',
-        teamToReplace.name,
-        continent.federation.name,
-        Constants.IdiomaticTier[Constants.Prestige[data.team.tier]],
-        teams.length,
-      );
+        // replace an existing team with user's team so
+        // they get picked up by the autofill module
+        //
+        // grab teams from same federation as user's team
+        const [continent] = await DatabaseClient.prisma.continent.findMany({
+          where: {
+            countries: {
+              some: {
+                id: data.team.countryId,
+              },
+            },
+          },
+          include: {
+            federation: true,
+          },
+        });
+        const teams = await DatabaseClient.prisma.team.findMany({
+          select: {
+            id: true,
+            name: true,
+          },
+          where: {
+            id: {
+              not: team.id,
+            },
+            tier: data.team.tier,
+            country: {
+              continent: {
+                federationId: continent.federationId,
+              },
+            },
+          },
+        });
 
-      await DatabaseClient.prisma.team.update({
-        where: {
-          id: teamToReplace.id,
-        },
-        data: {
-          prestige: null,
-          tier: null,
-        },
-      });
+        // pick a random team and set their prestige and tier to null
+        const teamToReplace = sample(teams);
+        log.info(
+          'replacing "%s" from "%s: %s". total teams: %d',
+          teamToReplace.name,
+          continent.federation.name,
+          Constants.IdiomaticTier[Constants.Prestige[data.team.tier]],
+          teams.length,
+        );
+
+        await DatabaseClient.prisma.team.update({
+          where: {
+            id: teamToReplace.id,
+          },
+          data: {
+            prestige: null,
+            tier: null,
+          },
+        });
+      }
 
       // discover steam path
       const settings = Util.loadSettings(settingsOverride || profile.settings);

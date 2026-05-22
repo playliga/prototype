@@ -8,6 +8,7 @@ import Team from './team';
 import Save from './save';
 import User from './user';
 import Gallery from './gallery';
+import Pick from './pick';
 
 /**
  * Exports this module.
@@ -20,4 +21,5 @@ export default {
   Save,
   User,
   Gallery,
+  Pick,
 };

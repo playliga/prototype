@@ -14,7 +14,7 @@ import { AppStateContext } from '@liga/frontend/redux';
 import { windowDataUpdate } from '@liga/frontend/redux/actions';
 import { AppState } from '@liga/frontend/redux/state';
 import { useAudio, useTranslation } from '@liga/frontend/hooks';
-import { FaFolderOpen, FaRecycle, FaUpload } from 'react-icons/fa';
+import { FaFolderOpen, FaRecycle, FaUpload, FaUsers } from 'react-icons/fa';
 import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/components/select';
 
 /**
@@ -179,6 +179,15 @@ export default function () {
             onMouseDown={audioClick}
           >
             <FaUpload />
+          </button>
+          <div className="divider divider-horizontal" />
+          <button
+            title={t('shared.galleryTeam')}
+            className="btn btn-square btn-secondary"
+            onClick={() => navigate(location.pathname + '/pick')}
+            onMouseDown={audioClick}
+          >
+            <FaUsers />
           </button>
         </article>
       </section>

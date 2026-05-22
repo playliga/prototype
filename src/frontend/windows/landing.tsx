@@ -75,6 +75,10 @@ const routes = createMemoryRouter([
                 path: '/create/2/gallery',
                 element: <Routes.Landing.Create.Gallery />,
               },
+              {
+                path: '/create/2/pick',
+                element: <Routes.Landing.Create.Pick />,
+              },
             ],
           },
           {

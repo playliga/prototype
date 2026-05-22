@@ -38,7 +38,7 @@ interface TeamSelectorProps {
  * @param props Root props.
  * @function
  */
-function TeamSelector(props: TeamSelectorProps) {
+export function TeamSelector(props: TeamSelectorProps) {
   const t = useTranslation('windows');
   const [federations, setFederations] = React.useState<
     Awaited<ReturnType<typeof api.federations.all>>
@@ -177,6 +177,7 @@ function TeamSelector(props: TeamSelectorProps) {
               <TeamSelect
                 className="w-full"
                 backgroundColor="var(--color-base-200)"
+                menuPlacement="auto"
                 options={teamSelectorData}
                 value={selectedTeam}
                 onChange={(option) =>
