@@ -52,12 +52,12 @@ const config: ForgeConfig = {
     {
       name: '@electron-forge/publisher-github',
       config: {
-        authToken: process.env.GH_PUBLISH_API_KEY,
+        authToken: process.env.GITHUB_TOKEN,
         draft: false,
         prerelease: false,
         repository: {
           owner: 'playliga',
-          name: 'application',
+          name: 'prototype',
         },
       },
     },
