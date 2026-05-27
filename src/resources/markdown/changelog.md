@@ -1,3 +1,15 @@
+## [3.0.0-rc.12](https://github.com/playliga/prototype/compare/v3.0.0-rc.11...v3.0.0-rc.12) (2026-05-27)
+
+### Features
+
+- improved wages and cost calculations ([#613](https://github.com/playliga/prototype/issues/613)) ([98502c0](https://github.com/playliga/prototype/commit/98502c0faac678e9ecd108ad53ab83a9a6e3358f))
+- start careers as an existing team ([#570](https://github.com/playliga/prototype/issues/570)) ([90dd5d8](https://github.com/playliga/prototype/commit/90dd5d8b029d20aa991644192915a80811814607))
+
+### Bug Fixes
+
+- fix recent transfers showing all offers instead of recent transfers ([#615](https://github.com/playliga/prototype/issues/615)) ([30a30a6](https://github.com/playliga/prototype/commit/30a30a6475b6d10253610515dcaa72e36a286c9c))
+- fix spectating mode when in bo3/bo5s ([#589](https://github.com/playliga/prototype/issues/589)) ([1ed2440](https://github.com/playliga/prototype/commit/1ed24405ed8dccbfe754ad33aedc1c79e89bfd1e))
+
 ## [3.0.0-rc.11](https://github.com/playliga/prototype/compare/v3.0.0-rc.10...v3.0.0-rc.11) (2026-04-27)
 
 ### Features
