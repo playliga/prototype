@@ -155,9 +155,7 @@ export default function () {
         include: Eagers.transfer.include,
         take: NUM_PREVIOUS,
         where: {
-          status: {
-            in: [Constants.TransferStatus.PLAYER_ACCEPTED, Constants.TransferStatus.TEAM_ACCEPTED],
-          },
+          status: Constants.TransferStatus.PLAYER_ACCEPTED,
           to: {
             isNot: null,
           },
