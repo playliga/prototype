@@ -101,10 +101,43 @@ function getRoundWinIcon(result: string) {
  * @param props Root props.
  */
 function Scoreboard(props: ScoreboardProps) {
+  const [allPlayers, setAllPlayers] = React.useState<typeof props.competitor.team.players>([]);
   const t = useTranslation('windows');
+
+  // fetch any sold players that may have competed in this match
+  React.useEffect(() => {
+    api.transfers
+      .all({
+        where: {
+          status: Constants.TransferStatus.PLAYER_ACCEPTED,
+          teamIdTo: props.competitor.teamId,
+          target: {
+            isNot: {
+              id: {
+                in: props.competitor.team.players.map((player) => player.id),
+              },
+            },
+          },
+        },
+        include: {
+          target: {
+            include: {
+              country: true,
+            },
+          },
+        },
+      })
+      .then((data) => setAllPlayers(data.map((d) => d.target)));
+  }, []);
+
   const players = React.useMemo(
-    () => intersectionBy(props.competitor.team.players, props.match.players, 'name'),
-    [props.competitor.team.players, props.match.players],
+    () =>
+      intersectionBy(
+        [...props.competitor.team.players, ...allPlayers],
+        props.match.players,
+        'name',
+      ),
+    [allPlayers, props.competitor.team.players, props.match.players],
   );
   const matchEvents = React.useMemo(
     () =>
