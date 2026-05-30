@@ -88,7 +88,7 @@ export default function () {
 
     // bail if a file path could not be found
     if (!execFilePath) {
-      return;
+      throw new Error('Mod executable not found.');
     }
 
     // otherwise, try and launch it

@@ -150,11 +150,20 @@ export default function () {
                                 'Do you want to close the current app after launching?',
                               buttons: ['Yes', 'Cancel'],
                             })
-                            .then((data) =>
-                              data.response === 0 ? api.mods.launch() : Promise.reject(),
+                            .then(
+                              (data) => data.response === 0 && api.mods.launch().then(api.app.quit),
                             )
-                            .then(api.app.quit)
-                            .catch(() => null as void);
+                            .catch(() =>
+                              api.app
+                                .messageBox(Constants.WindowIdentifier.Modal, {
+                                  type: 'question',
+                                  message: 'Could not launch mod. Open up their homepage?',
+                                  buttons: ['Yes', 'Cancel'],
+                                })
+                                .then(
+                                  (data) => data.response === 0 && api.app.external(mod.homepage),
+                                ),
+                            );
                         }}
                       >
                         <FaChevronRight />
