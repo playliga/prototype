@@ -1,3 +1,11 @@
+## [3.0.0-rc.13](https://github.com/playliga/prototype/compare/v3.0.0-rc.12...v3.0.0-rc.13) (2026-06-02)
+
+### Bug Fixes
+
+- fix race-condition detecting server log files on fresh installs ([#595](https://github.com/playliga/prototype/issues/595)) ([9e1a055](https://github.com/playliga/prototype/commit/9e1a05539728a16f263a979434d37cc7d5e5c1e0))
+- fix transferred players disappearing from postgame modal ([#583](https://github.com/playliga/prototype/issues/583)) ([96076b1](https://github.com/playliga/prototype/commit/96076b1e4dd76c77f4b14a7841a8085bba7cb69d))
+- improved standalone mod support ([#608](https://github.com/playliga/prototype/issues/608)) ([92007c6](https://github.com/playliga/prototype/commit/92007c62861543547a3586b044db5b4c13a377f1))
+
 ## [3.0.0-rc.12](https://github.com/playliga/prototype/compare/v3.0.0-rc.11...v3.0.0-rc.12) (2026-05-27)
 
 ### Features
