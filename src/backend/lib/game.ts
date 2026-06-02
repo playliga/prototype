@@ -1293,6 +1293,15 @@ export class Server {
       this.settings.general.gamePath,
     );
 
+    // make sure logs dir exists as it may not
+    // be created in time on slower builds
+    try {
+      await fs.promises.access(logsBaseDir, fs.constants.F_OK);
+    } catch (_) {
+      this.log.warn('%s not found. creating...', logsBaseDir);
+      await fs.promises.mkdir(logsBaseDir, { recursive: true });
+    }
+
     let logFilePath: string;
 
     for (
