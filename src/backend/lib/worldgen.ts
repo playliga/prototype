@@ -454,6 +454,42 @@ export async function distributePrizePool(
 }
 
 /**
+ * End game content.
+ *
+ * @function
+ */
+async function endgame() {
+  // force stop the calendar
+  Engine.Runtime.Instance.stop();
+
+  WindowManager.get(Constants.WindowIdentifier.Main).webContents?.send(
+    Constants.IPCRoute.CONFETTI_START,
+  );
+
+  // retire the user's player
+  const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+  await DatabaseClient.prisma.player.update({
+    where: {
+      id: profile.player.id,
+    },
+    data: {
+      retired: true,
+    },
+  });
+
+  // send congratulatory e-mail
+  const locale = Locale.getLocale(profile);
+  await sendEmail(
+    locale.templates.Endgame.SUBJECT,
+    Sqrl.render(locale.templates.Endgame.CONTENT, {
+      profile,
+    }),
+    profile.team.personas[0],
+    profile.date,
+  );
+}
+
+/**
  * Parses a transfer offer from the player's perspective.
  *
  * @param transfer  The transfer offer to parse.
@@ -2166,6 +2202,13 @@ export async function onEmailSend(entry: Calendar) {
 export async function onSeasonStart() {
   // send signal to achievement system
   Bus.Signal.Instance.emit(Bus.MessageIdentifier.SEASON_START);
+
+  // end game check
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+
+  if (profile.season >= Constants.Application.SEASON_MAX_YEARS) {
+    return endgame();
+  }
 
   // run start of season tasks
   Engine.Runtime.Instance.log.info('Starting the season...');

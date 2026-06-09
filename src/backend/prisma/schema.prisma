@@ -317,6 +317,7 @@ model Player {
   avatar              String?
   prestige            Int?
   dob                 DateTime?
+  retired             Boolean             @default(false)
 
   // has many
   matches             Match[]

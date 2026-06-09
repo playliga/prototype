@@ -46,6 +46,16 @@ export enum AwardTypeQualify {
 }
 
 /** @enum */
+export enum Endgame {
+  SUBJECT = 'Your retirement',
+  CONTENT = `
+    The board wish to congratulate you, not only on your work with this team, but also on the development of your career as a whole.
+
+    We wish you the best of luck in your future endeavors. You will always be a welcome guest at **{{it.profile.team.name}}**!
+  `,
+}
+
+/** @enum */
 export enum OfferAcceptedPlayer {
   SUBJECT = 'Oferta de transferência por {{it.transfer.target.name}}',
   CONTENT = `
