@@ -1954,6 +1954,7 @@ export async function sponsorshipRenew(id: number) {
  * @function
  */
 export async function syncCostAndWages() {
+  const profile = await DatabaseClient.prisma.profile.findFirst();
   const players = await DatabaseClient.prisma.player.findMany({
     where: {
       prestige: {
@@ -1978,7 +1979,10 @@ export async function syncCostAndWages() {
 
     // calculate their cost and wages
     const cost = Util.getPlayerCost(totalXp, potentialDiff, player.prestige);
-    const wages = Util.getPlayerWages(totalXp);
+
+    // only update wages if they are not the user's
+    // players as they will be under active contract
+    const wages = player.teamId !== profile.teamId ? Util.getPlayerWages(totalXp) : player.wages;
     return DatabaseClient.prisma.player.update({
       where: { id: player.id },
       data: { cost, wages },
