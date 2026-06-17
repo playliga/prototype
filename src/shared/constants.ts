@@ -1249,6 +1249,7 @@ export const Settings = {
     gameLogsMaxAttempts: GameSettings.LOGS_MAX_ATTEMPTS,
     transfers: true,
     botControllable: true,
+    acceptedRetireNotice: false,
   },
   calendar: {
     ignoreExits: false,

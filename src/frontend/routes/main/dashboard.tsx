@@ -214,12 +214,6 @@ export default function () {
     [upcoming, state.profile],
   );
 
-  // check if endgame reached
-  const isEndgame = React.useMemo(
-    () => state.profile && state.profile.player.retired,
-    [state.profile],
-  );
-
   // grab next match info
   const [spotlight] = React.useMemo(() => upcoming.slice(0, 1), [upcoming]);
 
@@ -445,7 +439,7 @@ export default function () {
               <button
                 title={t('main.dashboard.advanceCalendar')}
                 className="day day-btn border-t-0"
-                disabled={!state.profile || state.working || isMatchday || isEndgame}
+                disabled={!state.profile || state.working || isMatchday}
                 onClick={() => !state.working && !isMatchday && dispatch(calendarAdvance())}
               >
                 <figure>

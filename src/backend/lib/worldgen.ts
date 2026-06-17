@@ -2208,10 +2208,10 @@ export async function onSeasonStart() {
   Bus.Signal.Instance.emit(Bus.MessageIdentifier.SEASON_START);
 
   // end game check
-  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
 
-  if (profile.season >= Constants.Application.SEASON_MAX_YEARS) {
-    return endgame();
+  if (!profile.player.retired && profile.season >= Constants.Application.SEASON_MAX_YEARS) {
+    await endgame();
   }
 
   // run start of season tasks

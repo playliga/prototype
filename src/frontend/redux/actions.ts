@@ -52,7 +52,33 @@ export function appStatusUpdate(payload: AppState['appStatus']) {
  * @function
  */
 export function calendarAdvance(days?: number) {
-  return async (dispatch: AppDispatch) => {
+  return async (dispatch: AppDispatch, state?: AppState) => {
+    // player retired and stability check
+    if (state.profile.player.retired) {
+      const settings = Util.loadSettings(state.profile.settings);
+
+      if (!settings.general.acceptedRetireNotice) {
+        const data = await api.app.messageBox(Constants.WindowIdentifier.Main, {
+          type: 'question',
+          message: 'Beyond this point, save stability cannot be guaranteed. Continue?',
+          buttons: ['Yes', 'Cancel'],
+        });
+
+        if (data.response !== 0) {
+          return;
+        }
+
+        settings.general.acceptedRetireNotice = true;
+
+        await api.profiles.update({
+          where: { id: state.profile.id },
+          data: {
+            settings: JSON.stringify(settings),
+          },
+        });
+      }
+    }
+
     dispatch(workingUpdate(true));
     await api.calendar.start(days);
     dispatch(workingUpdate(false));
