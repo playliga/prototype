@@ -493,12 +493,14 @@ async function endgame() {
  * Parses a transfer offer from the player's perspective.
  *
  * @param transfer  The transfer offer to parse.
+ * @param profile   The active user profile.
  * @param locale    The locale.
  * @param status    Force accepts or rejects the transfer.
  * @function
  */
 function parsePlayerTransferOffer(
   transfer: Prisma.TransferGetPayload<typeof Eagers.transfer>,
+  profile: Prisma.ProfileGetPayload<unknown>,
   locale: LocaleData,
   status?: Constants.TransferStatus,
 ): {
@@ -536,6 +538,13 @@ function parsePlayerTransferOffer(
             id: transfer.from.id,
           },
         },
+      },
+    }),
+    DatabaseClient.prisma.calendar.create({
+      data: {
+        type: Constants.CalendarEntry.TRANSFER_SQUAD_SYNC,
+        payload: String(transfer.from.id),
+        date: addDays(profile.date, 1).toISOString(),
       },
     }),
     DatabaseClient.prisma.transfer
@@ -2584,7 +2593,7 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
       result = parseTeamTransferOffer(transfer, profile, locale, transferStatus);
       break;
     case Constants.TransferStatus.PLAYER_PENDING:
-      result = parsePlayerTransferOffer(transfer, locale, transferStatus);
+      result = parsePlayerTransferOffer(transfer, profile, locale, transferStatus);
       break;
     default:
       return Promise.resolve();
@@ -2721,6 +2730,52 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
         })
       : Promise.resolve(),
   ]);
+}
+
+/**
+ * Engine loop handler.
+ *
+ * Makes sure the best players are set as starters after a transfer is completed.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onTransferSquadSync(entry: Partial<Calendar>) {
+  // bail early if the user's team
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+
+  if (profile.teamId === Number(entry.payload)) {
+    return;
+  }
+
+  // otherwise, sort the team's squad by xp and set top five as starters
+  const team = await DatabaseClient.prisma.team.findFirst({
+    where: {
+      id: Number(entry.payload),
+    },
+    include: Eagers.team.include,
+  });
+
+  if (!team) {
+    return;
+  }
+
+  const transaction = team.players
+    .sort(
+      (a, b) => Bot.Exp.getTotalXP(JSON.parse(b.stats)) - Bot.Exp.getTotalXP(JSON.parse(a.stats)),
+    )
+    .map((player, idx) =>
+      DatabaseClient.prisma.player.update({
+        where: {
+          id: player.id,
+        },
+        data: {
+          starter: idx < Constants.Application.SQUAD_MIN_LENGTH,
+        },
+      }),
+    );
+
+  return DatabaseClient.prisma.$transaction(transaction);
 }
 
 /**

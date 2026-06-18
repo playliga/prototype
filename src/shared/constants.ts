@@ -138,6 +138,7 @@ export enum CalendarEntry {
   SPONSORSHIP_PAYMENT = '/sponsorship/payment',
   SPONSORSHIP_RENEW = '/sponsorship/renew',
   TRANSFER_PARSE = '/transfer/parse',
+  TRANSFER_SQUAD_SYNC = '/transfer/squad/sync',
   TRANSFER_WAGE_PAYMENT = '/transfer/wage/payment',
 }
 

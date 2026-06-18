@@ -168,6 +168,10 @@ export default function () {
     Worldgen.onTransferOffer,
   );
   Engine.Runtime.Instance.register(
+    Constants.CalendarEntry.TRANSFER_SQUAD_SYNC,
+    Worldgen.onTransferSquadSync,
+  );
+  Engine.Runtime.Instance.register(
     Constants.CalendarEntry.TRANSFER_WAGE_PAYMENT,
     Worldgen.onTransferWagePayment,
   );
