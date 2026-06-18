@@ -243,7 +243,7 @@ export default function () {
 
     // detect game path again
     api.app.detectGame(modified.general.game).then((gamePath) => {
-      modified.general.gamePath = gamePath;
+      modified.general.gamePath = gamePath || modified.general.gamePath;
       setSettings(modified);
     });
 
