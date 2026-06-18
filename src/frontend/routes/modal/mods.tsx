@@ -84,103 +84,106 @@ export default function () {
                 </td>
               </tr>
             )}
-            {metadata.map((mod) => (
-              <tr key={mod.name + '__available'}>
-                <td title={mod.name} className="truncate">
-                  {mod.name}
-                </td>
-                <td title={mod.description} className="truncate">
-                  {mod.description}
-                </td>
-                <td title={mod.author} className="truncate text-center">
-                  {mod.author}
-                </td>
-                <td className="text-center">
-                  <button
-                    title={mod.homepage || t('shared.homepage')}
-                    className="btn btn-sm btn-ghost"
-                    disabled={!mod.homepage}
-                    onClick={() => api.app.external(mod.homepage)}
-                  >
-                    <FaExternalLinkAlt />
-                  </button>
-                </td>
-                <td className="text-center">
-                  {((!downloading && !installedModList.includes(mod.name.toLowerCase())) ||
-                    (!!downloading && downloading !== mod.name)) && (
+            {metadata
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((mod) => (
+                <tr key={mod.name + '__available'}>
+                  <td title={mod.name} className="truncate">
+                    {mod.name}
+                  </td>
+                  <td title={mod.description} className="truncate">
+                    {mod.description}
+                  </td>
+                  <td title={mod.author} className="truncate text-center">
+                    {mod.author}
+                  </td>
+                  <td className="text-center">
                     <button
-                      title={t('mods.download')}
-                      className="btn btn-primary btn-sm"
-                      onClick={() => {
-                        api.mods.download(mod.name);
-                        setDownloading(mod.name);
-                      }}
+                      title={mod.homepage || t('shared.homepage')}
+                      className="btn btn-sm btn-ghost"
+                      disabled={!mod.homepage}
+                      onClick={() => api.app.external(mod.homepage)}
                     >
-                      <FaDownload />
+                      <FaExternalLinkAlt />
                     </button>
-                  )}
-                  {!!downloading && downloading === mod.name && (
-                    <progress title={status} className="progress" value={progress} max="100" />
-                  )}
-                  {!downloading &&
-                    installedModList.includes(mod.name.toLowerCase()) &&
-                    !mod.executable && (
+                  </td>
+                  <td className="text-center">
+                    {((!downloading && !installedModList.includes(mod.name.toLowerCase())) ||
+                      (!!downloading && downloading !== mod.name)) && (
                       <button
-                        title={t('mods.uninstall')}
-                        className="btn btn-error btn-sm"
+                        title={t('mods.download')}
+                        className="btn btn-primary btn-sm"
                         onClick={() => {
-                          api.mods.delete().then(api.mods.installed).then(setInstalled);
+                          api.mods.download(mod.name);
+                          setDownloading(mod.name);
                         }}
                       >
-                        <FaTrashAlt />
+                        <FaDownload />
                       </button>
                     )}
-                  {!downloading &&
-                    installedModList.includes(mod.name.toLowerCase()) &&
-                    !!mod.executable && (
-                      <button
-                        title={t('shared.launch')}
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => {
-                          api.app
-                            .messageBox(Constants.WindowIdentifier.Modal, {
-                              type: 'question',
-                              message:
-                                'This mod will run as its own app. ' +
-                                'Do you want to close the current app after launching?',
-                              buttons: ['Yes', 'Cancel'],
-                            })
-                            .then(
-                              (data) => data.response === 0 && api.mods.launch().then(api.app.quit),
-                            )
-                            .catch(() =>
-                              api.app
-                                .messageBox(Constants.WindowIdentifier.Modal, {
-                                  type: 'question',
-                                  message: 'Could not launch mod. Open up their homepage?',
-                                  buttons: ['Yes', 'Cancel'],
-                                })
-                                .then(
-                                  (data) => data.response === 0 && api.app.external(mod.homepage),
-                                ),
-                            );
-                        }}
-                      >
-                        <FaChevronRight />
-                      </button>
+                    {!!downloading && downloading === mod.name && (
+                      <progress title={status} className="progress" value={progress} max="100" />
                     )}
-                </td>
-                <td className="text-center">
-                  <code>
-                    {(() => {
-                      const size =
-                        assets.find((asset) => asset.name === mod.name + '.zip')?.size || 0;
-                      return Util.formatBytes(size, 1);
-                    })()}
-                  </code>
-                </td>
-              </tr>
-            ))}
+                    {!downloading &&
+                      installedModList.includes(mod.name.toLowerCase()) &&
+                      !mod.executable && (
+                        <button
+                          title={t('mods.uninstall')}
+                          className="btn btn-error btn-sm"
+                          onClick={() => {
+                            api.mods.delete().then(api.mods.installed).then(setInstalled);
+                          }}
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      )}
+                    {!downloading &&
+                      installedModList.includes(mod.name.toLowerCase()) &&
+                      !!mod.executable && (
+                        <button
+                          title={t('shared.launch')}
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            api.app
+                              .messageBox(Constants.WindowIdentifier.Modal, {
+                                type: 'question',
+                                message:
+                                  'This mod will run as its own app. ' +
+                                  'Do you want to close the current app after launching?',
+                                buttons: ['Yes', 'Cancel'],
+                              })
+                              .then(
+                                (data) =>
+                                  data.response === 0 && api.mods.launch().then(api.app.quit),
+                              )
+                              .catch(() =>
+                                api.app
+                                  .messageBox(Constants.WindowIdentifier.Modal, {
+                                    type: 'question',
+                                    message: 'Could not launch mod. Open up their homepage?',
+                                    buttons: ['Yes', 'Cancel'],
+                                  })
+                                  .then(
+                                    (data) => data.response === 0 && api.app.external(mod.homepage),
+                                  ),
+                              );
+                          }}
+                        >
+                          <FaChevronRight />
+                        </button>
+                      )}
+                  </td>
+                  <td className="text-center">
+                    <code>
+                      {(() => {
+                        const size =
+                          assets.find((asset) => asset.name === mod.name + '.zip')?.size || 0;
+                        return Util.formatBytes(size, 1);
+                      })()}
+                    </code>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </section>
