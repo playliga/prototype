@@ -1,3 +1,17 @@
+## [3.0.0](https://github.com/playliga/prototype/compare/v3.0.0-rc.13...v3.0.0) (2026-06-19)
+
+### Features
+
+- add season limits ([#566](https://github.com/playliga/prototype/issues/566)) ([4491269](https://github.com/playliga/prototype/commit/4491269390a1b4fc5b811a64468259b5345a9052))
+- allow simulation to continue after reaching max season limit ([#622](https://github.com/playliga/prototype/issues/622)) ([66afda7](https://github.com/playliga/prototype/commit/66afda76563459994929b007df5d7a8e47841924))
+
+### Bug Fixes
+
+- do not update user squad wages if under contract ([#618](https://github.com/playliga/prototype/issues/618)) ([6640386](https://github.com/playliga/prototype/commit/6640386797affb8b09eaae20e603cfc8f3a86676))
+- fix issues detecting game path in exhibition mode ([#621](https://github.com/playliga/prototype/issues/621)) ([e780bb5](https://github.com/playliga/prototype/commit/e780bb5bcc42d34777cfbe7fed00429cf08f92ad))
+- fixed issue with cpu benching recently purchased players ([#619](https://github.com/playliga/prototype/issues/619)) ([ff6892a](https://github.com/playliga/prototype/commit/ff6892a201fa20ad5b8a20995e3089a8e3c29948))
+- mod list is now alphabetically sorted ([#620](https://github.com/playliga/prototype/issues/620)) ([50d68d0](https://github.com/playliga/prototype/commit/50d68d0bf6d9060e6b86a853d11c84c4ffd6a277))
+
 ## [3.0.0-rc.13](https://github.com/playliga/prototype/compare/v3.0.0-rc.12...v3.0.0-rc.13) (2026-06-02)
 
 ### Bug Fixes
