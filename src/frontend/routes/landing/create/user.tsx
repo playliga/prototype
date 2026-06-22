@@ -5,6 +5,7 @@
  * @module
  */
 import React from 'react';
+import { format, subYears } from 'date-fns';
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Constants } from '@liga/shared';
@@ -17,6 +18,30 @@ import { CountrySelect, findCountryOptionByValue } from '@liga/frontend/componen
 import { FaUpload } from 'react-icons/fa';
 
 /**
+ * Defines the dob min and max values.
+ *
+ * @constant
+ */
+const dobDefaultValues = {
+  max: subYears(
+    new Date(
+      new Date().getFullYear(),
+      Constants.Application.SEASON_START_MONTH,
+      Constants.Application.SEASON_START_DAY,
+    ),
+    Constants.Application.NEW_CAREER_AGE_MIN,
+  ),
+  min: subYears(
+    new Date(
+      new Date().getFullYear(),
+      Constants.Application.SEASON_START_MONTH,
+      Constants.Application.SEASON_START_DAY,
+    ),
+    Constants.Application.NEW_CAREER_AGE_MAX,
+  ),
+};
+
+/**
  * Defines the form's default values.
  *
  * @constant
@@ -24,6 +49,7 @@ import { FaUpload } from 'react-icons/fa';
 const formDefaultValues: AppState['windowData'][Constants.WindowIdentifier.Landing]['user'] = {
   name: '',
   countryId: undefined,
+  dob: dobDefaultValues.max,
 };
 
 /**
@@ -140,6 +166,36 @@ export default function () {
             <span className="label-text-alt">
               {formState.errors?.name?.type === 'required' && t('shared.required')}
               {formState.errors?.name?.type === 'pattern' && t('shared.specialCharactersError')}
+            </span>
+          </footer>
+        </section>
+        <section className="fieldset w-full">
+          <label className="label">
+            <span className="label-text">{t('shared.age')}</span>
+          </label>
+          <Controller
+            name="dob"
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange } }) => (
+              <input
+                type="date"
+                defaultValue={format(
+                  windowData.user?.dob || formDefaultValues.dob,
+                  Constants.Application.NEW_CAREER_DATE_FORMAT,
+                )}
+                max={format(dobDefaultValues.max, Constants.Application.NEW_CAREER_DATE_FORMAT)}
+                min={format(dobDefaultValues.min, Constants.Application.NEW_CAREER_DATE_FORMAT)}
+                onChange={(event) =>
+                  onChange(event.target.value ? new Date(event.target.value) : undefined)
+                }
+                className={cx('input', 'w-full', !!formState.errors?.dob?.type && 'input-error')}
+              />
+            )}
+          />
+          <footer className="label h-5">
+            <span className="label-text-alt">
+              {formState.errors?.dob?.type === 'required' && t('shared.required')}
             </span>
           </footer>
         </section>

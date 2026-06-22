@@ -151,6 +151,7 @@ export default function () {
               {
                 name: data.user.name,
                 avatar: data.user.avatar,
+                dob: data.user.dob.toISOString(),
                 profile: {
                   connect: {
                     id: profile.id,
@@ -207,6 +208,7 @@ export default function () {
               {
                 name: data.user.name,
                 avatar: data.user.avatar,
+                dob: data.user.dob.toISOString(),
                 profile: {
                   connect: {
                     id: profile.id,
