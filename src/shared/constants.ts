@@ -1169,8 +1169,8 @@ export const PlayerCostWageSettings = {
   // multiplier and dividing by the maximum player wages
   //
   // `Math.pow(200, 3) / 20_000`
-  WagesMultiplier: 400,
-  WagesXPMultiplier: 3,
+  WagesMultiplier: 107_613_655,
+  WagesXPMultiplier: 5,
 
   // affects total cost when combined when potential diff
   PrestigeMultipliers: new Map([
