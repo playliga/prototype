@@ -102,6 +102,8 @@ export async function discoverGamePath(enumId: string, steamPath?: string) {
         return Constants.GameSettings.CSSOURCE_APPID;
       case Constants.Game.CZERO:
         return Constants.GameSettings.CZERO_APPID;
+      case Constants.Game.CS2:
+        return Constants.GameSettings.CS2_APPID;
       default:
         return Constants.GameSettings.CSGO_APPID;
     }
