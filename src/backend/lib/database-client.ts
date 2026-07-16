@@ -37,6 +37,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import util from 'node:util';
+import os from 'node:os';
 import log from 'electron-log';
 import { app } from 'electron';
 import { PrismaClient } from '@prisma/client';
@@ -413,7 +414,10 @@ export default class DatabaseClient {
    */
   public static get basePath() {
     return process.env['NODE_ENV'] === 'cli'
-      ? path.join(process.env.APPDATA, 'LIGA Esports Manager', Constants.Application.DATABASES_DIR)
+      ? (is.osx()
+          ? path.join(os.homedir(), 'Library', 'Application Support')
+          : process.env.APPDATA) +
+          path.join('LIGA Esports Manager', Constants.Application.DATABASES_DIR)
       : path.join(app.getPath('userData'), Constants.Application.DATABASES_DIR);
   }
 
