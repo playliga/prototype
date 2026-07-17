@@ -415,10 +415,10 @@ export default class DatabaseClient {
   public static get basePath() {
     return process.env['NODE_ENV'] === 'cli'
       ? path.join(
-          (is.osx()
+          is.osx()
             ? path.join(os.homedir(), 'Library', 'Application Support')
-            : process.env.APPDATA) +
-            path.join('LIGA Esports Manager', Constants.Application.DATABASES_DIR),
+            : process.env.APPDATA,
+          path.join('LIGA Esports Manager', Constants.Application.DATABASES_DIR),
         )
       : path.join(app.getPath('userData'), Constants.Application.DATABASES_DIR);
   }
