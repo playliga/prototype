@@ -73,6 +73,7 @@ export const ElectronMainWebpackConfig: Configuration = {
   plugins: [
     ...WebpackSharedConfig.plugins,
     new EnvironmentPlugin([
+      'DISCORD_CLIENT_ID',
       'GH_ISSUES_CLIENT_ID',
       'FIREBASE_CLIENT_EMAIL',
       'FIREBASE_KEY_ID',

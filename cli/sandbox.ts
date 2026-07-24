@@ -26,6 +26,7 @@ import {
   Mods,
   VDF,
   VPK,
+  Discord,
 } from '@liga/backend/lib';
 
 /**
@@ -460,6 +461,63 @@ async function sandboxVpk() {
 }
 
 /**
+ * Discord RPC server sandbox subcommand.
+ *
+ * @function
+ */
+async function sandboxDiscord() {
+  const discord = Discord.Client.Instance;
+  discord.on(Discord.EventIdentifier.HANDSHAKE, log.debug);
+  discord.on(Discord.EventIdentifier.ERROR, log.error);
+  discord.on(Discord.EventIdentifier.CLOSE, log.debug);
+
+  try {
+    await discord.connect();
+  } catch (_) {
+    return;
+  }
+
+  try {
+    log.debug('setting activity #1...');
+    const resp = await discord.setActivity({
+      state: 'Some state',
+      details: 'Some Details',
+      instance: false,
+    });
+    log.debug('activity set successfully: %o', resp);
+  } catch (error) {
+    log.error(error);
+  }
+
+  await Util.sleep(Discord.RATE_LIMIT_MS);
+
+  try {
+    log.debug('setting activity #2...');
+    const resp = await discord.setActivity({
+      state: 'Other state',
+      details: 'Other Details',
+      instance: false,
+    });
+    log.debug('activity set successfully: %o', resp);
+  } catch (error) {
+    log.error(error);
+  }
+
+  await Util.sleep(Discord.RATE_LIMIT_MS);
+
+  try {
+    log.debug('clearing activity...');
+    const resp = await discord.clearActivity();
+    log.debug('activity cleared successfully: %o', resp);
+  } catch (error) {
+    log.error(error);
+  }
+
+  discord.disconnect();
+  await Util.sleep(5_000);
+}
+
+/**
  * Validates the provided sandbox type and runs it.
  *
  * @param type The type of sandbox to run.
@@ -487,6 +545,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'mod-manager',
     'vdf',
     'vpk',
+    'discord',
   ];
   const sandboxFns: Record<
     string,
@@ -504,6 +563,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxModManager
     | typeof sandboxVdf
     | typeof sandboxVpk
+    | typeof sandboxDiscord
   > = {
     sandboxWorldgen,
     sandboxScore,
@@ -519,6 +579,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxModManager,
     sandboxVdf,
     sandboxVpk,
+    sandboxDiscord,
   };
 
   if (!acceptedSandboxTypes.includes(type)) {

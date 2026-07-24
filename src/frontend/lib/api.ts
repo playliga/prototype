@@ -101,6 +101,11 @@ export default {
     connect: (id?: string) => ipcRenderer.invoke(Constants.IPCRoute.DATABASE_CONNECT, id),
     disconnect: () => ipcRenderer.invoke(Constants.IPCRoute.DATABASE_DISCONNECT),
   },
+  discord: {
+    connect: () => ipcRenderer.invoke(Constants.IPCRoute.DISCORD_CONNECT) as Promise<void>,
+    setActivity: (data: DiscordActivity) =>
+      ipcRenderer.invoke(Constants.IPCRoute.DISCORD_SET_ACTIVITY, data) as Promise<void>,
+  },
   emails: {
     all: <T = typeof Eagers.email>(query: Prisma.EmailFindManyArgs = Eagers.email) =>
       ipcRenderer.invoke(Constants.IPCRoute.EMAILS_ALL, query) as Promise<

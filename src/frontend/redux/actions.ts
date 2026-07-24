@@ -3,6 +3,7 @@
  *
  * @module
  */
+import { format } from 'date-fns';
 import { Constants, Util } from '@liga/shared';
 import { AppDispatch, AppState } from './state';
 
@@ -81,6 +82,7 @@ export function calendarAdvance(days?: number) {
 
     dispatch(workingUpdate(true));
     await api.calendar.start(days);
+    dispatch(discordUpdateCareer());
     dispatch(workingUpdate(false));
   };
 }
@@ -93,6 +95,25 @@ export function continentsUpdate(payload: AppState['continents']) {
   return {
     type: ReduxActions.CONTINENTS_UPDATE,
     payload,
+  };
+}
+
+/**
+ * Thunk action that updates the user's discord
+ * presence for the main career mode screen.
+ *
+ * @function
+ */
+export function discordUpdateCareer() {
+  return async (_: AppDispatch, state?: AppState) => {
+    if (!state.profile) {
+      return;
+    }
+
+    await api.discord.setActivity({
+      details: `In Career | ${format(state.profile.date, 'PPP')}`,
+      instance: false,
+    });
   };
 }
 
@@ -177,6 +198,8 @@ export function play(id: number, spectating?: boolean, simulate?: boolean) {
 
     if (match.status === Constants.MatchStatus.COMPLETED) {
       dispatch(calendarAdvance(1));
+    } else {
+      dispatch(discordUpdateCareer());
     }
 
     dispatch(playingUpdate(false));

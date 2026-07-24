@@ -115,6 +115,12 @@ function Root() {
       .then((continents) => dispatch(continentsUpdate(continents)));
     api.app.locale().then((locale) => dispatch(localeUpdate(locale)));
 
+    // set discord presence
+    api.discord.setActivity({
+      details: 'In Main Menu',
+      instance: false,
+    });
+
     // handle incoming profile updates
     api.ipc.on(
       Constants.IPCRoute.PROFILES_CURRENT,

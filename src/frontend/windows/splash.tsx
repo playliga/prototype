@@ -22,6 +22,17 @@ enum DatabaseStatus {
 }
 
 /**
+ * Discord IPC server status messages.
+ *
+ * @enum
+ */
+enum DiscordStatus {
+  Connecting = 'Connecting to discord...',
+  Connected = 'Connected.',
+  NotConnected = 'Not connected.',
+}
+
+/**
  * Updater status messages.
  *
  * @enum
@@ -56,9 +67,9 @@ const FAUX_TIMEOUT = 500;
  * @component
  */
 function Index() {
-  const [status, setStatus] = React.useState<DatabaseStatus | UpdaterStatus | PluginStatus>(
-    UpdaterStatus.Checking,
-  );
+  const [status, setStatus] = React.useState<
+    DiscordStatus | DatabaseStatus | UpdaterStatus | PluginStatus
+  >(UpdaterStatus.Checking);
   const [progress, setProgress] = React.useState<number>();
 
   // the updater is heavily event-driven so wrap it in a promise
@@ -141,11 +152,25 @@ function Index() {
       })
       .then(() => api.database.connect())
       .then(() => Util.sleep(FAUX_TIMEOUT))
+      .then(() => setStatus(DatabaseStatus.Connected));
+  }, [status]);
+
+  // connect to discord rich presence
+  React.useEffect(() => {
+    if (status !== DatabaseStatus.Connected) {
+      return;
+    }
+
+    Util.sleep(FAUX_TIMEOUT)
       .then(() => {
-        return Promise.resolve(setStatus(DatabaseStatus.Connected));
+        setStatus(DiscordStatus.Connecting);
+        return Util.sleep(FAUX_TIMEOUT);
       })
+      .then(() => api.discord.connect())
       .then(() => Util.sleep(FAUX_TIMEOUT))
-      .then(() => {
+      .then(() => Promise.resolve(setStatus(DiscordStatus.Connected)))
+      .catch(() => Promise.resolve(setStatus(DiscordStatus.NotConnected)))
+      .finally(() => {
         api.window.open(Constants.WindowIdentifier.Landing);
         api.window.close(Constants.WindowIdentifier.Splash);
       });

@@ -21,6 +21,7 @@ import {
   localeUpdate,
   play,
   shortlistUpdate,
+  discordUpdateCareer,
 } from '@liga/frontend/redux/actions';
 import {
   createMemoryRouter,

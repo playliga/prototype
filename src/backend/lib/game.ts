@@ -3,6 +3,7 @@
  *
  * @module
  */
+import * as Discord from './discord';
 import * as FileManager from './file-manager';
 import * as PluginManager from './plugins';
 import * as RCON from './rcon';
@@ -273,6 +274,7 @@ export class Server {
   private baseDir: string;
   private botCommandFile: string;
   private botConfigFile: string;
+  private discord: Discord.Client;
   private gameDir: string;
   private gameClientProcess: ChildProcessWithoutNullStreams;
   private motdTxtFile: string;
@@ -319,6 +321,7 @@ export class Server {
     spectating?: boolean,
   ) {
     // set up plain properties
+    this.discord = Discord.Client.Instance;
     this.log = log.scope('gameserver');
     this.match = match;
     this.matchGame = match.games.find((game) => game.status !== Constants.MatchStatus.COMPLETED);
@@ -633,6 +636,23 @@ export class Server {
       .map((template) => `WeaponPreference = ${template}`)
       .join('\n\t');
     return util.format(base, weaponPrefs);
+  }
+
+  /**
+   * Generates the discord presence for this match.
+   *
+   * @function
+   */
+  private async generateDiscordPresence() {
+    const [home, away] = this.competitors;
+    return this.discord.setActivity({
+      type: this.spectating
+        ? Constants.DiscordActivityType.WATCHING
+        : Constants.DiscordActivityType.COMPETING,
+      details: `In Match | ${this.map}`,
+      state: `${home.team.name} vs ${away.team.name}`,
+      instance: false,
+    });
   }
 
   /**
@@ -1377,6 +1397,13 @@ export class Server {
         gameClientProcess.kill();
       }
       throw error;
+    }
+
+    // update discord rich presence
+    try {
+      await this.generateDiscordPresence();
+    } catch (error) {
+      this.discord.log.warn(error);
     }
 
     // set up game event handlers

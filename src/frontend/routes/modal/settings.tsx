@@ -386,6 +386,21 @@ export default function () {
             </section>
             <section>
               <header>
+                <p>{t('settings.discordTitle')}</p>
+                <p>{t('settings.languageSubtitle')}</p>
+              </header>
+              <article>
+                <input
+                  type="checkbox"
+                  className="toggle"
+                  onChange={(event) => onSettingsUpdate('general.discord', event.target.checked)}
+                  checked={settings.general.discord}
+                  value={String(settings.general.discord)}
+                />
+              </article>
+            </section>
+            <section>
+              <header>
                 <p>{t('settings.volumeTitle')}</p>
               </header>
               <article>

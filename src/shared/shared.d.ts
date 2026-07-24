@@ -2,6 +2,20 @@
 type ExtractBaseType<T> = T extends unknown[] ? T[number] : T;
 
 /** @interface */
+interface DiscordActivity {
+  details: string;
+  instance: boolean;
+  name?: string;
+  type?: import('./constants').DiscordActivityType;
+  state?: string;
+  timestamps?: {
+    start?: number;
+    end?: number;
+  };
+  assets?: unknown;
+}
+
+/** @interface */
 interface GitHubAsset {
   url: string;
   id: number;

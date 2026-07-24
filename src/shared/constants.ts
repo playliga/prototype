@@ -189,6 +189,14 @@ export enum DefuserAllocation {
 }
 
 /** @enum */
+export enum DiscordActivityType {
+  PLAYING = 0,
+  LISTENING = 2,
+  WATCHING = 3,
+  COMPETING = 5,
+}
+
+/** @enum */
 export enum ErrorCode {
   ENOENT = 'ENOENT',
   ERUNNING = 'ERUNNING',
@@ -294,6 +302,8 @@ export enum IPCRoute {
   CONTINENTS_ALL = '/continents/all',
   DATABASE_CONNECT = '/database/connect',
   DATABASE_DISCONNECT = '/database/disconnect',
+  DISCORD_CONNECT = '/discord/connect',
+  DISCORD_SET_ACTIVITY = '/discord/set-activity',
   EMAILS_ALL = '/emails/all',
   EMAILS_DELETE = '/emails/delete',
   EMAILS_NEW = '/emails/new',
@@ -1254,6 +1264,7 @@ export const Settings = {
     transfers: true,
     botControllable: true,
     acceptedRetireNotice: false,
+    discord: true,
   },
   calendar: {
     ignoreExits: false,

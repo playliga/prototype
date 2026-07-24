@@ -213,6 +213,7 @@
       "botControllableTitle": "Bot Controllable",
       "botControllableSubtitle": "If players can control bots. CSGO and CS2 only.",
       "botDifficultyTitle": "Dificultad de Bots",
+      "discordTitle": "Discord Presence",
       "gameLogsMaxAttemptsTitle": "Game Launch Timeout",
       "gameLogsMaxAttemptsSubtitle": "Increase if your game generally needs a bit more time to start up.",
       "gamePathSubtitle": "Útil si tus juegos están instalados en otra unidad.",

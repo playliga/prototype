@@ -32,6 +32,7 @@ export { default as IPCModsHandler } from './mods';
 export { default as IPCSponsorsHandler } from './sponsors';
 export { default as IPCMapPool } from './map-pool';
 export { default as IPCShortlist } from './shortlist';
+export { default as IPCDiscord } from './discord';
 
 /**
  * Gets application information such as name and
