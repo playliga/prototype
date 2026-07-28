@@ -67,15 +67,20 @@ function emails(state: typeof InitialState.emails, action: AppAction<typeof Init
   switch (action.type) {
     case ReduxActions.EMAILS_DELETE:
       return xorBy(state, action.payload, 'id');
-    case ReduxActions.EMAILS_UPDATE:
+    case ReduxActions.EMAILS_UPDATE: {
+      // sorts emails by their latest dialogue entry
+      const latestDialogueSentAt = (email: (typeof InitialState.emails)[number]) =>
+        Math.max(...email.dialogues.map((d) => d.sentAt.valueOf()));
+
       // merges the two arrays, replacing the entries that overlap with the payload
       return values(merge(keyBy(state, 'id'), keyBy(action.payload, 'id')))
-        .sort((a, b) => b.sentAt.valueOf() - a.sentAt.valueOf())
+        .sort((a, b) => latestDialogueSentAt(b) - latestDialogueSentAt(a))
         .map((email) => {
           // sort the email internal entries
           email.dialogues.sort((a, b) => b.sentAt.valueOf() - a.sentAt.valueOf());
           return email;
         });
+    }
     default:
       return state;
   }
