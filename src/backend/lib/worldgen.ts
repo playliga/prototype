@@ -12,7 +12,7 @@ import * as Locale from './locale';
 import * as Bus from './bus';
 import Tournament from '@liga/shared/tournament';
 import DatabaseClient from './database-client';
-import { addDays, addWeeks, addYears, differenceInDays, format, setDay } from 'date-fns';
+import { addDays, addWeeks, addYears, differenceInDays, format, setDay, subWeeks } from 'date-fns';
 import { compact, differenceBy, flatten, groupBy, random, sample, shuffle } from 'lodash';
 import { Calendar, Prisma } from '@prisma/client';
 import { Constants, Chance, Bot, Eagers, Util } from '@liga/shared';
@@ -487,6 +487,98 @@ async function endgame() {
     profile.team.personas[0],
     profile.date,
   );
+}
+
+/**
+ * Sells the player forcefully from the user's squad.
+ *
+ * @param id The transfer id.
+ * @function
+ */
+export async function forceSellPlayer(id: number) {
+  // grab transfer details
+  const transfer = await DatabaseClient.prisma.transfer.findFirst({
+    where: {
+      id,
+    },
+    include: {
+      ...Eagers.transfer.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+
+  // find a team of equivalent continent and prestige
+  const xp = new Bot.Exp(transfer.target);
+  const [continent] = await DatabaseClient.prisma.continent.findMany({
+    where: {
+      countries: {
+        some: {
+          id: transfer.target.country.id,
+        },
+      },
+    },
+    include: {
+      federation: true,
+    },
+  });
+  const teams = await DatabaseClient.prisma.team.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    where: {
+      id: {
+        not: transfer.target.team.id,
+      },
+      tier: xp.getBotTemplate().prestige,
+      country: {
+        continent: {
+          federationId: continent.federationId,
+        },
+      },
+    },
+  });
+  const team = sample(teams);
+
+  // sell the player
+  const profile = await DatabaseClient.prisma.profile.findFirst();
+  const [offerStart, offerEnd] = Util.getContractPeriod(
+    profile.date,
+    random(Constants.TransferSettings.OFFER_MIN_YEARS, Constants.TransferSettings.OFFER_MAX_YEARS),
+  );
+  const newTransfer = await createTransferDiscussion(
+    {
+      status: Constants.TransferStatus.PLAYER_PENDING,
+      from: {
+        connect: {
+          id: team.id,
+        },
+      },
+      to: {
+        connect: {
+          id: transfer.target.team.id,
+        },
+      },
+      target: {
+        connect: {
+          id: transfer.target.id,
+        },
+      },
+    },
+    {
+      status: Constants.TransferStatus.PLAYER_PENDING,
+      wages: transfer.target.wages,
+      cost: transfer.target.cost,
+      start: offerStart.toISOString(),
+      end: offerEnd.toISOString(),
+    },
+  );
+
+  await onTransferOffer({
+    payload: JSON.stringify([newTransfer.id, Constants.TransferStatus.PLAYER_ACCEPTED]),
+  });
+
+  return team;
 }
 
 /**
@@ -2558,6 +2650,53 @@ export async function onSponsorshipPayment(entry: Partial<Calendar>) {
 /**
  * Engine loop handler.
  *
+ * Handles player contract expirations.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onTransferContractExpired(entry: Partial<Calendar>) {
+  await forceSellPlayer(Number(entry.payload));
+  WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE);
+}
+
+/**
+ * Engine loop handler.
+ *
+ * Handles player contract renewals.
+ *
+ * @param entry Engine loop input data.
+ * @function
+ */
+export async function onTransferContractRenew(entry: Partial<Calendar>) {
+  const profile = await DatabaseClient.prisma.profile.findFirst<typeof Eagers.profile>();
+  const locale = Locale.getLocale(profile);
+
+  // grab transfer details
+  const transfer = await DatabaseClient.prisma.transfer.findFirst({
+    where: {
+      id: Number(entry.payload),
+    },
+    include: {
+      ...Eagers.transfer.include,
+      offers: { orderBy: { id: 'desc' } },
+    },
+  });
+  const [offer] = transfer.offers;
+
+  // send contract renewal e-mail
+  return sendEmail(
+    Sqrl.render(locale.templates.OfferRenew.SUBJECT, { transfer }),
+    Sqrl.render(locale.templates.OfferRenew.CONTENT, { transfer, profile }),
+    profile.team.personas[0],
+    subWeeks(offer.end, 2),
+    true,
+  );
+}
+
+/**
+ * Engine loop handler.
+ *
  * Parses a transfer offer.
  *
  * @param entry Engine loop input data.
@@ -2670,6 +2809,24 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
     });
   }
 
+  // cancel any existing contract extensions
+  if (prevTransfer) {
+    await DatabaseClient.prisma.calendar.deleteMany({
+      where: {
+        type: {
+          in: [
+            Constants.CalendarEntry.TRANSFER_CONTRACT_EXPIRED,
+            Constants.CalendarEntry.TRANSFER_CONTRACT_RENEW,
+          ],
+        },
+        payload: prevTransfer.id.toString(),
+        date: {
+          gte: profile.date.toISOString(),
+        },
+      },
+    });
+  }
+
   // setup the scheduled payments
   const payments: Array<Prisma.PrismaPromise<typeof entry>> = [];
 
@@ -2726,6 +2883,24 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
             earnings: {
               increment: offer.cost,
             },
+          },
+        })
+      : Promise.resolve(),
+    transfer.from.id === profile.teamId
+      ? DatabaseClient.prisma.calendar.create({
+          data: {
+            type: Constants.CalendarEntry.TRANSFER_CONTRACT_RENEW,
+            date: subWeeks(offer.end, 2),
+            payload: String(transfer.id),
+          },
+        })
+      : Promise.resolve(),
+    transfer.from.id === profile.teamId
+      ? DatabaseClient.prisma.calendar.create({
+          data: {
+            type: Constants.CalendarEntry.TRANSFER_CONTRACT_EXPIRED,
+            date: offer.end,
+            payload: String(transfer.id),
           },
         })
       : Promise.resolve(),
@@ -2864,80 +3039,12 @@ export async function onTransferWagePayment(entry: Partial<Calendar>) {
     });
   }
 
-  // find a team of equivalent continent and prestige
-  const xp = new Bot.Exp(transfer.target);
-  const [continent] = await DatabaseClient.prisma.continent.findMany({
-    where: {
-      countries: {
-        some: {
-          id: transfer.target.country.id,
-        },
-      },
-    },
-    include: {
-      federation: true,
-    },
-  });
-  const teams = await DatabaseClient.prisma.team.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    where: {
-      id: {
-        not: transfer.target.team.id,
-      },
-      tier: xp.getBotTemplate().prestige,
-      country: {
-        continent: {
-          federationId: continent.federationId,
-        },
-      },
-    },
-  });
-  const team = sample(teams);
-
   // force sell the player
-  const [offerStart, offerEnd] = Util.getContractPeriod(
+  const team = await forceSellPlayer(transfer.id);
+  return sendEmail(
+    Sqrl.render(locale.templates.WagesUnpaidSold.SUBJECT, { transfer }),
+    Sqrl.render(locale.templates.WagesUnpaidSold.CONTENT, { profile, transfer, team }),
+    persona,
     profile.date,
-    random(Constants.TransferSettings.OFFER_MIN_YEARS, Constants.TransferSettings.OFFER_MAX_YEARS),
   );
-  const newTransfer = await createTransferDiscussion(
-    {
-      status: Constants.TransferStatus.PLAYER_PENDING,
-      from: {
-        connect: {
-          id: team.id,
-        },
-      },
-      to: {
-        connect: {
-          id: transfer.target.team.id,
-        },
-      },
-      target: {
-        connect: {
-          id: transfer.target.id,
-        },
-      },
-    },
-    {
-      status: Constants.TransferStatus.PLAYER_PENDING,
-      wages: transfer.target.wages,
-      cost: transfer.target.cost,
-      start: offerStart.toISOString(),
-      end: offerEnd.toISOString(),
-    },
-  );
-  return Promise.all([
-    onTransferOffer({
-      payload: JSON.stringify([newTransfer.id, Constants.TransferStatus.PLAYER_ACCEPTED]),
-    }),
-    sendEmail(
-      Sqrl.render(locale.templates.WagesUnpaidSold.SUBJECT, { transfer }),
-      Sqrl.render(locale.templates.WagesUnpaidSold.CONTENT, { profile, transfer, team }),
-      persona,
-      profile.date,
-    ),
-  ]);
 }

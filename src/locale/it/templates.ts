@@ -181,6 +181,35 @@ export enum OfferRejectedUser {
 }
 
 /** @enum */
+export enum OfferRenew {
+  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  CONTENT = `
+  Hello, {{it.profile.player.name}}.
+
+  The contract for **{{it.transfer.target.name}}** is set to expire soon. The contract details are below:
+
+  - Wages: {{it.transfer.offers[0].wages | currency}}
+
+  ---
+
+  <button className="btn btn-primary" data-ipc-route="/transfer/renew/accept" data-payload="{{it.transfer.id}}">Accept</button>
+  <button className="btn btn-ghost" data-ipc-route="/transfer/renew/reject" data-payload="{{it.transfer.id}}">Reject</button>
+  `,
+}
+
+/** @enum */
+export enum OfferRenewRejectedUser {
+  SUBJECT = 'Transfer Offer for {{it.transfer.target.name}}',
+  CONTENT = `
+  Hi, {{it.profile.player.name}}.
+
+  We have rejected the contract extension for **{{it.transfer.target.name}}**.
+
+  We will look to sell him as soon as possible.
+  `,
+}
+
+/** @enum */
 export enum SponsorshipAccepted {
   SUBJECT = 'Offerta di sponsorizzazione per {{it.sponsorship.sponsor.name}}',
   CONTENT = `

@@ -3,12 +3,13 @@
  *
  * @module
  */
+import * as Sqrl from 'squirrelly';
 import { ipcMain } from 'electron';
-import { addDays } from 'date-fns';
+import { addDays, addYears } from 'date-fns';
 import { random } from 'lodash';
 import { Prisma } from '@prisma/client';
-import { Constants } from '@liga/shared';
-import { DatabaseClient, WindowManager, Worldgen } from '@liga/backend/lib';
+import { Constants, Eagers } from '@liga/shared';
+import { DatabaseClient, WindowManager, Worldgen, Locale } from '@liga/backend/lib';
 
 /**
  * Register the IPC event handlers.
@@ -82,5 +83,58 @@ export default function () {
     // send transfers update to all windows
     WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE);
     return Promise.resolve();
+  });
+  ipcMain.handle(Constants.IPCRoute.TRANSFER_RENEW_ACCEPT, async (_, id: string) => {
+    const transfer = await DatabaseClient.prisma.transfer.findFirst({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        offers: { orderBy: { id: 'desc' } },
+      },
+    });
+    const [offer] = transfer.offers;
+
+    // extend contract by a year
+    await DatabaseClient.prisma.offer.update({
+      where: {
+        id: offer.id,
+      },
+      data: {
+        status: Constants.TransferStatus.PLAYER_PENDING,
+        end: addYears(offer.end, 1),
+      },
+    });
+
+    await Worldgen.onTransferOffer({
+      payload: JSON.stringify([transfer.id, Constants.TransferStatus.PLAYER_ACCEPTED]),
+    });
+
+    // send transfers update to all windows
+    WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE);
+    return Promise.resolve();
+  });
+  ipcMain.handle(Constants.IPCRoute.TRANSFER_RENEW_REJECT, async (_, id: string) => {
+    const profile = await DatabaseClient.prisma.profile.findFirst(Eagers.profile);
+    const locale = Locale.getLocale(profile);
+
+    const transfer = await DatabaseClient.prisma.transfer.findFirst({
+      where: {
+        id: Number(id),
+      },
+      include: Eagers.transfer.include,
+    });
+
+    await Worldgen.sendEmail(
+      Sqrl.render(locale.templates.OfferRenewRejectedUser.SUBJECT, { transfer }),
+      Sqrl.render(locale.templates.OfferRenewRejectedUser.CONTENT, { profile, transfer }),
+      profile.team.personas[0],
+      profile.date,
+    );
+
+    await Worldgen.forceSellPlayer(Number(id));
+
+    // send transfers update to all windows
+    WindowManager.sendAll(Constants.IPCRoute.TRANSFER_UPDATE);
   });
 }

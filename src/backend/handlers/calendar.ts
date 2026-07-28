@@ -164,6 +164,14 @@ export default function () {
     Worldgen.onSponsorshipPayment,
   );
   Engine.Runtime.Instance.register(
+    Constants.CalendarEntry.TRANSFER_CONTRACT_EXPIRED,
+    Worldgen.onTransferContractExpired,
+  );
+  Engine.Runtime.Instance.register(
+    Constants.CalendarEntry.TRANSFER_CONTRACT_RENEW,
+    Worldgen.onTransferContractRenew,
+  );
+  Engine.Runtime.Instance.register(
     Constants.CalendarEntry.TRANSFER_PARSE,
     Worldgen.onTransferOffer,
   );
