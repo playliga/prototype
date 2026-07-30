@@ -1,3 +1,18 @@
+## [3.1.0](https://github.com/playliga/prototype/compare/v3.0.2...v3.1.0) (2026-07-30)
+
+### Features
+
+- add discord presence integration ([#628](https://github.com/playliga/prototype/issues/628)) ([d93cdda](https://github.com/playliga/prototype/commit/d93cdda21276a0a7f0ef31c3d67002b706161b07))
+- added contract extensions workflow ([#625](https://github.com/playliga/prototype/issues/625)) ([69f2574](https://github.com/playliga/prototype/commit/69f2574e9f82e76b4c07d9396a237766155e1f99))
+- user can now set their age ([#624](https://github.com/playliga/prototype/issues/624)) ([a74af0b](https://github.com/playliga/prototype/commit/a74af0b98a22a971f90bfb565243eafb8de42b41))
+
+### Bug Fixes
+
+- fix broken cs2 game path detection ([#633](https://github.com/playliga/prototype/issues/633)) ([331844d](https://github.com/playliga/prototype/commit/331844daef5f6b57315f8c979a486d565ed93add))
+- fix emails not being sorted properly by latest message ([dab473c](https://github.com/playliga/prototype/commit/dab473c7a2d1fc73fe7f86de56438d6f91d927f3))
+- improve error handling when handling player transfers ([b12e4fc](https://github.com/playliga/prototype/commit/b12e4fc4f1ef41ba513843a3dd8021f3a60c3bc2))
+- tweak wages ([#630](https://github.com/playliga/prototype/issues/630)) ([b065841](https://github.com/playliga/prototype/commit/b0658417913faac3540022140fd2b4499736bc84))
+
 ## [3.0.0](https://github.com/playliga/prototype/compare/v3.0.0-rc.13...v3.0.0) (2026-06-19)
 
 ### Features
