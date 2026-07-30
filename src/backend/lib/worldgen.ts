@@ -2740,7 +2740,17 @@ export async function onTransferOffer(entry: Partial<Calendar>) {
 
   // handle additional paperwork to finalize transfer offer
   if (result.paperwork) {
-    await Promise.all(result.paperwork);
+    try {
+      await Promise.all(result.paperwork);
+    } catch (error) {
+      Engine.Runtime.Instance.log.error(
+        'Could not parse transfer offer for "%s" (Status: %s)',
+        transfer.target.name,
+        offer.status,
+      );
+      Engine.Runtime.Instance.log.error(error);
+      return;
+    }
   }
 
   // update existing transfer and current offer
