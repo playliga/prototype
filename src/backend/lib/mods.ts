@@ -203,19 +203,23 @@ export class Manager extends events.EventEmitter {
    * @function
    */
   public async delete() {
-    // grab just the folders in the mods directory
+    // grab just the folders in the mods directory and remove them
     const items = await fs.promises.readdir(getPath(), { withFileTypes: true });
     const folders = items.filter((item) => item.isDirectory());
-
-    // empty out the installed mod file
-    await fs.promises.writeFile(Manager.getInstalledModFilePath(), '', 'utf8');
-
-    // remove them
-    return Promise.all(
+    await Promise.all(
       folders.map((folder) =>
         fs.promises.rm(path.join(folder.parentPath, folder.name), { recursive: true }),
       ),
     );
+
+    // empty out the installed mod file
+    await fs.promises.writeFile(Manager.getInstalledModFilePath(), '', 'utf8');
+
+    // remove the root save which would be the modded
+    // one and reconnect to the vanilla root save
+    await DatabaseClient.disconnect();
+    await fs.promises.rm(path.join(DatabaseClient.basePath, Util.getSaveFileName(0)));
+    await DatabaseClient.connect();
   }
 
   /**
