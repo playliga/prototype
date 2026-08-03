@@ -285,7 +285,6 @@ export class Server {
   private serverConfigFile: string;
   private settings: typeof Constants.Settings;
   private spectating?: boolean;
-  private startTime: Date;
   private weaponPbxWeight: Record<string, number>;
   public competitors: Server['match']['competitors'];
   public log: log.LogFunctions;
@@ -329,7 +328,6 @@ export class Server {
     this.settings = Util.loadSettings(profile.settings);
     this.scorebotEvents = [];
     this.spectating = Boolean(spectating);
-    this.startTime = new Date();
 
     // handle game override
     if (gameOverride) {
@@ -475,7 +473,7 @@ export class Server {
     // clean up connections to processes and/or files
     if (this.scorebot) {
       try {
-        await this.scorebot.quit();
+        this.scorebot.quit();
       } catch (error) {
         this.log.warn(error);
       }
@@ -1081,6 +1079,9 @@ export class Server {
         '12',
         '+map',
         Util.convertMapPool(this.map, this.settings.general.game),
+        '+logaddress',
+        this.getLocalIP(),
+        String(27017),
         ...this.userArgs,
       ],
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS16_BASEDIR) },
@@ -1114,6 +1115,8 @@ export class Server {
         '12',
         '+exec',
         Constants.GameSettings.CS2_SERVER_CONFIG_FILE,
+        '+logaddress_add_http',
+        `http://${this.getLocalIP()}:${Number(27017)}`,
         ...this.userArgs,
       ],
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CS2_BASEDIR) },
@@ -1143,6 +1146,8 @@ export class Server {
       '12',
       '+exec',
       Constants.GameSettings.CSGO_SERVER_CONFIG_FILE,
+      '+logaddress_add',
+      `${this.getLocalIP()}:${Number(27017)}`,
     ];
 
     // this is a temporary workaround until cs2 fully supports custom bot names
@@ -1193,6 +1198,8 @@ export class Server {
       Util.convertMapPool(this.map, this.settings.general.game),
       '+maxplayers',
       '12',
+      '+logaddress_add',
+      `${this.getLocalIP()}:${Number(27017)}`,
       ...this.userArgs,
     ];
 
@@ -1240,6 +1247,9 @@ export class Server {
         '12',
         '+map',
         Util.convertMapPool(this.map, this.settings.general.game),
+        '+logaddress',
+        this.getLocalIP(),
+        String(27017),
         ...this.userArgs,
       ],
       { cwd: path.join(this.settings.general.gamePath, Constants.GameSettings.CZERO_BASEDIR) },
@@ -1304,61 +1314,6 @@ export class Server {
   }
 
   /**
-   * Waits for the server to create a new log file by ensuring the
-   * log file discovered is newer than the marked timestamp.
-   *
-   * @function
-   */
-  private async waitForLogFile() {
-    const logsBaseDir = getGameLogDirectory(
-      this.settings.general.game,
-      this.settings.general.gamePath,
-    );
-
-    // make sure logs dir exists as it may not
-    // be created in time on slower builds
-    try {
-      await fs.promises.access(logsBaseDir, fs.constants.F_OK);
-    } catch (_) {
-      this.log.warn('%s not found. creating...', logsBaseDir);
-      await fs.promises.mkdir(logsBaseDir, { recursive: true });
-    }
-
-    let logFilePath: string;
-
-    for (
-      let logsRetryNum = 0;
-      logsRetryNum < this.settings.general.gameLogsMaxAttempts;
-      logsRetryNum++
-    ) {
-      this.log.info('Waiting for new server log file (attempt #%d)...', logsRetryNum + 1);
-      const files = await glob('*.log', {
-        cwd: logsBaseDir,
-        withFileTypes: true,
-        stat: true,
-      });
-      const [logFile] = files.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
-
-      if (!logFile || logFile.mtime <= this.startTime) {
-        await Util.sleep(Constants.GameSettings.SERVER_CVAR_GAMEOVER_DELAY * 1000);
-        continue;
-      }
-
-      logFilePath = path.join(logsBaseDir, logFile.name);
-      this.log.info('Found %s!', logFilePath);
-      break;
-    }
-
-    if (!logFilePath) {
-      throw Error(
-        `Could not find log file or one that is newer than ${this.startTime.toString()}.`,
-      );
-    }
-
-    return logFilePath;
-  }
-
-  /**
    * Starts the game client.
    *
    * If CS16 is enabled, also starts the game server.
@@ -1390,7 +1345,14 @@ export class Server {
 
     // start the scorebot
     try {
-      this.scorebot = new Scorebot.Watcher(await this.waitForLogFile());
+      this.scorebot = new Scorebot.Watcher(this.getLocalIP(), {
+        port: 27017,
+        timeout: Math.max(
+          this.settings.general.gameLogsMaxAttempts * 1000,
+          Constants.GameSettings.LOGS_MAX_ATTEMPTS * 1000,
+        ),
+        udp: this.settings.general.game !== Constants.Game.CS2,
+      });
       await this.scorebot.start();
     } catch (error) {
       if (gameClientProcess) {

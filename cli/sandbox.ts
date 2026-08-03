@@ -12,6 +12,7 @@ import log from 'electron-log';
 import AppInfo from 'package.json';
 import { Command } from 'commander';
 import { addDays } from 'date-fns';
+import { spawn } from 'node:child_process';
 import { camelCase, random, sample, upperFirst } from 'lodash';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
 import {
@@ -27,6 +28,7 @@ import {
   VDF,
   VPK,
   Discord,
+  GameLogs,
 } from '@liga/backend/lib';
 
 /**
@@ -38,6 +40,115 @@ const DEFAULT_ARGS = {
   game: Constants.Game.CS16,
   spectate: false,
 };
+
+/**
+ * Utility function to launch a game version.
+ *
+ * @param id The game enum id.
+ * @function
+ */
+function launchGameClient(id: Constants.Game) {
+  switch (id) {
+    case Constants.Game.CS16:
+      return spawn(
+        Constants.GameSettings.CS16_EXE,
+        [
+          '-game',
+          Constants.GameSettings.CS16_GAMEDIR,
+          '-dll',
+          Constants.GameSettings.CS16_DLL_METAMOD,
+          '-beta',
+          '-bots',
+          '+localinfo',
+          'mm_gamedll',
+          Constants.GameSettings.CS16_DLL_BOTS,
+          '+ip',
+          '192.168.1.180',
+          '+maxplayers',
+          '12',
+          '+map',
+          'de_dust2',
+          '+logaddress',
+          '192.168.1.180',
+          String(27017),
+        ],
+        { cwd: path.join('C:/Program Files (x86)/Steam', Constants.GameSettings.CS16_BASEDIR) },
+      );
+    case Constants.Game.CZERO:
+      return null;
+    case Constants.Game.CSS:
+      return spawn(
+        Constants.GameSettings.CSSOURCE_EXE,
+        [
+          '-game',
+          Constants.GameSettings.CSSOURCE_GAMEDIR,
+          '-usercon',
+          '-novid',
+          '+ip',
+          '192.168.1.180',
+          '+map',
+          'de_dust2',
+          '+maxplayers',
+          '12',
+          '+logaddress_add',
+          '192.168.1.180:27017',
+        ],
+        {
+          cwd: path.join('C:/Program Files (x86)/Steam', Constants.GameSettings.CSSOURCE_BASEDIR),
+        },
+      );
+    case Constants.Game.CSGO:
+      return spawn(
+        Constants.GameSettings.CSGO_EXE,
+        [
+          '-applaunch',
+          Constants.GameSettings.CSGO_APPID.toString(),
+          '-novid',
+          '-usercon',
+          '-insecure',
+          '-maxplayers_override',
+          '12',
+          '+map',
+          'de_dust2',
+          '+game_mode',
+          '1',
+          '+ip',
+          '192.168.1.180',
+          '+logaddress_add',
+          '192.168.1.180:27017',
+          '+log',
+          'on',
+        ],
+        {
+          cwd: path.join('C:/Program Files (x86)/Steam', Constants.GameSettings.CSGO_BASEDIR),
+        },
+      );
+    case Constants.Game.CS2:
+      return spawn(
+        Constants.GameSettings.CS2_EXE,
+        [
+          '-novid',
+          '-usercon',
+          '-insecure',
+          '-maxplayers_override',
+          '12',
+          '+map',
+          'de_dust2',
+          '+game_mode',
+          '1',
+          '+ip',
+          '192.168.1.180',
+          '+logaddress_add_http',
+          'http://192.168.1.180:27017',
+          '+log',
+          'on',
+        ],
+        {
+          cwd: path.join('C:/Program Files (x86)/Steam', Constants.GameSettings.CS2_BASEDIR),
+        },
+      );
+  }
+}
 
 /**
  * Worldgen sandbox subcommand.
@@ -518,6 +629,58 @@ async function sandboxDiscord() {
 }
 
 /**
+ * Tests the game logs library.
+ *
+ * @param args CLI args.
+ * @function
+ */
+async function sandboxGameLogs(args?: typeof DEFAULT_ARGS) {
+  const pid = launchGameClient(args.game);
+
+  if (args.game === Constants.Game.CS2) {
+    const receiver = new GameLogs.Client('192.168.1.180', { udp: false });
+
+    try {
+      await receiver.connect();
+    } catch (error) {
+      log.error(error);
+    }
+
+    return new Promise<void>((resolve) => {
+      pid.on('close', () => {
+        log.info('game closed. shutting down http receiver.');
+        receiver.disconnect();
+        resolve();
+      });
+
+      receiver.on(GameLogs.EventIdentifier.MESSAGE, log.debug);
+    });
+  }
+
+  const receiver = new GameLogs.Client('192.168.1.180');
+
+  try {
+    await receiver.connect();
+  } catch (error) {
+    log.error(error);
+  }
+
+  return new Promise<void>((resolve) => {
+    pid.on('close', () => {
+      log.info('game closed. shutting down udp receiver.');
+      receiver.disconnect();
+      resolve();
+    });
+
+    receiver.on(GameLogs.EventIdentifier.MESSAGE, log.debug);
+    receiver.on(GameLogs.EventIdentifier.CLOSE, () => {
+      log.info('connection to server closed.');
+      resolve();
+    });
+  });
+}
+
+/**
  * Validates the provided sandbox type and runs it.
  *
  * @param type The type of sandbox to run.
@@ -546,6 +709,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     'vdf',
     'vpk',
     'discord',
+    'game-logs',
   ];
   const sandboxFns: Record<
     string,
@@ -564,6 +728,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     | typeof sandboxVdf
     | typeof sandboxVpk
     | typeof sandboxDiscord
+    | typeof sandboxGameLogs
   > = {
     sandboxWorldgen,
     sandboxScore,
@@ -580,6 +745,7 @@ export async function handleSandboxType(type: string, args: typeof DEFAULT_ARGS)
     sandboxVdf,
     sandboxVpk,
     sandboxDiscord,
+    sandboxGameLogs,
   };
 
   if (!acceptedSandboxTypes.includes(type)) {

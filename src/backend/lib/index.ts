@@ -7,6 +7,7 @@ export * as Engine from './engine';
 export * as FileManager from './file-manager';
 export * as Firebase from './firebase';
 export * as Game from './game';
+export * as GameLogs from './game-logs';
 export * as GitHub from './github';
 export * as Locale from './locale';
 export * as Mods from './mods';

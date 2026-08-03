@@ -5,10 +5,8 @@
  * @see https://github.com/OpenSourceLAN/better-srcds-log-parser
  * @module
  */
-import * as Tail from './tail';
-import * as FileManager from './file-manager';
+import * as GameLogs from './game-logs';
 import events from 'node:events';
-import readline from 'node:readline';
 import log from 'electron-log';
 
 /** @enum {EventIdentifier} */
@@ -126,19 +124,15 @@ export interface Watcher {
 
 /** @class */
 export class Watcher extends events.EventEmitter {
-  private file: string;
-  private tail: Tail.Watcher;
-  private lineSplitter: readline.Interface;
+  private tail: GameLogs.Client;
   public log: log.LogFunctions;
 
-  constructor(file: string) {
+  constructor(host: string, opts: ConstructorParameters<typeof GameLogs.Client>[1]) {
     super();
-    this.file = file;
     this.log = log.scope('scorebot');
-    this.tail = new Tail.Watcher(file, { encoding: 'utf8' });
-    this.tail.on(Tail.EventIdentifier.TAIL_ERROR, this.log.error);
-    this.tail.on(Tail.EventIdentifier.ERROR, this.log.error);
-    this.tail.on(Tail.EventIdentifier.CLOSE, () => this.log.info('Shutdown.'));
+    this.tail = new GameLogs.Client(host, opts);
+    this.tail.on(GameLogs.EventIdentifier.ERROR, this.log.error);
+    this.tail.on(GameLogs.EventIdentifier.CLOSE, () => this.log.info('Shutdown.'));
   }
 
   /**
@@ -268,28 +262,12 @@ export class Watcher extends events.EventEmitter {
     }
   }
 
-  /**
-   * Starts tailing the server log file.
-   *
-   * Pipes the file stream into `readline` which then breaks up the data
-   * into newlines. This helps with performance when tailing the server
-   * logs which contain a lot of throughput, e.g.: `bot_kill`.
-   *
-   * @see https://www.npmjs.com/package/@logdna/tail-file#example-using-readline
-   * @function
-   */
+  /** @function */
   public async start() {
-    // handle race condition where this is called before the path
-    // to the log file can be created by the game server
-    await FileManager.touch(this.file);
-
-    // if we got this far; we can tail the log file
     this.log.info('Starting...');
-    await this.tail.start();
-    this.lineSplitter = readline.createInterface({ input: this.tail });
-    this.lineSplitter.on('line', this.onLine.bind(this));
+    await this.tail.connect();
+    this.tail.on(GameLogs.EventIdentifier.MESSAGE, this.onLine.bind(this));
     this.log.info('Connected.');
-    return Promise.resolve();
   }
 
   /**
@@ -298,6 +276,6 @@ export class Watcher extends events.EventEmitter {
    * @function
    */
   public quit() {
-    return this.tail.quit();
+    this.tail.disconnect();
   }
 }
