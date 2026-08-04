@@ -632,8 +632,16 @@ function parsePlayerTransferOffer(
         },
       },
     }),
-    DatabaseClient.prisma.calendar.create({
-      data: {
+    DatabaseClient.prisma.calendar.upsert({
+      where: {
+        date_type_payload: {
+          type: Constants.CalendarEntry.TRANSFER_SQUAD_SYNC,
+          payload: String(transfer.from.id),
+          date: addDays(profile.date, 1).toISOString(),
+        },
+      },
+      update: {},
+      create: {
         type: Constants.CalendarEntry.TRANSFER_SQUAD_SYNC,
         payload: String(transfer.from.id),
         date: addDays(profile.date, 1).toISOString(),
@@ -2982,6 +2990,11 @@ export async function onTransferWagePayment(entry: Partial<Calendar>) {
       offers: { orderBy: { id: 'desc' } },
     },
   });
+
+  // bail early if this guy has no wages
+  if (!transfer.target.wages) {
+    return;
+  }
 
   // update team earnings
   if (transfer.from.earnings >= transfer.target.wages) {

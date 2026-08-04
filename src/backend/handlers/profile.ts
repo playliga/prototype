@@ -8,11 +8,12 @@ import path from 'node:path';
 import log from 'electron-log';
 import { ipcMain } from 'electron';
 import { glob } from 'glob';
-import { sample, sampleSize } from 'lodash';
+import { sample, sampleSize, flatten } from 'lodash';
+import { addYears, addWeeks, subWeeks } from 'date-fns';
 import { Prisma } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { Bot, Constants, Eagers, Util } from '@liga/shared';
-import { Bus, DatabaseClient, Game, WindowManager } from '@liga/backend/lib';
+import { Bus, DatabaseClient, Game, WindowManager, Worldgen } from '@liga/backend/lib';
 
 /** @interface */
 interface ProfileCreateIPCPayload {
@@ -133,18 +134,31 @@ export default function () {
       const squad = sampleSize(freeAgents, Constants.Application.SQUAD_MIN_LENGTH);
 
       // create the user's team and player records
+      const existingTeam = await DatabaseClient.prisma.team.findFirst({
+        where: {
+          id: data.team.id || -1,
+        },
+        include: {
+          players: true,
+        },
+      });
       const team = await DatabaseClient.prisma.team.upsert({
         where: {
           id: data.team.id || -1,
         },
+        include: {
+          players: true,
+        },
         update: {
           earnings: (() => {
-            // sync earnings to their selected tier
-            const [potential] = Bot.Templates.filter(
-              (template) => template.prestige === data.team.tier,
-            ).slice(-1);
-            const wages = Util.getPlayerWages(Bot.Exp.getTotalXP(potential.stats));
-            return wages * Constants.Application.SQUAD_MIN_LENGTH;
+            if (!existingTeam) {
+              return 0;
+            }
+
+            return Util.getSquadWagesYearly(
+              existingTeam.players,
+              Constants.Application.NEW_CAREER_CONTRACT_LENGTH_YEARS,
+            );
           })(),
           players: {
             create: [
@@ -188,12 +202,12 @@ export default function () {
           prestige: data.team.tier,
           tier: data.team.tier,
           earnings: (() => {
-            // sync earnings to their selected tier
-            const [potential] = Bot.Templates.filter(
-              (template) => template.prestige === data.team.tier,
-            ).slice(-1);
-            const wages = Util.getPlayerWages(Bot.Exp.getTotalXP(potential.stats));
-            return wages * Constants.Application.SQUAD_MIN_LENGTH;
+            return (
+              squad.reduce(
+                (wages, player) => wages + player.wages * Constants.CalendarFrequency.YEARLY,
+                0,
+              ) * Constants.Application.NEW_CAREER_CONTRACT_LENGTH_YEARS
+            );
           })(),
           country: {
             connect: {
@@ -320,6 +334,82 @@ export default function () {
           },
         });
       }
+
+      // generate contracts
+      await Promise.all(
+        flatten(
+          team.players.map((player) =>
+            Worldgen.createTransferDiscussion(
+              {
+                status: Constants.TransferStatus.PLAYER_ACCEPTED,
+                from: {
+                  connect: {
+                    id: team.id,
+                  },
+                },
+                target: {
+                  connect: {
+                    id: player.id,
+                  },
+                },
+              },
+              {
+                status: Constants.TransferStatus.PLAYER_ACCEPTED,
+                cost: player.cost,
+                wages: player.wages,
+                start: data.today.toISOString(),
+                end: addYears(
+                  data.today,
+                  Constants.Application.NEW_CAREER_CONTRACT_LENGTH_YEARS,
+                ).toISOString(),
+              },
+            ).then((transfer) => {
+              const payments: Array<Prisma.PrismaPromise<Prisma.CalendarGetPayload<unknown>>> = [];
+              const [offer] = transfer.offers;
+
+              while (offer.start <= offer.end) {
+                if (offer.start < data.today) {
+                  offer.start = addWeeks(offer.start, Constants.CalendarFrequency.WEEKLY);
+                  continue;
+                }
+
+                payments.push(
+                  DatabaseClient.prisma.calendar.create({
+                    data: {
+                      type: Constants.CalendarEntry.TRANSFER_WAGE_PAYMENT,
+                      date: offer.start.toISOString(),
+                      payload: transfer.id.toString(),
+                    },
+                  }),
+                );
+
+                offer.start = addWeeks(offer.start, Constants.CalendarFrequency.WEEKLY);
+              }
+
+              payments.push(
+                DatabaseClient.prisma.calendar.create({
+                  data: {
+                    type: Constants.CalendarEntry.TRANSFER_CONTRACT_RENEW,
+                    date: subWeeks(offer.end, 2),
+                    payload: String(transfer.id),
+                  },
+                }),
+              );
+              payments.push(
+                DatabaseClient.prisma.calendar.create({
+                  data: {
+                    type: Constants.CalendarEntry.TRANSFER_CONTRACT_EXPIRED,
+                    date: offer.end,
+                    payload: String(transfer.id),
+                  },
+                }),
+              );
+
+              return DatabaseClient.prisma.$transaction(payments);
+            }),
+          ),
+        ),
+      );
 
       // discover steam path
       const settings = Util.loadSettings(settingsOverride || profile.settings);

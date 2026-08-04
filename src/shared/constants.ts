@@ -40,6 +40,7 @@ export enum Application {
   MAP_POOL_LENGTH = 7,
   NEW_CAREER_AGE_MAX = 75,
   NEW_CAREER_AGE_MIN = 13,
+  NEW_CAREER_CONTRACT_LENGTH_YEARS = 3,
   NEW_CAREER_DATE_FORMAT = 'yyyy-MM-dd',
   PLUGINS_DIR = 'plugins',
   SQUAD_MIN_LENGTH = 5,

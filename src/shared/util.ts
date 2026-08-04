@@ -466,3 +466,17 @@ export function getPlayerWages(xp: number) {
     Constants.PlayerCostWageSettings.WagesMultiplier
   );
 }
+
+/**
+ * Calculate the cost of a squad's YEARLY wages.
+ *
+ * @param squad     The squad.
+ * @param numYears  The number of years.
+ * @function
+ */
+export function getSquadWagesYearly(squad: Array<Prisma.PlayerGetPayload<unknown>>, numYears = 1) {
+  return (
+    squad.reduce((wages, player) => wages + player.wages * Constants.CalendarFrequency.YEARLY, 0) *
+    numYears
+  );
+}
