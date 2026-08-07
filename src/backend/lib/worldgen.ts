@@ -685,6 +685,67 @@ function parsePlayerTransferOffer(
           }),
         ]),
       ),
+    transfer.to.players.length <= Constants.Application.SQUAD_MIN_LENGTH
+      ? DatabaseClient.prisma.country
+          .findFirst({
+            where: {
+              id: transfer.to.countryId,
+            },
+            include: {
+              continent: true,
+            },
+          })
+          .then((country) =>
+            DatabaseClient.prisma.player.findMany({
+              where: {
+                teamId: null,
+                country: {
+                  continent: {
+                    federationId: country.continent.federationId,
+                  },
+                },
+              },
+            }),
+          )
+          .then((freeAgents) => sample(freeAgents))
+          .then((player) =>
+            Promise.all([
+              createTransferDiscussion(
+                {
+                  status: Constants.TransferStatus.PLAYER_ACCEPTED,
+                  from: {
+                    connect: {
+                      id: transfer.to.id,
+                    },
+                  },
+                  target: {
+                    connect: {
+                      id: player.id,
+                    },
+                  },
+                },
+                {
+                  status: Constants.TransferStatus.PLAYER_ACCEPTED,
+                  cost: player.cost,
+                  wages: player.wages,
+                },
+              ),
+              DatabaseClient.prisma.player.update({
+                where: { id: player.id },
+                data: {
+                  wagesDue: 0,
+                  transferListed: false,
+                  starter: true,
+                  team: {
+                    connect: {
+                      id: transfer.to.id,
+                    },
+                  },
+                },
+              }),
+            ]),
+          )
+      : Promise.resolve(),
   ];
 
   // bail early if a transfer status was set
@@ -933,23 +994,6 @@ export function parseTeamTransferOffer(
         content: email.CONTENT,
       },
       paperwork: status === Constants.TransferStatus.TEAM_ACCEPTED && paperwork(),
-    };
-  }
-
-  // bail early if the team lacks squad depth
-  if (transfer.to.players.length <= Constants.Application.SQUAD_MIN_LENGTH) {
-    Engine.Runtime.Instance.log.info(
-      '%s rejected the offer. Reason: Lack of squad depth.',
-      transfer.to.name,
-    );
-    return {
-      transfer: {
-        status: Constants.TransferStatus.TEAM_REJECTED,
-      },
-      dialogue: {
-        from: persona,
-        content: locale.templates.OfferRejectedEmailSquadDepth.CONTENT,
-      },
     };
   }
 
