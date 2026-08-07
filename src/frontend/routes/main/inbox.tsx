@@ -40,13 +40,17 @@ export default function () {
       return;
     }
 
+    if (state.emails.find((email) => email.id === selected[0]).read) {
+      return;
+    }
+
     api.emails
       .updateMany({
         where: { id: { in: selected.slice(0, 1) } },
         data: { read: true },
       })
       .then((emails) => dispatch(emailsUpdate(emails)));
-  }, [selected]);
+  }, [selected, state.emails]);
 
   return (
     <div id="inbox" className="dashboard">
