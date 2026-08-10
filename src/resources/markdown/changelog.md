@@ -1,3 +1,20 @@
+## [3.2.0](https://github.com/playliga/prototype/compare/v3.1.0...v3.2.0) (2026-08-10)
+
+### Features
+
+- improved cstrike server logs monitoring performance ([e0c8f31](https://github.com/playliga/prototype/commit/e0c8f31886bffaaba02a9e3a881a44e150f6b8e7))
+
+### Bug Fixes
+
+- automatically mark e-mail as read if thread is already open ([#638](https://github.com/playliga/prototype/issues/638)) ([39e84dc](https://github.com/pla
+  yliga/prototype/commit/39e84dc2f8a890b3c13b319c2446fa19a62302ec))
+- can now buy players from teams who lack squad depth ([#629](https://github.com/playliga/prototype/issues/629)) ([156d194](https://github.com/playliga/pr
+  ototype/commit/156d194de0b602247f04c690a1d61741ea749fb5))
+- fix broken exhibition and new career mode screens after uninstalling a mod ([#637](https://github.com/playliga/prototype/issues/637)) ([19b77ec](https:/
+  /github.com/playliga/prototype/commit/19b77ec09cef6b1e80c50647b10eaaaf54622925))
+- fix missing squad contracts when starting new careers ([#636](https://github.com/playliga/prototype/issues/636)) ([0dc5c5f](https://github.com/playliga/
+  prototype/commit/0dc5c5f4a5168e0adb031e110526044d810661a5))
+
 ## [3.1.0](https://github.com/playliga/prototype/compare/v3.0.2...v3.1.0) (2026-07-30)
 
 ### Features
