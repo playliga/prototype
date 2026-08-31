@@ -1,3 +1,9 @@
+## [3.2.1](https://github.com/playliga/prototype/compare/v3.2.0...v3.2.1) (2026-08-31)
+
+### Bug Fixes
+
+- fix transfers with free agents ([#640](https://github.com/playliga/prototype/issues/640)) ([9265148](https://github.com/playliga/prototype/commit/9265148dd7277156b98bf9f1171671767f2abba0))
+
 ## [3.2.0](https://github.com/playliga/prototype/compare/v3.1.0...v3.2.0) (2026-08-10)
 
 ### Features
