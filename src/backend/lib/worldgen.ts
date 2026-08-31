@@ -685,7 +685,7 @@ function parsePlayerTransferOffer(
           }),
         ]),
       ),
-    transfer.to.players.length <= Constants.Application.SQUAD_MIN_LENGTH
+    transfer.to && transfer.to.players.length <= Constants.Application.SQUAD_MIN_LENGTH
       ? DatabaseClient.prisma.country
           .findFirst({
             where: {
