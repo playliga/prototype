@@ -1,3 +1,10 @@
+## [3.2.2](https://github.com/playliga/prototype/compare/v3.2.1...v3.2.2) (2026-09-09)
+
+### Bug Fixes
+
+- fix crashing caused by training ([62a5cc7](https://github.com/playliga/prototype/commit/62a5cc74d492114101b6b566c9766032925196a2))
+- fix cs2 integration
+
 ## [3.2.1](https://github.com/playliga/prototype/compare/v3.2.0...v3.2.1) (2026-08-31)
 
 ### Bug Fixes
