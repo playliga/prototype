@@ -1140,7 +1140,11 @@ export async function recordMatchResults() {
           },
           data: {
             players: {
-              update: Bot.Exp.trainAll(winner.team.players, null, profile.date).map((player) => ({
+              update: Bot.Exp.trainAll(
+                winner.team.players.filter((player) => player.id !== profile.playerId),
+                null,
+                profile.date,
+              ).map((player) => ({
                 where: { id: player.id },
                 data: player.xp,
               })),
